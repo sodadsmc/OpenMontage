@@ -40,17 +40,18 @@ class NOAASource:
     provider = "noaa"
     priority = 48
     install_instructions = (
-        "NOAA works without an API key. Scrapes the NOAA multimedia pages. "
-        "Requires beautifulsoup4: pip install beautifulsoup4"
+        "NOAA's search is now JS-rendered and no longer scrapable. "
+        "This source is temporarily disabled until a working API "
+        "endpoint is found. NOAA video can still be sourced via "
+        "Archive.org's NOAA collections."
     )
     supports = {"video": True, "image": True}
 
     def is_available(self) -> bool:
-        try:
-            import bs4  # noqa: F401
-            return True
-        except ImportError:
-            return False
+        # NOAA's website switched to a JS-rendered SPA — the search
+        # endpoint returns empty HTML that can't be scraped. Disabled
+        # until a proper API or server-rendered endpoint is found.
+        return False
 
     def search(self, query: str, filters: SearchFilters) -> list[Candidate]:
         import requests

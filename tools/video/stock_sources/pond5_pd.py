@@ -47,13 +47,17 @@ class Pond5PublicDomainSource:
     provider = "pond5"
     priority = 38
     install_instructions = (
-        "Pond5 Public Domain works without an API key for basic search. "
-        "Set POND5_API_KEY in .env for higher rate limits and full API access."
+        "Pond5's public API now returns 403 (likely behind Cloudflare). "
+        "This source is temporarily disabled. Pond5 public domain footage "
+        "can still be browsed manually at https://www.pond5.com/free"
     )
     supports = {"video": True, "image": True}
 
     def is_available(self) -> bool:
-        return True
+        # Pond5 locked down their API behind Cloudflare — both the
+        # API endpoint and the website return 403 to automated requests.
+        # Disabled until they restore API access or we add browser automation.
+        return False
 
     def search(self, query: str, filters: SearchFilters) -> list[Candidate]:
         import requests

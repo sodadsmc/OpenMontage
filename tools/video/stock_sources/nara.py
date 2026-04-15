@@ -45,14 +45,18 @@ class NARASource:
     provider = "nara"
     priority = 35
     install_instructions = (
-        "NARA works without an API key. "
-        "Set NARA_API_KEY in .env for higher rate limits."
+        "NARA's catalog API now requires an API key. "
+        "Email Catalog_API@nara.gov to request a free key, "
+        "then set NARA_API_KEY in .env."
     )
     supports = {"video": True, "image": True}
 
     def is_available(self) -> bool:
-        # NARA is always available (no key required)
-        return True
+        # NARA's catalog API now requires an API key — the public
+        # endpoint returns HTML (JS SPA) instead of JSON without one.
+        # Request a free key at Catalog_API@nara.gov.
+        import os
+        return bool(os.environ.get("NARA_API_KEY"))
 
     def search(self, query: str, filters: SearchFilters) -> list[Candidate]:
         import requests
