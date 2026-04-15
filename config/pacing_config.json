@@ -1,0 +1,35 @@
+{
+  "establishing": {
+    "pre_roll_seconds": 0.5,
+    "post_roll_seconds": 0.3,
+    "animation": "ken-burns",
+    "clip_count": 1
+  },
+  "escalation": {
+    "pre_roll_seconds": 0.3,
+    "post_roll_seconds": 0.2,
+    "animation": "zoom-in",
+    "speed_factors": [1.0, 0.95, 0.90],
+    "cuts_per_sentence": true
+  },
+  "crisis": {
+    "pre_roll_seconds": 0.1,
+    "post_roll_seconds": 0.1,
+    "animation": "zoom-in",
+    "max_cut_interval_seconds": 3.0,
+    "mid_sentence_cuts": true
+  },
+  "resolution": {
+    "pre_roll_seconds": 0.8,
+    "post_roll_seconds": 0.5,
+    "animation": "static",
+    "clip_count": 1
+  },
+  "speed_ramp_minimum": 0.85,
+  "freeze_drift_max_seconds": 3.0,
+  "l_cut_default_carry_seconds": 1.2,
+  "l_cut_volume": 0.6,
+  "default_clip_volume": 0,
+  "blur_pad_blur_radius": 20,
+  "blur_pad_scale": 1.3
+}

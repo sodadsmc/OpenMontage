@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/gap_fill_report",
+  "title": "Gap Fill Report",
+  "description": "AI gap fill report produced by the Gap Fill Director. Lists clips generated via Runway to fill scenes where real footage fell below the quality threshold.",
+  "type": "object",
+  "required": ["version", "generated_clips"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "generated_clips": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "output_path", "prompt", "cost_usd"],
+        "properties": {
+          "scene_id": { "type": "string", "description": "Scene identifier for the gap-filled scene" },
+          "output_path": { "type": "string", "description": "Path to the generated video clip" },
+          "prompt": { "type": "string", "description": "Generation prompt used for Runway" },
+          "cost_usd": { "type": "number", "minimum": 0, "description": "Cost of this generation in USD" }
+        },
+        "additionalProperties": false
+      },
+      "maxItems": 5
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

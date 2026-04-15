@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/footage_candidates",
+  "title": "Footage Candidates",
+  "description": "Footage candidate list produced by the Footage Search Director. Contains ranked candidate clips per scene from multi-source search.",
+  "type": "object",
+  "required": ["version", "scenes"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "candidates"],
+        "properties": {
+          "scene_id": { "type": "string", "description": "Scene identifier matching the segment plan" },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["clip_id", "source", "path", "score"],
+              "properties": {
+                "clip_id": { "type": "string", "description": "Unique clip identifier from the source provider" },
+                "source": { "type": "string", "description": "Provider name (e.g. archive_org, pexels, csb)" },
+                "path": { "type": "string", "description": "Local path to the downloaded clip" },
+                "score": { "type": "number", "minimum": 0, "maximum": 1, "description": "Preliminary relevance score from search" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

@@ -48,6 +48,38 @@ SUPPLEMENTARY_ARTIFACTS = {
 }
 
 
+def _resolve_canonical_artifact(
+    stage: str,
+    pipeline_type: str | None = None,
+) -> str | None:
+    """Resolve the canonical artifact name for a pipeline stage.
+
+    Checks the hardcoded ``CANONICAL_STAGE_ARTIFACTS`` first (covers all
+    built-in stages).  For stages not in that dict, consults the pipeline
+    manifest's ``produces`` field — the first entry is treated as canonical.
+    Returns ``None`` when neither source declares an artifact, allowing the
+    checkpoint validator to skip the presence check for custom stages that
+    produce no schema-validated artifact.
+    """
+    # Fast path: built-in stages
+    if stage in CANONICAL_STAGE_ARTIFACTS:
+        return CANONICAL_STAGE_ARTIFACTS[stage]
+
+    # Custom stage — resolve from the pipeline manifest
+    if pipeline_type:
+        try:
+            from lib.pipeline_loader import load_pipeline
+            manifest = load_pipeline(pipeline_type)
+            for stage_def in manifest.get("stages", []):
+                if stage_def["name"] == stage:
+                    produces = stage_def.get("produces", [])
+                    return produces[0] if produces else None
+        except (FileNotFoundError, Exception):
+            pass
+
+    return None
+
+
 def get_pipeline_stages(pipeline_type: str | None) -> list[str]:
     """Return the ordered stage list for a specific pipeline.
 
@@ -96,9 +128,14 @@ def _validate_artifacts_for_stage(
     stage: str,
     status: str,
     artifacts: dict[str, Any],
+    pipeline_type: str | None = None,
 ) -> None:
-    required_artifact = CANONICAL_STAGE_ARTIFACTS[stage]
-    if status in {"completed", "awaiting_human"} and required_artifact not in artifacts:
+    required_artifact = _resolve_canonical_artifact(stage, pipeline_type)
+    if (
+        required_artifact
+        and status in {"completed", "awaiting_human"}
+        and required_artifact not in artifacts
+    ):
         raise CheckpointValidationError(
             f"Stage {stage!r} with status {status!r} must include "
             f"canonical artifact {required_artifact!r}"
@@ -145,7 +182,7 @@ def validate_checkpoint(checkpoint: dict[str, Any]) -> None:
     if not isinstance(artifacts, dict):
         raise CheckpointValidationError("Checkpoint artifacts must be a dictionary")
 
-    _validate_artifacts_for_stage(stage, status, artifacts)
+    _validate_artifacts_for_stage(stage, status, artifacts, pipeline_type)
 
     try:
         jsonschema.validate(instance=checkpoint, schema=_load_checkpoint_schema())

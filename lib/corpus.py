@@ -13,8 +13,8 @@ Directory layout
           frame_00.jpg      # 5 evenly-spaced frames per video (or the
           frame_01.jpg      # image itself as frame_00 for still assets)
           ...
-      embeddings.npy        # (N, 512) float32, L2-normalised visual
-      tag_embeddings.npy    # (N, 512) float32, L2-normalised text
+      embeddings.npy        # (N, 1152) float32, L2-normalised visual
+      tag_embeddings.npy    # (N, 1152) float32, L2-normalised text
       index.jsonl           # one row per clip, metadata + provenance
 
 The JSONL + .npy split is intentional: the index is human-readable
@@ -38,7 +38,7 @@ from typing import Any, Iterable, Optional
 import numpy as np
 
 
-EMBED_DIM = 512
+EMBED_DIM = 1152
 
 
 @dataclass
@@ -256,7 +256,7 @@ class Corpus:
         """Return the top-k records scored against an embedded text query.
 
         Args:
-            query_embedding: (512,) L2-normalised text embedding.
+            query_embedding: (1152,) L2-normalised text embedding.
             k: how many results to return.
             tag_weight: blend between visual (1-w) and tag (w) channels.
             motion_min: if set, reject records with motion_score below this.

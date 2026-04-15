@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/scoring_manifest",
+  "title": "Scoring Manifest",
+  "description": "Three-layer scoring manifest produced by the Scoring Director. Contains the selected clip and runner-ups for each scene after metadata, SigLIP, and Gemini evaluation.",
+  "type": "object",
+  "required": ["version", "scenes"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "selected_clip", "runner_ups"],
+        "properties": {
+          "scene_id": { "type": "string", "description": "Scene identifier matching the segment plan" },
+          "selected_clip": {
+            "type": "object",
+            "required": ["clip_id", "source", "score"],
+            "properties": {
+              "clip_id": { "type": "string", "description": "Unique clip identifier" },
+              "source": { "type": "string", "description": "Provider name" },
+              "score": { "type": "number", "minimum": 0, "maximum": 2, "description": "Composite score after source weighting" },
+              "trim_points": {
+                "type": "object",
+                "properties": {
+                  "in_seconds": { "type": "number", "minimum": 0 },
+                  "out_seconds": { "type": "number", "minimum": 0 }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "runner_ups": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["clip_id", "source", "score"],
+              "properties": {
+                "clip_id": { "type": "string" },
+                "source": { "type": "string" },
+                "score": { "type": "number", "minimum": 0, "maximum": 2 }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/music_manifest",
+  "title": "Music Manifest",
+  "description": "Music selection manifest produced by the Music Select Director. Lists the selected music track(s) with mood, duration, and source information.",
+  "type": "object",
+  "required": ["version", "tracks"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["track_path", "mood", "duration_seconds", "source"],
+        "properties": {
+          "track_path": { "type": "string", "description": "Path to the music file" },
+          "mood": { "type": "string", "description": "Mood classification of the track" },
+          "duration_seconds": { "type": "number", "minimum": 0, "description": "Duration of the track in seconds" },
+          "source": {
+            "type": "string",
+            "enum": ["library", "generated", "user_provided"],
+            "description": "How the track was sourced"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

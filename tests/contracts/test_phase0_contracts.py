@@ -22,8 +22,10 @@ from lib.config_model import OpenMontageConfig
 from lib.checkpoint import (
     CheckpointValidationError,
     STAGES,
+    _resolve_canonical_artifact,
     get_next_stage,
     read_checkpoint,
+    validate_checkpoint,
     write_checkpoint,
 )
 from lib.media_profiles import get_profile, ffmpeg_output_args, ALL_PROFILES
@@ -351,6 +353,119 @@ class TestCheckpoint:
         cp = read_checkpoint(tmp_path, "proj", "proposal")
         assert cp is not None
         assert "video_analysis_brief" in cp["artifacts"]
+
+
+class TestCustomStageCheckpoints:
+    """Verify that pipelines with custom stages can checkpoint successfully."""
+
+    CUSTOM_MANIFEST = {
+        "name": "custom-pipeline",
+        "version": "1.0",
+        "stages": [
+            {"name": "segment", "produces": ["segment_output"]},
+            {"name": "voice_gen", "produces": ["voice_manifest"]},
+            {"name": "scoring", "produces": ["scoring_manifest"]},
+            {"name": "assembly"},  # No produces — pure processing stage
+            {"name": "compose", "produces": ["render_report"]},
+        ],
+    }
+
+    @pytest.fixture(autouse=True)
+    def _patch_pipeline_loader(self, tmp_path, monkeypatch):
+        """Write a custom manifest to a temp dir and point the loader there."""
+        import yaml
+        import lib.pipeline_loader as pl
+
+        manifest_path = tmp_path / "pipeline_defs" / "custom-pipeline.yaml"
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        manifest_path.write_text(yaml.dump(self.CUSTOM_MANIFEST))
+        monkeypatch.setattr(pl, "PIPELINE_DEFS_DIR", manifest_path.parent)
+
+    def test_resolve_builtin_stage(self):
+        """Built-in stages still resolve from the hardcoded dict."""
+        assert _resolve_canonical_artifact("research") == "research_brief"
+        assert _resolve_canonical_artifact("compose") == "render_report"
+
+    def test_resolve_custom_stage_from_manifest(self):
+        """Custom stages resolve from the manifest's produces field."""
+        assert _resolve_canonical_artifact("segment", "custom-pipeline") == "segment_output"
+        assert _resolve_canonical_artifact("scoring", "custom-pipeline") == "scoring_manifest"
+
+    def test_resolve_custom_stage_no_produces(self):
+        """Custom stage with no produces field returns None."""
+        assert _resolve_canonical_artifact("assembly", "custom-pipeline") is None
+
+    def test_resolve_unknown_stage_no_pipeline(self):
+        """Unknown stage without pipeline_type returns None."""
+        assert _resolve_canonical_artifact("totally_unknown") is None
+
+    def test_builtin_stage_takes_precedence(self):
+        """Built-in mapping wins even when the manifest also defines compose."""
+        # compose exists in both CANONICAL_STAGE_ARTIFACTS and the manifest
+        assert _resolve_canonical_artifact("compose", "custom-pipeline") == "render_report"
+
+    def test_write_checkpoint_custom_stage(self, tmp_path):
+        """write_checkpoint succeeds for a custom stage with its artifact."""
+        path = write_checkpoint(
+            tmp_path, "proj", "segment", "completed",
+            {"segment_output": {"data": "test"}},
+            pipeline_type="custom-pipeline",
+        )
+        assert path.exists()
+        cp = json.loads(path.read_text())
+        assert cp["stage"] == "segment"
+        assert cp["status"] == "completed"
+
+    def test_write_checkpoint_custom_stage_missing_artifact_rejected(self, tmp_path):
+        """Completed checkpoint for custom stage missing its artifact is rejected."""
+        with pytest.raises(CheckpointValidationError, match="segment_output"):
+            write_checkpoint(
+                tmp_path, "proj", "segment", "completed",
+                {},  # Missing segment_output
+                pipeline_type="custom-pipeline",
+            )
+
+    def test_write_checkpoint_custom_stage_no_produces(self, tmp_path):
+        """Custom stage with no produces can checkpoint without artifacts."""
+        path = write_checkpoint(
+            tmp_path, "proj", "assembly", "completed",
+            {},
+            pipeline_type="custom-pipeline",
+        )
+        assert path.exists()
+
+    def test_validate_checkpoint_custom_stage(self):
+        """validate_checkpoint accepts custom stages when pipeline_type is set."""
+        cp = {
+            "version": "1.0",
+            "project_id": "proj",
+            "pipeline_type": "custom-pipeline",
+            "stage": "scoring",
+            "status": "completed",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "artifacts": {"scoring_manifest": {"scores": [1, 2, 3]}},
+        }
+        # Should not raise
+        validate_checkpoint(cp)
+
+    def test_unknown_stage_rejected_even_with_pipeline_type(self, tmp_path):
+        """Stages not in the manifest are still rejected."""
+        with pytest.raises(ValueError, match="nonexistent"):
+            write_checkpoint(
+                tmp_path, "proj", "nonexistent", "completed",
+                {},
+                pipeline_type="custom-pipeline",
+            )
+
+    def test_get_next_stage_custom_pipeline(self, tmp_path):
+        """get_next_stage follows the manifest's stage order."""
+        assert get_next_stage(tmp_path, "proj", "custom-pipeline") == "segment"
+        write_checkpoint(
+            tmp_path, "proj", "segment", "completed",
+            {"segment_output": {"data": "test"}},
+            pipeline_type="custom-pipeline",
+        )
+        assert get_next_stage(tmp_path, "proj", "custom-pipeline") == "voice_gen"
 
 
 # ---- Pipeline manifests ----

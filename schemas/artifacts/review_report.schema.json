@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/review_report",
+  "title": "Review Report",
+  "description": "Human review report produced by the Review Director. Records approval status, flagged scenes, and revision notes.",
+  "type": "object",
+  "required": ["version", "status", "flagged_scenes", "notes"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "status": {
+      "type": "string",
+      "enum": ["approved", "revision_needed"],
+      "description": "Review outcome"
+    },
+    "flagged_scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "reason"],
+        "properties": {
+          "scene_id": { "type": "string", "description": "Scene identifier of the flagged scene" },
+          "reason": { "type": "string", "description": "Why this scene was flagged" },
+          "timestamp": { "type": "string", "description": "Timestamp range in the rendered video (e.g. 1:23-1:38)" },
+          "action": { "type": "string", "description": "Suggested remediation action" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "notes": { "type": "string", "description": "Free-form review notes from the human reviewer" },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

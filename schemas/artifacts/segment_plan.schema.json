@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/segment_plan",
+  "title": "Segment Plan",
+  "description": "Script segmentation plan produced by the Segment Director. Splits narration into ordered scenes with search queries, visual descriptions, pacing types, and mood tags.",
+  "type": "object",
+  "required": ["version", "scenes"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "narration", "duration_seconds", "pacing", "search_queries", "visual_description", "mood"],
+        "properties": {
+          "scene_id": { "type": "string", "description": "Unique scene identifier (e.g. scene_01)" },
+          "narration": { "type": "string", "description": "Full narration text for this scene" },
+          "duration_seconds": { "type": "number", "minimum": 1, "description": "Target duration based on narration word count" },
+          "pacing": {
+            "type": "string",
+            "enum": ["establishing", "escalation", "crisis", "resolution"],
+            "description": "Pacing type that drives cut timing and hold duration"
+          },
+          "search_queries": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "description": "Tiered search queries ordered from most specific to most general"
+          },
+          "visual_description": { "type": "string", "minLength": 20, "description": "Rich prose description of the ideal footage for this scene" },
+          "mood": {
+            "type": "string",
+            "description": "Emotional mood tag for music and tone matching"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

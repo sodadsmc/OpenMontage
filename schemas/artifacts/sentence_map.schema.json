@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/sentence_map",
+  "title": "Sentence Map",
+  "description": "Sentence boundary map produced by the Audio Analysis Director. Provides word-level timing for each sentence in the voice-over, enabling pacing-aware assembly.",
+  "type": "object",
+  "required": ["version", "scenes"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "sentences"],
+        "properties": {
+          "scene_id": { "type": "string", "description": "Scene identifier matching the segment plan" },
+          "sentences": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["text", "start_seconds", "end_seconds"],
+              "properties": {
+                "text": { "type": "string", "description": "Sentence text from the narration" },
+                "start_seconds": { "type": "number", "minimum": 0, "description": "Start timestamp in seconds" },
+                "end_seconds": { "type": "number", "minimum": 0, "description": "End timestamp in seconds" }
+              },
+              "additionalProperties": false
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

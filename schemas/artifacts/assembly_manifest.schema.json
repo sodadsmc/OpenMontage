@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/assembly_manifest",
+  "title": "Assembly Manifest",
+  "description": "Pacing-aware assembly manifest produced by the Assembly Director. Defines the complete timeline with cut points, volumes, animations, and framing for every clip.",
+  "type": "object",
+  "required": ["version", "cuts"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "cuts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cut_id", "scene_id", "source", "in_seconds", "out_seconds", "volume", "animation", "framing"],
+        "properties": {
+          "cut_id": { "type": "string", "description": "Unique cut identifier in timeline order" },
+          "scene_id": { "type": "string", "description": "Scene identifier from the segment plan" },
+          "source": { "type": "string", "description": "Path to the source footage file" },
+          "in_seconds": { "type": "number", "minimum": 0, "description": "Start point within the source clip" },
+          "out_seconds": { "type": "number", "minimum": 0, "description": "End point within the source clip" },
+          "volume": { "type": "number", "minimum": 0, "maximum": 1, "description": "Source audio volume (0 = muted)" },
+          "animation": { "type": "string", "description": "Ken Burns or motion animation type (e.g. slow_zoom_out, pan_left, static)" },
+          "framing": { "type": "string", "description": "Aspect ratio handling (e.g. native, letterbox, center_crop, pillar_box)" }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

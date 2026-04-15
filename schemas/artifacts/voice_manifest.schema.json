@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/voice_manifest",
+  "title": "Voice Manifest",
+  "description": "Voice-over generation manifest produced by the Voice Gen Director. Maps each scene to its generated audio file and measured duration.",
+  "type": "object",
+  "required": ["version", "segments"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "audio_path", "duration_seconds"],
+        "properties": {
+          "scene_id": { "type": "string", "description": "Scene identifier matching the segment plan" },
+          "audio_path": { "type": "string", "description": "Relative path to the generated audio file" },
+          "duration_seconds": { "type": "number", "minimum": 0, "description": "Measured duration of the audio file in seconds" }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}
