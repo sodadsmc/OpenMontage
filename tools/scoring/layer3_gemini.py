@@ -267,7 +267,7 @@ Rank 1 is the best clip. Include ALL candidates in the output.
 
         # ---- Call Gemini Pro ------------------------------------------------
         try:
-            model = genai.GenerativeModel("gemini-2.0-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             content_parts = uploaded_files + [prompt]
             response = model.generate_content(
                 content_parts,
@@ -293,11 +293,17 @@ Rank 1 is the best clip. Include ALL candidates in the output.
         try:
             response_text = response.text.strip()
             # Strip markdown fences if Gemini wraps the JSON
-            if response_text.startswith("```"):
-                lines = response_text.split("\n")
-                # Remove first and last fence lines
-                lines = [l for l in lines if not l.strip().startswith("```")]
-                response_text = "\n".join(lines).strip()
+            if "```" in response_text:
+                import re
+                # Extract content between ```json ... ``` or ``` ... ```
+                match = re.search(r"```(?:json)?\s*\n(.*?)```", response_text, re.DOTALL)
+                if match:
+                    response_text = match.group(1).strip()
+                else:
+                    # Fallback: strip all fence lines
+                    lines = response_text.split("\n")
+                    lines = [l for l in lines if not l.strip().startswith("```")]
+                    response_text = "\n".join(lines).strip()
 
             result_data = json.loads(response_text)
             ranked = result_data.get("ranked", [])
@@ -324,9 +330,9 @@ Rank 1 is the best clip. Include ALL candidates in the output.
                 "ranked": ranked,
                 "best_clip_id": best_clip_id,
                 "candidates_reviewed": len(candidates),
-                "model": "gemini-2.0-flash",
+                "model": "gemini-2.5-flash",
             },
             duration_seconds=elapsed,
             cost_usd=self.estimate_cost(inputs),
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
         )

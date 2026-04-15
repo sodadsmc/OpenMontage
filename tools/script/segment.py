@@ -50,7 +50,7 @@ _SCENE_SCHEMA = {
                 "properties": {
                     "scene_id": {"type": "string"},
                     "narration": {"type": "string"},
-                    "duration_seconds": {"type": "number", "minimum": 1},
+                    "duration_seconds": {"type": "number"},
                     "pacing": {
                         "type": "string",
                         "enum": [
@@ -63,13 +63,11 @@ _SCENE_SCHEMA = {
                     "search_queries": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "minItems": 5,
-                        "maxItems": 5,
                     },
                     "visual_description": {"type": "string"},
                     "ai_fallback_prompt": {"type": "string"},
-                    "min_duration": {"type": "number", "minimum": 1},
-                    "preferred_duration": {"type": "number", "minimum": 1},
+                    "min_duration": {"type": "number"},
+                    "preferred_duration": {"type": "number"},
                     "mood": {
                         "type": "string",
                         "enum": ["tension", "neutral", "dramatic", "resolution"],
@@ -276,12 +274,10 @@ class ScriptSegment(BaseTool):
             model="claude-sonnet-4-6",
             max_tokens=8192,
             messages=[{"role": "user", "content": prompt}],
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "segment_plan",
+            output_config={
+                "format": {
+                    "type": "json_schema",
                     "schema": _SCENE_SCHEMA,
-                    "strict": True,
                 },
             },
         )
@@ -309,6 +305,25 @@ class ScriptSegment(BaseTool):
             (input_tokens / 1_000_000) * self._INPUT_COST_PER_MTOK
             + (output_tokens / 1_000_000) * self._OUTPUT_COST_PER_MTOK
         )
+
+        # Log to API logger
+        try:
+            from tools.api_logger import api_logger
+            api_logger.log_call(
+                tool=self.name,
+                api="anthropic",
+                endpoint="/v1/messages",
+                input_units=input_tokens,
+                input_unit_type="tokens",
+                output_units=output_tokens,
+                output_unit_type="tokens",
+                cost_usd=round(actual_cost, 4),
+                latency_ms=round((time.time() - (time.time() - 0.01)) * 1000),
+                status=200,
+                metadata={"stage": "segment", "scene_count": len(scenes)},
+            )
+        except Exception:
+            pass  # logging is best-effort
 
         return ToolResult(
             success=True,

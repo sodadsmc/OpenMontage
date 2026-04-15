@@ -85,6 +85,11 @@ def embed_images(image_paths: Sequence[Union[str, Path]]) -> np.ndarray:
     inputs = _PROCESSOR(images=images, return_tensors="pt").to(_DEVICE)
     with torch.no_grad():
         features = _MODEL.get_image_features(pixel_values=inputs["pixel_values"])
+    # SigLIP 2 may return a dataclass; extract the tensor if so
+    if hasattr(features, "pooler_output"):
+        features = features.pooler_output
+    elif not isinstance(features, torch.Tensor):
+        features = features[0]
     features = features / features.norm(dim=-1, keepdim=True).clamp_min(1e-8)
     arr = features.cpu().numpy().astype(np.float32, copy=False)
     # Close PIL handles to avoid leaking file handles on Windows
@@ -118,6 +123,11 @@ def embed_texts(texts: Sequence[str]) -> np.ndarray:
     ).to(_DEVICE)
     with torch.no_grad():
         features = _MODEL.get_text_features(input_ids=inputs["input_ids"])
+    # SigLIP 2 may return a dataclass; extract the tensor if so
+    if hasattr(features, "pooler_output"):
+        features = features.pooler_output
+    elif not isinstance(features, torch.Tensor):
+        features = features[0]
     features = features / features.norm(dim=-1, keepdim=True).clamp_min(1e-8)
     return features.cpu().numpy().astype(np.float32, copy=False)
 
