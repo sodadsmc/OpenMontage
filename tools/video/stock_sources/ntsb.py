@@ -82,10 +82,12 @@ class NTSBSource:
             _log.warning("yt-dlp not found on PATH; NTSB search unavailable")
             return []
 
-        # Search YouTube broadly for transportation/aviation investigation
-        # footage. The NTSB channel itself is narrow — let YouTube's
-        # relevance ranking surface the best content across all channels.
-        search_query = f"ytsearch20:{query} investigation accident analysis"
+        # Search within the NTSBgov channel only — all content is public
+        # domain (US government work). Never search all of YouTube.
+        channel_search_url = (
+            f"https://www.youtube.com/{_CHANNEL}/search?query="
+            + query.replace(" ", "+")
+        )
 
         try:
             result = subprocess.run(
@@ -94,7 +96,8 @@ class NTSBSource:
                     "--flat-playlist",
                     "--dump-json",
                     "--no-warnings",
-                    search_query,
+                    "--playlist-items", "1-20",
+                    channel_search_url,
                 ],
                 capture_output=True,
                 text=True,

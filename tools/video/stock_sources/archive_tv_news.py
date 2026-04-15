@@ -58,10 +58,18 @@ class ArchiveTVNewsSource:
     )
     supports = {"video": True, "image": False}
 
+    # LICENSING WARNING: TV News Archive clips are available for
+    # research and educational use only. They are NOT cleared for
+    # commercial use or YouTube monetization. This source is disabled
+    # by default — set ARCHIVE_TV_NEWS_ENABLED=true in .env to opt in
+    # for research/reference purposes only.
+    _COMMERCIAL_USE = False
+
     def is_available(self) -> bool:
-        # No API key, no binary dependency. Always available as long as
-        # the network is reachable.
-        return True
+        import os
+        # Disabled by default due to licensing restrictions.
+        # Set ARCHIVE_TV_NEWS_ENABLED=true to enable for research use.
+        return os.environ.get("ARCHIVE_TV_NEWS_ENABLED", "").lower() == "true"
 
     # ------------------------------------------------------------------
     # Public protocol

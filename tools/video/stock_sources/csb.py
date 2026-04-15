@@ -83,10 +83,13 @@ class CSBSource:
             _log.warning("yt-dlp not found on PATH; CSB search unavailable")
             return []
 
-        # Search YouTube broadly — the CSB channel is narrow (chemical
-        # safety only), so we search all of YouTube for investigation/
-        # disaster footage and let the scoring pipeline judge relevance.
-        search_query = f"ytsearch20:{query} investigation disaster documentary"
+        # Search within the USCSB channel only — all content is public
+        # domain (US government work). Never search all of YouTube, which
+        # would return copyrighted third-party content.
+        channel_search_url = (
+            f"https://www.youtube.com/{_CHANNEL}/search?query="
+            + query.replace(" ", "+")
+        )
 
         try:
             result = subprocess.run(
@@ -95,7 +98,8 @@ class CSBSource:
                     "--flat-playlist",
                     "--dump-json",
                     "--no-warnings",
-                    search_query,
+                    "--playlist-items", "1-20",
+                    channel_search_url,
                 ],
                 capture_output=True,
                 text=True,

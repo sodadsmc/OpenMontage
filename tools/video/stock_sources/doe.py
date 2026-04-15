@@ -91,10 +91,12 @@ class DOESource:
         per_channel = 10  # results per channel to keep total reasonable
 
         for channel in _CHANNELS:
-            # Search YouTube broadly for nuclear/energy footage.
-            # The site: filter doesn't work reliably with yt-dlp's
-            # ytsearch extractor, so we add topic keywords instead.
-            search_query = f"ytsearch{per_channel}:{query} nuclear energy documentary"
+            # Search within the DOE channel only — all content is public
+            # domain (US government work). Never search all of YouTube.
+            channel_search_url = (
+                f"https://www.youtube.com/{channel}/search?query="
+                + query.replace(" ", "+")
+            )
 
             try:
                 result = subprocess.run(
@@ -103,7 +105,8 @@ class DOESource:
                         "--flat-playlist",
                         "--dump-json",
                         "--no-warnings",
-                        search_query,
+                        "--playlist-items", f"1-{per_channel}",
+                        channel_search_url,
                     ],
                     capture_output=True,
                     text=True,
