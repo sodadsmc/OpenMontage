@@ -3,3 +3,5 @@
 torch>=2.0
 torchaudio>=2.0
 torchvision>=0.15
+transformers>=4.45           # SigLIP 2 model loading (lazy-loaded in clip_embedder.py)
+sentence-transformers>=3.0   # Layer 1 metadata text matching (all-MiniLM-L6-v2)

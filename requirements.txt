@@ -5,3 +5,10 @@ jsonschema>=4.20
 python-dotenv>=1.0
 Pillow>=10.0
 requests>=2.31
+
+# --- Narrated-documentary pipeline additions ---
+google-generativeai>=0.8.0   # Layer 3 Gemini video review
+opencv-python-headless>=4.9  # Optical flow motion analysis
+faiss-cpu>=1.8               # FAISS indexing in footage DB
+pydub>=0.25                  # Sentence boundary detection from TTS audio
+anthropic>=0.92              # Script segmentation via Claude API
