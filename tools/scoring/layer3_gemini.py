@@ -157,13 +157,13 @@ Return ONLY valid JSON — no markdown fences, no commentary outside the JSON.
       "technical_quality_score": 0.0,
       "usability_score": 0.0,
       "composite_score": 0.0,
-      "reasoning": "Brief explanation of ranking."
+      "reasoning": "One sentence max."
     }}
   ]
 }}
 
 Composite score = 0.35 * relevance + 0.25 * tonal_fit + 0.25 * technical_quality + 0.15 * usability.
-Rank 1 is the best clip. Include ALL candidates in the output.
+Rank 1 is the best clip. Include ALL candidates. Keep reasoning to ONE SHORT SENTENCE per clip.
 """
 
     def estimate_cost(self, inputs: dict[str, Any]) -> float:
@@ -267,15 +267,16 @@ Rank 1 is the best clip. Include ALL candidates in the output.
 
         # ---- Call Gemini Pro ------------------------------------------------
         try:
-            model = genai.GenerativeModel("gemini-2.5-flash")
-            content_parts = uploaded_files + [prompt]
-            response = model.generate_content(
-                content_parts,
+            model = genai.GenerativeModel(
+                "gemini-2.5-flash",
                 generation_config=genai.types.GenerationConfig(
                     temperature=0.2,
-                    max_output_tokens=2048,
+                    max_output_tokens=8192,
+                    response_mime_type="application/json",
                 ),
             )
+            content_parts = uploaded_files + [prompt]
+            response = model.generate_content(content_parts)
         except Exception as exc:
             return ToolResult(
                 success=False,
