@@ -312,8 +312,10 @@ class DirectClipSearch(BaseTool):
                 )
 
                 for src in sources:
-                    if collected_for_query >= clips_per_query:
-                        break
+                    # Per-source cap: each source contributes up to
+                    # clips_per_query clips, ensuring high-priority sources
+                    # (CSB, DOE, NTSB) aren't starved by fast generic ones.
+                    collected_from_source = 0
 
                     try:
                         candidates = src.search(query, filters)
@@ -327,7 +329,7 @@ class DirectClipSearch(BaseTool):
                         continue
 
                     for cand in candidates:
-                        if collected_for_query >= clips_per_query:
+                        if collected_from_source >= clips_per_query:
                             break
 
                         clip_id = cand.clip_id
@@ -358,6 +360,7 @@ class DirectClipSearch(BaseTool):
                                 "skipped_existing": True,
                             })
                             collected_for_query += 1
+                            collected_from_source += 1
                             continue
 
                         # Download
@@ -399,6 +402,7 @@ class DirectClipSearch(BaseTool):
 
                         per_source_counts[src.name] = per_source_counts.get(src.name, 0) + 1
                         collected_for_query += 1
+                        collected_from_source += 1
 
                         downloaded.append({
                             "clip_id": clip_id,
