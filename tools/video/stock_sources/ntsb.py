@@ -52,7 +52,8 @@ class NTSBSource:
     name = "ntsb"
     display_name = "National Transportation Safety Board"
     provider = "ntsb"
-    priority = 15
+    priority = 60  # Low priority in live search — returns full docs, not clips.
+                   # Best used via corpus pre-build (VideoAnalyzer → VideoTrimmer).
     install_instructions = (
         "Requires yt-dlp on PATH. Install with: pip install yt-dlp"
     )
@@ -81,7 +82,10 @@ class NTSBSource:
             _log.warning("yt-dlp not found on PATH; NTSB search unavailable")
             return []
 
-        search_query = f"ytsearch20:{query} site:youtube.com/{_CHANNEL}"
+        # Search YouTube broadly for transportation/aviation investigation
+        # footage. The NTSB channel itself is narrow — let YouTube's
+        # relevance ranking surface the best content across all channels.
+        search_query = f"ytsearch20:{query} investigation accident analysis"
 
         try:
             result = subprocess.run(

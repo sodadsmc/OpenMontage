@@ -57,7 +57,8 @@ class DOESource:
     name = "doe"
     display_name = "U.S. Department of Energy"
     provider = "doe"
-    priority = 12
+    priority = 60  # Low priority in live search — returns full docs, not clips.
+                   # Best used via corpus pre-build (VideoAnalyzer → VideoTrimmer).
     install_instructions = (
         "Requires yt-dlp on PATH. Install with: pip install yt-dlp"
     )
@@ -90,7 +91,10 @@ class DOESource:
         per_channel = 10  # results per channel to keep total reasonable
 
         for channel in _CHANNELS:
-            search_query = f"ytsearch{per_channel}:{query} site:youtube.com/{channel}"
+            # Search YouTube broadly for nuclear/energy footage.
+            # The site: filter doesn't work reliably with yt-dlp's
+            # ytsearch extractor, so we add topic keywords instead.
+            search_query = f"ytsearch{per_channel}:{query} nuclear energy documentary"
 
             try:
                 result = subprocess.run(

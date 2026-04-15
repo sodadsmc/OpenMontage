@@ -1,30 +1,31 @@
-"""U.S. Chemical Safety Board (CSB) stock source adapter.
+"""U.S. Chemical Safety Board (CSB) and disaster investigation YouTube adapter.
 
-Wraps CSB's YouTube channel (``@USCSB``) behind the `StockSource`
-protocol using ``yt-dlp`` as the search and download backend. The CSB
-publishes investigation videos covering major chemical incidents,
-explosions, and industrial safety failures — all public domain as
-U.S. federal government works.
+Searches YouTube for investigation documentaries, animated
+reconstructions, and safety analysis videos via ``yt-dlp``. Returns
+full-length videos that are best processed through the disaster corpus
+pre-build pipeline (VideoAnalyzer → VideoTrimmer → CorpusBuilder) to
+extract individual clips, rather than used directly in
+``direct_clip_search`` (which expects short stock clips).
 
-The channel has 200+ videos including landmark investigations:
-Deepwater Horizon (BP), Texas City Refinery (BP), West Fertilizer
-(ammonium nitrate), Bhopal anniversary retrospectives, and dozens of
-refinery/chemical plant incident reconstructions with 3D animation.
+The adapter appends ``investigation disaster documentary`` to every
+query to bias results toward investigation-quality content. Results
+include both official government channels (USCSB, NRC, etc.) and
+high-quality third-party documentaries (Kyle Hill, Fascinating Horror,
+etc.) — the scoring pipeline handles quality filtering.
 
-Requires ``yt-dlp`` binary on PATH. No API key needed — YouTube
-public search is accessed through yt-dlp's ``ytsearch`` extractor.
+Requires ``yt-dlp`` binary on PATH. No API key needed.
 
-What CSB is good for
---------------------
-- industrial explosion footage and animated reconstructions,
-- chemical plant and refinery incident investigations,
-- safety-board hearing footage,
-- root-cause analysis narration overlays,
-- any "technology failure" or "industrial disaster" documentary montage.
+What this adapter is good for
+-----------------------------
+- sourcing full investigation documentaries for corpus pre-build,
+- finding animated reconstructions of industrial accidents,
+- discovering disaster analysis content across YouTube,
+- any topic where YouTube has deep documentary coverage.
 
-What it is *not* good for: transportation incidents (see NTSB),
-space/aerospace footage (see NASA), or general-purpose B-roll. CSB
-content is narrowly scoped to chemical safety investigations.
+What it is *not* good for: short stock clips (use Pexels/Pixabay),
+real-time news footage (use archive_tv_news), or government archive
+footage (use NARA/LOC). Results from this adapter are long-form and
+need segmentation before use in a timeline.
 """
 from __future__ import annotations
 
@@ -52,7 +53,8 @@ class CSBSource:
     name = "csb"
     display_name = "U.S. Chemical Safety Board"
     provider = "csb"
-    priority = 10
+    priority = 60  # Low priority in live search — these return full docs, not clips.
+                   # Best used via corpus pre-build (VideoAnalyzer → VideoTrimmer).
     install_instructions = (
         "Requires yt-dlp on PATH. Install with: pip install yt-dlp"
     )
@@ -81,7 +83,10 @@ class CSBSource:
             _log.warning("yt-dlp not found on PATH; CSB search unavailable")
             return []
 
-        search_query = f"ytsearch20:{query} site:youtube.com/{_CHANNEL}"
+        # Search YouTube broadly — the CSB channel is narrow (chemical
+        # safety only), so we search all of YouTube for investigation/
+        # disaster footage and let the scoring pipeline judge relevance.
+        search_query = f"ytsearch20:{query} investigation disaster documentary"
 
         try:
             result = subprocess.run(

@@ -290,7 +290,10 @@ class DirectClipSearch(BaseTool):
                     error="No stock sources available. " + self.install_instructions,
                 )
 
-            # --- Search and download ---
+            # --- Phase 1: Search all sources (metadata only, no downloads) ---
+            # Collect candidates from every source before downloading
+            # anything. This ensures high-priority sources (CSB, DOE) are
+            # never starved by fast generic ones (Pexels, Pixabay).
             downloaded: list[dict] = []
             errors: list[dict] = []
             skipped = 0
@@ -300,23 +303,19 @@ class DirectClipSearch(BaseTool):
                 query = q_spec["query"]
                 slot_id = q_spec.get("slot_id", "")
                 kind = q_spec.get("kind", "video")
-                collected_for_query = 0
 
                 filters = SearchFilters(
                     kind=kind,
-                    per_page=max(clips_per_query * 2, 10),  # fetch extra for filtering
+                    per_page=max(clips_per_query * 2, 10),
                     min_duration=filters_in.get("min_duration"),
                     max_duration=filters_in.get("max_duration"),
                     orientation=filters_in.get("orientation"),
                     min_width=filters_in.get("min_width"),
                 )
 
+                # Gather candidates from ALL sources for this query
+                all_candidates: list[tuple[Any, Any]] = []  # (source, candidate)
                 for src in sources:
-                    # Per-source cap: each source contributes up to
-                    # clips_per_query clips, ensuring high-priority sources
-                    # (CSB, DOE, NTSB) aren't starved by fast generic ones.
-                    collected_from_source = 0
-
                     try:
                         candidates = src.search(query, filters)
                     except Exception as e:
@@ -327,83 +326,32 @@ class DirectClipSearch(BaseTool):
                             "error": f"{type(e).__name__}: {e}",
                         })
                         continue
+                    # Keep up to clips_per_query candidates per source
+                    for cand in candidates[:clips_per_query]:
+                        all_candidates.append((src, cand))
 
-                    for cand in candidates:
-                        if collected_from_source >= clips_per_query:
-                            break
+                # --- Phase 2: Dedupe, then download best clips_per_query ---
+                # Candidates are already in source-priority order (sources
+                # list is sorted by priority). Download until we have enough.
+                seen_ids: set[str] = set()
+                collected_for_query = 0
 
-                        clip_id = cand.clip_id
-                        ext = _guess_ext(cand)
-                        clip_path = clips_dir / f"{clip_id}{ext}"
+                for src, cand in all_candidates:
+                    if collected_for_query >= clips_per_query:
+                        break
 
-                        # Skip if already downloaded
-                        if skip_existing and clip_path.exists() and clip_path.stat().st_size > 1024:
-                            skipped += 1
-                            # Still record it in results so the agent knows it's there
-                            thumb_path = thumbs_dir / f"{clip_id}.jpg"
-                            downloaded.append({
-                                "clip_id": clip_id,
-                                "source": cand.source,
-                                "source_id": cand.source_id,
-                                "source_url": cand.source_url,
-                                "query": query,
-                                "slot_id": slot_id,
-                                "kind": cand.kind,
-                                "path": str(clip_path),
-                                "thumbnail": str(thumb_path) if thumb_path.exists() else "",
-                                "duration": cand.duration,
-                                "width": cand.width,
-                                "height": cand.height,
-                                "creator": cand.creator,
-                                "license": cand.license,
-                                "source_tags": cand.source_tags,
-                                "skipped_existing": True,
-                            })
-                            collected_for_query += 1
-                            collected_from_source += 1
-                            continue
+                    clip_id = cand.clip_id
+                    if clip_id in seen_ids:
+                        continue
+                    seen_ids.add(clip_id)
 
-                        # Download
-                        try:
-                            src.download(cand, clip_path)
-                        except Exception as e:
-                            errors.append({
-                                "phase": "download",
-                                "clip_id": clip_id,
-                                "source": src.name,
-                                "error": f"{type(e).__name__}: {e}",
-                            })
-                            continue
+                    ext = _guess_ext(cand)
+                    clip_path = clips_dir / f"{clip_id}{ext}"
 
-                        if not clip_path.exists() or clip_path.stat().st_size < 1024:
-                            errors.append({
-                                "phase": "download",
-                                "clip_id": clip_id,
-                                "source": src.name,
-                                "error": "Download produced empty or tiny file",
-                            })
-                            try:
-                                if clip_path.exists():
-                                    clip_path.unlink()
-                            except OSError:
-                                pass
-                            continue
-
-                        # Extract thumbnail
-                        thumb_path_str = ""
-                        if extract_thumbs and cand.kind == "video":
-                            thumb_path = thumbs_dir / f"{clip_id}.jpg"
-                            try:
-                                _extract_mid_thumbnail(clip_path, thumb_path)
-                                if thumb_path.exists():
-                                    thumb_path_str = str(thumb_path)
-                            except Exception:
-                                pass  # thumbnail failure is non-fatal
-
-                        per_source_counts[src.name] = per_source_counts.get(src.name, 0) + 1
-                        collected_for_query += 1
-                        collected_from_source += 1
-
+                    # Skip if already downloaded
+                    if skip_existing and clip_path.exists() and clip_path.stat().st_size > 1024:
+                        skipped += 1
+                        thumb_path = thumbs_dir / f"{clip_id}.jpg"
                         downloaded.append({
                             "clip_id": clip_id,
                             "source": cand.source,
@@ -413,15 +361,76 @@ class DirectClipSearch(BaseTool):
                             "slot_id": slot_id,
                             "kind": cand.kind,
                             "path": str(clip_path),
-                            "thumbnail": thumb_path_str,
+                            "thumbnail": str(thumb_path) if thumb_path.exists() else "",
                             "duration": cand.duration,
                             "width": cand.width,
                             "height": cand.height,
                             "creator": cand.creator,
                             "license": cand.license,
                             "source_tags": cand.source_tags,
-                            "skipped_existing": False,
+                            "skipped_existing": True,
                         })
+                        collected_for_query += 1
+                        continue
+
+                    # Download
+                    try:
+                        src.download(cand, clip_path)
+                    except Exception as e:
+                        errors.append({
+                            "phase": "download",
+                            "clip_id": clip_id,
+                            "source": src.name,
+                            "error": f"{type(e).__name__}: {e}",
+                        })
+                        continue
+
+                    if not clip_path.exists() or clip_path.stat().st_size < 1024:
+                        errors.append({
+                            "phase": "download",
+                            "clip_id": clip_id,
+                            "source": src.name,
+                            "error": "Download produced empty or tiny file",
+                        })
+                        try:
+                            if clip_path.exists():
+                                clip_path.unlink()
+                        except OSError:
+                            pass
+                        continue
+
+                    # Extract thumbnail
+                    thumb_path_str = ""
+                    if extract_thumbs and cand.kind == "video":
+                        thumb_path = thumbs_dir / f"{clip_id}.jpg"
+                        try:
+                            _extract_mid_thumbnail(clip_path, thumb_path)
+                            if thumb_path.exists():
+                                thumb_path_str = str(thumb_path)
+                        except Exception:
+                            pass  # thumbnail failure is non-fatal
+
+                    per_source_counts[src.name] = per_source_counts.get(src.name, 0) + 1
+                    collected_for_query += 1
+
+                    downloaded.append({
+                        "clip_id": clip_id,
+                        "source": cand.source,
+                        "source_id": cand.source_id,
+                        "source_url": cand.source_url,
+                        "query": query,
+                        "slot_id": slot_id,
+                        "kind": cand.kind,
+                        "path": str(clip_path),
+                        "thumbnail": thumb_path_str,
+                        "duration": cand.duration,
+                        "width": cand.width,
+                        "height": cand.height,
+                        "creator": cand.creator,
+                        "license": cand.license,
+                        "source_tags": cand.source_tags,
+                        "skipped_existing": False,
+                    })
 
             elapsed = time.time() - start
 
