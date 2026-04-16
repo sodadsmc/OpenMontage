@@ -301,7 +301,7 @@ class DirectClipSearch(BaseTool):
 
             for q_spec in queries:
                 query = q_spec["query"]
-                slot_id = q_spec.get("slot_id", "")
+                slot_id = q_spec.get("slot_id", "") or q_spec.get("scene_id", "")
                 kind = q_spec.get("kind", "video")
 
                 filters = SearchFilters(
@@ -313,8 +313,11 @@ class DirectClipSearch(BaseTool):
                     min_width=filters_in.get("min_width"),
                 )
 
-                # Gather candidates from ALL sources for this query
-                all_candidates: list[tuple[Any, Any]] = []  # (source, candidate)
+                # Gather candidates from ALL sources for this query.
+                # Each source contributes up to clips_per_query candidates
+                # to the pool; then we interleave across sources so every
+                # source gets a fair shot at contributing clips.
+                per_source_cands: dict[str, list[tuple[Any, Any]]] = {}
                 for src in sources:
                     try:
                         candidates = src.search(query, filters)
@@ -326,19 +329,33 @@ class DirectClipSearch(BaseTool):
                             "error": f"{type(e).__name__}: {e}",
                         })
                         continue
-                    # Keep up to clips_per_query candidates per source
-                    for cand in candidates[:clips_per_query]:
-                        all_candidates.append((src, cand))
+                    if candidates:
+                        per_source_cands[src.name] = [
+                            (src, c) for c in candidates[:clips_per_query]
+                        ]
 
-                # --- Phase 2: Dedupe, then download best clips_per_query ---
-                # Candidates are already in source-priority order (sources
-                # list is sorted by priority). Download until we have enough.
+                # --- Phase 2: Round-robin interleave across sources ---
+                # Take one candidate from each source in priority order,
+                # then loop back for seconds, etc. This guarantees every
+                # source that returned results gets at least one clip
+                # downloaded before any source gets a second.
+                interleaved: list[tuple[Any, Any]] = []
+                max_depth = max(
+                    (len(v) for v in per_source_cands.values()), default=0
+                )
+                source_order = [
+                    s.name for s in sources if s.name in per_source_cands
+                ]
+                for depth in range(max_depth):
+                    for sname in source_order:
+                        cands = per_source_cands[sname]
+                        if depth < len(cands):
+                            interleaved.append(cands[depth])
+
                 seen_ids: set[str] = set()
                 collected_for_query = 0
 
-                for src, cand in all_candidates:
-                    if collected_for_query >= clips_per_query:
-                        break
+                for src, cand in interleaved:
 
                     clip_id = cand.clip_id
                     if clip_id in seen_ids:
@@ -359,6 +376,7 @@ class DirectClipSearch(BaseTool):
                             "source_url": cand.source_url,
                             "query": query,
                             "slot_id": slot_id,
+                            "scene_id": slot_id,
                             "kind": cand.kind,
                             "path": str(clip_path),
                             "thumbnail": str(thumb_path) if thumb_path.exists() else "",
