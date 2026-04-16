@@ -50,14 +50,7 @@ def _load() -> None:
 
     _DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     _PROCESSOR = AutoProcessor.from_pretrained(_MODEL_ID)
-    # Load in float16 on GPU for ~2× speed and ~50% less VRAM.
-    # RTX 2080 (8GB) needs this — float32 maxes out VRAM and crawls.
-    if _DEVICE == "cuda":
-        _MODEL = AutoModel.from_pretrained(
-            _MODEL_ID, dtype=torch.float16
-        ).to(_DEVICE)
-    else:
-        _MODEL = AutoModel.from_pretrained(_MODEL_ID).to(_DEVICE)
+    _MODEL = AutoModel.from_pretrained(_MODEL_ID).to(_DEVICE)
     _MODEL.eval()
 
 
