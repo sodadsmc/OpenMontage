@@ -37,17 +37,17 @@ class DarefulSource:
     provider = "dareful"
     priority = 50
     install_instructions = (
-        "Dareful works without an API key. Scrapes the Dareful website. "
-        "Requires beautifulsoup4: pip install beautifulsoup4"
+        "Dareful serves HLS streams, not direct MP4 downloads. "
+        "Disabled until ffmpeg-based HLS download is implemented. "
+        "Dareful footage can still be downloaded manually at https://dareful.com"
     )
     supports = {"video": True, "image": False}
 
     def is_available(self) -> bool:
-        try:
-            import bs4  # noqa: F401
-            return True
-        except ImportError:
-            return False
+        # Dareful returns HLS playlist files (.m3u8) instead of MP4s.
+        # The downloaded "clips" are 2KB playlist stubs, not video.
+        # Disabled until HLS→MP4 download via ffmpeg is implemented.
+        return False
 
     def search(self, query: str, filters: SearchFilters) -> list[Candidate]:
         import requests

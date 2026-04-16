@@ -52,10 +52,12 @@ def _extract_frames(video_path: str, output_dir: Path) -> list[Path]:
     ]
     try:
         result = subprocess.run(
-            probe_cmd, capture_output=True, text=True, timeout=30
+            probe_cmd, capture_output=True, text=True, timeout=15
         )
-        duration = float(result.stdout.strip())
-    except (ValueError, subprocess.TimeoutExpired, FileNotFoundError) as exc:
+        raw = result.stdout.strip()
+        # ffprobe may return multiple lines for some containers (ogv, webm)
+        duration = float(raw.splitlines()[0]) if raw else 0
+    except (ValueError, IndexError, subprocess.TimeoutExpired, FileNotFoundError) as exc:
         raise RuntimeError(f"Failed to probe video duration: {exc}") from exc
 
     if duration <= 0:
@@ -79,15 +81,14 @@ def _extract_frames(video_path: str, output_dir: Path) -> list[Path]:
                 extract_cmd,
                 capture_output=True,
                 text=True,
-                timeout=30,
-                check=True,
+                timeout=10,
+                # No check=True — some frames may fail for ogv/webm
+                # seek issues. Partial results are fine.
             )
-        except subprocess.CalledProcessError as exc:
-            raise RuntimeError(
-                f"ffmpeg frame extraction failed at {timestamp:.1f}s: {exc.stderr}"
-            ) from exc
+        except (subprocess.TimeoutExpired, OSError):
+            continue  # skip this frame position
 
-        if out_path.is_file():
+        if out_path.is_file() and out_path.stat().st_size > 100:
             frame_paths.append(out_path)
 
     return frame_paths
