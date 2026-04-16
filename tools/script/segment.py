@@ -105,7 +105,7 @@ For EACH scene, provide:
    - Tier 1 (queries 1-2): Very specific to the exact subject (e.g., "Therac-25 radiation therapy machine 1980s")
    - Tier 2 (queries 3-4): Related but broader (e.g., "hospital radiation treatment room vintage")
    - Tier 3 (query 5): Generic fallback (e.g., "medical equipment dark moody")
-6. **visual_description**: Rich prose description of the ideal visual for SigLIP semantic matching. NOT keywords — write a full sentence describing what the viewer should see. Include lighting, mood, camera angle, subject details.
+6. **visual_description**: A MODERATE description for visual matching. One sentence, 10-20 words, describing the main subject and setting. Do NOT over-specify — avoid era-specific details (like "1980s"), specific colors, exact camera angles, or lighting descriptions. SigLIP scores HIGHER with moderate descriptions like "hospital treatment room with medical radiation equipment" than ultra-specific ones like "dimly lit 1980s hospital with boxy radiation therapy machine and green phosphor monitors." Focus on WHAT is in the frame, not the mood or era.
 7. **ai_fallback_prompt**: A Runway Gen-4.5 ready prompt for AI video generation if no stock footage is found. Include: shot type, subject, action, camera movement. Exclude: text, faces, brand logos.
 8. **min_duration**: Minimum acceptable duration in seconds (narration length + 0.5s buffer).
 9. **preferred_duration**: Ideal duration with breathing room (narration length + 1.5s buffer).

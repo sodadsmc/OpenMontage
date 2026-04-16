@@ -126,9 +126,13 @@ class LayerOneMetadata(BaseTool):
         cpu_cores=1, ram_mb=512, vram_mb=0, disk_mb=200, network_required=False
     )
 
-    # Threshold constants
-    HIGH_THRESHOLD = 0.80
-    MEDIUM_THRESHOLD = 0.45
+    # Threshold constants — calibrated to all-MiniLM-L6-v2 actual output
+    # distribution. Sentence-transformer cosine similarity for tag-to-
+    # description matching typically ranges 0.20–0.60. A genuinely
+    # relevant clip scores ~0.45–0.60. Previous thresholds (0.80/0.45)
+    # marked nearly everything as discard.
+    HIGH_THRESHOLD = 0.50
+    MEDIUM_THRESHOLD = 0.35
 
     def estimate_cost(self, inputs: dict[str, Any]) -> float:
         """Local-only model, no monetary cost."""

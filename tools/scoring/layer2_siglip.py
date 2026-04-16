@@ -166,9 +166,12 @@ class LayerTwoSigLIP(BaseTool):
         cpu_cores=2, ram_mb=2048, vram_mb=0, disk_mb=500, network_required=False
     )
 
-    # Category thresholds
-    STRONG_THRESHOLD = 0.75
-    MODERATE_THRESHOLD = 0.55
+    # Category thresholds — calibrated to SigLIP 2 So400m actual output
+    # distribution. SigLIP cosine similarities for text-to-image typically
+    # range 0.02–0.25; a genuinely well-matched pair scores ~0.15–0.25.
+    # Previous thresholds (0.75/0.55) were unreachable.
+    STRONG_THRESHOLD = 0.15
+    MODERATE_THRESHOLD = 0.10
 
     # Composite score weights
     WEIGHT_MAX = 0.4
