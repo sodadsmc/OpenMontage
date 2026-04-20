@@ -200,6 +200,10 @@ def _page_to_candidate(page: dict[str, Any], filters: SearchFilters) -> Candidat
     mime = (info.get("mime") or "").lower()
     kind = _kind_from_mime(mime, page.get("title", ""))
 
+    # Vector graphics (SVG) can't be rendered by Remotion's <Img> — skip them.
+    if kind == "vector":
+        return None
+
     requested_kind = (filters.kind or "video").lower()
     if requested_kind == "video" and kind != "video":
         return None
@@ -259,6 +263,11 @@ def _page_to_candidate(page: dict[str, Any], filters: SearchFilters) -> Candidat
 def _kind_from_mime(mime: str, title: str) -> str:
     if mime.startswith("video/") or title.lower().endswith((".webm", ".ogv", ".ogg")):
         return "video"
+    # SVG files are vector graphics — Chrome's <Img> can't decode them
+    # as raster images for Remotion rendering.  Mark them separately so
+    # downstream filters can skip or convert them.
+    if "svg" in mime or title.lower().endswith(".svg"):
+        return "vector"
     return "image"
 
 

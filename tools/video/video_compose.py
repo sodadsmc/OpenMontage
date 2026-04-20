@@ -555,6 +555,7 @@ class VideoCompose(BaseTool):
         "explainer-teacher": "Explainer",
         "cinematic-trailer": "CinematicRenderer",
         "documentary-montage": "CinematicRenderer",
+        "narrated-documentary": "CinematicRenderer",
         "product-reveal": "Explainer",
         "screen-demo": "Explainer",
         "presenter": "TalkingHead",
@@ -949,6 +950,287 @@ class VideoCompose(BaseTool):
 
         return render_result
 
+    # ------------------------------------------------------------------
+    # Pacing → CinematicRenderer tone mapping
+    # ------------------------------------------------------------------
+    _PACING_TO_TONE: dict[str, str] = {
+        "establishing": "neutral",
+        "escalation": "cold",
+        "crisis": "void",
+        "tension": "cold",
+        "dramatic": "steel",
+        "resolution": "neutral",
+        "reflective": "neutral",
+        "static": "neutral",
+    }
+
+    _PACING_TO_KEN_BURNS: dict[str, str] = {
+        "establishing": "zoom-out",
+        "escalation": "pan-left",
+        "crisis": "zoom-in",
+        "tension": "ken-burns",
+        "dramatic": "zoom-in",
+        "resolution": "zoom-out",
+        "reflective": "parallax",
+        "static": "static",
+    }
+
+    def _cuts_to_cinematic_props(self, props: dict[str, Any]) -> dict[str, Any]:
+        """Transform pipeline edit_decisions (cuts format) into CinematicRenderer props.
+
+        Pipeline edit_decisions use:
+          cuts[].source      — file path (already converted to file:// URI)
+          cuts[].in_seconds  — seek position within source clip
+          cuts[].out_seconds — end position within source clip
+          cuts[].speed       — playback rate (1.0 = normal)
+          cuts[]._timeline_start — absolute position on output timeline
+          cuts[]._pacing     — narrative pacing type
+
+        CinematicRenderer expects:
+          scenes[].kind, scenes[].src, scenes[].startSeconds,
+          scenes[].durationSeconds, scenes[].trimBeforeSeconds,
+          scenes[].playbackRate, scenes[].tone
+        Plus top-level: soundtrack, music, captions
+        """
+        cuts = props.get("cuts", [])
+        scenes: list[dict[str, Any]] = []
+        running_start = 0.0
+
+        for cut in cuts:
+            source_in = float(cut.get("in_seconds", 0))
+            source_out = float(cut.get("out_seconds", 0))
+            speed = float(cut.get("speed", 1.0)) or 1.0
+            source_duration = source_out - source_in
+            if source_duration <= 0:
+                continue
+
+            # Playback duration on the timeline (slower speed = longer)
+            playback_duration = source_duration / speed
+
+            # Use _timeline_start if available, otherwise accumulate
+            start = float(cut.get("_timeline_start", running_start))
+
+            source_path = cut.get("source", "")
+            is_image = bool(
+                source_path
+                and Path(source_path).suffix.lower() in self._IMAGE_EXTENSIONS
+            )
+            pacing = cut.get("_pacing", "")
+
+            if is_image:
+                scene: dict[str, Any] = {
+                    "id": cut.get("id", f"scene_{len(scenes)}"),
+                    "kind": "image",
+                    "src": source_path,
+                    "startSeconds": start,
+                    "durationSeconds": playback_duration,
+                    "animation": self._PACING_TO_KEN_BURNS.get(pacing, "ken-burns"),
+                    "tone": self._PACING_TO_TONE.get(pacing, "cold"),
+                }
+            else:
+                scene: dict[str, Any] = {
+                    "id": cut.get("id", f"scene_{len(scenes)}"),
+                    "kind": "video",
+                    "src": source_path,
+                    "startSeconds": start,
+                    "durationSeconds": playback_duration,
+                }
+
+                # Trim: tell Remotion where to start playing in the source clip
+                if source_in > 0.05:
+                    scene["trimBeforeSeconds"] = source_in
+
+                # Speed: pass through to Remotion's playbackRate
+                if abs(speed - 1.0) > 0.01:
+                    scene["playbackRate"] = speed
+
+                # Map pacing type to cinematic tone
+                scene["tone"] = self._PACING_TO_TONE.get(pacing, "cold")
+
+            scenes.append(scene)
+            running_start = start + playback_duration
+
+        result: dict[str, Any] = {"scenes": scenes}
+
+        # --- Audio layers ---
+        narration = props.get("narration") or props.get("soundtrack")
+        if isinstance(narration, dict):
+            src = narration.get("path") or narration.get("src", "")
+            if src:
+                st: dict[str, Any] = {
+                    "src": src,
+                    "volume": narration.get("volume", 1.0),
+                    "fadeInSeconds": narration.get("fade_in_seconds",
+                                                   narration.get("fadeInSeconds", 0.3)),
+                    "fadeOutSeconds": narration.get("fade_out_seconds",
+                                                    narration.get("fadeOutSeconds", 0.5)),
+                }
+                if narration.get("trim_before_seconds") or narration.get("trimBeforeSeconds"):
+                    st["trimBeforeSeconds"] = (narration.get("trim_before_seconds")
+                                               or narration.get("trimBeforeSeconds"))
+                if narration.get("trim_after_seconds") or narration.get("trimAfterSeconds"):
+                    st["trimAfterSeconds"] = (narration.get("trim_after_seconds")
+                                              or narration.get("trimAfterSeconds"))
+                result["soundtrack"] = st
+
+        music = props.get("music")
+        if isinstance(music, dict):
+            src = music.get("path") or music.get("src", "")
+            if src:
+                mt: dict[str, Any] = {
+                    "src": src,
+                    "volume": music.get("volume", 0.15),
+                    "fadeInSeconds": music.get("fade_in_seconds",
+                                               music.get("fadeInSeconds", 2.0)),
+                    "fadeOutSeconds": music.get("fade_out_seconds",
+                                                music.get("fadeOutSeconds", 3.0)),
+                }
+                if music.get("trim_before_seconds") or music.get("trimBeforeSeconds"):
+                    mt["trimBeforeSeconds"] = (music.get("trim_before_seconds")
+                                               or music.get("trimBeforeSeconds"))
+                if music.get("trim_after_seconds") or music.get("trimAfterSeconds"):
+                    mt["trimAfterSeconds"] = (music.get("trim_after_seconds")
+                                              or music.get("trimAfterSeconds"))
+                result["music"] = mt
+
+        # --- Captions ---
+        captions = props.get("captions")
+        if isinstance(captions, dict) and captions.get("words"):
+            cap: dict[str, Any] = {
+                "words": captions["words"],
+                "wordsPerPage": captions.get("words_per_page",
+                                             captions.get("wordsPerPage", 5)),
+                "fontSize": captions.get("font_size",
+                                         captions.get("fontSize", 48)),
+            }
+            for py_key, js_key in [
+                ("color", "color"),
+                ("highlight_color", "highlightColor"),
+                ("background_color", "backgroundColor"),
+            ]:
+                val = captions.get(py_key) or captions.get(js_key)
+                if val:
+                    cap[js_key] = val
+            result["captions"] = cap
+
+        # Preserve fields needed by Remotion rendering (theme, metadata, etc.)
+        for key in ("renderer_family", "metadata", "playbook", "theme", "themeConfig"):
+            if key in props:
+                result[key] = props[key]
+
+        return result
+
+    @staticmethod
+    def _start_asset_server() -> tuple[Any, int]:
+        """Start a local HTTP server to serve project assets for Remotion.
+
+        Remotion's OffthreadVideo compositor fetches media via HTTP — it
+        cannot access file:// URIs directly. This server handles
+        ``/asset?path=<absolute-posix-path>`` requests by streaming the
+        file from disk with the correct Content-Type and Content-Length
+        headers, enabling Remotion to seek efficiently.
+
+        Returns (server, port). Call server.shutdown() when done.
+        """
+        import http.server
+        import mimetypes
+        import socketserver
+        import threading
+        import urllib.parse
+
+        class _AssetHandler(http.server.BaseHTTPRequestHandler):
+            """Serve local files by absolute path via query parameter."""
+
+            def _cors_headers(self) -> None:
+                """Add CORS/CORP headers so Remotion's Chromium can load images.
+
+                OffthreadVideo uses FFmpeg (bypasses Chrome), but Img loads
+                through Chrome which enforces ORB.  The key header is
+                Cross-Origin-Resource-Policy: cross-origin.
+                """
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+                self.send_header("Access-Control-Allow-Headers", "*")
+                self.send_header("Cross-Origin-Resource-Policy", "cross-origin")
+
+            def _resolve_file(self) -> Path | None:
+                parsed = urllib.parse.urlparse(self.path)
+                params = urllib.parse.parse_qs(parsed.query)
+                file_path_list = params.get("path", [])
+                if not file_path_list:
+                    self.send_error(400, "Missing 'path' query parameter")
+                    return None
+                file_path = Path(file_path_list[0])
+                if not file_path.is_file():
+                    self.send_error(404, f"File not found: {file_path}")
+                    return None
+                return file_path
+
+            def do_OPTIONS(self) -> None:  # noqa: N802
+                """Handle CORS preflight requests."""
+                self.send_response(204)
+                self._cors_headers()
+                self.end_headers()
+
+            def do_GET(self) -> None:  # noqa: N802
+                file_path = self._resolve_file()
+                if file_path is None:
+                    return
+
+                mime, _ = mimetypes.guess_type(str(file_path))
+                if mime is None:
+                    mime = "application/octet-stream"
+                file_size = file_path.stat().st_size
+
+                self.send_response(200)
+                self.send_header("Content-Type", mime)
+                self.send_header("Content-Length", str(file_size))
+                self.send_header("Accept-Ranges", "bytes")
+                self._cors_headers()
+                self.end_headers()
+
+                with open(file_path, "rb") as f:
+                    while True:
+                        chunk = f.read(256 * 1024)
+                        if not chunk:
+                            break
+                        try:
+                            self.wfile.write(chunk)
+                        except BrokenPipeError:
+                            break
+
+            def do_HEAD(self) -> None:  # noqa: N802
+                """Handle HEAD requests (Remotion probes content length)."""
+                file_path = self._resolve_file()
+                if file_path is None:
+                    return
+
+                mime, _ = mimetypes.guess_type(str(file_path))
+                if mime is None:
+                    mime = "application/octet-stream"
+                file_size = file_path.stat().st_size
+
+                self.send_response(200)
+                self.send_header("Content-Type", mime)
+                self.send_header("Content-Length", str(file_size))
+                self.send_header("Accept-Ranges", "bytes")
+                self._cors_headers()
+                self.end_headers()
+
+            def log_message(self, format: str, *args: Any) -> None:
+                """Suppress request logging to keep output clean."""
+                pass
+
+        class _ThreadedServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+            daemon_threads = True
+            allow_reuse_address = True
+
+        server = _ThreadedServer(("127.0.0.1", 0), _AssetHandler)
+        port = server.server_address[1]
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        return server, port
+
     def _remotion_render(self, inputs: dict[str, Any]) -> ToolResult:
         """Render via Remotion (requires Node.js + npx).
 
@@ -979,15 +1261,122 @@ class VideoCompose(BaseTool):
         # Deep-copy props so we don't mutate the original
         props = json.loads(json.dumps(composition_data))
 
-        # Convert absolute file paths to file:// URIs for Remotion's
-        # Img and OffthreadVideo components
+        # --- Resolve local file paths to absolute paths ---
+        def _resolve_path(path_str: str) -> str:
+            """Resolve a relative or local path to an absolute POSIX path."""
+            if not path_str or path_str.startswith(("http://", "https://")):
+                return path_str
+            # Strip any existing file:// prefix
+            clean = path_str
+            if clean.startswith("file:///"):
+                clean = clean[8:]
+            elif clean.startswith("file://"):
+                clean = clean[7:]
+            resolved = Path(clean).resolve()
+            return resolved.as_posix()
+
         for cut in props.get("cuts", []):
-            source = cut.get("source", "")
-            if source and not source.startswith(("http://", "https://", "file://")):
-                resolved = Path(source).resolve()
-                if resolved.exists():
-                    posix = resolved.as_posix()
-                    cut["source"] = f"file:///{posix}" if not posix.startswith("/") else f"file://{posix}"
+            cut["source"] = _resolve_path(cut.get("source", ""))
+
+        # Resolve audio src paths
+        for audio_key in ("narration", "soundtrack", "music"):
+            audio = props.get(audio_key)
+            if isinstance(audio, dict):
+                for src_key in ("src", "path"):
+                    if audio.get(src_key):
+                        audio[src_key] = _resolve_path(audio[src_key])
+
+        # Route to the correct Remotion composition based on renderer_family.
+        # This prevents all pipelines from collapsing into the Explainer visual grammar.
+        renderer_family = (composition_data or {}).get("renderer_family", "explainer-data")
+        composition_id = self._get_composition_id(renderer_family)
+
+        # --- CinematicRenderer needs scenes[], not cuts[] ---
+        # Pipeline edit_decisions use a cuts[] array with source seek positions,
+        # timeline starts, and pacing metadata. CinematicRenderer expects a
+        # scenes[] array with kind/src/startSeconds/durationSeconds/tone.
+        # Transform when targeting CinematicRenderer so the composition receives
+        # the schema it was built for.
+        if composition_id == "CinematicRenderer" and "cuts" in props and "scenes" not in props:
+            props = self._cuts_to_cinematic_props(props)
+
+        # --- Start local asset server for Remotion ---
+        # Remotion's OffthreadVideo compositor cannot access file:// URIs.
+        # We serve project assets over HTTP on localhost so Remotion can
+        # fetch them natively. The server runs in a daemon thread and is
+        # shut down after the render completes.
+        asset_server, asset_port = self._start_asset_server()
+
+        # --- Stage images into Remotion's public/ for same-origin loading ---
+        # Remotion's <Img> loads through Chrome which enforces ORB (Opaque
+        # Resource Blocking) on cross-origin resources.  The HTTP asset
+        # server is cross-origin from Remotion's bundler, so images get
+        # blocked.  Videos are fine because <OffthreadVideo> uses FFmpeg
+        # (bypasses Chrome entirely).
+        #
+        # Fix: copy image files into remotion-composer/public/_project_assets/
+        # and reference them via relative paths that resolve through staticFile().
+        composer_dir = Path(__file__).resolve().parent.parent.parent / "remotion-composer"
+        _img_staging = composer_dir / "public" / "_project_assets"
+        _img_staging.mkdir(parents=True, exist_ok=True)
+        _staged_images: list[Path] = []
+
+        def _stage_image(abs_posix_path: str) -> str:
+            """Validate and copy image to Remotion public/ for staticFile loading.
+
+            Validates the file is a decodable raster image (not SVG or
+            corrupt).  Returns a staticFile-relative path on success, or
+            the original path (which will fail gracefully) if validation
+            fails.
+            """
+            src_path = Path(abs_posix_path)
+            if not src_path.is_file():
+                return abs_posix_path
+
+            # --- Validate: must be a real raster image, not SVG ---
+            # Check file header (magic bytes) regardless of extension.
+            try:
+                with open(src_path, "rb") as fh:
+                    header = fh.read(256)
+                if b"<svg" in header or b"<?xml" in header:
+                    log = logging.getLogger("video_compose")
+                    log.warning("Skipping SVG file disguised as image: %s", src_path.name)
+                    return abs_posix_path  # skip — Remotion can't decode SVGs
+            except OSError:
+                return abs_posix_path
+
+            dest = _img_staging / src_path.name
+            # Avoid re-copying if already staged (e.g. same image in multiple scenes)
+            if not dest.exists():
+                import shutil
+                shutil.copy2(str(src_path), str(dest))
+                _staged_images.append(dest)
+            return f"_project_assets/{src_path.name}"
+
+        def _to_http_url(path_str: str) -> str:
+            """Convert an absolute local path to an HTTP URL on the asset server."""
+            if not path_str or path_str.startswith(("http://", "https://")):
+                return path_str
+            return f"http://localhost:{asset_port}/asset?path={path_str}"
+
+        # Convert media paths: images → staged staticFile, video/audio → HTTP
+        for scene in props.get("scenes", []):
+            src = scene.get("src", "")
+            if not src or src.startswith(("http://", "https://")):
+                continue
+            if scene.get("kind") == "image":
+                scene["src"] = _stage_image(src)
+            else:
+                scene["src"] = _to_http_url(src)
+        for cut in props.get("cuts", []):
+            if cut.get("source"):
+                cut["source"] = _to_http_url(cut["source"])
+        for audio_key in ("soundtrack", "music", "narration"):
+            audio = props.get(audio_key)
+            if isinstance(audio, dict):
+                for src_key in ("src", "path"):
+                    if audio.get(src_key):
+                        audio[src_key] = _to_http_url(audio[src_key])
 
         # Build a custom themeConfig from the playbook's actual colors.
         # This ensures every video gets a unique visual identity derived
@@ -1007,18 +1396,13 @@ class VideoCompose(BaseTool):
         with open(props_path, "w", encoding="utf-8") as f:
             json.dump(props, f)
 
-        # remotion-composer lives at project root
-        composer_dir = Path(__file__).resolve().parent.parent.parent / "remotion-composer"
+        # composer_dir was set above (before image staging)
         if not composer_dir.exists():
+            asset_server.shutdown()
             return ToolResult(
                 success=False,
                 error=f"Remotion composer project not found at {composer_dir}",
             )
-
-        # Route to the correct Remotion composition based on renderer_family.
-        # This prevents all pipelines from collapsing into the Explainer visual grammar.
-        renderer_family = (composition_data or {}).get("renderer_family", "explainer-data")
-        composition_id = self._get_composition_id(renderer_family)
 
         cmd = [
             "npx", "remotion", "render",
@@ -1043,12 +1427,30 @@ class VideoCompose(BaseTool):
             # local remotion binary via node_modules/.bin. Without this,
             # Windows npx cannot locate the CLI and returns "could not
             # determine executable to run".
-            self.run_command(cmd, timeout=600, cwd=composer_dir)
+            # Remotion renders ~12 frames/s on a typical machine.
+            # A 4-minute video @ 30fps = 7200 frames ≈ 600s of render time,
+            # but bundling + public-dir copy adds overhead. Allow 1800s (30 min)
+            # base + 8s per second of video content for safety.
+            total_seconds = 0.0
+            for s in props.get("scenes", props.get("cuts", [])):
+                total_seconds += float(s.get("durationSeconds", s.get("out_seconds", 0)) - s.get("in_seconds", 0))
+            render_timeout = max(1800, int(1800 + total_seconds * 8))
+            self.run_command(cmd, timeout=render_timeout, cwd=composer_dir)
         except Exception as e:
             return ToolResult(success=False, error=f"Remotion render failed: {e}")
         finally:
+            asset_server.shutdown()
             if props_path.exists():
                 props_path.unlink()
+            # Clean up staged images from public/
+            for staged in _staged_images:
+                if staged.exists():
+                    staged.unlink()
+            if _img_staging.exists():
+                try:
+                    _img_staging.rmdir()
+                except OSError:
+                    pass  # not empty — other render in flight
 
         if not output_path.exists():
             return ToolResult(

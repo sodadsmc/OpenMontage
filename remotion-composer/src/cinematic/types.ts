@@ -12,6 +12,7 @@ export interface CinematicVideoScene extends CinematicBaseScene {
   tone?: CinematicTone;
   trimBeforeSeconds?: number;
   trimAfterSeconds?: number;
+  playbackRate?: number;
   filter?: string;
   fadeInFrames?: number;
   fadeOutFrames?: number;
@@ -24,7 +25,29 @@ export interface CinematicTitleScene extends CinematicBaseScene {
   intensity?: number;
 }
 
-export type CinematicScene = CinematicVideoScene | CinematicTitleScene;
+export type CinematicImageAnimation =
+  | "ken-burns"
+  | "zoom-in"
+  | "zoom-out"
+  | "pan-left"
+  | "pan-right"
+  | "parallax"
+  | "static";
+
+export interface CinematicImageScene extends CinematicBaseScene {
+  kind: "image";
+  src: string;
+  animation?: CinematicImageAnimation;
+  tone?: CinematicTone;
+  filter?: string;
+  fadeInFrames?: number;
+  fadeOutFrames?: number;
+}
+
+export type CinematicScene =
+  | CinematicVideoScene
+  | CinematicTitleScene
+  | CinematicImageScene;
 
 export interface CinematicSoundtrack {
   src: string;

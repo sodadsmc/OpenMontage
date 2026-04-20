@@ -4,6 +4,7 @@ import {
   AbsoluteFill,
   Audio,
   CalculateMetadataFunction,
+  Img,
   OffthreadVideo,
   Sequence,
   interpolate,
@@ -23,7 +24,12 @@ function resolveAsset(src: string): string {
   }
   return staticFile(clean);
 }
-import { CinematicRendererProps, CinematicTone, CinematicVideoScene } from "./cinematic/types";
+import {
+  CinematicRendererProps,
+  CinematicTone,
+  CinematicVideoScene,
+  CinematicImageScene,
+} from "./cinematic/types";
 import { CaptionOverlay } from "./components/CaptionOverlay";
 
 const FPS = 30;
@@ -90,6 +96,7 @@ const SceneVideo: React.FC<{ scene: CinematicVideoScene }> = ({ scene }) => {
         src={resolveAsset(scene.src)}
         trimBefore={trimBefore}
         trimAfter={trimAfter}
+        playbackRate={scene.playbackRate ?? 1}
         style={{
           width: "100%",
           height: "100%",
@@ -97,6 +104,96 @@ const SceneVideo: React.FC<{ scene: CinematicVideoScene }> = ({ scene }) => {
           transform: `scale(${scale})`,
           filter:
             scene.filter ?? "contrast(1.06) saturate(0.88) brightness(0.92)",
+        }}
+      />
+      <AbsoluteFill
+        style={{
+          background: toneGradient(scene.tone ?? "cold"),
+          mixBlendMode: "multiply",
+        }}
+      />
+      <AbsoluteFill
+        style={{
+          background:
+            "radial-gradient(circle at center, transparent 52%, rgba(0,0,0,0.52) 100%)",
+        }}
+      />
+      <AbsoluteFill
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 8%, transparent 92%, rgba(255,255,255,0.02) 100%)",
+          opacity: 0.6,
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+
+const SceneImage: React.FC<{ scene: CinematicImageScene }> = ({ scene }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const fadeInFrames = scene.fadeInFrames ?? 10;
+  const fadeOutFrames = scene.fadeOutFrames ?? 10;
+  const fadeOutStart = Math.max(fadeInFrames, durationInFrames - fadeOutFrames);
+  const fadeInOpacity =
+    fadeInFrames === 0
+      ? 1
+      : interpolate(frame, [0, fadeInFrames], [0, 1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+  const fadeOutOpacity =
+    fadeOutFrames === 0
+      ? 1
+      : interpolate(frame, [fadeOutStart, durationInFrames], [1, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+  const opacity = Math.min(fadeInOpacity, fadeOutOpacity);
+
+  const progress = interpolate(frame, [0, durationInFrames], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const anim = scene.animation || "ken-burns";
+  let scale = 1;
+  let translateX = 0;
+  let translateY = 0;
+
+  // Documentary-grade Ken Burns: slower, more deliberate than Explainer.
+  // ~8-12% scale range (vs Explainer's 18-22%) for a cinematic feel.
+  if (anim === "zoom-in") {
+    scale = 1 + progress * 0.08;
+  } else if (anim === "zoom-out") {
+    scale = 1.08 - progress * 0.08;
+  } else if (anim === "pan-left") {
+    translateX = interpolate(progress, [0, 1], [18, -18]);
+    scale = 1.06;
+  } else if (anim === "pan-right") {
+    translateX = interpolate(progress, [0, 1], [-18, 18]);
+    scale = 1.06;
+  } else if (anim === "ken-burns") {
+    scale = 1 + progress * 0.1;
+    translateX = interpolate(progress, [0, 1], [0, -12]);
+    translateY = interpolate(progress, [0, 1], [0, -8]);
+  } else if (anim === "parallax") {
+    translateY = interpolate(progress, [0, 1], [8, -8]);
+    scale = 1.05;
+  }
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#020407", opacity }}>
+      <Img
+        src={resolveAsset(scene.src)}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: `scale(${scale}) translate(${translateX}px, ${translateY}px)`,
+          filter:
+            scene.filter ?? "contrast(1.06) saturate(0.88) brightness(0.92)",
+          willChange: "transform, opacity",
         }}
       />
       <AbsoluteFill
@@ -376,6 +473,8 @@ export const CinematicRenderer: React.FC<CinematicRendererProps> = ({
         >
           {scene.kind === "video" ? (
             <SceneVideo scene={scene} />
+          ) : scene.kind === "image" ? (
+            <SceneImage scene={scene} />
           ) : (
             <TitleCard
               text={scene.text}
