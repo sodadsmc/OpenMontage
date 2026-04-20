@@ -15,7 +15,11 @@ three-layer scoring stage.
 | Prior artifact | segment_plan | Scene search queries and visual descriptions |
 | Tool | `corpus_builder` | Multi-provider corpus building with CLIP embeddings |
 | Tool | `direct_clip_search` | Lightweight multi-provider search and download |
+| Meta | `skills/meta/footage-research.md` | **Four-bucket methodology and smart routing** |
 | Meta | `skills/meta/reviewer.md` | Self-review pass |
+| Lib | `lib/source_classifier.py` | Topic → source relevance classification |
+| Lib | `lib/query_router.py` | Source-aware query generation |
+| Lib | `lib/relevance_filter.py` | Pre-download text similarity filtering |
 
 ## What This Stage Does
 
@@ -38,66 +42,108 @@ list per scene for the scoring stage.
 
 ## Workflow
 
-### 1. Establish Source Priority
+### 0. Load Research Methodology
 
-Disaster footage has a quality hierarchy. Search in this order:
+**Read `skills/meta/footage-research.md` first.** It defines the
+four-bucket methodology, the smart routing tools, and the licensing
+rules for each source type.
 
-**Tier A — Investigation archives (highest value):**
-- CSB (Chemical Safety Board) investigation videos
-- NTSB (National Transportation Safety Board) footage
-- Archive.org disaster investigation collections
-- NARA (National Archives) incident records
-- Government agency releases (OSHA, EPA, BSEE)
+### 1. Classify Sources for This Topic
 
-**Tier B — Specialized documentary sources:**
-- NASA (for aerospace disasters)
-- Library of Congress
-- Wikimedia Commons
-- Pond5 Public Domain
+Before searching, classify which sources are relevant. This prevents
+wasting API calls on sources with no chance of matching.
 
-**Tier C — General stock providers:**
-- Pexels, Pixabay Video, Coverr, Mixkit, Videvo, Dareful
-- Unsplash (images only — use as stills if needed)
+```python
+from lib.source_classifier import classify_sources
 
-**Tier D — Premium sources (cost-bearing):**
-- Getty, Shutterstock (only if budget allows and Tiers A-C fail)
+relevance = classify_sources(
+    topic_keywords=["radiation", "medical", "computer", "software", "safety"],
+    available_sources=[s.name for s in available_sources()],
+)
+# high_sources = [r.source_name for r in relevance if r.tier == "high"]
+# medium_sources = [r.source_name for r in relevance if r.tier == "medium"]
+```
 
-Always exhaust Tier A before moving to Tier B. Investigation footage
-carries authenticity that no stock clip can match.
+Search high-tier sources first. Only fall back to medium/low-tier
+if high-tier sources don't fill the slot.
 
-### 2. Run The Tiered Query Cascade
+### 2. Generate Routed Queries
 
-For each scene, execute queries in the order specified by the segment
-plan (specific to general). The cascade rule:
+For each scene, generate source-specific queries instead of sending
+one generic query everywhere:
 
-1. Run Tier 1 query against Tier A sources
-2. If >= 3 candidates found, stop for this scene
-3. If < 3 candidates, run Tier 2 query against Tier A + B sources
-4. If still < 3 candidates, run Tier 3 query against all sources
-5. Continue until at least 3 candidates per scene or all tiers exhausted
+```python
+from lib.query_router import route_queries
 
-Use `direct_clip_search` for fast iteration:
+for scene in segment_plan["scenes"]:
+    routed = route_queries(
+        search_queries=scene["search_queries"],
+        visual_description=scene["visual_description"],
+        narration=scene["narration"],
+        mood=scene.get("mood", ""),
+        pacing=scene["pacing"],
+    )
+    # Wikimedia gets "Therac-25"
+    # Pexels gets "dimly lit hospital treatment room"
+    # DOE gets "linear accelerator radiation therapy"
+```
 
+### 3. Run The Four-Bucket Search Cascade
+
+For each scene, search buckets in order. Always pass `relevance_query`
+to filter before downloading.
+
+**Bucket 1 — Discovery (YouTube):**
 ```python
 direct_clip_search.execute({
     "output_dir": "projects/<name>/assets/video/candidates",
+    "queries": [{"query": "<entity name>", "slot_id": "scene_01"}],
+    "sources": ["youtube_search"],
+    "relevance_query": scene["visual_description"],
+    "relevance_threshold": 0.20,
+    "clips_per_query": 5,
+})
+```
+Long-form results (`extra.long_form=true`) go to corpus pre-build.
+
+**Bucket 2 — Open-use (CC images + video):**
+```python
+direct_clip_search.execute({
     "queries": [
-        {"query": "CSB Texas City refinery explosion", "slot_id": "scene_01"},
-        {"query": "oil refinery explosion aftermath investigation", "slot_id": "scene_01"},
+        {"query": "<entity name>", "slot_id": "scene_01", "kind": "image"},
+        {"query": "<entity name>", "slot_id": "scene_01", "kind": "video"},
     ],
-    "sources": ["archive_org", "wikimedia", "pexels"],
-    "clips_per_query": 3,
-    "filters": {
-        "min_duration": 3,
-        "max_duration": 60,
-        "orientation": "landscape",
-        "min_width": 1280,
-    },
+    "sources": ["wikimedia_categories", "wikimedia", "openverse"],
+    "relevance_query": scene["visual_description"],
+    "clips_per_query": 5,
 })
 ```
 
-For large productions or when CLIP scoring is needed, use
-`corpus_builder` to build an indexed corpus first.
+**Bucket 3 — Historic/official archives:**
+```python
+direct_clip_search.execute({
+    "queries": [{"query": "<technical terms>", "slot_id": "scene_01"}],
+    "sources": high_sources,  # from classifier
+    "relevance_query": scene["visual_description"],
+    "clips_per_query": 3,
+    "filters": {"min_duration": 3, "max_duration": 60},
+})
+```
+
+**Bucket 4 — Licensed b-roll (fill gaps):**
+```python
+direct_clip_search.execute({
+    "queries": [{"query": "<visual descriptors>", "slot_id": "scene_01"}],
+    "sources": ["pexels", "pixabay_video", "coverr", "mixkit"],
+    "relevance_query": scene["visual_description"],
+    "clips_per_query": 3,
+    "filters": {"min_duration": 3, "orientation": "landscape", "min_width": 1280},
+})
+```
+
+**Stop rule:** If a scene has >= 3 candidates after any bucket, skip
+remaining buckets for that scene. Flag scenes with 0 candidates for
+AI generation in the gap_fill stage.
 
 ### 3. Deduplicate Across Scenes
 

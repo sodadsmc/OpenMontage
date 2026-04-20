@@ -178,6 +178,26 @@ class DirectClipSearch(BaseTool):
                 "default": True,
                 "description": "Skip download if a file with the same clip_id already exists.",
             },
+            "relevance_query": {
+                "type": "string",
+                "description": (
+                    "Text to score candidates against before downloading. "
+                    "Typically the scene's visual_description. Candidates "
+                    "whose source_tags fall below relevance_threshold are "
+                    "skipped. If omitted, all candidates are downloaded."
+                ),
+            },
+            "relevance_threshold": {
+                "type": "number",
+                "default": 0.25,
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": (
+                    "Minimum text similarity score to download a candidate. "
+                    "Calibrated to all-MiniLM-L6-v2 (0.20–0.60 range). "
+                    "0.25 rejects obvious mismatches while keeping relevant b-roll."
+                ),
+            },
         },
     }
 
@@ -297,6 +317,7 @@ class DirectClipSearch(BaseTool):
             downloaded: list[dict] = []
             errors: list[dict] = []
             skipped = 0
+            candidates_filtered = 0
             per_source_counts: dict[str, int] = {s.name: 0 for s in sources}
 
             for q_spec in queries:
@@ -351,6 +372,23 @@ class DirectClipSearch(BaseTool):
                         cands = per_source_cands[sname]
                         if depth < len(cands):
                             interleaved.append(cands[depth])
+
+                # --- Phase 2.5: Pre-download relevance filter ---
+                # Score candidate metadata against the scene description
+                # BEFORE downloading.  Rejects obviously unrelated clips.
+                relevance_query = inputs.get("relevance_query")
+                relevance_threshold = float(inputs.get("relevance_threshold", 0.20))
+                if relevance_query and interleaved:
+                    try:
+                        from lib.relevance_filter import score_candidates as _score
+                        cand_list = [c for _, c in interleaved]
+                        scored = _score(cand_list, relevance_query, threshold=relevance_threshold)
+                        passing_ids = {c.clip_id for c, _ in scored}
+                        pre_count = len(interleaved)
+                        interleaved = [(s, c) for s, c in interleaved if c.clip_id in passing_ids]
+                        candidates_filtered += pre_count - len(interleaved)
+                    except Exception:
+                        pass  # graceful fallback — download everything
 
                 seen_ids: set[str] = set()
                 collected_for_query = 0
@@ -458,6 +496,7 @@ class DirectClipSearch(BaseTool):
                     "output_dir": str(output_dir),
                     "clips_downloaded": len([d for d in downloaded if not d.get("skipped_existing")]),
                     "clips_reused": skipped,
+                    "candidates_filtered": candidates_filtered,
                     "total_clips": len(downloaded),
                     "per_source_counts": per_source_counts,
                     "queries_run": len(queries),
