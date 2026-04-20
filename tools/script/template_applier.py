@@ -119,9 +119,17 @@ class TemplateApplier(BaseTool):
             "topic_brief": {
                 "type": "string",
                 "description": (
-                    "Optional research notes, key facts, timeline, or source "
-                    "material to inform the narration. The more context, the "
-                    "more accurate and detailed the output."
+                    "Optional plain-text research notes. Superseded by "
+                    "research_brief_path when both are provided."
+                ),
+            },
+            "research_brief_path": {
+                "type": "string",
+                "description": (
+                    "Path to research_brief.json from the research stage. "
+                    "When provided, Claude writes narration using ONLY "
+                    "the verified facts in the brief. This is the recommended "
+                    "input for documentary production."
                 ),
             },
             "output_dir": {
@@ -185,6 +193,13 @@ class TemplateApplier(BaseTool):
         with open(template_path, encoding="utf-8") as f:
             template = json.load(f)
 
+        # Load research brief if provided (preferred over topic_brief)
+        research_brief: dict[str, Any] | None = None
+        research_brief_path = inputs.get("research_brief_path")
+        if research_brief_path and Path(research_brief_path).is_file():
+            with open(research_brief_path, encoding="utf-8") as f:
+                research_brief = json.load(f)
+
         topic_brief = inputs.get("topic_brief", "")
         target_duration = inputs.get("target_duration_seconds")
         output_dir = Path(inputs.get("output_dir", "projects/template_output"))
@@ -200,7 +215,7 @@ class TemplateApplier(BaseTool):
                     s["duration_seconds"] = round(s.get("duration_seconds", 20) * scale, 1)
 
         # Build the prompt
-        prompt = self._build_prompt(template, topic, topic_brief)
+        prompt = self._build_prompt(template, topic, topic_brief, research_brief)
 
         # Call Claude
         try:
@@ -277,6 +292,7 @@ class TemplateApplier(BaseTool):
         template: dict[str, Any],
         topic: str,
         topic_brief: str,
+        research_brief: dict[str, Any] | None = None,
     ) -> str:
         """Build the Claude prompt from the Production Bible template."""
 
@@ -330,7 +346,7 @@ You are a documentary scriptwriter applying a Production Bible template to a new
 ## TOPIC
 {topic}
 
-{f"## RESEARCH NOTES{chr(10)}{topic_brief}" if topic_brief else ""}
+{self._format_research_section(research_brief, topic_brief)}
 
 ## PRODUCTION BIBLE — NARRATION STYLE
 {style_guide}
@@ -370,8 +386,64 @@ For EACH scene in the template, generate:
 9. **preferred_duration**: narration word count / 150 * 60 + 2.0
 10. **mood**: Use the mood from the template.
 
-IMPORTANT: Write narration that is factually accurate about {topic}. The narration
-should tell a compelling story following the narrative arc structure above.
-Each scene's narration should flow naturally into the next.
+{"CRITICAL: Write narration using ONLY the verified facts provided in the RESEARCH BRIEF above. Every patient name, date, number, and quote MUST come from the data_points or timeline_events. Do NOT invent facts from your training data. If the research brief does not contain a specific detail, leave it out rather than fabricate it. Each scene's narration should flow naturally into the next." if research_brief else f"IMPORTANT: Write narration that is factually accurate about {topic}. The narration should tell a compelling story following the narrative arc structure above. Each scene's narration should flow naturally into the next."}
 """
         return prompt
+
+    @staticmethod
+    def _format_research_section(
+        research_brief: dict[str, Any] | None,
+        topic_brief: str,
+    ) -> str:
+        """Format the research section of the prompt."""
+        if not research_brief:
+            if topic_brief:
+                return f"## RESEARCH NOTES\n{topic_brief}"
+            return ""
+
+        sections = ["## VERIFIED RESEARCH (from research_brief — use ONLY these facts)\n"]
+
+        # Primary source
+        primary = research_brief.get("primary_source")
+        if primary:
+            sections.append(f"### Primary Source\n{json.dumps(primary, indent=2)}\n")
+
+        # Timeline
+        timeline = research_brief.get("timeline_events", [])
+        if timeline:
+            sections.append("### Verified Timeline")
+            for evt in timeline:
+                src = evt.get("source_url", "")
+                sections.append(f"- **{evt.get('date', '?')}**: {evt.get('event', '')} [{src}]")
+            sections.append("")
+
+        # Stakeholders
+        stakeholders = research_brief.get("stakeholders", [])
+        if stakeholders:
+            sections.append("### Verified Stakeholders")
+            for sh in stakeholders:
+                verified = sh.get("verified_in", "unverified")
+                sections.append(f"- **{sh.get('name', '?')}** — {sh.get('role', '')} (verified: {verified})")
+            sections.append("")
+
+        # Data points
+        data_points = research_brief.get("data_points", [])
+        if data_points:
+            sections.append("### Verified Data Points")
+            for dp in data_points:
+                cred = dp.get("credibility", "unknown")
+                sections.append(
+                    f"- [{cred}] {dp.get('claim', '')} "
+                    f"(Source: {dp.get('source_name', dp.get('source_url', 'unknown'))})"
+                )
+            sections.append("")
+
+        # Unverifiable claims
+        unverifiable = research_brief.get("unverifiable_claims", [])
+        if unverifiable:
+            sections.append("### UNVERIFIABLE CLAIMS (do NOT use in narration)")
+            for claim in unverifiable:
+                sections.append(f"- {claim}")
+            sections.append("")
+
+        return "\n".join(sections)

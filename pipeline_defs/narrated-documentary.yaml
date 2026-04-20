@@ -12,7 +12,10 @@ stability: beta
 default_checkpoint_policy: guided
 
 reference_input:
-  supported: false
+  supported: true
+  analysis_tools:
+    - video_analyzer
+    - template_extractor
 
 orchestration:
   mode: executive-producer
@@ -28,6 +31,7 @@ extensions:
   custom_tools: true
 
 required_skills:
+  - pipelines/narrated-documentary/research-director
   - pipelines/narrated-documentary/segment-director
   - pipelines/narrated-documentary/voice-gen-director
   - pipelines/narrated-documentary/footage-search-director
@@ -46,18 +50,47 @@ compatible_playbooks:
   custom_allowed: true
 
 stages:
+  - name: research
+    skill: pipelines/narrated-documentary/research-director
+    produces:
+      - research_brief
+    required_artifacts_in: []
+    optional_artifacts_in:
+      - video_template
+    tools_available:
+      - web_search
+      - transcript_fetcher
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Primary source identified and extracted
+      - Timeline events carry source citations
+      - Stakeholder names verified against primary source
+      - At least 10 data points with source URLs
+      - Unverifiable claims flagged
+    success_criteria:
+      - research_brief schema valid
+      - data_points >= 10 with source_url and credibility
+      - primary_source identified
+      - timeline_events >= 5 with citations
+
   - name: segment
     skill: pipelines/narrated-documentary/segment-director
     produces:
       - segment_plan
-    required_artifacts_in: []
+    required_artifacts_in:
+      - research_brief
+    optional_artifacts_in:
+      - video_template
     tools_available:
       - script_segment
+      - template_applier
     checkpoint_required: true
     human_approval_default: true
     review_focus:
       - Each scene has a rich prose visual_description, not bare keywords
       - Search queries are tiered (specific disaster footage first, then general)
+      - Narration claims trace to research_brief data_points
       - Pacing types follow establishing/escalation/crisis/resolution vocabulary
       - Narration text is complete and free of placeholder content
     success_criteria:
