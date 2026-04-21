@@ -138,10 +138,33 @@ class ElevenLabsTTS(BaseTool):
         result.cost_usd = self.estimate_cost(inputs)
         return result
 
+    @staticmethod
+    def _sanitize_for_tts(text: str) -> str:
+        """Clean text for natural TTS rendering.
+
+        Replaces typographic characters that some TTS engines read
+        literally (em-dash → "dash", curly quotes → silence) with
+        plain equivalents that produce natural speech pauses.
+        """
+        replacements = {
+            "\u2014": ", ",   # em-dash → comma pause
+            "\u2013": ", ",   # en-dash → comma pause
+            "\u2026": "...",  # horizontal ellipsis → three dots
+            "\u2018": "'",    # left single curly quote
+            "\u2019": "'",    # right single curly quote
+            "\u201C": '"',    # left double curly quote
+            "\u201D": '"',    # right double curly quote
+            "\u2012": ", ",   # figure dash
+            "\u2015": ", ",   # horizontal bar
+        }
+        for char, replacement in replacements.items():
+            text = text.replace(char, replacement)
+        return text
+
     def _generate(self, inputs: dict[str, Any], api_key: str) -> ToolResult:
         import requests
 
-        text = inputs["text"]
+        text = self._sanitize_for_tts(inputs["text"])
         voice_id = inputs.get("voice_id", self.DEFAULT_VOICE_ID)
         model_id = inputs.get("model_id", "eleven_multilingual_v2")
         output_format = inputs.get("output_format", "mp3_44100_128")

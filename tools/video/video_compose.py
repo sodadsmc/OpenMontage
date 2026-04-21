@@ -1360,14 +1360,27 @@ class VideoCompose(BaseTool):
             return f"http://localhost:{asset_port}/asset?path={path_str}"
 
         # Convert media paths: images → staged staticFile, video/audio → HTTP
+        # Drop image scenes that fail to stage (SVGs, missing files)
+        valid_scenes: list[dict[str, Any]] = []
         for scene in props.get("scenes", []):
             src = scene.get("src", "")
             if not src or src.startswith(("http://", "https://")):
+                valid_scenes.append(scene)
                 continue
             if scene.get("kind") == "image":
-                scene["src"] = _stage_image(src)
+                staged = _stage_image(src)
+                if staged.startswith("_project_assets/"):
+                    scene["src"] = staged
+                    valid_scenes.append(scene)
+                else:
+                    # Failed to stage (SVG, missing, etc.) — drop this scene
+                    _log = logging.getLogger("video_compose")
+                    _log.warning("Dropping unstaged image scene %s: %s",
+                                 scene.get("id", "?"), Path(src).name)
             else:
                 scene["src"] = _to_http_url(src)
+                valid_scenes.append(scene)
+        props["scenes"] = valid_scenes
         for cut in props.get("cuts", []):
             if cut.get("source"):
                 cut["source"] = _to_http_url(cut["source"])
