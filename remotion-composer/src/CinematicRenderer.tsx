@@ -75,10 +75,9 @@ const SceneVideo: React.FC<{ scene: CinematicVideoScene }> = ({ scene }) => {
         });
   const opacity = Math.min(fadeInOpacity, fadeOutOpacity);
 
-  const scale = interpolate(frame, [0, durationInFrames], [1.015, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  // No Ken Burns on video scenes — stock footage already has its own
+  // camera movement.  Constant zoom on every clip is distracting.
+  const scale = 1;
 
   const trimBefore =
     scene.trimBeforeSeconds !== undefined
