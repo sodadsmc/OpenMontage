@@ -186,17 +186,48 @@ def _generate_text_card(
     if source:
         draw.text((60, 1020), source, fill=(128, 128, 128), font=small_font)
 
-    out_path = output_dir / f"{sid}_text_card.png"
-    img.save(str(out_path), quality=95)
+    png_path = output_dir / f"{sid}_text_card.png"
+    img.save(str(png_path), quality=95)
 
-    return VisualAsset(
-        scene_id=sid,
-        path=str(out_path),
-        kind="image",
-        duration=0,
-        strategy="text_card",
-        description=text[:60],
-    )
+    # Convert PNG to video with Ken Burns zoom so FFmpeg compose can use it
+    mp4_path = output_dir / f"{sid}_text_card.mp4"
+    card_duration = min(8, max(3, len(text) // 15))  # scale duration with text length
+    try:
+        subprocess.run(
+            [
+                "ffmpeg", "-y",
+                "-loop", "1",
+                "-i", str(png_path),
+                "-t", str(card_duration),
+                "-filter_complex",
+                f"zoompan=z='min(zoom+0.0006,1.04)':d={card_duration * 30}:s=1920x1080:fps=30,format=yuv420p",
+                "-c:v", "libx264", "-crf", "23", "-preset", "medium",
+                str(mp4_path),
+            ],
+            capture_output=True,
+            timeout=30,
+            check=True,
+        )
+        duration = _probe_duration(str(mp4_path))
+        return VisualAsset(
+            scene_id=sid,
+            path=str(mp4_path),
+            kind="video",
+            duration=duration,
+            strategy="text_card",
+            description=text[:60],
+        )
+    except Exception as exc:
+        _log.warning("Ken Burns conversion failed for %s: %s", sid, exc)
+        # Fall back to image
+        return VisualAsset(
+            scene_id=sid,
+            path=str(png_path),
+            kind="image",
+            duration=0,
+            strategy="text_card",
+            description=text[:60],
+        )
 
 
 # ---------------------------------------------------------------------------
