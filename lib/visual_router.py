@@ -90,18 +90,29 @@ def _generate_manim(
 ) -> VisualAsset | None:
     """Generate a Manim animation for math/data scenes.
 
-    Uses the scene's narration and visual_description to determine
-    what to animate.  Currently supports pre-built animation types
-    that match common documentary patterns.
+    Uses the classifier's ``animation_type`` when available, otherwise
+    falls back to keyword detection from narration.
     """
     sid = scene["scene_id"]
     narration = scene.get("narration", "")
-    vis_desc = scene.get("visual_description", "")
-    duration = float(scene.get("duration_seconds", 10))
-
-    # Detect what type of math animation is needed
+    atype = scene.get("animation_type", "")
     narr_lower = narration.lower()
 
+    # Use classifier's animation_type if available
+    if atype == "scientific_diagram":
+        return _manim_scientific(scene, output_dir)
+    elif atype == "data_visualization":
+        return _manim_dose_chart(scene, output_dir)
+    elif atype == "process_flow":
+        return _manim_process_flow(scene, output_dir)
+    elif atype == "timeline":
+        return _manim_timeline(scene, output_dir)
+    elif atype == "counter":
+        return _manim_byte_overflow(scene, output_dir)
+    elif atype == "state_diagram":
+        return _manim_state_machine(scene, output_dir)
+
+    # Fallback: keyword detection
     if any(kw in narr_lower for kw in ["dose", "rad ", "gray", "overdose", "prescribed"]):
         return _manim_dose_chart(scene, output_dir)
     elif any(kw in narr_lower for kw in ["overflow", "counter", "255", "256", "byte", "rollover"]):
@@ -119,9 +130,18 @@ def _generate_manim_diagram(
     topic: str,
 ) -> VisualAsset | None:
     """Generate a Manim animated diagram (flowchart, state diagram)."""
-    sid = scene["scene_id"]
+    atype = scene.get("animation_type", "")
     narr_lower = scene.get("narration", "").lower()
 
+    # Use classifier type first
+    if atype == "state_diagram":
+        return _manim_state_machine(scene, output_dir)
+    elif atype == "process_flow":
+        return _manim_process_flow(scene, output_dir)
+    elif atype == "scientific_diagram":
+        return _manim_scientific(scene, output_dir)
+
+    # Fallback: keyword detection
     if any(kw in narr_lower for kw in ["race condition", "timing", "8 second", "edit"]):
         return _manim_race_condition(scene, output_dir)
     elif any(kw in narr_lower for kw in ["state machine", "mode", "x-ray", "electron"]):
@@ -129,7 +149,7 @@ def _generate_manim_diagram(
     elif any(kw in narr_lower for kw in ["flow", "keystroke", "malfunction", "press"]):
         return _manim_data_flow(scene, output_dir)
     else:
-        return _manim_race_condition(scene, output_dir)  # default diagram
+        return _manim_data_flow(scene, output_dir)  # default diagram
 
 
 def _generate_remotion_chart(
@@ -699,6 +719,209 @@ class IncidentTimeline(Scene):
         self.wait(2)
 '''
     return _run_manim_scene(code, "IncidentTimeline", output_dir, scene["scene_id"])
+
+
+def _manim_scientific(scene: dict[str, Any], output_dir: Path) -> VisualAsset | None:
+    """Scientific process diagram — radiation beam, cellular damage, beam paths."""
+    desc = scene.get("animation_description", scene.get("narration", ""))[:200]
+    narr_lower = desc.lower()
+
+    # Pick sub-type based on content
+    if any(kw in narr_lower for kw in ["cancer", "tumor", "cell", "dna", "divide", "radiation therapy"]):
+        template = "RadiationTherapy"
+        code = r'''
+from manim import *
+
+class RadiationTherapy(Scene):
+    def construct(self):
+        self.camera.background_color = "#0a0a1a"
+        title = Text("How Radiation Therapy Works", font_size=36, color=WHITE, weight=BOLD)
+        title.to_edge(UP, buff=0.4)
+        self.play(Write(title), run_time=0.8)
+
+        # Linear accelerator (left)
+        linac = RoundedRectangle(width=2, height=1.2, corner_radius=0.1, color=BLUE_C, fill_opacity=0.2, stroke_width=2)
+        linac_label = Text("Linear\nAccelerator", font_size=14, color=WHITE)
+        linac_label.move_to(linac)
+        linac_group = VGroup(linac, linac_label).move_to(LEFT * 4.5 + DOWN * 0.5)
+
+        # Beam
+        beam = Arrow(LEFT * 3.3 + DOWN * 0.5, RIGHT * 0.5 + DOWN * 0.5, buff=0, color=YELLOW, stroke_width=4, max_tip_length_to_length_ratio=0.08)
+        beam_label = Text("High-energy beam", font_size=13, color=YELLOW).next_to(beam, UP, buff=0.1)
+
+        # Tumor (center-right)
+        healthy = Circle(radius=1.2, color=GREEN, fill_opacity=0.1, stroke_width=1.5).move_to(RIGHT * 2 + DOWN * 0.5)
+        healthy_label = Text("Healthy tissue", font_size=12, color=GREEN_B).next_to(healthy, DOWN, buff=0.15)
+        tumor = Circle(radius=0.5, color=RED, fill_opacity=0.3, stroke_width=2).move_to(RIGHT * 2 + DOWN * 0.5)
+        tumor_label = Text("Tumor", font_size=13, color=RED).move_to(tumor)
+
+        # DNA strands inside tumor
+        dna1 = Line(UP * 0.2 + LEFT * 0.15, DOWN * 0.2 + RIGHT * 0.15, color=RED_B, stroke_width=2).move_to(tumor.get_center() + UP * 0.15)
+        dna2 = Line(UP * 0.2 + RIGHT * 0.15, DOWN * 0.2 + LEFT * 0.15, color=RED_B, stroke_width=2).move_to(tumor.get_center() + DOWN * 0.15)
+
+        # Animate
+        self.play(FadeIn(linac_group), run_time=0.6)
+        self.play(FadeIn(healthy), FadeIn(healthy_label), run_time=0.5)
+        self.play(FadeIn(tumor), FadeIn(tumor_label), FadeIn(dna1), FadeIn(dna2), run_time=0.6)
+        self.wait(0.3)
+
+        # Beam fires
+        self.play(GrowArrow(beam), FadeIn(beam_label), run_time=1.0)
+        self.wait(0.3)
+
+        # DNA breaks
+        self.play(
+            dna1.animate.set_color(GREY).set_opacity(0.3),
+            dna2.animate.set_color(GREY).set_opacity(0.3),
+            Flash(tumor, color=YELLOW, line_length=0.3, num_lines=8),
+            run_time=0.8,
+        )
+
+        # Tumor shrinks
+        destroyed_label = Text("DNA destroyed\nCells stop dividing", font_size=13, color=GREEN)
+        destroyed_label.move_to(tumor)
+        self.play(
+            tumor.animate.scale(0.3).set_opacity(0.1),
+            FadeOut(tumor_label),
+            FadeIn(destroyed_label),
+            run_time=1.2,
+        )
+        self.wait(0.3)
+
+        # Goal text
+        goal = Text("Goal: destroy tumor while sparing healthy tissue", font_size=18, color=WHITE)
+        goal.next_to(healthy, DOWN, buff=0.6)
+        self.play(FadeIn(goal), run_time=0.6)
+
+        source = Text("Source: Leveson & Turner, IEEE Computer, 1993", font_size=13, color=GREY)
+        source.to_edge(DOWN, buff=0.15)
+        self.play(FadeIn(source), run_time=0.4)
+        self.wait(2)
+'''
+    elif any(kw in narr_lower for kw in ["interlock", "hardware", "safety", "removed", "therac-6", "therac-20"]):
+        template = "SafetyInterlocks"
+        code = r'''
+from manim import *
+
+class SafetyInterlocks(Scene):
+    def construct(self):
+        self.camera.background_color = "#0a0a1a"
+        title = Text("Hardware Safety Interlocks: Removed", font_size=34, color=WHITE, weight=BOLD)
+        title.to_edge(UP, buff=0.4)
+        self.play(Write(title), run_time=0.8)
+
+        # Therac-20 (with interlocks)
+        t20_box = RoundedRectangle(width=4, height=2.5, corner_radius=0.1, color=GREEN, fill_opacity=0.08, stroke_width=2)
+        t20_label = Text("Therac-20", font_size=22, color=GREEN, weight=BOLD)
+        t20_label.next_to(t20_box, UP, buff=0.15)
+
+        sw = RoundedRectangle(width=1.5, height=0.6, corner_radius=0.05, color=BLUE_C, fill_opacity=0.15, stroke_width=1.5)
+        sw_lbl = Text("Software", font_size=13, color=WHITE).move_to(sw)
+        hw = RoundedRectangle(width=1.5, height=0.6, corner_radius=0.05, color=GREEN, fill_opacity=0.25, stroke_width=2)
+        hw_lbl = Text("Hardware\nInterlocks", font_size=11, color=WHITE).move_to(hw)
+        t20_content = VGroup(VGroup(sw, sw_lbl), VGroup(hw, hw_lbl)).arrange(DOWN, buff=0.3)
+        t20_content.move_to(t20_box)
+        t20_group = VGroup(t20_box, t20_label, t20_content).move_to(LEFT * 3.5 + DOWN * 0.3)
+
+        # Therac-25 (without)
+        t25_box = RoundedRectangle(width=4, height=2.5, corner_radius=0.1, color=RED, fill_opacity=0.08, stroke_width=2)
+        t25_label = Text("Therac-25", font_size=22, color=RED, weight=BOLD)
+        t25_label.next_to(t25_box, UP, buff=0.15)
+
+        sw2 = RoundedRectangle(width=1.5, height=0.6, corner_radius=0.05, color=BLUE_C, fill_opacity=0.15, stroke_width=1.5)
+        sw2_lbl = Text("Software", font_size=13, color=WHITE).move_to(sw2)
+        hw2 = RoundedRectangle(width=1.5, height=0.6, corner_radius=0.05, color=RED, fill_opacity=0.1, stroke_width=1.5, stroke_opacity=0.4)
+        hw2_lbl = Text("REMOVED", font_size=13, color=RED, weight=BOLD).move_to(hw2)
+        cross1 = Line(hw2.get_corner(UL), hw2.get_corner(DR), color=RED, stroke_width=2)
+        cross2 = Line(hw2.get_corner(UR), hw2.get_corner(DL), color=RED, stroke_width=2)
+        t25_content = VGroup(VGroup(sw2, sw2_lbl), VGroup(hw2, hw2_lbl, cross1, cross2)).arrange(DOWN, buff=0.3)
+        t25_content.move_to(t25_box)
+        t25_group = VGroup(t25_box, t25_label, t25_content).move_to(RIGHT * 3.5 + DOWN * 0.3)
+
+        # Arrow between
+        arrow = Arrow(LEFT * 1, RIGHT * 1, color=ORANGE, stroke_width=3).move_to(DOWN * 0.3)
+        arrow_lbl = Text("Evolution", font_size=14, color=ORANGE).next_to(arrow, UP, buff=0.1)
+
+        # Animate
+        self.play(FadeIn(t20_group), run_time=0.8)
+        self.wait(0.5)
+        self.play(GrowArrow(arrow), FadeIn(arrow_lbl), run_time=0.6)
+        self.play(FadeIn(t25_group), run_time=0.8)
+        self.wait(0.3)
+        self.play(Indicate(VGroup(cross1, cross2, hw2_lbl), color=RED, scale_factor=1.1), run_time=0.8)
+
+        warning = Text("Software alone now responsible for patient safety", font_size=16, color=RED_B)
+        warning.to_edge(DOWN, buff=0.8)
+        self.play(FadeIn(warning), run_time=0.6)
+
+        source = Text("Source: Leveson & Turner, IEEE Computer, 1993", font_size=13, color=GREY)
+        source.to_edge(DOWN, buff=0.15)
+        self.play(FadeIn(source), run_time=0.4)
+        self.wait(2)
+'''
+    else:
+        # Generic scientific diagram — use the description as a text card
+        return _generate_text_card(scene, output_dir)
+
+    return _run_manim_scene(code, template, output_dir, scene["scene_id"])
+
+
+def _manim_process_flow(scene: dict[str, Any], output_dir: Path) -> VisualAsset | None:
+    """Generic process flow — builds numbered steps from the animation_description."""
+    desc = scene.get("animation_description", "")
+    narration = scene.get("narration", "")
+
+    # Extract key steps from the description or narration
+    # Use a simplified version — numbered steps
+    steps_text = desc if desc else narration[:200]
+
+    code = r'''
+from manim import *
+
+class ProcessFlow(Scene):
+    def construct(self):
+        self.camera.background_color = "#0a0a1a"
+        title = Text("''' + scene.get("scene_id", "Process").replace("_", " ").title() + r'''", font_size=32, color=WHITE, weight=BOLD)
+        title.to_edge(UP, buff=0.4)
+        self.play(Write(title), run_time=0.8)
+
+        # Build steps from narration key phrases
+        narration = """''' + narration[:400].replace('"', '\\"').replace('\n', ' ') + r'''"""
+
+        # Extract short phrases for steps
+        sentences = [s.strip() for s in narration.split('.') if len(s.strip()) > 10][:6]
+
+        def step_box(num, text, color=BLUE_C, w=6, h=0.6):
+            box = RoundedRectangle(corner_radius=0.08, width=w, height=h, fill_color=color, fill_opacity=0.12, stroke_color=color, stroke_width=1.5)
+            circ = Circle(radius=0.18, color=color, fill_opacity=0.3, stroke_width=1)
+            num_t = Text(str(num), font_size=14, color=WHITE, weight=BOLD).move_to(circ)
+            label = Text(text[:55] + ("..." if len(text) > 55 else ""), font_size=14, color=WHITE)
+            content = VGroup(VGroup(circ, num_t), label).arrange(RIGHT, buff=0.25)
+            content.move_to(box)
+            return VGroup(box, content)
+
+        colors = [BLUE_C, BLUE_C, YELLOW, ORANGE, ORANGE, RED_E]
+        steps = []
+        for i, sent in enumerate(sentences):
+            c = colors[i] if i < len(colors) else BLUE_C
+            steps.append(step_box(i + 1, sent, c))
+
+        flow = VGroup(*steps).arrange(DOWN, buff=0.15)
+        flow.next_to(title, DOWN, buff=0.35)
+        if flow.height > 5.5:
+            flow.scale_to_fit_height(5.5)
+            flow.next_to(title, DOWN, buff=0.3)
+
+        for i, step in enumerate(steps):
+            self.play(FadeIn(step, shift=LEFT * 0.2), run_time=0.5)
+            self.wait(0.15)
+
+        source = Text("Source: Leveson & Turner, IEEE Computer, 1993", font_size=13, color=GREY)
+        source.to_edge(DOWN, buff=0.15)
+        self.play(FadeIn(source), run_time=0.4)
+        self.wait(2)
+'''
+    return _run_manim_scene(code, "ProcessFlow", output_dir, scene["scene_id"])
 
 
 def _probe_duration(path: str) -> float:
