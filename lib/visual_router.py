@@ -34,6 +34,37 @@ class VisualAsset:
     description: str
 
 
+def _sanitize_for_manim(text: str) -> str:
+    """Clean text for safe embedding in Manim Python code strings.
+
+    Replaces Unicode characters that cause rendering artifacts or
+    syntax errors in Manim's Text() objects and Python string literals.
+    """
+    replacements = {
+        "\u2014": " - ",    # em-dash
+        "\u2013": " - ",    # en-dash
+        "\u2192": "->",     # right arrow →
+        "\u2190": "<-",     # left arrow ←
+        "\u2194": "<->",    # left-right arrow ↔
+        "\u2018": "'",      # left single curly quote
+        "\u2019": "'",      # right single curly quote
+        "\u201C": '"',      # left double curly quote
+        "\u201D": '"',      # right double curly quote
+        "\u2026": "...",    # horizontal ellipsis
+        "\u2012": " - ",    # figure dash
+        "\u2015": " - ",    # horizontal bar
+        "\u00e2\u20ac\u201c": " - ",  # mojibake em-dash
+        "\u00e2\u20ac\u201d": " - ",  # mojibake em-dash variant
+        '"': "'",           # double quotes break Python strings in code templates
+        "\\": "/",          # backslashes break string escaping
+    }
+    for char, replacement in replacements.items():
+        text = text.replace(char, replacement)
+    # Strip any remaining non-ASCII that could cause issues
+    text = text.encode("ascii", errors="replace").decode("ascii")
+    return text
+
+
 def route_scene(
     scene: dict[str, Any],
     output_dir: str | Path,
@@ -174,7 +205,7 @@ def _generate_text_card(
         return None
 
     sid = scene["scene_id"]
-    narration = scene.get("narration", "")
+    narration = _sanitize_for_manim(scene.get("narration", ""))
 
     # Extract the key text — first sentence or the whole thing if short
     text = narration.split(".")[0].strip() + "." if "." in narration else narration
@@ -256,6 +287,8 @@ def _generate_text_card(
 
 def _run_manim_scene(code: str, class_name: str, output_dir: Path, scene_id: str) -> VisualAsset | None:
     """Write Manim code to a temp file, render it, return the asset."""
+    # Sanitize any Unicode in the code that could cause rendering artifacts
+    code = _sanitize_for_manim(code)
     script_path = output_dir / f"{scene_id}_manim.py"
     script_path.write_text(code, encoding="utf-8")
 
@@ -875,36 +908,54 @@ def _manim_process_flow(scene: dict[str, Any], output_dir: Path) -> VisualAsset 
     # Use a simplified version — numbered steps
     steps_text = desc if desc else narration[:200]
 
-    code = r'''
+    # Pre-sanitize narration and extract steps BEFORE embedding in code
+    clean_narration = _sanitize_for_manim(narration[:500])
+    sentences = [s.strip() for s in clean_narration.split('.') if len(s.strip()) > 10][:6]
+    # Truncate each to fit in a box (max 50 chars)
+    steps_data = []
+    for s in sentences:
+        txt = s[:50] + ("..." if len(s) > 50 else "")
+        txt = txt.replace("'", "").replace('"', '')  # strip quotes for code safety
+        steps_data.append(txt)
+
+    scene_title = _sanitize_for_manim(scene.get("scene_id", "Process").replace("_", " ").title())
+
+    # Build the steps list as a Python literal
+    steps_literal = repr(steps_data)
+
+    code = f'''
 from manim import *
 
 class ProcessFlow(Scene):
     def construct(self):
         self.camera.background_color = "#0a0a1a"
-        title = Text("''' + scene.get("scene_id", "Process").replace("_", " ").title() + r'''", font_size=32, color=WHITE, weight=BOLD)
+        title = Text("{scene_title}", font_size=32, color=WHITE, weight=BOLD)
         title.to_edge(UP, buff=0.4)
         self.play(Write(title), run_time=0.8)
 
-        # Build steps from narration key phrases
-        narration = """''' + narration[:400].replace('"', '\\"').replace('\n', ' ') + r'''"""
+        steps_text = {steps_literal}
+        colors = [BLUE_C, BLUE_C, YELLOW, ORANGE, ORANGE, RED_E]
 
-        # Extract short phrases for steps
-        sentences = [s.strip() for s in narration.split('.') if len(s.strip()) > 10][:6]
-
-        def step_box(num, text, color=BLUE_C, w=6, h=0.6):
-            box = RoundedRectangle(corner_radius=0.08, width=w, height=h, fill_color=color, fill_opacity=0.12, stroke_color=color, stroke_width=1.5)
+        def step_box(num, text, color=BLUE_C):
+            label = Text(text, font_size=14, color=WHITE)
             circ = Circle(radius=0.18, color=color, fill_opacity=0.3, stroke_width=1)
             num_t = Text(str(num), font_size=14, color=WHITE, weight=BOLD).move_to(circ)
-            label = Text(text[:55] + ("..." if len(text) > 55 else ""), font_size=14, color=WHITE)
             content = VGroup(VGroup(circ, num_t), label).arrange(RIGHT, buff=0.25)
+            # Auto-size box to fit content
+            box = RoundedRectangle(
+                corner_radius=0.08,
+                width=content.width + 0.6,
+                height=content.height + 0.3,
+                fill_color=color, fill_opacity=0.12,
+                stroke_color=color, stroke_width=1.5,
+            )
             content.move_to(box)
             return VGroup(box, content)
 
-        colors = [BLUE_C, BLUE_C, YELLOW, ORANGE, ORANGE, RED_E]
         steps = []
-        for i, sent in enumerate(sentences):
+        for i, txt in enumerate(steps_text):
             c = colors[i] if i < len(colors) else BLUE_C
-            steps.append(step_box(i + 1, sent, c))
+            steps.append(step_box(i + 1, txt, c))
 
         flow = VGroup(*steps).arrange(DOWN, buff=0.15)
         flow.next_to(title, DOWN, buff=0.35)
@@ -912,7 +963,7 @@ class ProcessFlow(Scene):
             flow.scale_to_fit_height(5.5)
             flow.next_to(title, DOWN, buff=0.3)
 
-        for i, step in enumerate(steps):
+        for step in steps:
             self.play(FadeIn(step, shift=LEFT * 0.2), run_time=0.5)
             self.wait(0.15)
 
