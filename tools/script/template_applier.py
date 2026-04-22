@@ -53,6 +53,7 @@ _OUTPUT_SCHEMA = {
                     "visual_description",
                     "ai_fallback_prompt",
                     "mood",
+                    "visual_strategy",
                 ],
                 "properties": {
                     "scene_id": {"type": "string"},
@@ -71,6 +72,19 @@ _OUTPUT_SCHEMA = {
                     "min_duration": {"type": "number"},
                     "preferred_duration": {"type": "number"},
                     "mood": {"type": "string"},
+                    "visual_strategy": {
+                        "type": "string",
+                        "enum": [
+                            "stock_footage",
+                            "diagram",
+                            "math_animation",
+                            "animated_chart",
+                            "text_card",
+                            "archival",
+                            "generated",
+                            "mixed",
+                        ],
+                    },
                 },
                 "additionalProperties": False,
             },
@@ -385,6 +399,15 @@ For EACH scene in the template, generate:
 8. **min_duration**: narration word count / 150 * 60 + 0.5
 9. **preferred_duration**: narration word count / 150 * 60 + 2.0
 10. **mood**: Use the mood from the template.
+11. **visual_strategy**: How this scene should be visualized. Choose ONE:
+   - "stock_footage" — real-world footage (hospital rooms, equipment, people)
+   - "diagram" — animated flowchart or state diagram (for explaining processes, race conditions, data flows)
+   - "math_animation" — animated chart or counter (for dose comparisons, byte overflow, numeric data)
+   - "animated_chart" — bar chart, line chart, or stat reveal (for statistics and comparisons)
+   - "text_card" — title card, date card, or quote card (for section transitions, key dates, direct quotes)
+   - "archival" — historical images or documents (for showing the actual paper, FDA documents, diagrams from primary sources)
+   - "generated" — AI-generated atmospheric footage (for period-accurate settings no stock footage covers)
+   - "mixed" — combination within the scene (footage + diagram overlay)
 
 {"CRITICAL: Write narration using ONLY the verified facts provided in the RESEARCH BRIEF above. Every patient name, date, number, and quote MUST come from the data_points or timeline_events. Do NOT invent facts from your training data. If the research brief does not contain a specific detail, leave it out rather than fabricate it. Each scene's narration should flow naturally into the next." if research_brief else f"IMPORTANT: Write narration that is factually accurate about {topic}. The narration should tell a compelling story following the narrative arc structure above. Each scene's narration should flow naturally into the next."}
 """
