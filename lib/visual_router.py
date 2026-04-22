@@ -456,24 +456,218 @@ class RaceCondition(Scene):
 
 
 def _manim_state_machine(scene: dict[str, Any], output_dir: Path) -> VisualAsset | None:
-    """X-ray / Electron mode state machine diagram."""
-    # TODO: implement
-    _log.warning("State machine Manim not yet implemented for %s", scene["scene_id"])
-    return _generate_text_card(scene, output_dir)
+    """X-ray / Electron mode state machine — turntable positions."""
+    code = r'''
+from manim import *
+
+class StateMachine(Scene):
+    def construct(self):
+        self.camera.background_color = "#0a0a1a"
+        title = Text("Therac-25 Operating Modes", font_size=36, color=WHITE, weight=BOLD)
+        subtitle = Text("Turntable position determines beam type", font_size=20, color=GREY_B)
+        VGroup(title, subtitle).arrange(DOWN, buff=0.15).to_edge(UP, buff=0.3)
+        self.play(Write(title), run_time=0.8)
+        self.play(FadeIn(subtitle), run_time=0.5)
+
+        def state_box(label, sublabel, color, w=3.5, h=1.2):
+            box = RoundedRectangle(corner_radius=0.15, width=w, height=h, fill_color=color, fill_opacity=0.15, stroke_color=color, stroke_width=2.5)
+            t = Text(label, font_size=22, color=WHITE, weight=BOLD)
+            s = Text(sublabel, font_size=14, color=GREY_B)
+            g = VGroup(t, s).arrange(DOWN, buff=0.12)
+            g.move_to(box)
+            return VGroup(box, g)
+
+        xray = state_box("X-Ray Mode", "25 MeV + tungsten target\n+ flattening filter", BLUE_C)
+        electron = state_box("Electron Mode", "5-25 MeV direct beam\nno target needed", TEAL)
+        field_light = state_box("Field Light", "Visible light only\nfor patient alignment", YELLOW)
+
+        xray.move_to(LEFT * 4 + DOWN * 0.3)
+        electron.move_to(RIGHT * 4 + DOWN * 0.3)
+        field_light.move_to(DOWN * 2.8)
+
+        # Turntable in center
+        turntable = Circle(radius=0.6, color=WHITE, stroke_width=2, fill_color=GREY_E, fill_opacity=0.3)
+        tt_label = Text("Turntable", font_size=16, color=WHITE)
+        tt = VGroup(turntable, tt_label).arrange(DOWN, buff=0.1)
+        tt.move_to(DOWN * 0.3)
+
+        # Arrows between states
+        a1 = CurvedArrow(xray.get_right(), electron.get_left(), angle=-TAU/6, color=ORANGE, stroke_width=2)
+        a2 = CurvedArrow(electron.get_left(), xray.get_right(), angle=-TAU/6, color=ORANGE, stroke_width=2)
+        a3 = Arrow(xray.get_bottom(), field_light.get_left(), buff=0.1, color=GREY_B, stroke_width=1.5)
+        a4 = Arrow(electron.get_bottom(), field_light.get_right(), buff=0.1, color=GREY_B, stroke_width=1.5)
+
+        mode_label = Text("Mode switch\n(operator command)", font_size=13, color=ORANGE)
+        mode_label.next_to(a1, UP, buff=0.1)
+
+        # Danger zone
+        danger = RoundedRectangle(corner_radius=0.1, width=6, height=0.7, fill_color=RED, fill_opacity=0.1, stroke_color=RED, stroke_width=1.5)
+        danger_text = Text("DANGER: If turntable does not rotate during mode switch,\nbeam fires without safety target in place", font_size=13, color=RED_B)
+        danger_group = VGroup(danger, danger_text)
+        danger_text.move_to(danger)
+        danger_group.to_edge(DOWN, buff=0.6)
+
+        # Animate
+        self.play(FadeIn(tt), run_time=0.5)
+        self.play(FadeIn(xray, shift=RIGHT * 0.3), run_time=0.7)
+        self.wait(0.3)
+        self.play(FadeIn(electron, shift=LEFT * 0.3), run_time=0.7)
+        self.wait(0.3)
+        self.play(FadeIn(field_light, shift=UP * 0.2), GrowArrow(a3), GrowArrow(a4), run_time=0.7)
+        self.wait(0.3)
+
+        self.play(Create(a1), Create(a2), FadeIn(mode_label), run_time=1.0)
+        self.wait(0.5)
+
+        # Highlight danger
+        self.play(FadeIn(danger_group), run_time=0.8)
+        self.play(Indicate(danger, color=RED, scale_factor=1.02), run_time=0.6)
+
+        source = Text("Source: Leveson & Turner, IEEE Computer, 1993", font_size=13, color=GREY)
+        source.to_edge(DOWN, buff=0.15)
+        self.play(FadeIn(source), run_time=0.4)
+        self.wait(2)
+'''
+    return _run_manim_scene(code, "StateMachine", output_dir, scene["scene_id"])
 
 
 def _manim_data_flow(scene: dict[str, Any], output_dir: Path) -> VisualAsset | None:
-    """Keystroke → Malfunction 54 → P → Fire data flow."""
-    # TODO: implement
-    _log.warning("Data flow Manim not yet implemented for %s", scene["scene_id"])
-    return _generate_text_card(scene, output_dir)
+    """Keystroke → Malfunction 54 → P → Fire — linear data flow with step reveals."""
+    code = r'''
+from manim import *
+
+class DataFlow(Scene):
+    def construct(self):
+        self.camera.background_color = "#0a0a1a"
+        title = Text("The Fatal Sequence", font_size=36, color=WHITE, weight=BOLD)
+        title.to_edge(UP, buff=0.4)
+        self.play(Write(title), run_time=0.8)
+
+        def step_box(num, text, color, w=5.5, h=0.7):
+            box = RoundedRectangle(corner_radius=0.1, width=w, height=h, fill_color=color, fill_opacity=0.12, stroke_color=color, stroke_width=2)
+            num_circle = Circle(radius=0.22, color=color, fill_opacity=0.3, stroke_width=1.5)
+            num_text = Text(str(num), font_size=16, color=WHITE, weight=BOLD)
+            num_text.move_to(num_circle)
+            num_g = VGroup(num_circle, num_text)
+            label = Text(text, font_size=17, color=WHITE)
+            content = VGroup(num_g, label).arrange(RIGHT, buff=0.3)
+            content.move_to(box)
+            return VGroup(box, content)
+
+        steps = [
+            step_box(1, "Operator enters treatment parameters", BLUE_C),
+            step_box(2, "Operator edits mode (X-ray to Electron) quickly", BLUE_C),
+            step_box(3, "Software begins reconfiguration (8s window)", YELLOW),
+            step_box(4, "Safety check runs on OLD configuration — PASSES", ORANGE),
+            step_box(5, "'Malfunction 54' displayed on screen", ORANGE),
+            step_box(6, "Operator presses 'P' to proceed", ORANGE),
+            step_box(7, "Beam fires — NO target in position", RED_E),
+        ]
+
+        flow = VGroup(*steps).arrange(DOWN, buff=0.18)
+        flow.next_to(title, DOWN, buff=0.4)
+
+        # Scale to fit
+        if flow.get_bottom()[1] < -3.5:
+            flow.scale_to_fit_height(6.0)
+            flow.next_to(title, DOWN, buff=0.3)
+
+        # Animate step by step
+        for i, step in enumerate(steps):
+            rt = 0.5 if i < 3 else 0.7
+            self.play(FadeIn(step, shift=LEFT * 0.3), run_time=rt)
+            if i == 3:  # safety check passes incorrectly
+                self.play(step[0].animate.set_fill(ORANGE, opacity=0.25), run_time=0.3)
+            elif i == 6:  # beam fires
+                self.play(
+                    step[0].animate.set_fill(RED_E, opacity=0.3),
+                    Flash(step, color=RED, line_length=0.3, num_lines=10),
+                    run_time=0.8,
+                )
+            self.wait(0.2)
+
+        source = Text("Source: Leveson & Turner, IEEE Computer, 1993", font_size=13, color=GREY)
+        source.to_edge(DOWN, buff=0.15)
+        self.play(FadeIn(source), run_time=0.4)
+        self.wait(2)
+'''
+    return _run_manim_scene(code, "DataFlow", output_dir, scene["scene_id"])
 
 
 def _manim_timeline(scene: dict[str, Any], output_dir: Path) -> VisualAsset | None:
-    """Timeline of Therac-25 incidents."""
-    # TODO: implement
-    _log.warning("Timeline Manim not yet implemented for %s", scene["scene_id"])
-    return _generate_text_card(scene, output_dir)
+    """Timeline of Therac-25 incidents 1985-1987."""
+    code = r'''
+from manim import *
+
+class IncidentTimeline(Scene):
+    def construct(self):
+        self.camera.background_color = "#0a0a1a"
+        title = Text("Therac-25 Incident Timeline", font_size=36, color=WHITE, weight=BOLD)
+        title.to_edge(UP, buff=0.4)
+        self.play(Write(title), run_time=0.8)
+
+        # Timeline axis
+        line = Line(LEFT * 6, RIGHT * 6, color=GREY_B, stroke_width=2)
+        line.move_to(DOWN * 0.2)
+        self.play(Create(line), run_time=0.5)
+
+        # Year markers
+        years = {"1985": -5, "1986": -1.5, "1987": 2.5, "1988": 5.5}
+        for year, x in years.items():
+            tick = Line(UP * 0.15, DOWN * 0.15, color=GREY_B, stroke_width=1.5).move_to(line.get_center() + RIGHT * x)
+            label = Text(year, font_size=18, color=GREY_B).next_to(tick, DOWN, buff=0.15)
+            self.play(Create(tick), FadeIn(label), run_time=0.3)
+
+        # Incidents
+        incidents = [
+            (-4.5, "Jun 1985", "Yarbrough\nMarietta, GA", YELLOW, "75-100x dose"),
+            (-3.5, "Jul 1985", "Hill\nHamilton, ON", YELLOW, "Died Nov 1985"),
+            (-2.5, "Dec 1985", "Patient\nYakima, WA", ORANGE, "Erythema"),
+            (-1.0, "Mar 1986", "Cox\nTyler, TX", RED, "Died Aug 1986"),
+            (-0.3, "Apr 1986", "Kidd\nTyler, TX", RED, "Died May 1986"),
+            (1.3, "May 1986", "FDA declares\ndefective", BLUE_C, ""),
+            (3.0, "Jan 1987", "Dodd\nYakima, WA", RED, "Died Apr 1987"),
+            (4.5, "Feb 1987", "FDA: remove\nall units", BLUE_C, ""),
+        ]
+
+        for x, date, name, color, note in incidents:
+            dot = Dot(line.get_center() + RIGHT * x, radius=0.08, color=color)
+            marker_line = Line(ORIGIN, UP * 1.0, color=color, stroke_width=1.5)
+            marker_line.next_to(dot, UP, buff=0)
+
+            date_text = Text(date, font_size=12, color=color)
+            name_text = Text(name, font_size=11, color=WHITE)
+            info = VGroup(date_text, name_text).arrange(DOWN, buff=0.06)
+            info.next_to(marker_line, UP, buff=0.08)
+
+            death = color in (RED,)
+            self.play(
+                FadeIn(dot),
+                Create(marker_line),
+                FadeIn(info),
+                run_time=0.6,
+            )
+            if death and note:
+                note_text = Text(note, font_size=10, color=RED_B)
+                note_text.next_to(info, RIGHT, buff=0.1)
+                self.play(FadeIn(note_text), run_time=0.3)
+            elif note:
+                note_text = Text(note, font_size=10, color=GREY_B)
+                note_text.next_to(info, RIGHT, buff=0.1)
+                self.play(FadeIn(note_text), run_time=0.3)
+            self.wait(0.2)
+
+        # Summary
+        summary = Text("6 patients overdosed  |  3 confirmed deaths  |  2 years to fix", font_size=16, color=RED_B)
+        summary.to_edge(DOWN, buff=0.8)
+        self.play(FadeIn(summary), run_time=0.6)
+
+        source = Text("Source: Leveson & Turner, IEEE Computer, 1993", font_size=13, color=GREY)
+        source.to_edge(DOWN, buff=0.15)
+        self.play(FadeIn(source), run_time=0.4)
+        self.wait(2)
+'''
+    return _run_manim_scene(code, "IncidentTimeline", output_dir, scene["scene_id"])
 
 
 def _probe_duration(path: str) -> float:
