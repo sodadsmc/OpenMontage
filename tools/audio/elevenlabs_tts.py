@@ -102,6 +102,14 @@ class ElevenLabsTTS(BaseTool):
                 "default": "mp3_44100_128",
                 "enum": ["mp3_44100_128", "mp3_44100_192", "pcm_16000", "pcm_24000"],
             },
+            "pronunciation_dictionary_id": {
+                "type": "string",
+                "description": "ElevenLabs pronunciation dictionary ID for custom term pronunciation",
+            },
+            "pronunciation_dictionary_version_id": {
+                "type": "string",
+                "description": "Version ID of the pronunciation dictionary",
+            },
         },
     }
 
@@ -161,6 +169,32 @@ class ElevenLabsTTS(BaseTool):
             text = text.replace(char, replacement)
         return text
 
+    @staticmethod
+    def _build_tts_body(text: str, model_id: str, inputs: dict[str, Any]) -> dict[str, Any]:
+        """Build the TTS request body, optionally with pronunciation dictionary."""
+        body: dict[str, Any] = {
+            "text": text,
+            "model_id": model_id,
+            "voice_settings": {
+                "stability": inputs.get("stability", 0.5),
+                "similarity_boost": inputs.get("similarity_boost", 0.75),
+                "style": inputs.get("style", 0.0),
+            },
+        }
+
+        # Attach pronunciation dictionary if provided
+        pdict_id = inputs.get("pronunciation_dictionary_id")
+        pdict_version = inputs.get("pronunciation_dictionary_version_id")
+        if pdict_id and pdict_version:
+            body["pronunciation_dictionary_locators"] = [
+                {
+                    "pronunciation_dictionary_id": pdict_id,
+                    "version_id": pdict_version,
+                }
+            ]
+
+        return body
+
     def _generate(self, inputs: dict[str, Any], api_key: str) -> ToolResult:
         import requests
 
@@ -176,15 +210,7 @@ class ElevenLabsTTS(BaseTool):
                 "Content-Type": "application/json",
                 "Accept": "audio/mpeg",
             },
-            json={
-                "text": text,
-                "model_id": model_id,
-                "voice_settings": {
-                    "stability": inputs.get("stability", 0.5),
-                    "similarity_boost": inputs.get("similarity_boost", 0.75),
-                    "style": inputs.get("style", 0.0),
-                },
-            },
+            json=self._build_tts_body(text, model_id, inputs),
             params={"output_format": output_format},
             timeout=120,
         )
