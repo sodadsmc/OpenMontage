@@ -564,15 +564,15 @@ class StateMachine(Scene):
         electron = state_box("Electron Mode", "5-25 MeV direct beam\nno target needed", TEAL)
         field_light = state_box("Field Light", "Visible light only\nfor patient alignment", YELLOW)
 
-        xray.move_to(LEFT * 4 + DOWN * 0.3)
-        electron.move_to(RIGHT * 4 + DOWN * 0.3)
-        field_light.move_to(DOWN * 2.8)
+        xray.move_to(LEFT * 4 + DOWN * 0.1)
+        electron.move_to(RIGHT * 4 + DOWN * 0.1)
+        field_light.move_to(DOWN * 2.2)
 
         # Turntable in center
-        turntable = Circle(radius=0.6, color=WHITE, stroke_width=2, fill_color=GREY_E, fill_opacity=0.3)
-        tt_label = Text("Turntable", font_size=16, color=WHITE)
-        tt = VGroup(turntable, tt_label).arrange(DOWN, buff=0.1)
-        tt.move_to(DOWN * 0.3)
+        turntable = Circle(radius=0.5, color=WHITE, stroke_width=2, fill_color=GREY_E, fill_opacity=0.3)
+        tt_label = Text("Turntable", font_size=14, color=WHITE)
+        tt = VGroup(turntable, tt_label).arrange(DOWN, buff=0.08)
+        tt.move_to(DOWN * 0.1)
 
         # Arrows between states
         a1 = CurvedArrow(xray.get_right(), electron.get_left(), angle=-TAU/6, color=ORANGE, stroke_width=2)
@@ -602,12 +602,12 @@ class StateMachine(Scene):
         self.play(Create(a1), Create(a2), FadeIn(mode_label), run_time=1.0)
         self.wait(0.5)
 
-        # Highlight danger
+        # Highlight danger + source combined at bottom
+        source = Text("Source: Leveson & Turner, IEEE Computer, 1993", font_size=11, color=GREY)
+        bottom = VGroup(danger_group, source).arrange(DOWN, buff=0.1)
+        bottom.to_edge(DOWN, buff=0.15)
         self.play(FadeIn(danger_group), run_time=0.8)
         self.play(Indicate(danger, color=RED, scale_factor=1.02), run_time=0.6)
-
-        source = Text("Source: Leveson & Turner, IEEE Computer, 1993", font_size=13, color=GREY)
-        source.to_edge(DOWN, buff=0.15)
         self.play(FadeIn(source), run_time=0.4)
         self.wait(2)
 '''
