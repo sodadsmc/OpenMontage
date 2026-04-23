@@ -702,43 +702,37 @@ class IncidentTimeline(Scene):
             label = Text(year, font_size=18, color=GREY_B).next_to(tick, DOWN, buff=0.15)
             self.play(Create(tick), FadeIn(label), run_time=0.3)
 
-        # Incidents
+        # Incidents — alternate above/below to prevent overlap
+        # (x_pos, date, name, color, note, above=True/False)
         incidents = [
-            (-4.5, "Jun 1985", "Yarbrough\nMarietta, GA", YELLOW, "75-100x dose"),
-            (-3.5, "Jul 1985", "Hill\nHamilton, ON", YELLOW, "Died Nov 1985"),
-            (-2.5, "Dec 1985", "Patient\nYakima, WA", ORANGE, "Erythema"),
-            (-1.0, "Mar 1986", "Cox\nTyler, TX", RED, "Died Aug 1986"),
-            (-0.3, "Apr 1986", "Kidd\nTyler, TX", RED, "Died May 1986"),
-            (1.3, "May 1986", "FDA declares\ndefective", BLUE_C, ""),
-            (3.0, "Jan 1987", "Dodd\nYakima, WA", RED, "Died Apr 1987"),
-            (4.5, "Feb 1987", "FDA: remove\nall units", BLUE_C, ""),
+            (-5.0, "Jun 85", "Yarbrough", YELLOW, "75-100x dose", True),
+            (-3.5, "Jul 85", "Hill", YELLOW, "Died Nov 85", False),
+            (-2.2, "Dec 85", "Yakima", ORANGE, "", True),
+            (-0.8, "Mar 86", "Cox", RED, "Died Aug 86", False),
+            (0.5, "Apr 86", "Kidd", RED, "Died May 86", True),
+            (2.0, "May 86", "FDA defective", BLUE_C, "", False),
+            (3.5, "Jan 87", "Dodd", RED, "Died Apr 87", True),
+            (5.0, "Feb 87", "FDA: remove", BLUE_C, "", False),
         ]
 
-        for x, date, name, color, note in incidents:
+        for x, date, name, color, note, above in incidents:
             dot = Dot(line.get_center() + RIGHT * x, radius=0.08, color=color)
-            marker_line = Line(ORIGIN, UP * 1.0, color=color, stroke_width=1.5)
-            marker_line.next_to(dot, UP, buff=0)
+            direction = UP if above else DOWN
+            marker_line = Line(ORIGIN, direction * 0.8, color=color, stroke_width=1.5)
+            marker_line.next_to(dot, direction, buff=0)
 
-            date_text = Text(date, font_size=12, color=color)
+            date_text = Text(date, font_size=11, color=color)
             name_text = Text(name, font_size=11, color=WHITE)
-            info = VGroup(date_text, name_text).arrange(DOWN, buff=0.06)
-            info.next_to(marker_line, UP, buff=0.08)
+            info = VGroup(date_text, name_text).arrange(DOWN if above else UP, buff=0.04)
+            info.next_to(marker_line, direction, buff=0.06)
 
-            death = color in (RED,)
-            self.play(
-                FadeIn(dot),
-                Create(marker_line),
-                FadeIn(info),
-                run_time=0.6,
-            )
-            if death and note:
-                note_text = Text(note, font_size=10, color=RED_B)
-                note_text.next_to(info, RIGHT, buff=0.1)
-                self.play(FadeIn(note_text), run_time=0.3)
-            elif note:
-                note_text = Text(note, font_size=10, color=GREY_B)
-                note_text.next_to(info, RIGHT, buff=0.1)
-                self.play(FadeIn(note_text), run_time=0.3)
+            if note:
+                note_text = Text(note, font_size=9, color=RED_B if "Died" in note else GREY_B)
+                info.add(note_text)
+                info.arrange(DOWN if above else UP, buff=0.04)
+                info.next_to(marker_line, direction, buff=0.06)
+
+            self.play(FadeIn(dot), Create(marker_line), FadeIn(info), run_time=0.5)
             self.wait(0.2)
 
         # Summary
