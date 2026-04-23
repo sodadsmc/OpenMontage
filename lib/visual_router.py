@@ -56,11 +56,10 @@ def _sanitize_for_manim(text: str) -> str:
         "\u00e2\u20ac\u201c": " - ",  # mojibake em-dash
         "\u00e2\u20ac\u201d": " - ",  # mojibake em-dash variant
         '"': "'",           # double quotes break Python strings in code templates
-        "\\": "/",          # backslashes break string escaping
     }
     for char, replacement in replacements.items():
         text = text.replace(char, replacement)
-    # Strip any remaining non-ASCII that could cause issues
+    # Strip remaining non-ASCII but preserve \n (Manim Text supports newlines)
     text = text.encode("ascii", errors="replace").decode("ascii")
     return text
 
@@ -581,12 +580,12 @@ class StateMachine(Scene):
         a3 = Arrow(xray.get_bottom(), field_light.get_left(), buff=0.1, color=GREY_B, stroke_width=1.5)
         a4 = Arrow(electron.get_bottom(), field_light.get_right(), buff=0.1, color=GREY_B, stroke_width=1.5)
 
-        mode_label = Text("Mode switch\n(operator command)", font_size=13, color=ORANGE)
+        mode_label = Text("Mode switch" + chr(10) + "(operator command)", font_size=13, color=ORANGE)
         mode_label.next_to(a1, UP, buff=0.1)
 
         # Danger zone
         danger = RoundedRectangle(corner_radius=0.1, width=6, height=0.7, fill_color=RED, fill_opacity=0.1, stroke_color=RED, stroke_width=1.5)
-        danger_text = Text("DANGER: If turntable does not rotate during mode switch,\nbeam fires without safety target in place", font_size=13, color=RED_B)
+        danger_text = Text("DANGER: If turntable does not rotate during mode switch," + chr(10) + "beam fires without safety target in place", font_size=13, color=RED_B)
         danger_group = VGroup(danger, danger_text)
         danger_text.move_to(danger)
         danger_group.to_edge(DOWN, buff=0.6)
@@ -768,7 +767,7 @@ class RadiationTherapy(Scene):
 
         # Linear accelerator (left)
         linac = RoundedRectangle(width=2, height=1.2, corner_radius=0.1, color=BLUE_C, fill_opacity=0.2, stroke_width=2)
-        linac_label = Text("Linear\nAccelerator", font_size=14, color=WHITE)
+        linac_label = Text("Linear" + chr(10) + "Accelerator", font_size=14, color=WHITE)
         linac_label.move_to(linac)
         linac_group = VGroup(linac, linac_label).move_to(LEFT * 4.5 + DOWN * 0.5)
 
@@ -805,7 +804,7 @@ class RadiationTherapy(Scene):
         )
 
         # Tumor shrinks
-        destroyed_label = Text("DNA destroyed\nCells stop dividing", font_size=13, color=GREEN)
+        destroyed_label = Text("DNA destroyed" + chr(10) + "Cells stop dividing", font_size=13, color=GREEN)
         destroyed_label.move_to(tumor)
         self.play(
             tumor.animate.scale(0.3).set_opacity(0.1),
@@ -845,7 +844,7 @@ class SafetyInterlocks(Scene):
         sw = RoundedRectangle(width=1.5, height=0.6, corner_radius=0.05, color=BLUE_C, fill_opacity=0.15, stroke_width=1.5)
         sw_lbl = Text("Software", font_size=13, color=WHITE).move_to(sw)
         hw = RoundedRectangle(width=1.5, height=0.6, corner_radius=0.05, color=GREEN, fill_opacity=0.25, stroke_width=2)
-        hw_lbl = Text("Hardware\nInterlocks", font_size=11, color=WHITE).move_to(hw)
+        hw_lbl = Text("Hardware" + chr(10) + "Interlocks", font_size=11, color=WHITE).move_to(hw)
         t20_content = VGroup(VGroup(sw, sw_lbl), VGroup(hw, hw_lbl)).arrange(DOWN, buff=0.3)
         t20_content.move_to(t20_box)
         t20_group = VGroup(t20_box, t20_label, t20_content).move_to(LEFT * 3.5 + DOWN * 0.3)
