@@ -583,12 +583,12 @@ class StateMachine(Scene):
         mode_label = Text("Mode switch" + chr(10) + "(operator command)", font_size=13, color=ORANGE)
         mode_label.next_to(a1, UP, buff=0.1)
 
-        # Danger zone
-        danger = RoundedRectangle(corner_radius=0.1, width=6, height=0.7, fill_color=RED, fill_opacity=0.1, stroke_color=RED, stroke_width=1.5)
-        danger_text = Text("DANGER: If turntable does not rotate during mode switch," + chr(10) + "beam fires without safety target in place", font_size=13, color=RED_B)
+        # Danger zone — below field light, near bottom edge
+        danger = RoundedRectangle(corner_radius=0.1, width=8, height=0.6, fill_color=RED, fill_opacity=0.2, stroke_color=RED, stroke_width=2)
+        danger_text = Text("DANGER: If turntable fails to rotate, beam fires without safety target", font_size=14, color=RED)
         danger_group = VGroup(danger, danger_text)
         danger_text.move_to(danger)
-        danger_group.to_edge(DOWN, buff=0.6)
+        danger_group.to_edge(DOWN, buff=0.2)
 
         # Animate
         self.play(FadeIn(tt), run_time=0.5)
@@ -907,7 +907,7 @@ def _manim_process_flow(scene: dict[str, Any], output_dir: Path) -> VisualAsset 
     # Truncate each to fit in a box (max 50 chars)
     steps_data = []
     for s in sentences:
-        txt = s[:50] + ("..." if len(s) > 50 else "")
+        txt = s[:42] + ("..." if len(s) > 42 else "")
         txt = txt.replace("'", "").replace('"', '')  # strip quotes for code safety
         steps_data.append(txt)
 
