@@ -273,8 +273,15 @@ class KieVideo(BaseTool):
 
                 flag = data.get("successFlag", 0)
                 if flag == 1:  # Success
-                    urls_str = data.get("resultUrls", "[]")
-                    urls = json.loads(urls_str) if isinstance(urls_str, str) else urls_str
+                    # URLs may be at top level or nested in response object
+                    response_obj = data.get("response", {})
+                    urls = (
+                        response_obj.get("resultUrls")
+                        or data.get("resultUrls")
+                        or []
+                    )
+                    if isinstance(urls, str):
+                        urls = json.loads(urls)
                     if urls:
                         return urls[0]
                 elif flag in (2, 3):  # Failed
