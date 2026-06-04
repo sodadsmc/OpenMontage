@@ -192,6 +192,67 @@ def _generate_remotion_chart(
     return _generate_text_card(scene, output_dir)
 
 
+def generate_styled_card(
+    segment_id: str,
+    visual_spec: "VisualSpec",
+    output_dir: str | Path,
+    target_duration_s: float = 5.0,
+) -> VisualAsset | None:
+    """Generate a styled text card using the card_type design system.
+
+    Routes to one of 7 distinct Manim templates based on card_type.
+    Falls back to the old single-style text card if Manim fails.
+
+    Args:
+        segment_id: Segment identifier (e.g. seg_004)
+        visual_spec: VisualSpec from the scored script
+        output_dir: Directory for output files
+        target_duration_s: Required duration from the Duration Map
+
+    Returns:
+        VisualAsset with the rendered card video
+    """
+    from lib.card_templates import generate_card_code
+
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    card_type = visual_spec.card_type or "technical_label"
+    text = visual_spec.description
+
+    # Build kwargs from visual spec fields
+    kwargs: dict[str, Any] = {}
+    if visual_spec.values:
+        kwargs["values"] = visual_spec.values
+    if visual_spec.emphasis:
+        kwargs["emphasis"] = visual_spec.emphasis
+    if visual_spec.terminal_text:
+        kwargs["terminal_text"] = visual_spec.terminal_text
+    if visual_spec.subtext:
+        kwargs["subtext"] = visual_spec.subtext
+
+    try:
+        code, class_name = generate_card_code(
+            card_type=card_type,
+            text=text,
+            target_duration_s=target_duration_s,
+            **kwargs,
+        )
+        asset = _run_manim_scene(code, class_name, output_dir, segment_id)
+        if asset:
+            asset.strategy = f"text_card:{card_type}"
+            return asset
+    except Exception as exc:
+        _log.warning("Styled card failed for %s (%s): %s", segment_id, card_type, exc)
+
+    # Fallback to old-style text card
+    _log.info("Falling back to plain text card for %s", segment_id)
+    return _generate_text_card(
+        {"scene_id": segment_id, "narration": text},
+        output_dir,
+    )
+
+
 def _generate_text_card(
     scene: dict[str, Any],
     output_dir: Path,

@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/scored_script",
+  "title": "Scored Script",
+  "description": "Structured script format with inline visual-narration bindings. Every segment declares its own visual, creating an unbreakable 1:1 binding. Replaces freeform markdown showrunner scripts.",
+  "type": "object",
+  "required": ["version", "metadata", "segments"],
+  "properties": {
+    "version": { "type": "string", "const": "2.0" },
+    "metadata": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "total_target_duration_s": { "type": "number", "minimum": 1 },
+        "acts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "target_pct": { "type": "number", "minimum": 0, "maximum": 100 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "source": { "type": "string" },
+        "topic": { "type": "string" },
+        "narrative_arc": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "segments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/segment" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+
+  "$defs": {
+    "segment": {
+      "type": "object",
+      "required": ["id", "act", "narration", "visual"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^seg_[0-9]{3}$",
+          "description": "Unique segment identifier (e.g. seg_001)"
+        },
+        "act": {
+          "type": "string",
+          "description": "Act ID this segment belongs to (e.g. act_1)"
+        },
+        "narration": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Pure narration text. No markers, no brackets. Only speakable words."
+        },
+        "visual": { "$ref": "#/$defs/visual_spec" },
+        "music": { "$ref": "#/$defs/music_spec" },
+        "silence_after_s": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0,
+          "description": "Seconds of silence/black to insert after this segment"
+        },
+        "editorial_intent": {
+          "type": "string",
+          "enum": [
+            "establishing_atmosphere",
+            "building_trust",
+            "technical_explanation",
+            "escalation",
+            "crisis_moment",
+            "pattern_recognition",
+            "emotional_impact",
+            "institutional_critique",
+            "resolution",
+            "call_to_action",
+            "chapter_transition"
+          ],
+          "description": "Editorial purpose of this segment — drives pacing and tone"
+        },
+        "pacing": {
+          "type": "string",
+          "enum": ["establishing", "escalation", "crisis", "resolution"],
+          "description": "Pacing type for cut timing and hold duration"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "visual_spec": {
+      "type": "object",
+      "required": ["description", "type"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Rich prose description of the visual. Must match the narration content."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "atmospheric_footage",
+            "archival_footage",
+            "stock_footage",
+            "generated_footage",
+            "manim_animation",
+            "text_card",
+            "diagram",
+            "mixed"
+          ],
+          "description": "Visual asset type — determines generation routing"
+        },
+        "card_type": {
+          "type": "string",
+          "enum": [
+            "stat_reveal",
+            "chapter_title",
+            "institutional_text",
+            "technical_label",
+            "error_message",
+            "verdict",
+            "quote"
+          ],
+          "description": "Required when type is text_card. Determines visual template."
+        },
+        "template": {
+          "type": "string",
+          "description": "Manim template name (e.g. dose_chart, race_condition, state_machine)"
+        },
+        "must_show": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required visual elements that must appear in the render"
+        },
+        "animation_phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["phase", "target_duration_pct"],
+            "properties": {
+              "phase": { "type": "string" },
+              "description": { "type": "string" },
+              "target_duration_pct": { "type": "number", "minimum": 0, "maximum": 100 }
+            },
+            "additionalProperties": false
+          },
+          "description": "Animation phases with relative timing (pcts must sum to 100)"
+        },
+        "uniqueness": {
+          "type": "string",
+          "enum": ["unique", "unique_per_location", "reusable"],
+          "default": "unique",
+          "description": "Uniqueness constraint for asset deduplication"
+        },
+        "location_id": {
+          "type": "string",
+          "description": "Semantic location key for unique_per_location dedup"
+        },
+        "subject_continuity": {
+          "type": "string",
+          "description": "Segment ID this visual should feel continuous with"
+        },
+        "reference_period": {
+          "type": "string",
+          "description": "Historical period for visual accuracy (e.g. '1980s')"
+        },
+        "reference_images": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Paths to reference images for accuracy checking"
+        },
+        "search_queries": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tiered search queries for footage sourcing"
+        },
+        "ai_fallback_prompt": {
+          "type": "string",
+          "description": "Prompt for AI video generation if stock footage unavailable"
+        },
+        "values": {
+          "type": "object",
+          "description": "Key-value data for stat_reveal or other data-driven cards"
+        },
+        "emphasis": {
+          "type": "string",
+          "description": "Which value to visually emphasize in a stat_reveal"
+        },
+        "terminal_text": {
+          "type": "string",
+          "description": "Primary text for error_message card type"
+        },
+        "subtext": {
+          "type": "string",
+          "description": "Secondary text below the main terminal_text"
+        }
+      },
+      "additionalProperties": false,
+      "if": {
+        "properties": { "type": { "const": "text_card" } }
+      },
+      "then": {
+        "required": ["card_type"]
+      }
+    },
+
+    "music_spec": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["playing", "continue", "change", "stop", "fade_out"],
+          "description": "Music state transition at this segment"
+        },
+        "description": {
+          "type": "string",
+          "description": "Music mood/style description (required for 'playing' and 'change')"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
