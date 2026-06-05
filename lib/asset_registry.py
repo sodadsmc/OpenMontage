@@ -50,6 +50,11 @@ class AssetRecord:
     phash: str  # Perceptual hash (hex string)
     file_hash: str  # SHA-256 of file bytes
     duration_s: float
+    # Intended-continuity keys: shots that share a non-null asset_ref (same
+    # Asset Bible entry) or continuity_group are SUPPOSED to look alike, so they
+    # are exempt from the perceptual-duplicate check (AI-video consistency).
+    asset_ref: str | None = None
+    continuity_group: str | None = None
 
 
 class AssetRegistry:
@@ -69,8 +74,15 @@ class AssetRegistry:
         segment_id: str,
         asset_path: str | Path,
         visual_spec: Any,
+        continuity_group: str | None = None,
     ) -> str:
-        """Register a generated asset. Returns asset_id."""
+        """Register a generated asset. Returns asset_id.
+
+        ``continuity_group`` (usually the Asset Bible entry's group) lets the
+        caller mark assets that are intended to look alike so the perceptual
+        duplicate check exempts them. The asset's own ``asset_ref`` is read from
+        the visual_spec and serves the same purpose for shots of one asset.
+        """
         asset_path = Path(asset_path)
         asset_id = f"asset_{segment_id}"
 
@@ -88,6 +100,7 @@ class AssetRegistry:
         uniqueness = getattr(visual_spec, "uniqueness", "unique")
         location_id = getattr(visual_spec, "location_id", None)
         visual_type = getattr(visual_spec, "type", "unknown")
+        asset_ref = getattr(visual_spec, "asset_ref", None)
 
         record = AssetRecord(
             id=asset_id,
@@ -99,6 +112,8 @@ class AssetRegistry:
             phash=phash,
             file_hash=file_hash,
             duration_s=dur,
+            asset_ref=asset_ref,
+            continuity_group=continuity_group,
         )
 
         self._assets[asset_id] = record
@@ -149,8 +164,18 @@ class AssetRegistry:
                 )
                 continue
 
+            # Intended continuity: shots of the SAME Asset Bible entry (asset_ref)
+            # or the same continuity_group are SUPPOSED to look alike, so they are
+            # exempt from the perceptual-duplicate check below. Exact-file dupes
+            # (above) are still flagged even within an asset.
+            same_continuity = (
+                (new.asset_ref is not None and new.asset_ref == existing.asset_ref)
+                or (new.continuity_group is not None
+                    and new.continuity_group == existing.continuity_group)
+            )
+
             # Perceptual similarity check
-            if similarity > similarity_threshold:
+            if similarity > similarity_threshold and not same_continuity:
                 if new.uniqueness == "unique":
                     violations.append(
                         f"PERCEPTUAL DUPLICATE: {new.id} is {similarity:.0%} similar "

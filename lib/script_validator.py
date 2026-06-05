@@ -21,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from lib.scored_script import ScoredScript, Segment, VisualSpec
 
@@ -31,6 +32,7 @@ KNOWN_VISUAL_TYPES = {
     "archival_footage",
     "stock_footage",
     "generated_footage",
+    "ai_video",
     "manim_animation",
     "text_card",
     "diagram",
@@ -93,8 +95,14 @@ class ValidationReport:
         return "\n".join(lines)
 
 
-def validate_structure(script: ScoredScript) -> ValidationReport:
+def validate_structure(script: ScoredScript, asset_bible: Any = None) -> ValidationReport:
     """Run all structural validation checks on a scored script.
+
+    Args:
+        script: the parsed scored script.
+        asset_bible: optional AssetBible (lib.asset_bible). When provided, the
+            referential integrity of every asset_ref is checked. When None
+            (e.g. before the bible is built), the asset-ref check is skipped.
 
     Returns a ValidationReport with errors (blocking) and warnings (advisory).
     """
@@ -110,6 +118,9 @@ def validate_structure(script: ScoredScript) -> ValidationReport:
     _check_narration_not_empty(script, report)
     _check_act_references(script, report)
     _check_manim_templates(script, report)
+    _check_ai_shots(script, report)
+    if asset_bible is not None:
+        _check_asset_refs(script, asset_bible, report)
 
     return report
 
@@ -260,3 +271,44 @@ def _check_manim_templates(script: ScoredScript, report: ValidationReport):
                 f"{seg.id}: manim_animation visual has no template specified — "
                 f"visual router won't know which animation to generate"
             )
+
+
+def _check_ai_shots(script: ScoredScript, report: ValidationReport):
+    """AI-video segments with an explicit shot breakdown must be well-formed."""
+    for seg in script.segments:
+        shots = seg.visual.shots
+        if not shots:
+            continue
+        if seg.visual.type != "ai_video":
+            report.warnings.append(
+                f"{seg.id}: declares shots[] but type is '{seg.visual.type}', "
+                f"not 'ai_video' — shots will be ignored"
+            )
+        seen: set[str] = set()
+        for shot in shots:
+            if shot.shot_id in seen:
+                report.errors.append(f"{seg.id}: duplicate shot_id '{shot.shot_id}'")
+            seen.add(shot.shot_id)
+            if shot.duration_weight <= 0:
+                report.errors.append(
+                    f"{seg.id}/{shot.shot_id}: duration_weight must be > 0 "
+                    f"(got {shot.duration_weight})"
+                )
+
+
+def _check_asset_refs(script: ScoredScript, asset_bible: Any, report: ValidationReport):
+    """Every asset_ref (segment- or shot-level) must resolve in the Asset Bible.
+
+    Only runs when an asset_bible is passed to validate_structure. The bible is
+    duck-typed: it just needs a ``.get(asset_id)`` returning None when missing.
+    """
+    for seg in script.segments:
+        refs: list[str] = []
+        if seg.visual.asset_ref:
+            refs.append(seg.visual.asset_ref)
+        refs.extend(shot.asset_ref for shot in seg.visual.shots if shot.asset_ref)
+        for ref in refs:
+            if asset_bible.get(ref) is None:
+                report.errors.append(
+                    f"{seg.id}: asset_ref '{ref}' does not resolve in the Asset Bible"
+                )

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/asset_bible",
+  "title": "Asset Bible",
+  "description": "Canonical visual-identity contract for recurring locations/subjects. Each asset has a stable id (the foreign-key target for VisualSpec.asset_ref), locked identity attributes, and a canonical reference image used to anchor every AI-generated shot of that asset so it stays visually consistent across the documentary.",
+  "type": "object",
+  "required": ["version", "topic", "assets"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "topic": { "type": "string" },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset" }
+    }
+  },
+  "additionalProperties": false,
+
+  "$defs": {
+    "asset": {
+      "type": "object",
+      "required": ["asset_id", "type", "name", "description"],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "pattern": "^(loc|subj|obj)_[a-z0-9_]+$",
+          "description": "Stable foreign-key id referenced by VisualSpec.asset_ref (e.g. loc_kennestone_marietta, subj_seg_001)"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["location", "subject", "object"]
+        },
+        "name": { "type": "string" },
+        "description": {
+          "type": "string",
+          "description": "Canonical prose description of the asset's appearance"
+        },
+        "locked_attributes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Immutable identity tokens injected into every shot's prompt (period, materials, palette, signature details)"
+        },
+        "period_constraints": {
+          "type": ["string", "null"],
+          "description": "Hard historical constraints, e.g. '1985 era — no anachronisms'"
+        },
+        "negative_attributes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Things that must NOT appear (modern fixtures, digital signage, etc.)"
+        },
+        "canonical_reference_image": {
+          "type": "string",
+          "description": "Path to the single canonical reference image (image-to-video anchor). Empty until generated."
+        },
+        "canonical_image_prompt": {
+          "type": "string",
+          "description": "Prompt used to produce the canonical reference image (reproducibility)"
+        },
+        "appears_in": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^seg_[0-9]{3}$" },
+          "description": "Segment IDs that reference this asset"
+        },
+        "continuity_group": {
+          "type": ["string", "null"],
+          "description": "Optional group of assets that may legitimately resemble each other (exempted together from dedup)"
+        },
+        "uniqueness_exempt": {
+          "type": "boolean",
+          "default": true,
+          "description": "Shots of this asset are intended to look alike — exempt from the perceptual-duplicate check"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

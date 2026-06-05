@@ -8,11 +8,14 @@ from __future__ import annotations
 
 import importlib
 import inspect
+import logging
 import pkgutil
 from types import ModuleType
 from typing import Any, Optional
 
 from tools.base_tool import BaseTool, ToolStatus, ToolTier, ToolStability
+
+_log = logging.getLogger(__name__)
 
 
 class ToolRegistry:
@@ -21,6 +24,9 @@ class ToolRegistry:
     def __init__(self) -> None:
         self._tools: dict[str, BaseTool] = {}
         self._discovered_packages: set[str] = set()
+        # Modules skipped during discovery because they failed to import
+        # (usually an optional/heavy dependency that isn't installed).
+        self._import_errors: dict[str, str] = {}
 
     def register(self, tool: BaseTool) -> None:
         """Register a tool instance."""
@@ -77,11 +83,29 @@ class ToolRegistry:
         for module_info in pkgutil.walk_packages(package_paths, f"{package.__name__}."):
             if module_info.name.endswith(".base_tool") or module_info.name.endswith(".tool_registry"):
                 continue
-            module = importlib.import_module(module_info.name)
-            discovered.extend(self.register_module(module))
+            # A tool module that can't be imported (e.g. an optional heavy
+            # dependency like torch/cv2 isn't installed) must not break
+            # discovery for every other tool — skip it and record why.
+            try:
+                module = importlib.import_module(module_info.name)
+                discovered.extend(self.register_module(module))
+            except Exception as exc:  # noqa: BLE001 - resilience over precision here
+                self._import_errors[module_info.name] = repr(exc)
+                _log.warning(
+                    "tool_registry: skipped %s — import/registration failed: %s",
+                    module_info.name, exc,
+                )
 
         self._discovered_packages.add(package_name)
         return discovered
+
+    def import_errors(self) -> dict[str, str]:
+        """Modules skipped during discovery, mapped to their import error.
+
+        Lets preflight surface degraded capability (a provider missing because
+        its dependency isn't installed) instead of hiding it.
+        """
+        return dict(self._import_errors)
 
     def ensure_discovered(self, package_name: str = "tools") -> None:
         """Load tool modules once before reporting capabilities."""

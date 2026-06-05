@@ -109,12 +109,13 @@
             "archival_footage",
             "stock_footage",
             "generated_footage",
+            "ai_video",
             "manim_animation",
             "text_card",
             "diagram",
             "mixed"
           ],
-          "description": "Visual asset type — determines generation routing"
+          "description": "Visual asset type — determines generation routing. 'ai_video' = AI-generated (primary source); footage types are stock/archival fallback."
         },
         "card_type": {
           "type": "string",
@@ -183,6 +184,52 @@
         "ai_fallback_prompt": {
           "type": "string",
           "description": "Prompt for AI video generation if stock footage unavailable"
+        },
+        "ai_prompt": {
+          "type": "string",
+          "description": "Primary subject/scene prose for AI video generation (used when type is ai_video). Falls back to 'description' if absent."
+        },
+        "ai_motion": {
+          "type": "string",
+          "description": "Camera/subject motion for AI video, e.g. 'slow dolly in, static subject'. Maps to shot_prompt_builder camera_movement."
+        },
+        "ai_style": {
+          "type": "string",
+          "description": "Look/era/grade for AI video, e.g. '1985 documentary, 16mm grain, muted institutional palette'."
+        },
+        "ai_reference_image": {
+          "type": "string",
+          "description": "Path to a per-shot keyframe image used as the image-to-video anchor. Usually derived from asset_ref's canonical_reference_image."
+        },
+        "asset_ref": {
+          "type": "string",
+          "description": "Foreign key into the Asset Bible (asset_id). Threads canonical visual identity through every shot of this location/subject."
+        },
+        "shots": {
+          "type": "array",
+          "description": "Optional explicit shot breakdown for long segments. If absent, the video seam auto-splits the segment by max shot length.",
+          "items": {
+            "type": "object",
+            "required": ["shot_id", "ai_prompt"],
+            "properties": {
+              "shot_id": { "type": "string", "pattern": "^shot_[0-9]{2}$" },
+              "ai_prompt": { "type": "string" },
+              "ai_motion": { "type": "string" },
+              "asset_ref": { "type": "string" },
+              "duration_weight": {
+                "type": "number",
+                "minimum": 0,
+                "default": 1.0,
+                "description": "Relative share of the segment's target duration. Weights are normalized across shots."
+              },
+              "hero": {
+                "type": "boolean",
+                "default": false,
+                "description": "Escalate this shot to a premium provider (Kie.ai veo3/runway)."
+              }
+            },
+            "additionalProperties": false
+          }
         },
         "values": {
           "type": "object",

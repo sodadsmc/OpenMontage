@@ -20,7 +20,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from lib.quality_gate import generate_with_quality_gate
+from lib.shot_prompt_builder import build_shot_prompt
+
 _log = logging.getLogger(__name__)
+
+# AI-video seam tuning
+MAX_SHOT_SECONDS = 8.0          # AI clips cap at ~5-10s; long segments split into N shots
+DEFAULT_VIDEO_PROVIDER = "wan"  # local Wan image-to-video on the rented GPU box
+HERO_VIDEO_PROVIDER = "kie"     # Kie.ai premium (Veo/Runway) for hero shots
 
 
 @dataclass
@@ -68,11 +76,12 @@ def route_scene(
     scene: dict[str, Any],
     output_dir: str | Path,
     topic: str = "",
+    target_duration: float = 0.0,
 ) -> VisualAsset | None:
     """Generate a visual asset for one scene based on its visual_strategy.
 
-    Returns None for strategies handled by other pipeline stages
-    (stock_footage, archival, generated, mixed).
+    Returns None for footage strategies handled by other pipeline stages
+    (stock_footage, archival, generated, mixed). ``ai_video`` is generated here.
     """
     strategy = scene.get("visual_strategy", "stock_footage")
     output_dir = Path(output_dir)
@@ -86,6 +95,23 @@ def route_scene(
         return _generate_remotion_chart(scene, output_dir)
     elif strategy == "text_card":
         return _generate_text_card(scene, output_dir)
+    elif strategy == "ai_video":
+        from types import SimpleNamespace
+        spec = SimpleNamespace(
+            description=scene.get("description") or scene.get("narration", ""),
+            effective_prompt=(scene.get("ai_prompt") or scene.get("description")
+                              or scene.get("narration", "")),
+            ai_prompt=scene.get("ai_prompt"),
+            ai_motion=scene.get("ai_motion"),
+            ai_style=scene.get("ai_style"),
+            ai_reference_image=scene.get("ai_reference_image"),
+            asset_ref=scene.get("asset_ref"),
+            location_id=scene.get("location_id"),
+            shots=[],
+        )
+        return generate_ai_video(
+            scene.get("scene_id", "scene"), spec, output_dir, target_duration,
+        )
     else:
         # stock_footage, archival, generated, mixed — handled elsewhere
         return None
@@ -102,11 +128,311 @@ def route_all_scenes(
     """
     results: dict[str, VisualAsset] = {}
     for scene in segment_plan.get("scenes", []):
-        asset = route_scene(scene, output_dir, topic)
+        target_duration = float(scene.get("target_duration_s", scene.get("duration_s", 0.0)) or 0.0)
+        asset = route_scene(scene, output_dir, topic, target_duration)
         if asset is not None:
             results[asset.scene_id] = asset
             _log.info("Generated %s for %s: %s", asset.strategy, asset.scene_id, asset.path)
     return results
+
+
+# ---------------------------------------------------------------------------
+# AI video generation (the AI-primary seam)
+# ---------------------------------------------------------------------------
+
+def plan_ai_video(
+    segment_id: str,
+    visual_spec: Any,
+    keyframe_dir: str | Path,
+    target_duration_s: float,
+    bible: Any = None,
+    asset: Any = None,
+) -> list[dict[str, Any]]:
+    """Phase A (planning): split a segment into shots, generate each shot's
+    keyframe (Nano Banana — API, no GPU), and return fully-resolved shot-job
+    dicts. Does NOT generate video; that is the bulk/box step (Phase B).
+
+    Every shot is anchored to the asset's canonical reference image so the
+    location/subject stays consistent. Returns one job dict per shot.
+    """
+    keyframe_dir = Path(keyframe_dir)
+    keyframe_dir.mkdir(parents=True, exist_ok=True)
+
+    # Resolve the Asset Bible entry (explicit param > asset_ref > location_id)
+    if asset is None and bible is not None:
+        ref_id = getattr(visual_spec, "asset_ref", None)
+        if ref_id:
+            asset = bible.get(ref_id)
+        if asset is None and getattr(visual_spec, "location_id", None):
+            from lib.asset_bible import location_asset_id
+            asset = bible.get(location_asset_id(visual_spec.location_id))
+
+    asset_id = getattr(asset, "asset_id", None) or getattr(visual_spec, "asset_ref", None)
+    canonical_ref = None
+    if asset is not None and bible is not None:
+        ref = bible.resolve_reference_image(asset.asset_id)
+        canonical_ref = str(ref) if ref else None
+    if canonical_ref is None:
+        canonical_ref = getattr(visual_spec, "ai_reference_image", None)
+
+    base_prompt = (getattr(visual_spec, "effective_prompt", None)
+                   or getattr(visual_spec, "description", "") or "")
+    ai_style = getattr(visual_spec, "ai_style", None)
+    seg_motion = getattr(visual_spec, "ai_motion", None)
+    locked = list(getattr(asset, "locked_attributes", []) or [])
+    base_seed = abs(hash(segment_id)) % 1_000_000
+
+    jobs: list[dict[str, Any]] = []
+    for i, shot in enumerate(_plan_shots(visual_spec, target_duration_s)):
+        shot_id = shot["shot_id"]
+        shot_prompt = shot["ai_prompt"] or base_prompt
+        shot_motion = shot["ai_motion"] or seg_motion
+        provider = HERO_VIDEO_PROVIDER if shot["hero"] else DEFAULT_VIDEO_PROVIDER
+
+        # Keyframe (i2v anchor) locked to the canonical look
+        keyframe_prompt = (bible.build_prompt_anchor(asset_id, shot_prompt)
+                           if bible is not None else shot_prompt)
+        keyframe = _nano_keyframe(
+            keyframe_prompt, canonical_ref, keyframe_dir / f"{segment_id}_{shot_id}_key.png"
+        )
+
+        # Motion/style/identity-aware video prompt
+        scene_dict = {
+            "description": shot_prompt,
+            "texture_keywords": locked,
+            "shot_language": ({"camera_movement": shot_motion} if shot_motion else {}),
+        }
+        video_prompt = build_shot_prompt(scene_dict, {"mood": ai_style} if ai_style else None)
+
+        jobs.append({
+            "segment_id": segment_id,
+            "shot_id": shot_id,
+            "provider": provider,
+            "operation": "image_to_video" if keyframe else "text_to_video",
+            "video_prompt": video_prompt,
+            "duration_s": round(shot["seconds"], 3),
+            "seed": base_seed + i * 1000,
+            "keyframe": str(keyframe) if keyframe else "",
+            "aspect_ratio": "16:9",
+            "hero": bool(shot["hero"]),
+        })
+    return jobs
+
+
+def generate_shot(
+    video_prompt: str,
+    keyframe: Path | str | None,
+    duration_s: float,
+    provider: str,
+    seed: int,
+    output_path: Path | str,
+    visual_spec: Any = None,
+    enable_gemini: bool = True,
+) -> Path | None:
+    """Phase B (execution): generate one shot clip with the quality-gate retry
+    loop. Returns the clip Path, or None if all attempts fail."""
+    kf = Path(keyframe) if keyframe else None
+    out = Path(output_path)
+
+    def gen_fn(spec, dur, attempt):
+        return _gen_shot_clip(video_prompt, kf, dur, provider, seed + attempt, out)
+
+    clip, _report = generate_with_quality_gate(
+        gen_fn, visual_spec, duration_s, str(out),
+        max_attempts=3, enable_gemini=enable_gemini,
+    )
+    return clip
+
+
+def concat_segment_shots(clip_paths: list[str], output_path: Path | str,
+                         target_duration_s: float) -> Path | None:
+    """Concatenate a segment's shot clips into one clip of exactly target_duration_s."""
+    return _concat_clips(clip_paths, Path(output_path), target_duration_s)
+
+
+def generate_ai_video(
+    segment_id: str,
+    visual_spec: Any,
+    output_dir: str | Path,
+    target_duration_s: float,
+    bible: Any = None,
+    asset: Any = None,
+    enable_gemini: bool = True,
+) -> VisualAsset | None:
+    """Inline all-in-one AI video for one segment (plan + execute + concat).
+
+    Used for non-batched runs. The two-phase prep/bulk path calls plan_ai_video
+    (Phase A) and generate_shot (Phase B) directly instead. Returns None if no
+    shot could be produced (the caller then falls back to stock footage).
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    jobs = plan_ai_video(segment_id, visual_spec, output_dir, target_duration_s,
+                         bible=bible, asset=asset)
+    clip_paths: list[str] = []
+    for job in jobs:
+        out = output_dir / f"{segment_id}_{job['shot_id']}.mp4"
+        clip = generate_shot(
+            job["video_prompt"], job["keyframe"] or None, job["duration_s"],
+            job["provider"], job["seed"], out, visual_spec, enable_gemini,
+        )
+        if clip is None:
+            clip = _fallback_shot(segment_id, job["shot_id"], visual_spec, job["duration_s"], output_dir)
+        if clip is None:
+            _log.warning("ai_video: no clip for %s/%s — skipping shot", segment_id, job["shot_id"])
+            continue
+        clip_paths.append(str(clip))
+
+    if not clip_paths:
+        return None
+
+    combined = _concat_clips(
+        clip_paths, output_dir / f"{segment_id}_aivideo.mp4", target_duration_s
+    )
+    if combined is None:
+        return None
+    dur = _probe_duration(str(combined)) or target_duration_s
+    desc = (getattr(visual_spec, "effective_prompt", None)
+            or getattr(visual_spec, "description", "") or "")[:60]
+    return VisualAsset(
+        scene_id=segment_id, path=str(combined), kind="video",
+        duration=dur, strategy="ai_video", description=desc,
+    )
+
+
+def _plan_shots(visual_spec: Any, target_duration_s: float) -> list[dict[str, Any]]:
+    """Split a segment into shots — explicit visual_spec.shots, else auto by length."""
+    import math
+
+    shots = list(getattr(visual_spec, "shots", None) or [])
+    if shots:
+        total_w = sum(max(0.0, getattr(s, "duration_weight", 1.0)) for s in shots)
+        out: list[dict[str, Any]] = []
+        for s in shots:
+            w = max(0.0, getattr(s, "duration_weight", 1.0))
+            secs = (target_duration_s * (w / total_w)) if total_w else (target_duration_s / len(shots))
+            out.append({
+                "shot_id": getattr(s, "shot_id"),
+                "ai_prompt": getattr(s, "ai_prompt", None),
+                "ai_motion": getattr(s, "ai_motion", None),
+                "hero": bool(getattr(s, "hero", False)),
+                "seconds": secs,
+            })
+        return out
+
+    n = max(1, math.ceil(target_duration_s / MAX_SHOT_SECONDS)) if target_duration_s > 0 else 1
+    secs = target_duration_s / n if n else target_duration_s
+    return [
+        {"shot_id": f"shot_{i + 1:02d}", "ai_prompt": None, "ai_motion": None,
+         "hero": False, "seconds": secs}
+        for i in range(n)
+    ]
+
+
+def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Path | None:
+    """Generate a per-shot keyframe via Nano Banana (edit mode if a reference is given)."""
+    try:
+        from tools.graphics.image_selector import ImageSelector
+        sel = ImageSelector()
+    except Exception as exc:  # noqa: BLE001
+        _log.warning("ai_video: image selector unavailable: %s", exc)
+        return None
+    inputs: dict[str, Any] = {
+        "prompt": prompt,
+        "preferred_provider": "nano_banana",
+        "aspect_ratio": "16:9",
+        "output_path": str(output_path),
+    }
+    if ref_image:
+        inputs["generation_mode"] = "edit"
+        inputs["image_path"] = str(ref_image)
+    try:
+        res = sel.execute(inputs)
+    except Exception as exc:  # noqa: BLE001
+        _log.warning("ai_video: keyframe generation error: %s", exc)
+        return None
+    if getattr(res, "success", False):
+        out = (res.data or {}).get("output") or (res.artifacts[0] if getattr(res, "artifacts", None) else None)
+        return Path(out) if out else None
+    _log.warning("ai_video: keyframe generation failed: %s", getattr(res, "error", ""))
+    return None
+
+
+def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
+                   provider: str, seed: int, output_path: Path) -> Path:
+    """Generate one shot via the video selector. Raises on failure so the gate retries."""
+    from tools.video.video_selector import VideoSelector
+    sel = VideoSelector()
+    inputs: dict[str, Any] = {
+        "prompt": video_prompt,
+        "preferred_provider": provider,
+        "aspect_ratio": "16:9",
+        "duration": str(max(1, int(round(duration_s)))),
+        "seed": seed,
+        "output_path": str(output_path),
+    }
+    if keyframe:
+        inputs["operation"] = "image_to_video"
+        inputs["reference_image_path"] = str(keyframe)
+    else:
+        inputs["operation"] = "text_to_video"
+    res = sel.execute(inputs)
+    if not getattr(res, "success", False):
+        raise RuntimeError(f"video generation failed: {getattr(res, 'error', '')}")
+    out = (res.data or {}).get("output") or (res.artifacts[0] if getattr(res, "artifacts", None) else None)
+    if not out:
+        raise RuntimeError("video generation returned no output path")
+    return Path(out)
+
+
+def _fallback_shot(segment_id: str, shot_id: str, visual_spec: Any,
+                   shot_seconds: float, output_dir: Path) -> Path | None:
+    """Per-shot fallback hook.
+
+    Returns None by default — segment-level stock fallback is handled by the
+    caller (build_v6 / the stock_fallback stage). Kept as an explicit extension
+    point so a future per-shot stock/text-card fallback can slot in here.
+    """
+    return None
+
+
+def _concat_clips(clip_paths: list[str], output_path: Path,
+                  target_duration_s: float) -> Path | None:
+    """Concatenate shot clips into one segment clip of exactly target_duration_s."""
+    output_path = Path(output_path)
+    if len(clip_paths) == 1:
+        return _trim_to_duration(clip_paths[0], output_path, target_duration_s)
+
+    list_file = output_path.parent / f"{output_path.stem}_concat.txt"
+    list_file.write_text(
+        "".join(f"file '{Path(p).as_posix()}'\n" for p in clip_paths), encoding="utf-8"
+    )
+    joined = output_path.parent / f"{output_path.stem}_joined.mp4"
+    try:
+        subprocess.run(
+            ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(list_file),
+             "-c:v", "libx264", "-pix_fmt", "yuv420p", str(joined)],
+            capture_output=True, timeout=600, check=True,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _log.warning("ai_video: concat failed: %s", exc)
+        return None
+    return _trim_to_duration(str(joined), output_path, target_duration_s)
+
+
+def _trim_to_duration(src: str, output_path: Path, target_duration_s: float) -> Path | None:
+    output_path = Path(output_path)
+    try:
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", str(src), "-t", f"{target_duration_s:.3f}",
+             "-c:v", "libx264", "-pix_fmt", "yuv420p", str(output_path)],
+            capture_output=True, timeout=600, check=True,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _log.warning("ai_video: trim failed: %s", exc)
+        return None
+    return output_path
 
 
 # ---------------------------------------------------------------------------

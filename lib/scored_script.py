@@ -34,6 +34,22 @@ class AnimationPhase:
 
 
 @dataclass
+class ShotSpec:
+    """A single AI-generated shot within a multi-shot segment.
+
+    Long segments (20-30s) are rendered as several short i2v clips cut
+    together rather than one looped clip. Each shot inherits the segment's
+    asset_ref so the same canonical reference threads through all of them.
+    """
+    shot_id: str
+    ai_prompt: str
+    ai_motion: str | None = None
+    asset_ref: str | None = None
+    duration_weight: float = 1.0
+    hero: bool = False
+
+
+@dataclass
 class VisualSpec:
     """What should appear on screen for a segment."""
     description: str
@@ -62,10 +78,34 @@ class VisualSpec:
     search_queries: list[str] = field(default_factory=list)
     ai_fallback_prompt: str | None = None
 
+    # AI-generated video (primary source)
+    ai_prompt: str | None = None
+    ai_motion: str | None = None
+    ai_style: str | None = None
+    ai_reference_image: str | None = None
+    asset_ref: str | None = None
+    shots: list[ShotSpec] = field(default_factory=list)
+
+    @property
+    def effective_prompt(self) -> str:
+        """Prompt used for AI generation — explicit ai_prompt, else the description."""
+        return self.ai_prompt or self.description
+
     @classmethod
     def from_dict(cls, d: dict) -> VisualSpec:
         phases = [
             AnimationPhase(**p) for p in d.get("animation_phases", [])
+        ]
+        shots = [
+            ShotSpec(
+                shot_id=s["shot_id"],
+                ai_prompt=s["ai_prompt"],
+                ai_motion=s.get("ai_motion"),
+                asset_ref=s.get("asset_ref"),
+                duration_weight=s.get("duration_weight", 1.0),
+                hero=s.get("hero", False),
+            )
+            for s in d.get("shots", [])
         ]
         return cls(
             description=d["description"],
@@ -85,6 +125,12 @@ class VisualSpec:
             reference_period=d.get("reference_period"),
             search_queries=d.get("search_queries", []),
             ai_fallback_prompt=d.get("ai_fallback_prompt"),
+            ai_prompt=d.get("ai_prompt"),
+            ai_motion=d.get("ai_motion"),
+            ai_style=d.get("ai_style"),
+            ai_reference_image=d.get("ai_reference_image"),
+            asset_ref=d.get("asset_ref"),
+            shots=shots,
         )
 
 
