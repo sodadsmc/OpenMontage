@@ -5,8 +5,9 @@ description: >
   narrated script into scenes, generates voice-over, builds an Asset Bible (one
   canonical reference image per recurring location/subject) for cross-shot
   consistency, then generates AI video as the PRIMARY visual for every segment via a
-  two-phase render package: local prep (per-shot keyframes + hero clips + a shot
-  manifest) followed by a bulk Wan image-to-video job on a rented GPU box. Real
+  two-phase render package: prep (per-shot keyframes + hero clips + a shot
+  manifest) followed by a bulk Grok image-to-video job via Kie.ai (cloud, no GPU
+  box). Real
   archival footage (CSB, NTSB) is reserved for genuine historical events and is the
   fallback when AI generation fails. Detects sentence boundaries for pacing and
   assembles a pacing-aware timeline with establishing/escalation/crisis/resolution beats.
@@ -158,14 +159,15 @@ stages:
       - image_selector
       - video_selector
       - nano_banana_image
+      - grok_kie_video
     checkpoint_required: true
     human_approval_default: true
     review_focus:
-      - "Phase A (local): keyframes + shot manifest built; hero clips generated for review"
-      - Hero clips reviewed and approved BEFORE the GPU-box batch is paid for
+      - "Phase A (prep): keyframes + shot manifest built; hero clips (Grok i2v) generated for review"
+      - Hero clips reviewed and approved BEFORE the bulk batch is paid for
       - Every shot anchored to its asset's canonical reference image (consistency)
       - Long segments split into multiple shots, never a single looped clip
-      - "Phase B (box): bulk Wan i2v job run; per-segment concat to exact duration; cost within budget"
+      - "Phase B (cloud): bulk Grok i2v job run via Kie.ai; per-segment concat to exact duration; cost within budget"
     success_criteria:
       - Schema-valid shot_manifest artifact
       - Hero clips generated and approved at the human gate

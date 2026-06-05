@@ -13,13 +13,18 @@ description: >
 prompt_style: >-
   graphic novel illustration, bold black ink linework, cross-hatch and stippled
   shading, halftone dot texture, duotone palette of deep navy blue and warm amber,
-  high contrast, heavy film grain, aged paper texture, printed comic book look,
-  illustrated not photorealistic
+  high contrast, heavy film grain, aged paper texture, interior comic-panel art
+  (not a cover, no title), illustrated not photorealistic
 
-# Negative terms for providers that support them.
+# Negative terms for providers that support them. Suppress baked-in text/lettering
+# and comic-COVER framing (the model otherwise adds a title like "THE THERAC HORROR"
+# to a graphic-novel scene), which would warp under image-to-video motion.
 negative_style: >-
   photorealistic, photoreal skin, realistic human face, 3d render, smooth plastic
-  texture, glossy, video-game render, hyperrealistic
+  texture, glossy, video-game render, hyperrealistic, text, title text, caption,
+  lettering, words, large typography, watermark, signature, logo, comic cover,
+  magazine cover, title page, speech bubble, poster text, readable signage,
+  building name, street sign, monument sign lettering, clock numerals, license plate
 
 # Brand palette (hex, no #). Used for the finishing duotone + thumbnails.
 palette:

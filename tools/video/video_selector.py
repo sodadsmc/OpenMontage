@@ -167,17 +167,21 @@ class VideoSelector(BaseTool):
         # Auto-resolve reference_image_path to a URL for providers that need it
         if adapted.get("operation") == "image_to_video" and adapted.get("reference_image_path"):
             tool_props = getattr(tool, "input_schema", {}).get("properties", {})
-            # If the provider uses image_url (not reference_image_path), upload and convert
+            ref = str(adapted["reference_image_path"])
+            # If the provider uses image_url (not reference_image_path), supply a URL.
             if "image_url" in tool_props and "image_url" not in adapted:
-                from lib.image_host import upload_image
-                url = upload_image(adapted["reference_image_path"])
-                if not url:
-                    return ToolResult(
-                        success=False,
-                        error="Failed to host reference image for image_to_video "
-                              "(set FAL_KEY or ensure network access to catbox.moe)",
-                    )
-                adapted["image_url"] = url
+                if ref.startswith("http://") or ref.startswith("https://"):
+                    adapted["image_url"] = ref  # already a public URL — no hosting needed
+                else:
+                    from lib.image_host import upload_image
+                    url = upload_image(ref)
+                    if not url:
+                        return ToolResult(
+                            success=False,
+                            error="Failed to host reference image for image_to_video "
+                                  "(set FAL_KEY or ensure network access to catbox.moe)",
+                        )
+                    adapted["image_url"] = url
 
         result = tool.execute(adapted)
         if result.success:

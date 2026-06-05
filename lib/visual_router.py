@@ -27,10 +27,16 @@ from lib.channel_style import apply_to_prompt
 _log = logging.getLogger(__name__)
 
 # AI-video seam tuning
-MAX_SHOT_SECONDS = 12.0              # Grok i2v does 6-15s clips; long segments split into N shots
 DEFAULT_VIDEO_PROVIDER = "grok-kie"  # Grok Imagine i2v via Kie.ai (cloud — no GPU box)
 HERO_VIDEO_PROVIDER = "grok-kie"     # same model for the hero preview (matches bulk look)
 # Alternatives: "wan" (free, needs a GPU box) for bulk; "kie" (premium Veo/Runway) per hero shot.
+
+# Max single-shot length per provider (their reliable clip range). A segment is split
+# into the FEWEST shots that fit, so a longer-clip model (Grok: 6-15s) yields fewer,
+# longer continuous shots — fewer cuts, cheaper, and more cinematic for atmospheric
+# b-roll. Segments at/under the cap become a single clip (no concat).
+_PROVIDER_MAX_SHOT = {"grok-kie": 15.0, "kling": 10.0, "kie": 10.0, "wan": 8.0, "ltx": 8.0, "veo": 8.0}
+MAX_SHOT_SECONDS = _PROVIDER_MAX_SHOT.get(DEFAULT_VIDEO_PROVIDER, 10.0)
 
 
 @dataclass
@@ -239,7 +245,14 @@ def generate_shot(
 ) -> Path | None:
     """Phase B (execution): generate one shot clip with the quality-gate retry
     loop. Returns the clip Path, or None if all attempts fail."""
-    kf = Path(keyframe) if keyframe else None
+    # Keep a URL anchor verbatim — Path() would mangle "https://" into "https:\"
+    # on Windows and break the host-free i2v anchor.
+    if keyframe and str(keyframe).startswith(("http://", "https://")):
+        kf: Path | str | None = str(keyframe)
+    elif keyframe:
+        kf = Path(keyframe)
+    else:
+        kf = None
     out = Path(output_path)
 
     def gen_fn(spec, dur, attempt):
@@ -414,7 +427,11 @@ def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
     }
     if keyframe:
         inputs["operation"] = "image_to_video"
-        inputs["reference_image_path"] = str(keyframe)
+        kf = str(keyframe)
+        if kf.startswith("http://") or kf.startswith("https://"):
+            inputs["image_url"] = kf             # host-free anchor: pass the URL straight through
+        else:
+            inputs["reference_image_path"] = kf  # local file: the selector hosts it
     else:
         inputs["operation"] = "text_to_video"
     res = sel.execute(inputs)

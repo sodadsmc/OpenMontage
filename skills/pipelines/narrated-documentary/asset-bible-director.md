@@ -27,8 +27,12 @@ drift that AI video is prone to.
 2. **Lock identity:** each asset carries `locked_attributes` (period, materials,
    palette, signature details) + `period_constraints` that are injected into
    EVERY shot's prompt via `build_prompt_anchor`.
-3. **Generate one canonical reference image** per asset (Nano Banana 2), saved to
-   `assets/asset_bible/<asset_id>.png`.
+3. **Generate one canonical reference image** per asset (Nano Banana via Kie.ai),
+   saved to `assets/asset_bible/<asset_id>.png`. The **channel style** (graphic
+   novel, `lib/channel_style.py`) is injected into the canonical prompt, so the
+   look is baked into the reference and every i2v shot inherits it. Kie also
+   returns a hosted URL (`canonical_image_url`) that becomes the i2v anchor
+   directly — no third-party image host needed.
 4. **Validate referential integrity:** every `asset_ref` in the script resolves;
    every canonical image exists.
 
@@ -51,6 +55,8 @@ python projects/<project>/script_v5/build_asset_bible.py             # generate 
 - Locked attributes are period-accurate (e.g. "1985 era - CRT only, no LED")
 - Referential integrity passes (every `asset_ref` resolves; images exist on disk)
 - The canonical image actually looks like the described place/subject
+- Canonical images carry the channel style (the look is locked at the reference,
+  so re-run `build_asset_bible.py --force` after any style change)
 
 ## Ethics
 
