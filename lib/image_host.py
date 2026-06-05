@@ -48,6 +48,21 @@ def _upload_catbox(path: Path) -> str | None:
     return url if url.startswith("http") else None
 
 
+def _upload_0x0(path: Path) -> str | None:
+    """Upload to 0x0.st (keyless). Returns a direct URL or None."""
+    import requests
+    with open(path, "rb") as f:
+        r = requests.post(
+            "https://0x0.st",
+            files={"file": (path.name, f)},
+            headers={"User-Agent": "OpenMontage/1.0 (+https://github.com/calesthio/OpenMontage)"},
+            timeout=60,
+        )
+    r.raise_for_status()
+    url = r.text.strip()
+    return url if url.startswith("http") else None
+
+
 def upload_image(path: str | Path) -> str | None:
     """Upload a local image and return a public URL (cached), or None on failure.
 
@@ -65,17 +80,25 @@ def upload_image(path: str | Path) -> str | None:
     if key in _CACHE:
         return _CACHE[key]
 
-    # Default to keyless catbox.moe (no FAL_KEY needed). Use fal only on request.
-    backend = os.environ.get("IMAGE_HOST", "catbox").lower()
+    # Keyless by default: try catbox.moe, then 0x0.st (so one host being down
+    # doesn't break us). Use fal only when IMAGE_HOST=fal.
+    backend = os.environ.get("IMAGE_HOST", "auto").lower()
+    chain = {
+        "fal": [_upload_fal],
+        "catbox": [_upload_catbox],
+        "0x0": [_upload_0x0],
+        "auto": [_upload_catbox, _upload_0x0],
+    }.get(backend, [_upload_catbox, _upload_0x0])
+
     url: str | None = None
-    if backend == "fal":
-        url = _upload_fal(p)
-    if url is None:
+    for fn in chain:
         try:
-            url = _upload_catbox(p)
+            url = fn(p)
         except Exception as exc:  # noqa: BLE001
-            _log.warning("image_host: catbox upload failed: %s", exc)
+            _log.warning("image_host: %s failed: %s", fn.__name__, exc)
             url = None
+        if url:
+            break
 
     if url:
         _CACHE[key] = url

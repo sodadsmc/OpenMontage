@@ -52,6 +52,10 @@
           "type": "string",
           "description": "Path to the single canonical reference image (image-to-video anchor). Empty until generated."
         },
+        "canonical_image_url": {
+          "type": "string",
+          "description": "Public URL of the canonical image from the provider (Kie). Used as the host-free i2v anchor so no third-party upload is needed."
+        },
         "canonical_image_prompt": {
           "type": "string",
           "description": "Prompt used to produce the canonical reference image (reproducibility)"

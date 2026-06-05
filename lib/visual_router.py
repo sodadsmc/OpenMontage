@@ -26,9 +26,10 @@ from lib.shot_prompt_builder import build_shot_prompt
 _log = logging.getLogger(__name__)
 
 # AI-video seam tuning
-MAX_SHOT_SECONDS = 8.0          # AI clips cap at ~5-10s; long segments split into N shots
-DEFAULT_VIDEO_PROVIDER = "wan"  # local Wan image-to-video on the rented GPU box
-HERO_VIDEO_PROVIDER = "kie"     # Kie.ai premium (Veo/Runway) for hero shots
+MAX_SHOT_SECONDS = 12.0              # Grok i2v does 6-15s clips; long segments split into N shots
+DEFAULT_VIDEO_PROVIDER = "grok-kie"  # Grok Imagine i2v via Kie.ai (cloud — no GPU box)
+HERO_VIDEO_PROVIDER = "grok-kie"     # same model for the hero preview (matches bulk look)
+# Alternatives: "wan" (free, needs a GPU box) for bulk; "kie" (premium Veo/Runway) per hero shot.
 
 
 @dataclass
@@ -169,9 +170,12 @@ def plan_ai_video(
 
     asset_id = getattr(asset, "asset_id", None) or getattr(visual_spec, "asset_ref", None)
     canonical_ref = None
-    if asset is not None and bible is not None:
-        ref = bible.resolve_reference_image(asset.asset_id)
-        canonical_ref = str(ref) if ref else None
+    if asset is not None:
+        # Prefer the provider-hosted URL (host-free i2v anchor); fall back to the local file.
+        canonical_ref = getattr(asset, "canonical_image_url", "") or None
+        if canonical_ref is None and bible is not None:
+            ref = bible.resolve_reference_image(asset.asset_id)
+            canonical_ref = str(ref) if ref else None
     if canonical_ref is None:
         canonical_ref = getattr(visual_spec, "ai_reference_image", None)
 
@@ -330,24 +334,26 @@ def _plan_shots(visual_spec: Any, target_duration_s: float) -> list[dict[str, An
     ]
 
 
-def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Path | None:
+def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Path | str | None:
     """Resolve the per-shot image-to-video anchor.
 
-    Default (URL-free, max consistency): if a canonical/reference image exists
-    locally, use it directly as the i2v anchor (Wan i2v accepts a local path).
+    Default: use the canonical reference directly as the i2v anchor — a provider
+    URL (host-free, passed straight to the video model) or a local path. Maximizes
+    cross-shot consistency.
 
-    Opt-in per-shot variety (AI_PER_SHOT_KEYFRAMES=1): host the canonical reference
-    (lib.image_host) and edit it into a distinct per-shot framing via Nano Banana,
-    so each shot starts from a different but on-model frame. Falls back to the
-    direct anchor if hosting/edit fails.
+    Opt-in per-shot variety (AI_PER_SHOT_KEYFRAMES=1): edit the canonical reference
+    into a distinct per-shot framing via Nano Banana (hosting a local ref via
+    lib.image_host if needed). Falls back to the direct anchor if it fails.
 
     When there is no reference, generate a fresh keyframe via text-to-image.
     """
-    have_ref = bool(ref_image) and Path(ref_image).exists()
+    ref = str(ref_image) if ref_image else ""
+    is_url = ref.startswith("http://") or ref.startswith("https://")
+    have_ref = is_url or (bool(ref) and Path(ref).exists())
 
     if have_ref and os.environ.get("AI_PER_SHOT_KEYFRAMES") == "1":
         from lib.image_host import upload_image
-        url = upload_image(ref_image)
+        url = ref if is_url else upload_image(ref)
         if url:
             edited = _nano_image(prompt, output_path, image_urls=[url])
             if edited is not None:
@@ -355,7 +361,7 @@ def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Pat
         # hosting/edit failed -> fall through to the direct anchor
 
     if have_ref:
-        return Path(ref_image)
+        return ref if is_url else Path(ref)
 
     return _nano_image(prompt, output_path)
 

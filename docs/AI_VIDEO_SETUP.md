@@ -9,9 +9,15 @@ every shot of it.
 
 | Role | Provider | Env var | Notes |
 |------|----------|---------|-------|
-| Reference images + keyframes | **Nano Banana 2** via Kie.ai (`nano_banana_image`) | `KIE_API_KEY` (same key as hero video) | overrides: `NANO_BANANA_MODEL` (default `nano-banana-2`), `KIE_BASE_URL` |
-| Default video (image-to-video) | **Wan** (`wan_video`, local GPU) | `VIDEO_GEN_LOCAL_ENABLED=true` | run on the **rented GPU box** (e.g. vast.ai); needs Wan weights + `requirements-gpu.txt` |
-| Hero shots | **Kie.ai** (`kie_video`, Veo/Runway) | `KIE_API_KEY` | only used for shots marked `hero: true` |
+| Images (canonical refs + keyframes) | **Nano Banana** via Kie.ai (`nano_banana_image`) | `KIE_API_KEY` | model `google/nano-banana`; returns a Kie URL reused as the i2v anchor (host-free) |
+| **Default video (image-to-video)** | **Grok Imagine** via Kie.ai (`grok_kie_video`) | `KIE_API_KEY` | **cloud — no GPU box**; #1 image-to-video Arena; ~$0.017/s; 6–15s clips |
+| Video alternative (free, needs box) | **Wan** (`wan_video`, local GPU) | `VIDEO_GEN_LOCAL_ENABLED=true` | optional: run on a rented GPU box (vast.ai); to use, set `DEFAULT_VIDEO_PROVIDER=wan` in `lib/visual_router.py` |
+| Hero / premium shots | Kie.ai (`kie_video`, Veo/Runway) | `KIE_API_KEY` | optional premium escalation per shot |
+
+> **One `KIE_API_KEY` runs the whole pipeline** (Nano Banana images + Grok video). The
+> default is **all-cloud, no GPU box** — a full doc is ~$5–6 of Grok i2v. The GPU box
+> (Wan) is now just a free-compute alternative. Note: the Kie key is **IP-whitelisted** —
+> whitelist whatever machine runs generation (or disable the whitelist).
 
 > **Keyframe anchoring (Kie.ai note):** Kie.ai takes reference images as public
 > URLs only (no file upload). By default each AI shot is anchored to the Asset

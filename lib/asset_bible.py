@@ -53,7 +53,8 @@ class AssetEntry:
     locked_attributes: list[str] = field(default_factory=list)
     period_constraints: str | None = None
     negative_attributes: list[str] = field(default_factory=list)
-    canonical_reference_image: str = ""
+    canonical_reference_image: str = ""   # local downloaded path
+    canonical_image_url: str = ""          # public URL from the image provider (Kie) — host-free i2v anchor
     canonical_image_prompt: str = ""
     appears_in: list[str] = field(default_factory=list)
     continuity_group: str | None = None
