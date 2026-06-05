@@ -14,11 +14,12 @@ every shot of it.
 | Hero shots | **Kie.ai** (`kie_video`, Veo/Runway) | `KIE_API_KEY` | only used for shots marked `hero: true` |
 
 > **Keyframe anchoring (Kie.ai note):** Kie.ai takes reference images as public
-> URLs only (no file upload). So each AI shot is anchored to the Asset Bible's
-> **local** canonical reference image directly — Wan i2v accepts a local path, and
-> this maximizes consistency. Per-shot keyframe *variation* (editing the canonical
-> reference per shot) would require hosting the reference at a URL; it's a future
-> enhancement, not needed for the default Wan path.
+> URLs only (no file upload). By default each AI shot is anchored to the Asset
+> Bible's **local** canonical reference image directly (Wan i2v accepts a local
+> path; maximizes consistency). For **per-shot keyframe variety** or **hero i2v**
+> (Kie video needs a URL), `lib/image_host.py` hosts the image via keyless
+> **catbox.moe** by default (or fal.ai with `IMAGE_HOST=fal`). Enable per-shot
+> keyframe edits with `AI_PER_SHOT_KEYFRAMES=1`.
 
 Add new providers by dropping a tool in `tools/video/` or `tools/graphics/` —
 the selectors auto-discover them (the registry now skips any tool whose optional

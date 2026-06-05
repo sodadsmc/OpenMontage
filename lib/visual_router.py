@@ -333,27 +333,52 @@ def _plan_shots(visual_spec: Any, target_duration_s: float) -> list[dict[str, An
 def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Path | None:
     """Resolve the per-shot image-to-video anchor.
 
-    Kie.ai's Nano Banana takes reference images as public URLs only (no local-file
-    upload), so we never edit a LOCAL image. If a canonical/reference image already
-    exists locally, use it DIRECTLY as the i2v anchor (Wan i2v accepts a local
-    path) — which also maximizes cross-shot consistency. Only when there is no
-    reference do we generate a fresh keyframe via Nano Banana text-to-image.
+    Default (URL-free, max consistency): if a canonical/reference image exists
+    locally, use it directly as the i2v anchor (Wan i2v accepts a local path).
+
+    Opt-in per-shot variety (AI_PER_SHOT_KEYFRAMES=1): host the canonical reference
+    (lib.image_host) and edit it into a distinct per-shot framing via Nano Banana,
+    so each shot starts from a different but on-model frame. Falls back to the
+    direct anchor if hosting/edit fails.
+
+    When there is no reference, generate a fresh keyframe via text-to-image.
     """
-    if ref_image and Path(ref_image).exists():
+    have_ref = bool(ref_image) and Path(ref_image).exists()
+
+    if have_ref and os.environ.get("AI_PER_SHOT_KEYFRAMES") == "1":
+        from lib.image_host import upload_image
+        url = upload_image(ref_image)
+        if url:
+            edited = _nano_image(prompt, output_path, image_urls=[url])
+            if edited is not None:
+                return edited
+        # hosting/edit failed -> fall through to the direct anchor
+
+    if have_ref:
         return Path(ref_image)
+
+    return _nano_image(prompt, output_path)
+
+
+def _nano_image(prompt: str, output_path: Path, image_urls: list[str] | None = None) -> Path | None:
+    """Call the Nano Banana image provider (generate, or edit when image_urls given)."""
     try:
         from tools.graphics.image_selector import ImageSelector
         sel = ImageSelector()
     except Exception as exc:  # noqa: BLE001
         _log.warning("ai_video: image selector unavailable: %s", exc)
         return None
+    inputs: dict[str, Any] = {
+        "prompt": prompt,
+        "preferred_provider": "nano_banana",
+        "aspect_ratio": "16:9",
+        "output_path": str(output_path),
+    }
+    if image_urls:
+        inputs["generation_mode"] = "edit"
+        inputs["image_urls"] = image_urls
     try:
-        res = sel.execute({
-            "prompt": prompt,
-            "preferred_provider": "nano_banana",
-            "aspect_ratio": "16:9",
-            "output_path": str(output_path),
-        })
+        res = sel.execute(inputs)
     except Exception as exc:  # noqa: BLE001
         _log.warning("ai_video: keyframe generation error: %s", exc)
         return None

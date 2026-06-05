@@ -169,11 +169,15 @@ class VideoSelector(BaseTool):
             tool_props = getattr(tool, "input_schema", {}).get("properties", {})
             # If the provider uses image_url (not reference_image_path), upload and convert
             if "image_url" in tool_props and "image_url" not in adapted:
-                try:
-                    from tools.video._shared import upload_image_fal
-                    adapted["image_url"] = upload_image_fal(adapted["reference_image_path"])
-                except Exception as e:
-                    return ToolResult(success=False, error=f"Failed to upload reference image: {e}")
+                from lib.image_host import upload_image
+                url = upload_image(adapted["reference_image_path"])
+                if not url:
+                    return ToolResult(
+                        success=False,
+                        error="Failed to host reference image for image_to_video "
+                              "(set FAL_KEY or ensure network access to catbox.moe)",
+                    )
+                adapted["image_url"] = url
 
         result = tool.execute(adapted)
         if result.success:
