@@ -38,7 +38,7 @@ from tools.base_tool import (
 
 _log = logging.getLogger(__name__)
 
-DEFAULT_MODEL = "nano-banana-2"       # override with NANO_BANANA_MODEL
+DEFAULT_MODEL = "google/nano-banana"  # validated working on Kie.ai; override with NANO_BANANA_MODEL
 DEFAULT_BASE = "https://api.kie.ai"   # override with KIE_BASE_URL
 COST_PER_IMAGE = 0.04
 
@@ -107,7 +107,7 @@ class NanoBananaImage(BaseTool):
         "Set KIE_API_KEY in .env (same key as Kie.ai video):\n"
         "  KIE_API_KEY=your_key_here\n"
         "  Get one at https://kie.ai/api-key\n"
-        "  Optional: NANO_BANANA_MODEL (default nano-banana-2), KIE_BASE_URL."
+        "  Optional: NANO_BANANA_MODEL (default google/nano-banana), KIE_BASE_URL."
     )
     agent_skills = ["flux-best-practices"]
 
@@ -183,8 +183,9 @@ class NanoBananaImage(BaseTool):
         import requests
 
         start = time.time()
-        base = os.environ.get("KIE_BASE_URL", DEFAULT_BASE).rstrip("/")
-        model = inputs.get("model") or os.environ.get("NANO_BANANA_MODEL", DEFAULT_MODEL)
+        # `or` chains so an empty env var (KEY= in .env) falls through to the default.
+        base = (os.environ.get("KIE_BASE_URL") or DEFAULT_BASE).rstrip("/")
+        model = inputs.get("model") or os.environ.get("NANO_BANANA_MODEL") or DEFAULT_MODEL
         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
         input_obj: dict[str, Any] = {

@@ -37,13 +37,15 @@ def _load_dotenv() -> None:
                 continue
             key, _, value = line.partition("=")
             key = key.strip()
+            # Strip an inline comment that follows whitespace, on the RAW value before
+            # trimming — so "VAR=   # comment" yields "" not "# comment". A '#' with no
+            # preceding whitespace (e.g. a hex color #FF0000) is preserved.
+            for _marker in (" #", "\t#"):
+                _i = value.find(_marker)
+                if _i != -1:
+                    value = value[:_i]
+                    break
             value = value.strip().strip("'\"")
-            # Strip inline comments: VAR=value  # comment
-            # But only if the # is preceded by whitespace (avoid stripping from values like colors)
-            if "  #" in value:
-                value = value[:value.index("  #")].rstrip()
-            elif "\t#" in value:
-                value = value[:value.index("\t#")].rstrip()
             if key and key not in os.environ:
                 os.environ[key] = value
 

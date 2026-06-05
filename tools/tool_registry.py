@@ -67,6 +67,11 @@ class ToolRegistry:
                     continue
                 key, _, value = line.partition("=")
                 key = key.strip()
+                for _marker in (" #", "\t#"):
+                    _i = value.find(_marker)
+                    if _i != -1:
+                        value = value[:_i]
+                        break
                 value = value.strip().strip("'\"")
                 if key and key not in os.environ:
                     os.environ[key] = value
