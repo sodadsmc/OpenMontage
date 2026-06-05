@@ -1,0 +1,36 @@
+# Channel visual style — graphic-novel / illustrated-cinematic hybrid
+# For the "technology disasters" AI-footage channel. Stylizes HARD away from
+# photorealism (ink, halftone, duotone, grain) to hide the AI uncanny valley and
+# unify inconsistent frames into one authored look. See
+# docs/Visual Treatment Styles for an AI-Footage Documentary Channel.md
+name: graphic-novel-disaster
+description: >
+  High-contrast graphic novel: bold ink linework, cross-hatch/halftone shading,
+  duotone deep-navy + warm-amber palette, heavy film grain, aged paper texture.
+
+# Appended to EVERY image + video generation prompt (this is the MEDIUM; each
+# segment's ai_style carries the MOOD, e.g. "cold, oppressive").
+prompt_style: >-
+  graphic novel illustration, bold black ink linework, cross-hatch and stippled
+  shading, halftone dot texture, duotone palette of deep navy blue and warm amber,
+  high contrast, heavy film grain, aged paper texture, printed comic book look,
+  illustrated not photorealistic
+
+# Negative terms for providers that support them.
+negative_style: >-
+  photorealistic, photoreal skin, realistic human face, 3d render, smooth plastic
+  texture, glossy, video-game render, hyperrealistic
+
+# Brand palette (hex, no #). Used for the finishing duotone + thumbnails.
+palette:
+  shadow: "0a1428"      # deep navy
+  highlight: "e8a44c"   # warm amber
+
+# Finishing pass (ffmpeg) applied uniformly to the assembled video — the unifying
+# layer the style doc calls the single most important AI-artifact hider.
+finishing:
+  enabled: true
+  duotone: true         # map luma to navy -> amber
+  contrast: 1.12
+  grain: 0.06           # film grain strength (0-1)
+  halftone: false       # optional print-dot overlay (off by default)

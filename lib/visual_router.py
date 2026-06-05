@@ -22,6 +22,7 @@ from typing import Any
 
 from lib.quality_gate import generate_with_quality_gate
 from lib.shot_prompt_builder import build_shot_prompt
+from lib.channel_style import apply_to_prompt
 
 _log = logging.getLogger(__name__)
 
@@ -193,20 +194,23 @@ def plan_ai_video(
         shot_motion = shot["ai_motion"] or seg_motion
         provider = HERO_VIDEO_PROVIDER if shot["hero"] else DEFAULT_VIDEO_PROVIDER
 
-        # Keyframe (i2v anchor) locked to the canonical look
-        keyframe_prompt = (bible.build_prompt_anchor(asset_id, shot_prompt)
-                           if bible is not None else shot_prompt)
+        # Keyframe (i2v anchor) locked to the canonical look + channel style (medium)
+        keyframe_prompt = apply_to_prompt(
+            bible.build_prompt_anchor(asset_id, shot_prompt) if bible is not None else shot_prompt
+        )
         keyframe = _nano_keyframe(
             keyframe_prompt, canonical_ref, keyframe_dir / f"{segment_id}_{shot_id}_key.png"
         )
 
-        # Motion/style/identity-aware video prompt
+        # Motion/mood video prompt + the channel style medium
         scene_dict = {
             "description": shot_prompt,
             "texture_keywords": locked,
             "shot_language": ({"camera_movement": shot_motion} if shot_motion else {}),
         }
-        video_prompt = build_shot_prompt(scene_dict, {"mood": ai_style} if ai_style else None)
+        video_prompt = apply_to_prompt(
+            build_shot_prompt(scene_dict, {"mood": ai_style} if ai_style else None)
+        )
 
         jobs.append({
             "segment_id": segment_id,
