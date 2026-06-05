@@ -2,10 +2,12 @@
 
 ## When To Use
 
-The segment plan is locked with tiered search queries per scene. You
-now need to source real-world footage candidates from disaster
-investigation archives and stock providers. The output feeds the
-three-layer scoring stage.
+**Archival / fallback path only.** AI-generated video is the primary visual (see
+`ai-visual-director.md`). This stage sources REAL footage candidates only for
+segments explicitly marked `archival_footage` (genuine historical events) or as a
+fallback when AI generation failed. Prioritize disaster-investigation archives
+(CSB, NTSB, Archive.org) — real footage is reserved for real events. The output
+feeds the scoring stage, which ranks these real candidates.
 
 ## Prerequisites
 

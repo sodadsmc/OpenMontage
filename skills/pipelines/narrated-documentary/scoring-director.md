@@ -2,10 +2,13 @@
 
 ## When To Use
 
-Footage candidates are downloaded. You now score every candidate
-through three layers to select the best clip per scene. This is the
-stage that separates a professional documentary cut from a random
-montage of stock clips.
+**Archival / fallback path only.** In the AI-primary pipeline, AI-generated video
+is the default visual for every segment (see `ai-visual-director.md`), generated
+separately and NOT scored here. This stage runs only for segments explicitly
+marked `archival_footage` (genuine historical events) or to pick a fallback clip
+when AI generation failed. Footage candidates are downloaded; you score every
+real candidate through three layers to select the best REAL clip per
+archival/fallback scene.
 
 ## Prerequisites
 
@@ -109,12 +112,12 @@ composite = (layer1 * 0.15) + (layer2 * 0.35) + (layer3 * 0.50)
 composite *= source_multiplier
 ```
 
-Source multipliers via `source_priority`:
-- CSB/NTSB investigation footage: 1.3x
+Source multipliers via `source_priority` (real footage only — AI video is the
+primary source, generated separately by ai_visual_gen, and is never scored here):
+- CSB/NTSB investigation footage: 1.3x (authenticity premium for real events)
 - Government archives (NARA, NASA, LOC): 1.15x
 - Wikimedia/Archive.org: 1.05x
 - General stock (Pexels, Pixabay, etc.): 1.0x
-- AI-generated gap fill: 0.85x
 
 ### 5. Two-Pass Color Coherence Check
 

@@ -2,31 +2,33 @@
 
 ## When To Use
 
-Scoring is complete but some scenes have weak or missing footage.
-This stage generates AI clips via Runway to fill gaps where no real
-footage meets the quality threshold. Use sparingly — AI-generated
-footage should be the exception, not the norm.
+**Inverted in the AI-primary pipeline.** AI video is now the default (see
+`ai-visual-director.md`); this stage fills the few remaining GAPS — segments where
+AI generation failed the quality gate, or segments deliberately left for real
+footage. Fill those gaps from stock/archival via `direct_clip_search`, falling
+back to a one-off AI clip (`runway_gapfill`) only if no suitable real clip exists.
 
 ## Prerequisites
 
 | Layer | Resource | Purpose |
 |-------|----------|---------|
 | Schema | `schemas/artifacts/gap_fill_report.schema.json` | Artifact validation |
-| Prior artifact | scoring_manifest | Selected clips and scores per scene |
-| Tool | `runway_gapfill` | AI video generation for gap filling |
+| Prior artifact | ai_visual_assets | AI segment clips (a missing entry = a gap) |
+| Tool | `direct_clip_search` | Stock/archival fallback sourcing |
+| Tool | `runway_gapfill` | Last-resort one-off AI clip for a gap |
 | Meta | `skills/meta/reviewer.md` | Self-review pass |
 
 ## What This Stage Does
 
-Reviews the scoring manifest for scenes where the best candidate clip
-falls below the quality threshold. For those scenes only, generates
-AI footage using Runway with prompts derived from the scene's visual
-description. Enforces a strict budget cap of 3-5 generated clips per
-video.
+Reviews `ai_visual_assets` for segments with no usable AI clip (generation failed,
+or the segment is deliberately archival). For those segments only, sources a
+fallback clip from stock/archival via `direct_clip_search`, matching the visual
+register of the AI-generated material. As a last resort (no suitable real clip),
+generates a single AI clip via `runway_gapfill`.
 
 ## Inputs
 
-- **scoring_manifest** artifact: scenes with selected clips and scores
+- **ai_visual_assets** artifact: AI segment clips (a missing segment = a gap to fill)
 
 ## Outputs
 

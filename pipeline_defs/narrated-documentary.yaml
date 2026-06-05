@@ -1,12 +1,15 @@
 name: narrated-documentary
-version: "1.0"
+version: "2.0"
 description: >
-  Narrated documentary pipeline for tech disaster content with three-layer footage
-  scoring and pacing-aware assembly. Segments a narrated script into scenes, generates
-  voice-over, sources real-world footage from disaster investigation archives (CSB, NTSB)
-  and 19 stock providers, scores candidates through metadata, SigLIP, and Gemini layers,
-  fills gaps with AI generation, detects sentence boundaries for pacing, and assembles
-  a pacing-aware timeline with establishing/escalation/crisis/resolution beats.
+  AI-primary narrated documentary pipeline for tech disaster content. Segments a
+  narrated script into scenes, generates voice-over, builds an Asset Bible (one
+  canonical reference image per recurring location/subject) for cross-shot
+  consistency, then generates AI video as the PRIMARY visual for every segment via a
+  two-phase render package: local prep (per-shot keyframes + hero clips + a shot
+  manifest) followed by a bulk Wan image-to-video job on a rented GPU box. Real
+  archival footage (CSB, NTSB) is reserved for genuine historical events and is the
+  fallback when AI generation fails. Detects sentence boundaries for pacing and
+  assembles a pacing-aware timeline with establishing/escalation/crisis/resolution beats.
 category: custom
 stability: beta
 default_checkpoint_policy: guided
@@ -33,7 +36,9 @@ extensions:
 required_skills:
   - pipelines/narrated-documentary/research-director
   - pipelines/narrated-documentary/segment-director
+  - pipelines/narrated-documentary/asset-bible-director
   - pipelines/narrated-documentary/voice-gen-director
+  - pipelines/narrated-documentary/ai-visual-director
   - pipelines/narrated-documentary/footage-search-director
   - pipelines/narrated-documentary/scoring-director
   - pipelines/narrated-documentary/gap-fill-director
@@ -89,14 +94,36 @@ stages:
     human_approval_default: true
     review_focus:
       - Each scene has a rich prose visual_description, not bare keywords
-      - Search queries are tiered (specific disaster footage first, then general)
+      - AI-primary segments use type ai_video with ai_motion/ai_style (and shots for long beats)
+      - Recurring locations/subjects carry a location_id or asset_ref for the Asset Bible
+      - Real historical events with named victims use archival_footage, not ai_video
       - Narration claims trace to research_brief data_points
       - Pacing types follow establishing/escalation/crisis/resolution vocabulary
-      - Narration text is complete and free of placeholder content
     success_criteria:
       - Schema-valid segment_plan artifact
-      - Every scene has narration, visual_description, pacing, and search_queries
+      - Every scene has narration, visual_description, pacing, and a visual type
       - Scene durations sum to target video length within 10%
+
+  - name: asset_bible
+    skill: pipelines/narrated-documentary/asset-bible-director
+    produces:
+      - asset_bible
+    required_artifacts_in:
+      - segment_plan
+    tools_available:
+      - nano_banana_image
+      - image_selector
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Every recurring location/subject has exactly one canonical reference image
+      - Locked attributes and period constraints are period-accurate
+      - Asset IDs resolve for every segment that references them (referential integrity)
+      - Real historical people/events are NOT given AI canonical images
+    success_criteria:
+      - Schema-valid asset_bible artifact
+      - Referential integrity passes (every asset_ref resolves)
+      - A canonical reference image exists for each recurring asset
 
   - name: voice_gen
     skill: pipelines/narrated-documentary/voice-gen-director
@@ -118,6 +145,32 @@ stages:
       - One audio file per scene with valid duration
       - No TTS mispronunciations flagged in post-generation check
 
+  - name: ai_visual_gen
+    skill: pipelines/narrated-documentary/ai-visual-director
+    produces:
+      - shot_manifest
+      - ai_visual_assets
+    required_artifacts_in:
+      - segment_plan
+      - asset_bible
+      - voice_manifest
+    tools_available:
+      - image_selector
+      - video_selector
+      - nano_banana_image
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - "Phase A (local): keyframes + shot manifest built; hero clips generated for review"
+      - Hero clips reviewed and approved BEFORE the GPU-box batch is paid for
+      - Every shot anchored to its asset's canonical reference image (consistency)
+      - Long segments split into multiple shots, never a single looped clip
+      - "Phase B (box): bulk Wan i2v job run; per-segment concat to exact duration; cost within budget"
+    success_criteria:
+      - Schema-valid shot_manifest artifact
+      - Hero clips generated and approved at the human gate
+      - One AI clip per AI segment after the bulk job, at the exact target duration
+
   - name: footage_search
     skill: pipelines/narrated-documentary/footage-search-director
     produces:
@@ -130,14 +183,14 @@ stages:
     checkpoint_required: true
     human_approval_default: false
     review_focus:
+      - "ARCHIVAL / FALLBACK ONLY: runs for archival_footage segments and AI-gen failures"
       - Disaster-specific sources (CSB, NTSB, archive) searched first
-      - At least 3 candidates per scene
-      - No duplicate clips across scenes
-      - Tiered query cascade followed (specific to general)
+      - Real footage reserved for genuine historical events
+      - Provenance (source, license) recorded for all candidates
     success_criteria:
       - Schema-valid footage_candidates artifact
-      - Every scene has at least 2 candidate clips
-      - Provenance (source, license) recorded for all candidates
+      - Archival/fallback scenes have at least 2 candidate clips
+      - Provenance recorded for all candidates
 
   - name: scoring
     skill: pipelines/narrated-documentary/scoring-director
@@ -156,33 +209,32 @@ stages:
     checkpoint_required: true
     human_approval_default: false
     review_focus:
-      - All three scoring layers ran for each candidate
-      - Source quality weighting applied (investigation footage > stock)
-      - Two-pass color coherence check completed
-      - Runner-ups recorded for every scene
+      - "ARCHIVAL / FALLBACK ONLY: ranks real archival/stock candidates among themselves"
+      - Source quality weighting applied (investigation footage > general stock)
+      - Authenticity preferred over polish for real-event footage
+      - Runner-ups recorded for every fallback scene
     success_criteria:
       - Schema-valid scoring_manifest artifact
-      - Every scene has a selected clip with composite score
-      - Runner-ups list is non-empty for each scene
+      - Every archival/fallback scene has a selected clip with composite score
 
   - name: gap_fill
     skill: pipelines/narrated-documentary/gap-fill-director
     produces:
       - gap_fill_report
     required_artifacts_in:
-      - scoring_manifest
+      - ai_visual_assets
     tools_available:
+      - direct_clip_search
       - runway_gapfill
     checkpoint_required: true
     human_approval_default: false
     review_focus:
-      - AI generation only triggered when best candidate score is below threshold
-      - Budget cap of 3-5 generated clips per video respected
-      - Generated clips match the visual register of sourced footage
+      - "INVERTED: stock/archival fills gaps where AI generation failed, not the reverse"
+      - Triggered only for segments with no usable AI clip
+      - Selected stock matches the visual register of the AI-generated material
     success_criteria:
       - Schema-valid gap_fill_report artifact
-      - No more than 5 generated clips in the report
-      - Each generated clip has cost_usd and output_path recorded
+      - Every gap segment has a fallback clip with output_path recorded
 
   - name: audio_analysis
     skill: pipelines/narrated-documentary/audio-analysis-director
@@ -228,7 +280,7 @@ stages:
     produces:
       - assembly_manifest
     required_artifacts_in:
-      - scoring_manifest
+      - ai_visual_assets
       - gap_fill_report
       - sentence_map
       - music_manifest
@@ -237,6 +289,7 @@ stages:
     checkpoint_required: true
     human_approval_default: true
     review_focus:
+      - AI segment clips and any archival/stock fallback clips placed on the timeline
       - Pacing follows establishing/escalation/crisis/resolution arc
       - Source audio muted (volume=0) on all footage clips
       - L/J-cuts present at sentence boundaries
@@ -259,7 +312,7 @@ stages:
     checkpoint_required: true
     human_approval_default: false
     review_focus:
-      - Remotion render completed without fallback to FFmpeg-only
+      - Render completed without unintended fallback
       - Color grade pass applied uniformly across timeline
       - Output duration matches assembly plan within 1 second
       - Audio levels are balanced (voice over music, no clipping)
@@ -279,7 +332,7 @@ stages:
     human_approval_default: true
     review_focus:
       - Weak clips flagged with specific scene_id and reason
-      - Swap candidates suggested from runner-ups
+      - Swap candidates suggested (regenerate AI shot or use archival fallback)
       - Review completed within 10-15 minute target window
     success_criteria:
       - Schema-valid review_report artifact

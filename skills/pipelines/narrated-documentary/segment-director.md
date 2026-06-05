@@ -24,6 +24,24 @@ pacing type, tiered search queries for footage sourcing, a rich visual
 description, and a mood tag. The output is the segment_plan artifact
 that every downstream stage reads.
 
+## AI-Primary Authoring
+
+This pipeline generates AI video as the default visual. When authoring scenes:
+
+- **Default to `type: ai_video`** for atmospheric/illustrative beats. Give each an
+  `ai_motion` (camera move) and `ai_style` (look/era/grade). Break long beats
+  (20-30s) into explicit `shots` so they become a cut sequence, not one looped clip.
+- **Tie recurring places/subjects to the Asset Bible.** Give every recurring
+  location a stable `location_id` (or an explicit `asset_ref`); the asset_bible
+  stage turns these into canonical reference images for cross-shot consistency.
+- **Reserve `archival_footage` for genuine historical events** — real incidents,
+  named victims, actual investigation footage. Never use `ai_video` to fabricate a
+  real, identifiable person or a real event.
+- **Mark a few shots `hero: true`** to have them generated up front (Kie.ai) for
+  review before the bulk GPU batch.
+- The rich `visual_description` still matters — it seeds the AI prompt (and the
+  archival search queries when a scene falls back to real footage).
+
 ## Inputs
 
 - **User script or topic** from conversation history
