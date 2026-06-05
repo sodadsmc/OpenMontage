@@ -331,24 +331,29 @@ def _plan_shots(visual_spec: Any, target_duration_s: float) -> list[dict[str, An
 
 
 def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Path | None:
-    """Generate a per-shot keyframe via Nano Banana (edit mode if a reference is given)."""
+    """Resolve the per-shot image-to-video anchor.
+
+    Kie.ai's Nano Banana takes reference images as public URLs only (no local-file
+    upload), so we never edit a LOCAL image. If a canonical/reference image already
+    exists locally, use it DIRECTLY as the i2v anchor (Wan i2v accepts a local
+    path) — which also maximizes cross-shot consistency. Only when there is no
+    reference do we generate a fresh keyframe via Nano Banana text-to-image.
+    """
+    if ref_image and Path(ref_image).exists():
+        return Path(ref_image)
     try:
         from tools.graphics.image_selector import ImageSelector
         sel = ImageSelector()
     except Exception as exc:  # noqa: BLE001
         _log.warning("ai_video: image selector unavailable: %s", exc)
         return None
-    inputs: dict[str, Any] = {
-        "prompt": prompt,
-        "preferred_provider": "nano_banana",
-        "aspect_ratio": "16:9",
-        "output_path": str(output_path),
-    }
-    if ref_image:
-        inputs["generation_mode"] = "edit"
-        inputs["image_path"] = str(ref_image)
     try:
-        res = sel.execute(inputs)
+        res = sel.execute({
+            "prompt": prompt,
+            "preferred_provider": "nano_banana",
+            "aspect_ratio": "16:9",
+            "output_path": str(output_path),
+        })
     except Exception as exc:  # noqa: BLE001
         _log.warning("ai_video: keyframe generation error: %s", exc)
         return None

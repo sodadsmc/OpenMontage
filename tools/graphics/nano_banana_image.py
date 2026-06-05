@@ -1,19 +1,23 @@
-"""Nano Banana 2 image generation + editing via the Google Gemini API.
+"""Nano Banana 2 image generation via the Kie.ai aggregator.
 
-"Nano Banana" is Google's Gemini image model line. Unlike Imagen (text-to-image
-only, via the ``:predict`` endpoint), Nano Banana uses the Gemini
-``:generateContent`` endpoint and supports REFERENCE/EDIT mode (inline source
-images) — which is exactly what the Asset Bible needs: generate one canonical
-reference image, then produce per-shot keyframes in ``edit`` mode that inherit
-the locked look before image-to-video.
+"Nano Banana" is Google's Gemini image model line. We access it through Kie.ai's
+unified Jobs API (the same KIE_API_KEY already used for hero video), which serves
+Nano Banana 2 cheaply (text-to-image, and reference/edit when given image URLs).
 
-The model id is configurable via the ``NANO_BANANA_MODEL`` env var so it tracks
-Google's current Nano Banana 2 id without a code change.
+Flow (async): POST /api/v1/jobs/createTask -> taskId -> poll /api/v1/jobs/recordInfo
+-> download the resulting image URL.
+
+NOTE: Kie.ai's edit/reference input (`image_input`) takes PUBLIC URLs and Kie.ai
+provides no file-upload endpoint. So this tool only uses reference images when
+given URLs; the documentary keyframe flow anchors on the locally-stored canonical
+reference image directly (see lib/visual_router._nano_keyframe), which needs no
+upload. Set KIE_BASE_URL / NANO_BANANA_MODEL to override defaults.
 """
 
 from __future__ import annotations
 
-import base64
+import json
+import logging
 import os
 import time
 from pathlib import Path
@@ -32,40 +36,64 @@ from tools.base_tool import (
     ToolTier,
 )
 
-# Default model id — override with NANO_BANANA_MODEL when Google's id changes.
-DEFAULT_MODEL = "gemini-3-pro-image-preview"
+_log = logging.getLogger(__name__)
+
+DEFAULT_MODEL = "nano-banana-2"       # override with NANO_BANANA_MODEL
+DEFAULT_BASE = "https://api.kie.ai"   # override with KIE_BASE_URL
 COST_PER_IMAGE = 0.04
 
-_MIME_BY_SUFFIX = {
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".webp": "image/webp",
-}
+_POLL_INITIAL_WAIT = 4
+_POLL_INTERVAL = 6
+_MAX_POLL_TIME = 300
 
 
-def _mime_for(path: Path) -> str:
-    return _MIME_BY_SUFFIX.get(path.suffix.lower(), "image/png")
+def _extract_result_url(record_data: dict) -> str | None:
+    """Pull the first result image URL out of a Kie.ai recordInfo `data` object.
 
-
-def _extract_image(response: dict) -> tuple[str | None, str]:
-    """Pull the first inline image (base64, mime) out of a generateContent response.
-
-    Tolerates both camelCase (REST) and snake_case (proto) key spellings.
+    Tolerates the Jobs-API shape (resultJson string -> resultUrls) and the
+    model-endpoint shape (resultUrls / response.resultUrls).
     """
-    for cand in response.get("candidates", []):
-        content = cand.get("content", {}) or {}
-        for part in content.get("parts", []) or []:
-            inline = part.get("inlineData") or part.get("inline_data")
-            if inline and inline.get("data"):
-                mime = inline.get("mimeType") or inline.get("mime_type") or "image/png"
-                return inline["data"], mime
-    return None, "image/png"
+    # Jobs API: resultJson is a JSON string with resultUrls
+    rj = record_data.get("resultJson")
+    if rj:
+        try:
+            parsed = json.loads(rj) if isinstance(rj, str) else rj
+            urls = parsed.get("resultUrls") or parsed.get("resultUrl")
+            if urls:
+                return urls[0] if isinstance(urls, list) else urls
+        except Exception:  # noqa: BLE001
+            pass
+    # Top-level resultUrls
+    urls = record_data.get("resultUrls")
+    if isinstance(urls, str):
+        try:
+            urls = json.loads(urls)
+        except Exception:  # noqa: BLE001
+            urls = [urls]
+    if urls:
+        return urls[0]
+    # Nested response.resultUrls (veo-style)
+    resp = record_data.get("response") or {}
+    urls = resp.get("resultUrls")
+    if urls:
+        return urls[0] if isinstance(urls, list) else urls
+    return None
+
+
+def _state_of(record_data: dict) -> str:
+    """Normalize Kie.ai job state to one of: success | failed | pending."""
+    state = str(record_data.get("state", "")).lower()
+    flag = record_data.get("successFlag")
+    if state in ("success", "succeed", "succeeded", "completed") or flag == 1:
+        return "success"
+    if state in ("fail", "failed", "error") or flag in (2, 3):
+        return "failed"
+    return "pending"
 
 
 class NanoBananaImage(BaseTool):
     name = "nano_banana_image"
-    version = "0.1.0"
+    version = "0.2.0"
     tier = ToolTier.GENERATE
     capability = "image_generation"
     provider = "nano_banana"
@@ -74,23 +102,18 @@ class NanoBananaImage(BaseTool):
     determinism = Determinism.STOCHASTIC
     runtime = ToolRuntime.API
 
-    dependencies = []  # checked dynamically via env var
+    dependencies = ["env:KIE_API_KEY"]
     install_instructions = (
-        "Set GEMINI_API_KEY (or GOOGLE_API_KEY) to your Google AI API key.\n"
-        "  Get one at https://aistudio.google.com/apikey\n"
-        "  Optionally set NANO_BANANA_MODEL to the current Nano Banana 2 model id "
-        f"(default: {DEFAULT_MODEL})."
+        "Set KIE_API_KEY in .env (same key as Kie.ai video):\n"
+        "  KIE_API_KEY=your_key_here\n"
+        "  Get one at https://kie.ai/api-key\n"
+        "  Optional: NANO_BANANA_MODEL (default nano-banana-2), KIE_BASE_URL."
     )
     agent_skills = ["flux-best-practices"]
 
-    capabilities = [
-        "generate_image",
-        "text_to_image",
-        "image_edit",
-        "reference_image",
-    ]
+    capabilities = ["generate_image", "text_to_image", "image_edit", "reference_image"]
     supports = {
-        "image_edit": True,
+        "image_edit": True,          # reference via image_urls (public URLs only)
         "reference_image": True,
         "multi_reference": True,
         "aspect_ratio": True,
@@ -99,11 +122,12 @@ class NanoBananaImage(BaseTool):
     }
     best_for = [
         "consistent character/location references (Asset Bible canonical images)",
-        "image-to-image edits that keep a locked subject",
-        "per-shot keyframes derived from a canonical reference",
+        "cheap text-to-image via the Kie.ai aggregator",
+        "reference edits when source images are already public URLs",
     ]
     not_good_for = [
-        "deterministic/seeded reproduction (no seed control)",
+        "editing a LOCAL image (Kie.ai requires public URLs, no upload endpoint)",
+        "deterministic/seeded reproduction",
         "offline generation",
     ]
 
@@ -111,51 +135,47 @@ class NanoBananaImage(BaseTool):
         "type": "object",
         "required": ["prompt"],
         "properties": {
-            "prompt": {"type": "string", "description": "Image description or edit instruction"},
+            "prompt": {"type": "string", "description": "Image description (max ~20k chars)"},
             "generation_mode": {
                 "type": "string",
                 "enum": ["generate", "edit"],
                 "default": "generate",
-                "description": "Use 'edit' when providing one or more source images.",
             },
-            "image_path": {"type": "string", "description": "Single local source image path (edit/reference mode)."},
-            "image_paths": {
+            "image_url": {"type": "string", "description": "Single reference image PUBLIC URL"},
+            "image_urls": {
                 "type": "array",
                 "items": {"type": "string"},
-                "description": "Multiple local source image paths for multi-reference edits.",
+                "description": "Reference image PUBLIC URLs (up to 14). Kie.ai needs URLs, not local files.",
             },
             "aspect_ratio": {
                 "type": "string",
-                "enum": ["1:1", "3:4", "4:3", "9:16", "16:9"],
+                "enum": ["1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9", "auto"],
                 "default": "16:9",
             },
-            "model": {"type": "string", "description": "Override the model id for this call."},
+            "resolution": {"type": "string", "enum": ["1K", "2K", "4K"], "default": "2K"},
+            "model": {"type": "string", "description": "Override the Kie.ai model id"},
             "output_path": {"type": "string"},
         },
     }
 
     resource_profile = ResourceProfile(
-        cpu_cores=1, ram_mb=512, vram_mb=0, disk_mb=100, network_required=True
+        cpu_cores=1, ram_mb=256, vram_mb=0, disk_mb=100, network_required=True
     )
-    retry_policy = RetryPolicy(max_retries=2, retryable_errors=["rate_limit", "timeout"])
+    retry_policy = RetryPolicy(max_retries=2, retryable_errors=["rate_limit", "timeout", "429"])
     idempotency_key_fields = ["prompt", "aspect_ratio", "generation_mode"]
-    side_effects = ["writes image file to output_path", "calls Google Gemini API"]
-    user_visible_verification = ["Inspect the generated image for relevance, period accuracy, and consistency"]
-
-    def _get_api_key(self) -> str | None:
-        return os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    side_effects = ["writes image file to output_path", "calls Kie.ai Jobs API"]
+    user_visible_verification = ["Inspect the image for relevance, period accuracy, and consistency"]
 
     def get_status(self) -> ToolStatus:
-        return ToolStatus.AVAILABLE if self._get_api_key() else ToolStatus.UNAVAILABLE
+        return ToolStatus.AVAILABLE if os.environ.get("KIE_API_KEY") else ToolStatus.UNAVAILABLE
 
     def estimate_cost(self, inputs: dict[str, Any]) -> float:
         return COST_PER_IMAGE
 
     def execute(self, inputs: dict[str, Any]) -> ToolResult:
-        api_key = self._get_api_key()
+        api_key = os.environ.get("KIE_API_KEY")
         if not api_key:
-            return ToolResult(success=False, error="No Google API key found. " + self.install_instructions)
-
+            return ToolResult(success=False, error="KIE_API_KEY not set. " + self.install_instructions)
         prompt = inputs.get("prompt")
         if not prompt:
             return ToolResult(success=False, error="'prompt' is required")
@@ -163,71 +183,93 @@ class NanoBananaImage(BaseTool):
         import requests
 
         start = time.time()
+        base = os.environ.get("KIE_BASE_URL", DEFAULT_BASE).rstrip("/")
         model = inputs.get("model") or os.environ.get("NANO_BANANA_MODEL", DEFAULT_MODEL)
-        aspect = inputs.get("aspect_ratio", "16:9")
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
-        # Collect source images for edit / reference mode
-        src_paths: list[str] = []
-        if inputs.get("image_path"):
-            src_paths.append(inputs["image_path"])
-        if inputs.get("image_paths"):
-            src_paths.extend(inputs["image_paths"])
-
-        parts: list[dict[str, Any]] = []
-        for sp in src_paths:
-            p = Path(sp)
-            if not p.exists():
-                return ToolResult(success=False, error=f"Source image not found: {sp}")
-            parts.append({
-                "inlineData": {
-                    "mimeType": _mime_for(p),
-                    "data": base64.b64encode(p.read_bytes()).decode("ascii"),
-                }
-            })
-        parts.append({"text": prompt})
-
-        body: dict[str, Any] = {
-            "contents": [{"parts": parts}],
-            "generationConfig": {"responseModalities": ["IMAGE"]},
+        input_obj: dict[str, Any] = {
+            "prompt": prompt,
+            "aspect_ratio": inputs.get("aspect_ratio", "16:9"),
+            "resolution": inputs.get("resolution", "2K"),
+            "output_format": "png",
         }
-        if aspect:
-            body["generationConfig"]["imageConfig"] = {"aspectRatio": aspect}
+        ref_urls: list[str] = []
+        if inputs.get("image_url"):
+            ref_urls.append(inputs["image_url"])
+        if inputs.get("image_urls"):
+            ref_urls.extend(inputs["image_urls"])
+        # Local paths can't be used (Kie.ai needs public URLs) — warn and ignore.
+        if inputs.get("image_path") or inputs.get("image_paths"):
+            _log.warning("nano_banana(kie): ignoring local image_path(s) — Kie.ai needs public URLs")
+        if ref_urls:
+            input_obj["image_input"] = ref_urls
 
+        # 1. Create task
         try:
-            resp = requests.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-                headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
-                json=body,
-                timeout=180,
+            r = requests.post(
+                f"{base}/api/v1/jobs/createTask",
+                headers=headers,
+                json={"model": model, "input": input_obj},
+                timeout=30,
             )
-            resp.raise_for_status()
-            data = resp.json()
-            img_b64, mime = _extract_image(data)
-            if img_b64 is None:
-                return ToolResult(
-                    success=False,
-                    error=f"No image in Nano Banana response: {str(data)[:300]}",
-                )
-            ext = ".jpg" if "jpeg" in mime or "jpg" in mime else ".png"
-            output_path = Path(inputs.get("output_path") or f"nano_banana_image{ext}")
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(base64.b64decode(img_b64))
-        except Exception as e:
-            return ToolResult(success=False, error=f"Nano Banana generation failed: {e}")
+            r.raise_for_status()
+            data = r.json()
+        except Exception as e:  # noqa: BLE001
+            return ToolResult(success=False, error=f"Nano Banana createTask failed: {e}")
+        if data.get("code") not in (200, 0, None):
+            return ToolResult(success=False, error=f"Kie.ai API error: {data.get('msg', data)}")
+        task_id = (data.get("data") or {}).get("taskId") or (data.get("data") or {}).get("task_id")
+        if not task_id:
+            return ToolResult(success=False, error=f"No taskId in response: {str(data)[:200]}")
+
+        # 2. Poll
+        image_url = self._poll(base, headers, task_id)
+        if not image_url:
+            return ToolResult(success=False, error=f"Nano Banana generation timed out/failed (task {task_id})")
+
+        # 3. Download
+        output_path = Path(inputs.get("output_path") or "nano_banana_image.png")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            dl = requests.get(image_url, timeout=120)
+            dl.raise_for_status()
+            output_path.write_bytes(dl.content)
+        except Exception as e:  # noqa: BLE001
+            return ToolResult(success=False, error=f"Image download failed: {e}")
 
         return ToolResult(
             success=True,
             data={
-                "provider": "nano_banana",
-                "model": model,
-                "prompt": prompt,
+                "provider": "nano_banana", "model": model, "prompt": prompt,
                 "generation_mode": inputs.get("generation_mode", "generate"),
-                "aspect_ratio": aspect,
-                "reference_images": src_paths,
-                "output": str(output_path),
+                "aspect_ratio": input_obj["aspect_ratio"], "task_id": task_id,
+                "image_url": image_url, "output": str(output_path),
             },
             artifacts=[str(output_path)],
             cost_usd=self.estimate_cost(inputs),
             duration_seconds=round(time.time() - start, 2),
             model=model,
         )
+
+    def _poll(self, base: str, headers: dict, task_id: str) -> str | None:
+        import requests
+        deadline = time.time() + _MAX_POLL_TIME
+        time.sleep(_POLL_INITIAL_WAIT)
+        while time.time() < deadline:
+            try:
+                r = requests.get(
+                    f"{base}/api/v1/jobs/recordInfo",
+                    params={"taskId": task_id}, headers=headers, timeout=15,
+                )
+                r.raise_for_status()
+                rec = r.json().get("data", {}) or {}
+                state = _state_of(rec)
+                if state == "success":
+                    return _extract_result_url(rec)
+                if state == "failed":
+                    _log.warning("nano_banana(kie): task %s failed", task_id)
+                    return None
+            except Exception as exc:  # noqa: BLE001
+                _log.warning("nano_banana(kie): poll error for %s: %s", task_id, exc)
+            time.sleep(_POLL_INTERVAL)
+        return None

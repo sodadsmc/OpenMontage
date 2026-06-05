@@ -9,9 +9,16 @@ every shot of it.
 
 | Role | Provider | Env var | Notes |
 |------|----------|---------|-------|
-| Reference images + per-shot keyframes | **Nano Banana 2** (`nano_banana_image`) | `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) | model id override: `NANO_BANANA_MODEL` (default `gemini-3-pro-image-preview`) |
-| Default video (image-to-video) | **Wan** (`wan_video`, local GPU) | `VIDEO_GEN_LOCAL_ENABLED=true` | run on the **rented GPU box**; needs the Wan weights + `requirements-gpu.txt` |
+| Reference images + keyframes | **Nano Banana 2** via Kie.ai (`nano_banana_image`) | `KIE_API_KEY` (same key as hero video) | overrides: `NANO_BANANA_MODEL` (default `nano-banana-2`), `KIE_BASE_URL` |
+| Default video (image-to-video) | **Wan** (`wan_video`, local GPU) | `VIDEO_GEN_LOCAL_ENABLED=true` | run on the **rented GPU box** (e.g. vast.ai); needs Wan weights + `requirements-gpu.txt` |
 | Hero shots | **Kie.ai** (`kie_video`, Veo/Runway) | `KIE_API_KEY` | only used for shots marked `hero: true` |
+
+> **Keyframe anchoring (Kie.ai note):** Kie.ai takes reference images as public
+> URLs only (no file upload). So each AI shot is anchored to the Asset Bible's
+> **local** canonical reference image directly — Wan i2v accepts a local path, and
+> this maximizes consistency. Per-shot keyframe *variation* (editing the canonical
+> reference per shot) would require hosting the reference at a URL; it's a future
+> enhancement, not needed for the default Wan path.
 
 Add new providers by dropping a tool in `tools/video/` or `tools/graphics/` —
 the selectors auto-discover them (the registry now skips any tool whose optional
@@ -35,7 +42,8 @@ generation pipeline on the box** (Nano Banana + Kie.ai are plain API calls).
 # On the box (Linux + CUDA, >=24 GB VRAM for Wan 2.1-14B, ~8 GB for 1.3B):
 git clone <your-fork>  &&  cd OpenMontage
 pip install -r requirements.txt -r requirements-gpu.txt
-export VIDEO_GEN_LOCAL_ENABLED=true GEMINI_API_KEY=... KIE_API_KEY=... AI_VIDEO_PRIMARY=1
+export VIDEO_GEN_LOCAL_ENABLED=true KIE_API_KEY=... AI_VIDEO_PRIMARY=1
+# KIE_API_KEY covers Nano Banana images AND hero video. GOOGLE_API_KEY optional (Gemini quality checks).
 # (Wan weights download on first use; ffmpeg must be on PATH)
 ```
 
