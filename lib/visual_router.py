@@ -38,6 +38,12 @@ HERO_VIDEO_PROVIDER = "grok-kie"     # same model for the hero preview (matches 
 _PROVIDER_MAX_SHOT = {"grok-kie": 15.0, "kling": 10.0, "kie": 10.0, "wan": 8.0, "ltx": 8.0, "veo": 8.0}
 MAX_SHOT_SECONDS = _PROVIDER_MAX_SHOT.get(DEFAULT_VIDEO_PROVIDER, 10.0)
 
+# Uniform output frame rate for the whole timeline. Sources differ (Grok i2v = 24fps,
+# Manim/cards = 30fps); every clip is conformed to this so the assembled timeline is
+# constant-frame-rate — no judder or drift at the segment seams. render_v6 uses the
+# same value (RENDER_FPS env) so the shot- and segment-level concats agree.
+TARGET_FPS = int(os.environ.get("RENDER_FPS", "30"))
+
 
 @dataclass
 class VisualAsset:
@@ -313,7 +319,11 @@ def generate_ai_video(
     )
     if combined is None:
         return None
-    dur = _probe_duration(str(combined)) or target_duration_s
+    dur = _probe_duration(str(combined))
+    if dur is None:
+        _log.warning("ai_video: %s unprobeable after concat; reporting target %.3fs",
+                     segment_id, target_duration_s)
+        dur = target_duration_s
     desc = (getattr(visual_spec, "effective_prompt", None)
             or getattr(visual_spec, "description", "") or "")[:60]
     return VisualAsset(
@@ -467,8 +477,11 @@ def _concat_clips(clip_paths: list[str], output_path: Path,
     )
     joined = output_path.parent / f"{output_path.stem}_joined.mp4"
     try:
+        # Conform fps + strip audio at the join so heterogeneous shots splice cleanly
+        # (the stray short Grok AAC track is dropped; the narration is added later).
         subprocess.run(
             ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(list_file),
+             "-vf", f"fps={TARGET_FPS},setsar=1", "-an",
              "-c:v", "libx264", "-pix_fmt", "yuv420p", str(joined)],
             capture_output=True, timeout=600, check=True,
         )
@@ -479,16 +492,31 @@ def _concat_clips(clip_paths: list[str], output_path: Path,
 
 
 def _trim_to_duration(src: str, output_path: Path, target_duration_s: float) -> Path | None:
+    """Conform a clip to EXACTLY target_duration_s at the uniform output fps.
+
+    Trims if too long; freeze-frame pads (clones the last frame) if too short — so a
+    clip that came out a little short never desyncs the narration timeline and never
+    has to be looped at assembly. Audio is stripped (narration is a separate track).
+    """
     output_path = Path(output_path)
+    src_dur = _probe_duration(str(src))
+    vf = f"fps={TARGET_FPS},setsar=1"
+    if src_dur is not None and src_dur < target_duration_s - (1.0 / TARGET_FPS):
+        deficit = target_duration_s - src_dur
+        vf += f",tpad=stop_mode=clone:stop_duration={deficit:.3f}"
     try:
         subprocess.run(
-            ["ffmpeg", "-y", "-i", str(src), "-t", f"{target_duration_s:.3f}",
-             "-c:v", "libx264", "-pix_fmt", "yuv420p", str(output_path)],
+            ["ffmpeg", "-y", "-i", str(src), "-vf", vf, "-t", f"{target_duration_s:.3f}",
+             "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(output_path)],
             capture_output=True, timeout=600, check=True,
         )
     except Exception as exc:  # noqa: BLE001
-        _log.warning("ai_video: trim failed: %s", exc)
+        _log.warning("ai_video: trim/pad failed: %s", exc)
         return None
+    out_dur = _probe_duration(str(output_path))
+    if out_dur is not None and abs(out_dur - target_duration_s) > 0.15:
+        _log.warning("ai_video: %s is %.3fs but target is %.3fs (>150ms off)",
+                     output_path.name, out_dur, target_duration_s)
     return output_path
 
 
@@ -702,7 +730,7 @@ def _generate_text_card(
             timeout=30,
             check=True,
         )
-        duration = _probe_duration(str(mp4_path))
+        duration = _probe_duration(str(mp4_path)) or 0.0
         return VisualAsset(
             scene_id=sid,
             path=str(mp4_path),
@@ -771,7 +799,7 @@ with tempconfig({{
             if line.startswith("MANIM_OUTPUT:"):
                 mp4_path = line.split(":", 1)[1].strip()
                 if Path(mp4_path).is_file():
-                    duration = _probe_duration(mp4_path)
+                    duration = _probe_duration(mp4_path) or 0.0
                     return VisualAsset(
                         scene_id=scene_id,
                         path=mp4_path,
@@ -1412,13 +1440,15 @@ class ProcessFlow(Scene):
     return _run_manim_scene(code, "ProcessFlow", output_dir, scene["scene_id"])
 
 
-def _probe_duration(path: str) -> float:
-    """Get video duration via ffprobe."""
+def _probe_duration(path: str) -> float | None:
+    """Get video duration via ffprobe; None on failure (callers MUST handle None
+    rather than treating an unprobeable clip as if it were the target length)."""
     try:
         r = subprocess.run(
             ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True, text=True, timeout=10, check=True,
         )
         return float(r.stdout.strip())
-    except Exception:
-        return 0.0
+    except Exception:  # noqa: BLE001
+        _log.warning("ai_video: could not probe duration of %s", path)
+        return None

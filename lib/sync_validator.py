@@ -36,6 +36,23 @@ FINAL_DURATION_TOLERANCE_S = 2.0     # ±2s for total render duration (FFmpeg co
 MIN_SEGMENT_DURATION_S = 0.5         # Minimum meaningful segment duration
 
 
+def _video_stream_duration(path: str | Path) -> float | None:
+    """Duration of the VIDEO STREAM specifically (not the container/format, which
+    for a muxed file is max(streams) and would mask a too-short video track behind
+    a longer audio track). None if unavailable."""
+    import subprocess
+    try:
+        p = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=duration", "-of", "csv=p=0", str(path)],
+            capture_output=True, text=True, timeout=10,
+        )
+        s = p.stdout.strip()
+        return float(s) if s and s != "N/A" else None
+    except Exception:
+        return None
+
+
 @dataclass
 class SyncReport:
     """Result of sync validation."""
@@ -204,17 +221,24 @@ def validate_post_render(
         report.errors.append(f"Render file not found: {render_path}")
         return report
 
-    # Check 1: Video duration >= audio duration (prevents bug #9)
+    # Check 1: Video duration >= audio duration (prevents bug #9).
+    # Measure the VIDEO STREAM specifically — the container/format duration is
+    # max(streams) and would hide a short video behind the full-length narration.
     report.checks_run += 1
-    try:
-        video_dur = get_video_duration(render_path)
-    except Exception as e:
-        report.errors.append(f"Cannot read video duration: {e}")
-        return report
+    video_dur = _video_stream_duration(render_path)
+    if video_dur is None:
+        try:
+            video_dur = get_video_duration(render_path)  # fallback: container duration
+        except Exception as e:
+            report.errors.append(f"Cannot read video duration: {e}")
+            return report
 
-    # Get audio duration (may differ from video if muxed separately)
+    # Reference for the "video must cover the audio" check = the INTENDED narration
+    # length from the timing contract. Do NOT trust the muxed a:0 stream alone: a
+    # `-shortest` mux clamps it to the video duration, which would make this guard
+    # structurally unable to fire. Use the longer of (contract, actual audio stream).
+    expected_audio_dur = duration_map.total_duration_s
     try:
-        # Use ffprobe to get audio stream duration specifically
         import subprocess
         p = subprocess.run(
             [
@@ -229,17 +253,14 @@ def validate_post_render(
             timeout=10,
         )
         if p.returncode == 0 and p.stdout.strip():
-            audio_dur = float(p.stdout.strip())
-        else:
-            # Fallback: use total audio from duration map
-            audio_dur = duration_map.total_duration_s
+            expected_audio_dur = max(expected_audio_dur, float(p.stdout.strip()))
     except Exception:
-        audio_dur = duration_map.total_duration_s
+        pass
 
-    if video_dur < audio_dur - 0.1:
+    if video_dur < expected_audio_dur - 0.1:
         report.errors.append(
-            f"BUG #9 DETECTED: Video ({video_dur:.2f}s) is shorter than "
-            f"audio ({audio_dur:.2f}s). Audio will be cut off."
+            f"Video ({video_dur:.2f}s) is shorter than the narration "
+            f"({expected_audio_dur:.2f}s) — audio would be cut off."
         )
     else:
         report.checks_passed += 1
