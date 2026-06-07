@@ -343,13 +343,22 @@ def _plan_shots(visual_spec: Any, target_duration_s: float) -> list[dict[str, An
         for s in shots:
             w = max(0.0, getattr(s, "duration_weight", 1.0))
             secs = (target_duration_s * (w / total_w)) if total_w else (target_duration_s / len(shots))
-            out.append({
-                "shot_id": getattr(s, "shot_id"),
-                "ai_prompt": getattr(s, "ai_prompt", None),
-                "ai_motion": getattr(s, "ai_motion", None),
-                "hero": bool(getattr(s, "hero", False)),
-                "seconds": secs,
-            })
+            sid = getattr(s, "shot_id")
+            ai_prompt = getattr(s, "ai_prompt", None)
+            ai_motion = getattr(s, "ai_motion", None)
+            hero = bool(getattr(s, "hero", False))
+            # Sub-split an explicit shot longer than the provider's max single clip
+            # (e.g. a 31s shot at MAX=15 -> 3x ~10.4s) so every generated clip is
+            # fillable; the sub-clips share the same prompt + anchor and concat back.
+            n_sub = max(1, math.ceil(secs / MAX_SHOT_SECONDS)) if secs > 0 else 1
+            for k in range(n_sub):
+                out.append({
+                    "shot_id": sid if n_sub == 1 else f"{sid}_{k + 1}",
+                    "ai_prompt": ai_prompt,
+                    "ai_motion": ai_motion,
+                    "hero": hero and k == 0,
+                    "seconds": secs / n_sub,
+                })
         return out
 
     n = max(1, math.ceil(target_duration_s / MAX_SHOT_SECONDS)) if target_duration_s > 0 else 1
@@ -416,7 +425,13 @@ def _nano_image(prompt: str, output_path: Path, image_urls: list[str] | None = N
         _log.warning("ai_video: keyframe generation error: %s", exc)
         return None
     if getattr(res, "success", False):
-        out = (res.data or {}).get("output") or (res.artifacts[0] if getattr(res, "artifacts", None) else None)
+        data = res.data or {}
+        # Prefer the provider-hosted URL as a HOST-FREE i2v anchor — avoids uploading
+        # the local keyframe to a third-party host (catbox/0x0) that may be down.
+        url = data.get("image_url")
+        if url and (str(url).startswith("http://") or str(url).startswith("https://")):
+            return str(url)
+        out = data.get("output") or (res.artifacts[0] if getattr(res, "artifacts", None) else None)
         return Path(out) if out else None
     _log.warning("ai_video: keyframe generation failed: %s", getattr(res, "error", ""))
     return None
@@ -496,9 +511,12 @@ def _concat_clips(clip_paths: list[str], output_path: Path,
     )
     joined = output_path.parent / f"{output_path.stem}_joined.mp4"
     try:
+        # Re-encode the join (not -c copy): two separately-encoded libx264 shots can
+        # carry incompatible SPS/PPS/GOP that stream-copy concat rejects even at the
+        # same resolution/fps. Inputs are already normalized, so this is one clean pass.
         subprocess.run(
             ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(list_file),
-             "-c", "copy", str(joined)],
+             "-c:v", "libx264", "-pix_fmt", "yuv420p", str(joined)],
             capture_output=True, timeout=600, check=True,
         )
     except Exception as exc:  # noqa: BLE001
