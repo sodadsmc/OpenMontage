@@ -471,18 +471,34 @@ def _concat_clips(clip_paths: list[str], output_path: Path,
     if len(clip_paths) == 1:
         return _trim_to_duration(clip_paths[0], output_path, target_duration_s)
 
+    # The concat demuxer requires identical stream params, but Grok shots can differ
+    # in resolution between prompts. Normalize each shot to a uniform size + fps (and
+    # strip the stray short AAC track) first, then stream-copy concat.
+    norm_paths: list[Path] = []
+    for i, p in enumerate(clip_paths):
+        norm = output_path.parent / f"{output_path.stem}_n{i:02d}.mp4"
+        try:
+            subprocess.run(
+                ["ffmpeg", "-y", "-i", str(p), "-map", "0:v:0",
+                 "-vf", ("scale=1280:720:force_original_aspect_ratio=decrease,"
+                         f"pad=1280:720:-1:-1:color=black,fps={TARGET_FPS},setsar=1"),
+                 "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(norm)],
+                capture_output=True, timeout=600, check=True,
+            )
+            norm_paths.append(norm)
+        except Exception as exc:  # noqa: BLE001
+            _log.warning("ai_video: shot normalize failed: %s", exc)
+            return None
+
     list_file = output_path.parent / f"{output_path.stem}_concat.txt"
     list_file.write_text(
-        "".join(f"file '{Path(p).as_posix()}'\n" for p in clip_paths), encoding="utf-8"
+        "".join(f"file '{p.as_posix()}'\n" for p in norm_paths), encoding="utf-8"
     )
     joined = output_path.parent / f"{output_path.stem}_joined.mp4"
     try:
-        # Conform fps + strip audio at the join so heterogeneous shots splice cleanly
-        # (the stray short Grok AAC track is dropped; the narration is added later).
         subprocess.run(
             ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(list_file),
-             "-vf", f"fps={TARGET_FPS},setsar=1", "-an",
-             "-c:v", "libx264", "-pix_fmt", "yuv420p", str(joined)],
+             "-c", "copy", str(joined)],
             capture_output=True, timeout=600, check=True,
         )
     except Exception as exc:  # noqa: BLE001
@@ -506,7 +522,8 @@ def _trim_to_duration(src: str, output_path: Path, target_duration_s: float) -> 
         vf += f",tpad=stop_mode=clone:stop_duration={deficit:.3f}"
     try:
         subprocess.run(
-            ["ffmpeg", "-y", "-i", str(src), "-vf", vf, "-t", f"{target_duration_s:.3f}",
+            ["ffmpeg", "-y", "-i", str(src), "-map", "0:v:0", "-vf", vf,
+             "-t", f"{target_duration_s:.3f}",
              "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(output_path)],
             capture_output=True, timeout=600, check=True,
         )
@@ -656,19 +673,22 @@ def generate_styled_card(
     except Exception as exc:
         _log.warning("Styled card failed for %s (%s): %s", segment_id, card_type, exc)
 
-    # Fallback to old-style text card
+    # Fallback to old-style text card (renders at the exact slot duration)
     _log.info("Falling back to plain text card for %s", segment_id)
     return _generate_text_card(
         {"scene_id": segment_id, "narration": text},
         output_dir,
+        target_duration_s,
     )
 
 
 def _generate_text_card(
     scene: dict[str, Any],
     output_dir: Path,
+    target_duration_s: float = 5.0,
 ) -> VisualAsset | None:
-    """Generate a text card as a PNG image (renders as Ken Burns in CinematicRenderer)."""
+    """Generate a text card (PIL still -> Ken Burns video) at EXACTLY target_duration_s
+    and 30fps, so it matches its narration slot and passes the pre-assembly sync gate."""
     try:
         from PIL import Image, ImageDraw, ImageFont
     except ImportError:
@@ -713,16 +733,16 @@ def _generate_text_card(
 
     # Convert PNG to video with Ken Burns zoom so FFmpeg compose can use it
     mp4_path = output_dir / f"{sid}_text_card.mp4"
-    card_duration = min(8, max(3, len(text) // 15))  # scale duration with text length
+    frames = max(1, int(round(target_duration_s * 30)))  # exact slot length at 30fps CFR
     try:
         subprocess.run(
             [
                 "ffmpeg", "-y",
                 "-loop", "1",
                 "-i", str(png_path),
-                "-t", str(card_duration),
+                "-t", f"{target_duration_s:.3f}",
                 "-filter_complex",
-                f"zoompan=z='min(zoom+0.0006,1.04)':d={card_duration * 30}:s=1920x1080:fps=30,format=yuv420p",
+                f"zoompan=z='min(zoom+0.0006,1.04)':d={frames}:s=1920x1080:fps=30,format=yuv420p",
                 "-c:v", "libx264", "-crf", "23", "-preset", "medium",
                 str(mp4_path),
             ],
