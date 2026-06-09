@@ -37,7 +37,12 @@ _log = logging.getLogger(__name__)
 DEFAULT_BASE = "https://api.kie.ai"      # override with KIE_BASE_URL
 I2V_MODEL = "grok-imagine/image-to-video"
 T2V_MODEL = "grok-imagine/text-to-video"
-MIN_DURATION, MAX_DURATION = 6, 15        # Grok reliable clip range (seconds)
+# Kie's Grok Imagine wrapper accepts 6-30s per clip (Grok video-1.5, May 2026 —
+# https://docs.kie.ai/market/grok-imagine/image-to-video). Longer single clips mean
+# fewer split-and-concat seams per segment. GROK_KIE_MAX_SECONDS rolls back to 15
+# if Kie ever rejects long requests (the failure surfaces as a createTask error).
+MIN_DURATION = 6
+MAX_DURATION = int(os.environ.get("GROK_KIE_MAX_SECONDS", "30"))
 COST_PER_SECOND = 0.017
 _POLL_INITIAL_WAIT = 6
 _POLL_INTERVAL = 8
@@ -81,7 +86,7 @@ def _extract_url(rec: dict) -> str | None:
 
 class GrokKieVideo(BaseTool):
     name = "grok_kie_video"
-    version = "0.1.0"
+    version = "0.2.0"
     tier = ToolTier.GENERATE
     capability = "video_generation"
     provider = "grok-kie"
@@ -134,8 +139,8 @@ class GrokKieVideo(BaseTool):
                 "description": "Reference image PUBLIC URLs (up to 7).",
             },
             "duration": {
-                "type": "integer", "minimum": 6, "maximum": 15, "default": 6,
-                "description": "Clip seconds (clamped to 6-15).",
+                "type": "integer", "minimum": 6, "maximum": 30, "default": 6,
+                "description": "Clip seconds (clamped to 6-30; cap via GROK_KIE_MAX_SECONDS).",
             },
             "aspect_ratio": {
                 "type": "string",

@@ -1,9 +1,18 @@
-"""Gemini-powered visual validation for Manim animations.
+"""Gemini-powered visual validation for animated diagrams.
 
 Uploads the video AND extracts the final frame as a separate image,
 then sends both to Gemini for layout analysis.  The final frame is
 critical because Gemini's 1 FPS video sampling misses overlap issues
 that only appear when all elements are on screen together.
+
+Originally written for Manim animations; now also the critic for the
+hand-sketched matplotlib diagrams (lib.sketch_diagrams / lib.diagram_codegen).
+The rubric is a parameter because the two styles invert expectations: in a
+Manim clip, wobbling lines would be an encoding artifact; in a sketch diagram
+the wobble, halftone, and duotone are the WHOLE POINT and must not be flagged.
+Pass SKETCH_VALIDATION_PROMPT (optionally with extra context prepended) for
+sketch diagrams; the default remains the original Manim rubric, so existing
+callers are unchanged.
 
 Returns pass/fail with specific issues and suggestions.
 """
@@ -66,19 +75,87 @@ If there ARE issues:
 Severity: "high" = must fix, "medium" = should fix, "low" = cosmetic.
 """
 
+_JSON_SHAPE = """\
+Return ONLY valid JSON:
+{
+  "passed": true,
+  "issues": [],
+  "suggestions": []
+}
+
+If there ARE issues:
+{
+  "passed": false,
+  "issues": [
+    {"type": "text_overlap", "description": "X overlaps Y in the final frame", "severity": "high"}
+  ],
+  "suggestions": ["Move X up by 0.5 units to clear Y"]
+}
+
+Severity: "high" = must fix, "medium" = should fix, "low" = cosmetic.
+Fail (passed=false) ONLY on high/medium issues; low-severity cosmetic notes
+alone should still pass.
+"""
+
+# Rubric for the hand-sketched diagrams. The style cues that the Manim rubric
+# would read as defects (jittering lines, dotted texture, two-color grading)
+# are declared EXPECTED up front, and a dead-time check is added because
+# generated scenes — unlike hand-tuned Manim — often misjudge phase pacing.
+SKETCH_VALIDATION_PROMPT = """\
+You are reviewing a HAND-SKETCHED animated diagram for a graphic-novel-styled
+documentary. I'm sending you the video AND a screenshot of the FINAL FRAME
+(when all elements are visible). Check BOTH carefully.
+
+EXPECTED STYLE — do NOT flag any of these as issues:
+- wobbly, hand-inked lines that gently jitter/"boil" between frames
+  (deliberate hand-drawn-animation look, NOT an encoding artifact)
+- a casual handwriting font for ALL text
+- a navy + amber two-color (duotone) palette on a dark indigo gradient
+  background with a faint halftone dot field, plus film grain
+
+Check for these ACTUAL issues:
+
+1. **TEXT OVERLAP** — Are any text labels overlapping each other or sitting
+   on top of diagram elements so they are hard to read? Check the FINAL
+   FRAME especially.
+
+2. **EDGE CLIPPING** — Is any text or diagram element cut off at the edges
+   of the frame? (Elements deliberately animating in/out across an edge
+   are fine; settled elements must be fully inside.)
+
+3. **READABILITY** — Is all text large enough to read at 1080p? The
+   handwriting font is expected; flag only text that is genuinely too
+   small or cramped. Source citations at the bottom can be small.
+
+4. **ELEMENT OVERLAP** — Do boxes, arrows, bars, or shapes collide in ways
+   that make the diagram confusing (not deliberate emphasis)?
+
+5. **DEAD TIME** — Are there stretches of roughly 3+ seconds where nothing
+   appears, moves, or changes? The scene should always be building or
+   emphasizing something.
+
+6. **LAYOUT BALANCE** — Is the layout balanced? Large wasted empty regions
+   or one cramped corner?
+
+""" + _JSON_SHAPE
+
 
 def validate_animation(
     video_path: str | Path,
     max_retries: int = 1,
+    prompt: str | None = None,
 ) -> dict[str, Any]:
-    """Validate a Manim animation with Gemini vision.
+    """Validate an animated diagram with Gemini vision.
 
     Uploads both the video and a final-frame screenshot for thorough
-    layout analysis.
+    layout analysis. `prompt` selects the rubric — default is the original
+    Manim rubric (existing callers unchanged); pass SKETCH_VALIDATION_PROMPT
+    (with any scene-specific context prepended) for sketch diagrams.
 
     Returns dict with: passed (bool), issues (list), suggestions (list)
     """
     video_path = Path(video_path)
+    rubric = prompt or _VALIDATION_PROMPT
     if not video_path.is_file():
         return {"passed": False, "issues": [{"type": "error", "description": f"File not found: {video_path}"}], "suggestions": []}
 
@@ -124,9 +201,9 @@ def validate_animation(
         if final_frame.is_file():
             uploaded_frame = genai.upload_file(path=str(final_frame), display_name=f"{video_path.stem}_final_frame")
             parts.append(uploaded_frame)
-            parts.append("Above: the video animation followed by a screenshot of the FINAL FRAME. " + _VALIDATION_PROMPT)
+            parts.append("Above: the video animation followed by a screenshot of the FINAL FRAME. " + rubric)
         else:
-            parts.append(_VALIDATION_PROMPT)
+            parts.append(rubric)
 
         response = model.generate_content(parts)
 

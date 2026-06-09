@@ -90,6 +90,12 @@ class VideoSelector(BaseTool):
                 "type": "string",
                 "description": "Resolution hint for providers that support named output resolutions.",
             },
+            "negative_prompt": {
+                "type": "string",
+                "description": "Things to avoid (e.g. channel_style.negative()). Forwarded only to "
+                               "providers whose input_schema declares negative_prompt; dropped for "
+                               "providers that don't support it.",
+            },
             "output_path": {"type": "string"},
         },
     }
@@ -163,6 +169,15 @@ class VideoSelector(BaseTool):
             required = tool.input_schema.get("properties", {})
             if "query" in required and "query" not in adapted:
                 adapted["query"] = adapted.get("prompt", "")
+
+        # negative_prompt pass-through: forward only to providers whose schema
+        # declares it (veo, kling, ...). Dropping it for the rest keeps
+        # unsupported adapters (e.g. grok) from receiving a key they would
+        # either ignore confusingly or reject upstream.
+        if "negative_prompt" in adapted:
+            tool_props = getattr(tool, "input_schema", {}).get("properties", {})
+            if "negative_prompt" not in tool_props:
+                adapted.pop("negative_prompt")
 
         # Auto-resolve reference_image_path to a URL for providers that need it
         if adapted.get("operation") == "image_to_video" and adapted.get("reference_image_path"):

@@ -32,10 +32,23 @@ This stage is **two-phase** so the look is approved before the bulk spend:
 ## Provider strategy
 
 - **Images (canonical refs + keyframes):** Nano Banana via Kie.ai (`KIE_API_KEY`, model `google/nano-banana`). Kie returns a hosted URL that becomes the i2v anchor (no third-party host).
-- **Default video:** **Grok Imagine image-to-video via Kie.ai — cloud, no GPU box**; 6–15s clips, #1 i2v Arena, ~$0.017/s.
+- **Default video:** **Grok Imagine image-to-video via Kie.ai — cloud, no GPU box**; 6–30s clips (Grok video-1.5 via Kie; `GROK_KIE_MAX_SECONDS` rolls back the cap), #1 i2v Arena, ~$0.017/s.
 - **Hero shots:** the same Grok model, generated in prep for review; premium Veo/Runway is an opt-in escalation.
 - **Channel style:** the graphic-novel look (`styles/channel_styles/`, `CHANNEL_STYLE` env) is injected into every image + video prompt by `lib/channel_style.py`; `lib/finishing.py` applies the duotone + grain finishing pass at render. Per-segment `ai_style` carries **mood**, the channel style carries the **medium**.
-- **Shot length is provider-aware** (Grok 15s, Wan 8s): segments split into the fewest, longest shots the model handles well — segments at/under the cap are a single clip (no concat).
+- **Shot length is provider-aware** (Grok 30s, Wan 8s): segments split into the fewest, longest shots the model handles well — segments at/under the cap are a single clip (no concat).
+- **Multi-clip segments CHAIN, never duplicate.** When a segment still needs more than one
+  clip, leg N+1 is anchored to leg N's extracted final frame (`resolve_chain_anchor`) with a
+  **beat-progressed prompt** derived from the narration (`lib/beat_splitter.py`) — each leg
+  describes what happens NEXT in the same continuous scene. Two parallel takes of the same
+  keyframe (the old behavior) is a bug, not a cut.
+- **People shots animate from POPULATED keyframes.** Canonical anchors are deliberately
+  empty rooms; a shot whose prompt puts a person in frame gets a Nano Banana edit of the
+  canonical (subject placed ON surfaces with correct anatomy, gated by `validate_keyframe`)
+  before the i2v call. Animating a person out of an empty frame is how bodies melt into
+  furniture. Opt out per run with `AI_POPULATED_KEYFRAMES=0`.
+- **Narration is enforced, not assumed.** Phase A runs the narration↔visual alignment gate
+  (`lib/narration_gate.py`) before any spend, and the post-generation Gemini gate checks the
+  finished clip against BOTH the shot description and the narration it plays under.
 
 ## Workflow
 
@@ -51,11 +64,14 @@ looks the same across the documentary.
 python projects/<project>/script_v5/build_render_package.py
 ```
 
-This splits each AI segment into shots (provider-aware cap — Grok ≤15s; long
-segments become a cut sequence, never a looped clip), generates a keyframe per
-shot via Nano Banana (edit-mode from the canonical reference so the look is
-locked), and writes `shot_manifest_v6.json`. **Hero shots are generated now**
-(Grok i2v) so you can see the actual look before the bulk spend.
+This first runs the **narration alignment gate** (every AI segment's prompt is
+checked against its narration — mismatches block until the scored script is fixed
+or `--skip-narration-gate`), then splits each AI segment into shots (provider-aware
+cap — Grok ≤30s; longer segments become a CHAINED continuation, never a looped or
+duplicated clip), generates a keyframe per shot via Nano Banana (edit-mode from the
+canonical reference so the look is locked; people shots get a populated keyframe),
+and writes `shot_manifest_v6.json`. **Hero shots are generated now** (Grok i2v) so
+you can see the actual look before the bulk spend.
 
 ### 3. Hero review — the approval gate
 
@@ -86,8 +102,13 @@ stock/archival fallback (gap_fill stage).
 
 - Every shot is anchored to its asset's canonical reference image (consistency)
 - Hero clips reviewed and approved before the box batch is paid for
-- Long segments are multi-shot cut sequences at the exact narration duration
-- Each AI clip passes the quality gate (integrity, motion, duration +/-150ms)
+- Long segments are CHAINED continuations (leg N+1 starts from leg N's final frame,
+  beat-progressed prompt) at the exact narration duration — never two takes of the
+  same keyframe, never a looped clip
+- People shots animate from populated, gated keyframes — never from an empty room
+- Each AI clip passes the quality gate: integrity, motion, duration ±150ms, AND the
+  Gemini video review (content vs description+narration, artifact check: bodies
+  merging into surfaces, geometry that grows/stretches, morphing limbs — fail-closed)
 - Cost within the per-video budget (Grok i2v ~$0.017/s; a full doc ≈ $5–6)
 
 ## Ethics

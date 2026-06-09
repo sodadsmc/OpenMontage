@@ -84,6 +84,10 @@ class KlingVideo(BaseTool):
                 "default": "16:9",
             },
             "image_url": {"type": "string", "description": "Reference image URL for image_to_video"},
+            "negative_prompt": {
+                "type": "string",
+                "description": "Things to avoid in the generation (fal.ai Kling supports negative prompts).",
+            },
             "output_path": {"type": "string"},
         },
     }
@@ -138,6 +142,8 @@ class KlingVideo(BaseTool):
             payload["duration"] = inputs["duration"]
         if inputs.get("aspect_ratio"):
             payload["aspect_ratio"] = inputs["aspect_ratio"]
+        if inputs.get("negative_prompt"):
+            payload["negative_prompt"] = inputs["negative_prompt"]
         if operation == "image_to_video" and inputs.get("image_url"):
             payload["image_url"] = inputs["image_url"]
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import subprocess
 import textwrap
 from dataclasses import dataclass
@@ -32,10 +33,16 @@ HERO_VIDEO_PROVIDER = "grok-kie"     # same model for the hero preview (matches 
 # Alternatives: "wan" (free, needs a GPU box) for bulk; "kie" (premium Veo/Runway) per hero shot.
 
 # Max single-shot length per provider (their reliable clip range). A segment is split
-# into the FEWEST shots that fit, so a longer-clip model (Grok: 6-15s) yields fewer,
-# longer continuous shots — fewer cuts, cheaper, and more cinematic for atmospheric
-# b-roll. Segments at/under the cap become a single clip (no concat).
-_PROVIDER_MAX_SHOT = {"grok-kie": 15.0, "kling": 10.0, "kie": 10.0, "wan": 8.0, "ltx": 8.0, "veo": 8.0}
+# into the FEWEST shots that fit, so a longer-clip model (Grok: 6-30s via Kie's
+# video-1.5 wrapper) yields fewer, longer continuous shots — fewer cuts, cheaper, and
+# more cinematic for atmospheric b-roll. Segments at/under the cap become a single
+# clip (no concat). When a segment still needs multiple legs, the legs CHAIN: leg N+1
+# is anchored to leg N's extracted final frame (see resolve_chain_anchor) with a
+# beat-progressed prompt — a continuation, not a parallel re-roll of the same scene.
+_PROVIDER_MAX_SHOT = {
+    "grok-kie": float(os.environ.get("GROK_KIE_MAX_SECONDS", "30")),
+    "kling": 10.0, "kie": 10.0, "wan": 8.0, "ltx": 8.0, "veo": 8.0,
+}
 MAX_SHOT_SECONDS = _PROVIDER_MAX_SHOT.get(DEFAULT_VIDEO_PROVIDER, 10.0)
 
 # Uniform output frame rate for the whole timeline. Sources differ (Grok i2v = 24fps,
@@ -161,13 +168,23 @@ def plan_ai_video(
     target_duration_s: float,
     bible: Any = None,
     asset: Any = None,
+    narration: str = "",
+    allow_paid_keyframes: bool = True,
 ) -> list[dict[str, Any]]:
     """Phase A (planning): split a segment into shots, generate each shot's
     keyframe (Nano Banana — API, no GPU), and return fully-resolved shot-job
     dicts. Does NOT generate video; that is the bulk/box step (Phase B).
 
     Every shot is anchored to the asset's canonical reference image so the
-    location/subject stays consistent. Returns one job dict per shot.
+    location/subject stays consistent. Shots that mention people get a POPULATED
+    keyframe (Nano Banana edit of the canonical: subject placed in the scene) so
+    the video model never has to materialize a person out of an empty room —
+    the documented cause of melted-into-the-furniture anatomy. Chained legs
+    (``chain_from`` set) anchor at GENERATION time to the previous leg's final
+    frame; their planned keyframe is only the fallback. ``narration`` drives
+    beat-progressed leg prompts and rides into each job for the quality gate.
+    ``allow_paid_keyframes=False`` (dry runs) skips paid Nano Banana edits.
+    Returns one job dict per shot.
     """
     keyframe_dir = Path(keyframe_dir)
     keyframe_dir.mkdir(parents=True, exist_ok=True)
@@ -200,19 +217,38 @@ def plan_ai_video(
     base_seed = abs(hash(segment_id)) % 1_000_000
 
     jobs: list[dict[str, Any]] = []
-    for i, shot in enumerate(_plan_shots(visual_spec, target_duration_s)):
+    for i, shot in enumerate(_plan_shots(visual_spec, target_duration_s, narration=narration)):
         shot_id = shot["shot_id"]
         shot_prompt = shot["ai_prompt"] or base_prompt
         shot_motion = shot["ai_motion"] or seg_motion
+        chain_from = shot.get("chain_from", "")
         provider = HERO_VIDEO_PROVIDER if shot["hero"] else DEFAULT_VIDEO_PROVIDER
 
-        # Keyframe (i2v anchor) locked to the canonical look + channel style (medium)
+        # Keyframe (i2v anchor) locked to the canonical look + channel style (medium).
+        # Chained legs keep the canonical only as a FALLBACK — their real anchor is
+        # resolved at generation time from the previous leg's final frame, so don't
+        # spend on a per-shot keyframe that would normally never be used.
         keyframe_prompt = apply_to_prompt(
             bible.build_prompt_anchor(asset_id, shot_prompt) if bible is not None else shot_prompt
         )
-        keyframe = _nano_keyframe(
-            keyframe_prompt, canonical_ref, keyframe_dir / f"{segment_id}_{shot_id}_key.png"
-        )
+        if chain_from:
+            keyframe: Path | str | None = canonical_ref
+        else:
+            keyframe = _nano_keyframe(
+                keyframe_prompt, canonical_ref, keyframe_dir / f"{segment_id}_{shot_id}_key.png"
+            )
+            # Scene needs people but the canonical anchor is (deliberately) an empty
+            # room: animate FROM a frame that already contains the subject, so the
+            # video model never melts a person out of the furniture.
+            if (allow_paid_keyframes and _needs_people(shot_prompt)
+                    and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0"):
+                populated = _populated_keyframe(
+                    keyframe_prompt, keyframe,
+                    keyframe_dir / f"{segment_id}_{shot_id}_key_pop.png",
+                    description=shot_prompt, narration=narration,
+                )
+                if populated is not None:
+                    keyframe = populated
 
         # Motion/mood video prompt + the channel style medium
         scene_dict = {
@@ -235,6 +271,9 @@ def plan_ai_video(
             "keyframe": str(keyframe) if keyframe else "",
             "aspect_ratio": "16:9",
             "hero": bool(shot["hero"]),
+            "chain_from": chain_from,
+            "description": shot_prompt,
+            "narration": narration,
         })
     return jobs
 
@@ -249,10 +288,25 @@ def generate_shot(
     visual_spec: Any = None,
     enable_gemini: bool = True,
     max_attempts: int = 3,
+    description: str = "",
+    narration: str = "",
 ) -> Path | None:
     """Phase B (execution): generate one shot clip with the quality-gate retry
     loop. Returns the clip Path, or None if all attempts fail. ``max_attempts``
-    bounds the per-shot quality-gate retries (lower it to fail faster/cheaper)."""
+    bounds the per-shot quality-gate retries (lower it to fail faster/cheaper).
+
+    ``description``/``narration`` give the Gemini semantic gate its content
+    context when the caller has no VisualSpec object (the bulk path) — without
+    them the semantic check silently no-ops, which is how artifacted clips
+    shipped in the first production run."""
+    if visual_spec is None and (description or narration):
+        from types import SimpleNamespace
+        visual_spec = SimpleNamespace(description=description, narration=narration)
+    elif visual_spec is not None and narration and not getattr(visual_spec, "narration", ""):
+        try:
+            visual_spec.narration = narration
+        except Exception:  # noqa: BLE001  (frozen/odd spec objects: gate just sees no narration)
+            pass
     # Keep a URL anchor verbatim — Path() would mangle "https://" into "https:\"
     # on Windows and break the host-free i2v anchor.
     if keyframe and str(keyframe).startswith(("http://", "https://")):
@@ -287,6 +341,7 @@ def generate_ai_video(
     bible: Any = None,
     asset: Any = None,
     enable_gemini: bool = True,
+    narration: str = "",
 ) -> VisualAsset | None:
     """Inline all-in-one AI video for one segment (plan + execute + concat).
 
@@ -298,20 +353,37 @@ def generate_ai_video(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     jobs = plan_ai_video(segment_id, visual_spec, output_dir, target_duration_s,
-                         bible=bible, asset=asset)
+                         bible=bible, asset=asset, narration=narration)
     clip_paths: list[str] = []
+    done_clips: dict[str, str] = {}  # shot_id -> clip path (chain-anchor lookups)
     for job in jobs:
         out = output_dir / f"{segment_id}_{job['shot_id']}.mp4"
+        # Chained leg: continue from the previous leg's final frame. Fall back to
+        # the planned (canonical) keyframe if the predecessor failed or the frame
+        # can't be extracted/hosted — a same-scene re-roll beats no clip at all.
+        anchor = job["keyframe"] or None
+        chain_from = job.get("chain_from", "")
+        if chain_from:
+            prev = done_clips.get(chain_from)
+            chained = resolve_chain_anchor(prev, output_dir) if prev else None
+            if chained:
+                anchor = chained
+            else:
+                _log.warning("ai_video: %s/%s chain anchor unavailable — using planned keyframe",
+                             segment_id, job["shot_id"])
         try:
             clip = generate_shot(
-                job["video_prompt"], job["keyframe"] or None, job["duration_s"],
+                job["video_prompt"], anchor, job["duration_s"],
                 job["provider"], job["seed"], out, visual_spec, enable_gemini,
+                description=job.get("description", ""), narration=job.get("narration", ""),
             )
         except GenerationHardStop as exc:
             # Out of credits / daily limit / host down — stop AI for this segment and
             # let the caller fall back to stock instead of burning more attempts.
             _log.error("ai_video: hard stop for %s, falling back: %s", segment_id, exc)
             return None
+        if clip is not None:
+            done_clips[job["shot_id"]] = str(clip)
         if clip is None:
             clip = _fallback_shot(segment_id, job["shot_id"], visual_spec, job["duration_s"], output_dir)
         if clip is None:
@@ -340,9 +412,71 @@ def generate_ai_video(
     )
 
 
-def _plan_shots(visual_spec: Any, target_duration_s: float) -> list[dict[str, Any]]:
-    """Split a segment into shots — explicit visual_spec.shots, else auto by length."""
+def _leg_prompts(narration: str, base_prompt: str, n_legs: int,
+                 motion: str | None = None, total_duration_s: float = 0.0) -> list[str]:
+    """Per-leg prompts for a multi-clip (chained) shot.
+
+    Leg 1 establishes the scene; legs 2+ describe what happens NEXT — they are
+    generated continuing from the previous clip's extracted final frame, so a
+    copied prompt would re-establish the scene and fight the evolved anchor.
+    Beats come from the narration arc via the LLM beat splitter; without
+    narration (or with AI_BEAT_PROMPTS=0) a deterministic continuation clause
+    keeps legs from reading as parallel re-rolls of the same moment.
+    """
+    if n_legs <= 1:
+        return [base_prompt]
+    if narration and os.environ.get("AI_BEAT_PROMPTS", "1") != "0":
+        try:
+            from lib.beat_splitter import derive_leg_prompts
+            legs = derive_leg_prompts(narration, base_prompt, n_legs, motion=motion,
+                                      total_duration_s=total_duration_s)
+            if legs and len(legs) == n_legs:
+                return legs
+            _log.warning("ai_video: beat splitter returned %s legs for n=%d — using fallback",
+                         len(legs) if legs else 0, n_legs)
+        except Exception as exc:  # noqa: BLE001
+            _log.warning("ai_video: beat splitter unavailable/failed (%s) — using fallback", exc)
+    try:
+        from lib.beat_splitter import fallback_leg_prompts
+        return fallback_leg_prompts(base_prompt, n_legs)
+    except Exception:  # noqa: BLE001
+        cont = "Continue the same scene seamlessly from the current frame; "
+        return [base_prompt] + [cont + base_prompt] * (n_legs - 1)
+
+
+def _plan_shots(visual_spec: Any, target_duration_s: float,
+                narration: str = "") -> list[dict[str, Any]]:
+    """Split a segment into shots — explicit visual_spec.shots, else auto by length.
+
+    Any logical shot longer than the provider's max single clip becomes a CHAIN of
+    legs: each leg carries its own beat-progressed prompt and a ``chain_from`` link
+    to its predecessor, so generation anchors leg N+1 to leg N's final frame — a
+    continuation of the scene, never a second independent take of the same moment.
+    """
     import math
+
+    base_prompt = (getattr(visual_spec, "effective_prompt", None)
+                   or getattr(visual_spec, "description", "") or "")
+
+    def expand(sid: str, prompt: str, ai_motion: str | None, hero: bool,
+               secs: float) -> list[dict[str, Any]]:
+        n_sub = max(1, math.ceil(secs / MAX_SHOT_SECONDS)) if secs > 0 else 1
+        prompts = _leg_prompts(narration, prompt, n_sub, motion=ai_motion,
+                               total_duration_s=secs)
+        legs: list[dict[str, Any]] = []
+        prev_id = ""
+        for k in range(n_sub):
+            leg_id = sid if n_sub == 1 else f"{sid}_{k + 1}"
+            legs.append({
+                "shot_id": leg_id,
+                "ai_prompt": prompts[k],
+                "ai_motion": ai_motion,
+                "hero": hero and k == 0,
+                "seconds": secs / n_sub,
+                "chain_from": prev_id,
+            })
+            prev_id = leg_id
+        return legs
 
     shots = list(getattr(visual_spec, "shots", None) or [])
     if shots:
@@ -351,31 +485,127 @@ def _plan_shots(visual_spec: Any, target_duration_s: float) -> list[dict[str, An
         for s in shots:
             w = max(0.0, getattr(s, "duration_weight", 1.0))
             secs = (target_duration_s * (w / total_w)) if total_w else (target_duration_s / len(shots))
-            sid = getattr(s, "shot_id")
-            ai_prompt = getattr(s, "ai_prompt", None)
-            ai_motion = getattr(s, "ai_motion", None)
-            hero = bool(getattr(s, "hero", False))
-            # Sub-split an explicit shot longer than the provider's max single clip
-            # (e.g. a 31s shot at MAX=15 -> 3x ~10.4s) so every generated clip is
-            # fillable; the sub-clips share the same prompt + anchor and concat back.
-            n_sub = max(1, math.ceil(secs / MAX_SHOT_SECONDS)) if secs > 0 else 1
-            for k in range(n_sub):
-                out.append({
-                    "shot_id": sid if n_sub == 1 else f"{sid}_{k + 1}",
-                    "ai_prompt": ai_prompt,
-                    "ai_motion": ai_motion,
-                    "hero": hero and k == 0,
-                    "seconds": secs / n_sub,
-                })
+            out.extend(expand(
+                getattr(s, "shot_id"),
+                getattr(s, "ai_prompt", None) or base_prompt,
+                getattr(s, "ai_motion", None),
+                bool(getattr(s, "hero", False)),
+                secs,
+            ))
         return out
 
     n = max(1, math.ceil(target_duration_s / MAX_SHOT_SECONDS)) if target_duration_s > 0 else 1
     secs = target_duration_s / n if n else target_duration_s
+    legs = _leg_prompts(narration, base_prompt, n, total_duration_s=target_duration_s)
     return [
-        {"shot_id": f"shot_{i + 1:02d}", "ai_prompt": None, "ai_motion": None,
-         "hero": False, "seconds": secs}
+        {"shot_id": f"shot_{i + 1:02d}", "ai_prompt": legs[i], "ai_motion": None,
+         "hero": False, "seconds": secs,
+         "chain_from": "" if i == 0 else f"shot_{i:02d}"}
         for i in range(n)
     ]
+
+
+# Shot prompts that put people in the frame. The Asset Bible canonicals are
+# deliberately EMPTY rooms (faceless channel: no people baked into anchors), so a
+# people shot animated straight from a canonical forces the video model to
+# materialize a person mid-clip — the documented cause of bodies melting into
+# furniture. These shots get a populated keyframe instead.
+_PEOPLE_RE = re.compile(
+    r"\b(patient|operator|technician|nurse|doctor|physician|radiotherapist|"
+    r"man|woman|person|people|figure|figures|worker|staff|engineer|"
+    r"child|girl|boy|family|crowd|silhouette|hand|hands|face)\b",
+    re.IGNORECASE,
+)
+
+
+def _needs_people(prompt: str) -> bool:
+    return bool(_PEOPLE_RE.search(prompt or ""))
+
+
+def _populated_keyframe(keyframe_prompt: str, anchor: Path | str | None,
+                        output_path: Path, description: str = "",
+                        narration: str = "") -> Path | str | None:
+    """Edit the canonical (empty) anchor into a frame that already CONTAINS the
+    shot's subject, then gate it before it anchors a paid i2v call.
+
+    Returns the populated keyframe (URL or path), or None to keep the original
+    anchor — never raises; a failed populate degrades to the old behavior.
+    """
+    ref = str(anchor) if anchor else ""
+    if not ref:
+        return None
+    if not (ref.startswith("http://") or ref.startswith("https://")):
+        if not Path(ref).exists():
+            return None
+        from lib.image_host import upload_image
+        hosted = upload_image(ref)
+        if not hosted:
+            _log.warning("ai_video: cannot host canonical for populate — keeping empty anchor")
+            return None
+        ref = hosted
+
+    prompt = (
+        f"{keyframe_prompt}. Place the subject(s) naturally INTO this scene with "
+        "correct human anatomy: bodies resting ON surfaces (a patient lies on top "
+        "of the treatment table, never sinking into or merging with it), limbs and "
+        "proportions plausible, same camera angle and lighting as the reference."
+    )
+    populated = _nano_image(prompt, output_path, image_urls=[ref])
+    if populated is None:
+        return None
+
+    # Gate the keyframe BEFORE it anchors a paid clip (anatomy wrong in the still
+    # stays wrong in every frame of the clip). Soft-degrades if the gate is absent.
+    try:
+        from lib.quality_gate import validate_keyframe
+        ok, report = validate_keyframe(str(populated), description or keyframe_prompt,
+                                       narration=narration)
+        if not ok:
+            _log.warning("ai_video: populated keyframe failed the gate (%s) — keeping "
+                         "the canonical anchor", (report or {}).get("issues"))
+            return None
+    except ImportError:
+        pass
+    except Exception as exc:  # noqa: BLE001
+        _log.warning("ai_video: keyframe gate errored (%s) — using populated keyframe unGated", exc)
+    return populated
+
+
+def resolve_chain_anchor(prev_clip: str | Path, workdir: str | Path | None = None) -> str | None:
+    """Extract the FINAL frame of the previous leg's clip and host it as the next
+    leg's image-to-video anchor — this is what makes leg N+1 a continuation of
+    leg N instead of a parallel re-roll of the same keyframe.
+
+    Returns a public URL (Grok via Kie needs URL anchors), or None on any failure
+    so the caller can fall back to the planned (canonical) keyframe.
+    """
+    prev = Path(prev_clip)
+    if not prev.exists():
+        _log.warning("ai_video: chain anchor source missing: %s", prev)
+        return None
+    out_dir = Path(workdir) if workdir else prev.parent
+    out_dir.mkdir(parents=True, exist_ok=True)
+    frame = out_dir / f"{prev.stem}_lastframe.png"
+    try:
+        # -sseof -0.5: seek to half a second before EOF and take the last decodable
+        # frame — robust against trailing freeze-pads and odd final-packet timing.
+        subprocess.run(
+            ["ffmpeg", "-y", "-sseof", "-0.5", "-i", str(prev),
+             "-update", "1", "-frames:v", "1", "-q:v", "2", str(frame)],
+            capture_output=True, timeout=120, check=True,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _log.warning("ai_video: final-frame extraction failed for %s: %s", prev.name, exc)
+        return None
+    if not frame.exists() or frame.stat().st_size < 1024:
+        _log.warning("ai_video: final-frame extraction produced no usable frame for %s", prev.name)
+        return None
+    from lib.image_host import upload_image
+    url = upload_image(frame)
+    if not url:
+        _log.warning("ai_video: could not host chain anchor for %s", prev.name)
+        return None
+    return url
 
 
 def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Path | str | None:
@@ -467,6 +697,17 @@ def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
             inputs["reference_image_path"] = kf  # local file: the selector hosts it
     else:
         inputs["operation"] = "text_to_video"
+    # Channel-style negative terms for providers that accept them (kling/wan/seedance/
+    # veo). Grok has no negative_prompt parameter — for it, artifact suppression lives
+    # in the keyframe-first flow + the post-generation gate instead.
+    if provider not in ("grok-kie", "grok"):
+        try:
+            from lib import channel_style
+            neg = channel_style.negative()
+            if neg:
+                inputs["negative_prompt"] = neg
+        except Exception:  # noqa: BLE001
+            pass
     res = sel.execute(inputs)
     if not getattr(res, "success", False):
         raise RuntimeError(f"video generation failed: {getattr(res, 'error', '')}")

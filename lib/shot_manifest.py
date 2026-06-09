@@ -20,7 +20,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 
 @dataclass
@@ -38,6 +38,14 @@ class ShotJob:
     aspect_ratio: str = "16:9"
     hero: bool = False
     status: str = "pending"  # pending | done | failed
+    # Continuation chaining: when set, this shot CONTINUES the named sibling shot —
+    # at generation time its anchor is the previous clip's extracted final frame
+    # (keyframe above stays as the fallback anchor if extraction/hosting fails).
+    chain_from: str = ""     # shot_id of the predecessor leg in the same segment
+    # Content context for the post-generation quality gate (clip-vs-meaning checks).
+    # video_prompt alone is style-decorated; these carry the undecorated intent.
+    description: str = ""    # the shot's content prompt (pre style suffix)
+    narration: str = ""      # the segment narration this shot plays under
 
     @property
     def key(self) -> str:

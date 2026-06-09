@@ -2,11 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "openmontage/artifacts/shot_manifest",
   "title": "Shot Manifest",
-  "description": "The bulk video-generation job spec. Each shot is fully resolved (prompt, keyframe, provider, duration, seed) so generation can run as one batch on a rented GPU box. Hero shots are generated in the local prep phase (status=done) for review before the batch.",
+  "description": "The bulk video-generation job spec. Each shot is fully resolved (prompt, keyframe, provider, duration, seed) so generation can run as one batch. Hero shots are generated in the local prep phase (status=done) for review before the batch. v1.1: multi-clip segments CHAIN — a leg with chain_from anchors to its predecessor's extracted final frame at generation time (keyframe is the fallback), and description/narration give the post-generation quality gate its content context.",
   "type": "object",
   "required": ["version", "project", "shots", "segments"],
   "properties": {
-    "version": { "type": "string", "const": "1.0" },
+    "version": { "type": "string", "enum": ["1.0", "1.1"] },
     "project": { "type": "string" },
     "segments": {
       "type": "array",
@@ -29,17 +29,20 @@
         "required": ["segment_id", "shot_id", "provider", "operation", "video_prompt", "duration_s", "seed", "output"],
         "properties": {
           "segment_id": { "type": "string", "pattern": "^seg_[0-9]{3}$" },
-          "shot_id": { "type": "string", "pattern": "^shot_[0-9]{2}$" },
-          "provider": { "type": "string", "description": "wan (box default) or kie (hero, prep)" },
+          "shot_id": { "type": "string", "pattern": "^shot_[0-9]{2}(_[0-9]+)?$" },
+          "provider": { "type": "string", "description": "grok-kie (cloud default) | kie (premium) | wan (GPU box)" },
           "operation": { "type": "string", "enum": ["image_to_video", "text_to_video"] },
           "video_prompt": { "type": "string" },
           "duration_s": { "type": "number", "minimum": 0 },
           "seed": { "type": "integer" },
           "output": { "type": "string" },
-          "keyframe": { "type": "string", "description": "i2v anchor image path; empty for text_to_video" },
+          "keyframe": { "type": "string", "description": "i2v anchor image path/URL; for chained legs this is only the FALLBACK anchor; empty for text_to_video" },
           "aspect_ratio": { "type": "string", "default": "16:9" },
           "hero": { "type": "boolean", "default": false },
-          "status": { "type": "string", "enum": ["pending", "done", "failed"], "default": "pending" }
+          "status": { "type": "string", "enum": ["pending", "done", "failed"], "default": "pending" },
+          "chain_from": { "type": "string", "default": "", "description": "shot_id of the predecessor leg in the same segment; generation anchors this leg to that clip's extracted final frame (continuation, not a re-roll)" },
+          "description": { "type": "string", "default": "", "description": "the shot's content prompt before style decoration — input to the quality gate's content check" },
+          "narration": { "type": "string", "default": "", "description": "the segment narration this shot plays under — input to the quality gate's narration-match check" }
         },
         "additionalProperties": false
       }

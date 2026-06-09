@@ -10,18 +10,27 @@ Each diagram is a `draw(ax, t, dur)` callback that paints the frame at time t in
 [0, dur]; `render_template()` rasterizes frames -> ffmpeg (CFR) -> finishing -> mp4 at
 the exact slot length. No LaTeX, no node, no Manim — pure matplotlib + ffmpeg.
 
+Output contract: 1920x1080 @ 30fps CFR (the timeline format). Frames are still
+DRAWN at 15fps and duplicated to 30 by ffmpeg — see render_template for why.
+
+Scenes come from two places: the hand-coded SCENES below, and model-generated
+callbacks from lib.diagram_codegen (registered via register_scene, or passed to
+render_template directly as a callable).
+
 CLI:
   python -m lib.sketch_diagrams byte_overflow 29.7 out.mp4 [--fps 15] [--raw]
 """
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import subprocess
 import sys
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Callable
 
 import matplotlib
 matplotlib.use("Agg")
@@ -30,6 +39,8 @@ import numpy as np
 from matplotlib import font_manager
 from matplotlib import patheffects as _pe
 from matplotlib.patches import FancyBboxPatch, Rectangle
+
+_log = logging.getLogger(__name__)
 
 # ---- palette (channel: navy + amber duotone) -------------------------------
 NAVY = "#0a1428"
@@ -668,13 +679,26 @@ def draw_false_safe(ax, t, dur):
 
 
 # ---- scene registry --------------------------------------------------------
-SCENES = {
+SCENES: dict[str, Callable] = {
     "byte_overflow": draw_byte_overflow,
     "linac": draw_linac,
     "race_condition": draw_race_condition,
     "beam_fires": draw_beam_fires,
     "false_safe": draw_false_safe,
 }
+
+
+def register_scene(name: str, draw: Callable) -> None:
+    """Register a draw(ax, t, dur) callback under `name`.
+
+    Exists so model-generated scenes (lib.diagram_codegen) flow through the SAME
+    pipeline as the hand-coded ones — render_template, the CLI, and any caller
+    that addresses scenes by template name never needs to know whether a scene
+    was hand-authored or generated.
+    """
+    if name in SCENES:
+        _log.warning("register_scene: overwriting existing scene %r", name)
+    SCENES[name] = draw
 
 
 # ===========================================================================
@@ -711,11 +735,25 @@ def render_frame(draw, t, dur, out_png, bg="inked", seed=1000):
     return str(out_png)
 
 
-def render_template(template: str, duration_s: float, out_path: str | Path,
-                    fps: int = 15, boil: int = 5, finish: bool = True) -> str | None:
-    draw = SCENES.get(template)
+def render_template(template: str | Callable, duration_s: float,
+                    out_path: str | Path, fps: int = 15, boil: int = 5,
+                    finish: bool = True, out_fps: int = 30) -> str | None:
+    """Render a scene to a 1920x1080 @ `out_fps` (default 30) CFR mp4.
+
+    `template` is a registered scene name, or a draw(ax, t, dur) callable
+    directly (how diagram_codegen renders not-yet-registered generated scenes).
+
+    Frames are deliberately DRAWN at `fps` (default 15) and duplicated up to
+    `out_fps` by ffmpeg, rather than drawn natively at 30: rasterization is the
+    entire render cost, and the low draw rate IS the look — the xkcd wobble is
+    re-seeded every `boil` drawn frames (5 @ 15fps = 3 ink "boils"/sec, the
+    hand-drawn-animation cadence), so native 30fps drawing would double render
+    time for zero visual change. The encoded stream is still true 1080p30 CFR,
+    so it drops into the 1080p30 timeline without any conform pass.
+    """
+    draw = template if callable(template) else SCENES.get(template)
     if draw is None:
-        print(f"[sketch] no scene for template {template!r}; have {list(SCENES)}")
+        _log.warning("no scene for template %r; have %s", template, list(SCENES))
         return None
 
     out_path = Path(out_path)
@@ -741,10 +779,12 @@ def render_template(template: str, duration_s: float, out_path: str | Path,
             plt.close(fig)
 
             raw = out_path.with_name(out_path.stem + "_raw.mp4")
+            # Frames are already 1920x1080 (19.2x10.8in @ 100dpi) — encode them
+            # at full size; -r duplicates the 15fps frames up to out_fps CFR.
             cmd = ["ffmpeg", "-y", "-loglevel", "error",
                    "-framerate", str(fps), "-i", str(tdp / "f%05d.png"),
-                   "-r", "30", "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                   "-vf", "scale=1280:720", "-an", str(raw)]
+                   "-r", str(out_fps), "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                   "-an", str(raw)]
             subprocess.run(cmd, check=True, capture_output=True, timeout=900)
 
     if not finish:
