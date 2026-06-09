@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import base64
+import json
 import os
 import time
 from pathlib import Path
@@ -110,6 +112,21 @@ class ElevenLabsTTS(BaseTool):
                 "type": "string",
                 "description": "Version ID of the pronunciation dictionary",
             },
+            "with_timestamps": {
+                "type": "boolean",
+                "default": False,
+                "description": (
+                    "Use the with-timestamps endpoint and save character-level "
+                    "alignment data alongside the audio"
+                ),
+            },
+            "timestamps_output_path": {
+                "type": "string",
+                "description": (
+                    "Where to write the alignment JSON when with_timestamps is set "
+                    "(default: output_path with .alignment.json suffix)"
+                ),
+            },
         },
     }
 
@@ -202,13 +219,22 @@ class ElevenLabsTTS(BaseTool):
         voice_id = inputs.get("voice_id", self.DEFAULT_VOICE_ID)
         model_id = inputs.get("model_id", "eleven_multilingual_v2")
         output_format = inputs.get("output_format", "mp3_44100_128")
+        with_timestamps = bool(inputs.get("with_timestamps", False))
+
+        # The with-timestamps variant takes the SAME request body (so voice
+        # settings and pronunciation dictionary locators still apply) but
+        # returns JSON {audio_base64, alignment, normalized_alignment}
+        # instead of raw audio bytes.
+        endpoint = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        if with_timestamps:
+            endpoint += "/with-timestamps"
 
         response = requests.post(
-            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+            endpoint,
             headers={
                 "xi-api-key": api_key,
                 "Content-Type": "application/json",
-                "Accept": "audio/mpeg",
+                "Accept": "application/json" if with_timestamps else "audio/mpeg",
             },
             json=self._build_tts_body(text, model_id, inputs),
             params={"output_format": output_format},
@@ -219,18 +245,49 @@ class ElevenLabsTTS(BaseTool):
         ext = "mp3" if "mp3" in output_format else "wav"
         output_path = Path(inputs.get("output_path", f"tts_output.{ext}"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_bytes(response.content)
+
+        data: dict[str, Any] = {
+            "provider": self.provider,
+            "model": model_id,
+            "voice_id": voice_id,
+            "text_length": len(text),
+            "output": str(output_path),
+            "format": output_format,
+        }
+        artifacts = [str(output_path)]
+
+        if with_timestamps:
+            payload = response.json()
+            audio_b64 = payload.get("audio_base64")
+            if not audio_b64:
+                return ToolResult(
+                    success=False,
+                    error="with-timestamps response missing audio_base64 field",
+                )
+            output_path.write_bytes(base64.b64decode(audio_b64))
+
+            timestamps_path = Path(
+                inputs.get("timestamps_output_path")
+                or output_path.with_suffix(".alignment.json")
+            )
+            timestamps_path.parent.mkdir(parents=True, exist_ok=True)
+            alignment_doc = {
+                "text": text,
+                "alignment": payload.get("alignment"),
+                "normalized_alignment": payload.get("normalized_alignment"),
+            }
+            timestamps_path.write_text(
+                json.dumps(alignment_doc, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            data["timestamps_path"] = str(timestamps_path)
+            artifacts.append(str(timestamps_path))
+        else:
+            output_path.write_bytes(response.content)
 
         return ToolResult(
             success=True,
-            data={
-                "provider": self.provider,
-                "model": model_id,
-                "voice_id": voice_id,
-                "text_length": len(text),
-                "output": str(output_path),
-                "format": output_format,
-            },
-            artifacts=[str(output_path)],
+            data=data,
+            artifacts=artifacts,
             model=model_id,
         )

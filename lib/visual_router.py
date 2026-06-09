@@ -170,6 +170,7 @@ def plan_ai_video(
     asset: Any = None,
     narration: str = "",
     allow_paid_keyframes: bool = True,
+    leg_boundaries: list[float] | None = None,
 ) -> list[dict[str, Any]]:
     """Phase A (planning): split a segment into shots, generate each shot's
     keyframe (Nano Banana — API, no GPU), and return fully-resolved shot-job
@@ -217,7 +218,9 @@ def plan_ai_video(
     base_seed = abs(hash(segment_id)) % 1_000_000
 
     jobs: list[dict[str, Any]] = []
-    for i, shot in enumerate(_plan_shots(visual_spec, target_duration_s, narration=narration)):
+    for i, shot in enumerate(_plan_shots(visual_spec, target_duration_s,
+                                         narration=narration,
+                                         leg_boundaries=leg_boundaries)):
         shot_id = shot["shot_id"]
         shot_prompt = shot["ai_prompt"] or base_prompt
         shot_motion = shot["ai_motion"] or seg_motion
@@ -444,14 +447,43 @@ def _leg_prompts(narration: str, base_prompt: str, n_legs: int,
         return [base_prompt] + [cont + base_prompt] * (n_legs - 1)
 
 
+def _leg_durations(secs: float, n_sub: int,
+                   boundaries: list[float] | None) -> list[float]:
+    """Per-leg durations for a chained shot.
+
+    Equal slices by default; when the narration's sentence-end times are known
+    (ElevenLabs word-level alignment), each seam snaps to the nearest sentence
+    boundary — a chain seam that lands mid-word reads as a glitch, while one on
+    a sentence end reads as an intentional cut.
+    """
+    if n_sub <= 1:
+        return [max(0.0, secs)]
+    if boundaries:
+        try:
+            from lib.word_timing import leg_split_points
+            pts = leg_split_points(secs, n_sub, boundaries)
+            if pts and len(pts) == n_sub - 1:
+                edges = [0.0] + sorted(pts) + [secs]
+                durs = [edges[i + 1] - edges[i] for i in range(n_sub)]
+                if all(d > 0.5 for d in durs):
+                    return durs
+                _log.warning("ai_video: snapped legs degenerate (%s) — equal slices", durs)
+        except Exception as exc:  # noqa: BLE001
+            _log.warning("ai_video: leg snap unavailable (%s) — equal slices", exc)
+    return [secs / n_sub] * n_sub
+
+
 def _plan_shots(visual_spec: Any, target_duration_s: float,
-                narration: str = "") -> list[dict[str, Any]]:
+                narration: str = "",
+                leg_boundaries: list[float] | None = None) -> list[dict[str, Any]]:
     """Split a segment into shots — explicit visual_spec.shots, else auto by length.
 
     Any logical shot longer than the provider's max single clip becomes a CHAIN of
     legs: each leg carries its own beat-progressed prompt and a ``chain_from`` link
     to its predecessor, so generation anchors leg N+1 to leg N's final frame — a
     continuation of the scene, never a second independent take of the same moment.
+    ``leg_boundaries`` (segment-relative sentence-end times from the narration
+    alignment) snap chain seams to natural pauses instead of equal time slices.
     """
     import math
 
@@ -459,10 +491,14 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
                    or getattr(visual_spec, "description", "") or "")
 
     def expand(sid: str, prompt: str, ai_motion: str | None, hero: bool,
-               secs: float) -> list[dict[str, Any]]:
+               secs: float, offset: float) -> list[dict[str, Any]]:
         n_sub = max(1, math.ceil(secs / MAX_SHOT_SECONDS)) if secs > 0 else 1
         prompts = _leg_prompts(narration, prompt, n_sub, motion=ai_motion,
                                total_duration_s=secs)
+        # Boundaries are segment-relative; this shot occupies [offset, offset+secs).
+        window = ([b - offset for b in leg_boundaries if offset < b < offset + secs]
+                  if leg_boundaries else None)
+        durs = _leg_durations(secs, n_sub, window)
         legs: list[dict[str, Any]] = []
         prev_id = ""
         for k in range(n_sub):
@@ -472,7 +508,7 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
                 "ai_prompt": prompts[k],
                 "ai_motion": ai_motion,
                 "hero": hero and k == 0,
-                "seconds": secs / n_sub,
+                "seconds": durs[k],
                 "chain_from": prev_id,
             })
             prev_id = leg_id
@@ -482,6 +518,7 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
     if shots:
         total_w = sum(max(0.0, getattr(s, "duration_weight", 1.0)) for s in shots)
         out: list[dict[str, Any]] = []
+        offset = 0.0
         for s in shots:
             w = max(0.0, getattr(s, "duration_weight", 1.0))
             secs = (target_duration_s * (w / total_w)) if total_w else (target_duration_s / len(shots))
@@ -490,16 +527,17 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
                 getattr(s, "ai_prompt", None) or base_prompt,
                 getattr(s, "ai_motion", None),
                 bool(getattr(s, "hero", False)),
-                secs,
+                secs, offset,
             ))
+            offset += secs
         return out
 
     n = max(1, math.ceil(target_duration_s / MAX_SHOT_SECONDS)) if target_duration_s > 0 else 1
-    secs = target_duration_s / n if n else target_duration_s
     legs = _leg_prompts(narration, base_prompt, n, total_duration_s=target_duration_s)
+    durs = _leg_durations(target_duration_s, n, leg_boundaries)
     return [
         {"shot_id": f"shot_{i + 1:02d}", "ai_prompt": legs[i], "ai_motion": None,
-         "hero": False, "seconds": secs,
+         "hero": False, "seconds": durs[i],
          "chain_from": "" if i == 0 else f"shot_{i:02d}"}
         for i in range(n)
     ]

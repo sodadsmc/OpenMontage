@@ -105,6 +105,30 @@ stages:
       - Every scene has narration, visual_description, pacing, and a visual type
       - Scene durations sum to target video length within 10%
 
+  - name: script
+    skill: pipelines/narrated-documentary/script-director
+    produces:
+      - scored_script
+    required_artifacts_in:
+      - research_brief
+    optional_artifacts_in:
+      - segment_plan
+    tools_available:
+      - script_segment
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Narration tells a story — no scene-opening date/location slates; anchors sparse and mid-flow
+      - Every factual claim traces to research_brief; adversarial fact vetting has zero criticals
+      - Narration<->visual binding passes lib/narration_gate.py (no mismatches)
+      - Multi-beat narration arcs have authored shots or an explicit chaining decision
+      - Pronunciation dictionary covers every technical term before voice generation
+      - Style critic (lib/script_review.py) findings applied or consciously rejected
+    success_criteria:
+      - Schema-valid scored_script artifact (scored_script.schema.json)
+      - lib/narration_gate.py exits 0 on the script
+      - lib/script_review.py reports no critical fact findings
+
   - name: asset_bible
     skill: pipelines/narrated-documentary/asset-bible-director
     produces:
