@@ -216,6 +216,15 @@ class GrokKieVideo(BaseTool):
             r.raise_for_status()
             data = r.json()
         except Exception as e:  # noqa: BLE001
+            # Precise out-of-credits / auth / rate-limit detection: tag the error with a
+            # phrase the quality gate treats as a HARD STOP (1 attempt, abort batch) so a
+            # systemic failure can't burn 3 retries x every remaining shot.
+            status = getattr(getattr(e, "response", None), "status_code", None)
+            _hard = {401: "unauthorized", 402: "payment required (insufficient credits)",
+                     403: "forbidden", 429: "too many requests (rate limit)"}
+            if status in _hard:
+                return ToolResult(success=False,
+                                  error=f"Grok createTask HARD STOP {status} {_hard[status]}: {e}")
             return ToolResult(success=False, error=f"Grok createTask failed: {e}")
         if data.get("code") not in (200, 0, None):
             return ToolResult(success=False, error=f"Kie.ai API error: {data.get('msg', data)}")

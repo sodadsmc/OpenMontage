@@ -103,13 +103,18 @@ real event.
   look wastes generation budget. Always review hero clips first.
 - **One looped clip for a long segment.** Long beats must be several distinct
   shots cut together, not one short clip stretched.
-- **Aggressive camera moves on "empty" atmospheric shots.** Image-to-video
-  invents content (people, wheelchairs, readable signage) in areas a long
-  push-in/pan newly reveals, even when the anchor is empty and `ai_style` says
-  "no people" (that text is a weak hint the i2v model may ignore). For empty
-  locations, prefer a gentle, short move — slow zoom or subtle drift — over a
-  long dolly that exposes new geometry. Review hero clips for hallucinated
-  figures before the bulk batch.
+- **Defaulting to a static "Ken Burns" zoom.** A near-static `ai_motion` on a
+  still anchor yields a boring slow zoom. The default must be **dynamic but
+  grounded** motion — animate what's IN the scene: subjects acting (a figure
+  walking, a hand striking a key, the machine head swinging down, a beam firing),
+  the environment alive (scrolling/flickering screens, drifting mist, falling
+  snow, dust, dying light), plus a purposeful camera move. Engagement is the goal.
+- **Aimless camera reveals that hallucinate.** The way to avoid i2v inventing
+  content (people, signage) is NOT to go static — it's to make the motion
+  *purposeful*: drive subject/environmental motion and keep camera moves
+  motivated, rather than long pans/dollies into empty off-screen space the model
+  must fill. Review hero clips for hallucinated junk, but don't trade away motion
+  to prevent it.
 - **Re-generating keyframes per shot from scratch.** Keyframes are edited FROM the
   single canonical reference so the asset stays consistent — don't bypass it.
 - **Assuming you need a GPU box.** The bulk default is Grok cloud (no box). Wan on

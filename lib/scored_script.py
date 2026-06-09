@@ -86,6 +86,10 @@ class VisualSpec:
     asset_ref: str | None = None
     shots: list[ShotSpec] = field(default_factory=list)
 
+    # Styled caption burned over this segment's footage ("text over footage").
+    text_overlay: list[str] = field(default_factory=list)
+    text_emphasis: int = -1  # index of the amber/large line (-1 = all equal)
+
     @property
     def effective_prompt(self) -> str:
         """Prompt used for AI generation — explicit ai_prompt, else the description."""
@@ -131,6 +135,8 @@ class VisualSpec:
             ai_reference_image=d.get("ai_reference_image"),
             asset_ref=d.get("asset_ref"),
             shots=shots,
+            text_overlay=d.get("text_overlay", []),
+            text_emphasis=d.get("text_emphasis", -1),
         )
 
 

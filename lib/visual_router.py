@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from lib.quality_gate import generate_with_quality_gate
+from lib.quality_gate import generate_with_quality_gate, GenerationHardStop
 from lib.shot_prompt_builder import build_shot_prompt
 from lib.channel_style import apply_to_prompt
 
@@ -248,9 +248,11 @@ def generate_shot(
     output_path: Path | str,
     visual_spec: Any = None,
     enable_gemini: bool = True,
+    max_attempts: int = 3,
 ) -> Path | None:
     """Phase B (execution): generate one shot clip with the quality-gate retry
-    loop. Returns the clip Path, or None if all attempts fail."""
+    loop. Returns the clip Path, or None if all attempts fail. ``max_attempts``
+    bounds the per-shot quality-gate retries (lower it to fail faster/cheaper)."""
     # Keep a URL anchor verbatim — Path() would mangle "https://" into "https:\"
     # on Windows and break the host-free i2v anchor.
     if keyframe and str(keyframe).startswith(("http://", "https://")):
@@ -266,7 +268,7 @@ def generate_shot(
 
     clip, _report = generate_with_quality_gate(
         gen_fn, visual_spec, duration_s, str(out),
-        max_attempts=3, enable_gemini=enable_gemini,
+        max_attempts=max_attempts, enable_gemini=enable_gemini,
     )
     return clip
 
@@ -300,10 +302,16 @@ def generate_ai_video(
     clip_paths: list[str] = []
     for job in jobs:
         out = output_dir / f"{segment_id}_{job['shot_id']}.mp4"
-        clip = generate_shot(
-            job["video_prompt"], job["keyframe"] or None, job["duration_s"],
-            job["provider"], job["seed"], out, visual_spec, enable_gemini,
-        )
+        try:
+            clip = generate_shot(
+                job["video_prompt"], job["keyframe"] or None, job["duration_s"],
+                job["provider"], job["seed"], out, visual_spec, enable_gemini,
+            )
+        except GenerationHardStop as exc:
+            # Out of credits / daily limit / host down — stop AI for this segment and
+            # let the caller fall back to stock instead of burning more attempts.
+            _log.error("ai_video: hard stop for %s, falling back: %s", segment_id, exc)
+            return None
         if clip is None:
             clip = _fallback_shot(segment_id, job["shot_id"], visual_spec, job["duration_s"], output_dir)
         if clip is None:
@@ -462,6 +470,13 @@ def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
     res = sel.execute(inputs)
     if not getattr(res, "success", False):
         raise RuntimeError(f"video generation failed: {getattr(res, 'error', '')}")
+    # Never silently fall through to a different (e.g. premium Veo/Runway 'kie', or stock)
+    # provider than the one requested — that would spend on the wrong/expensive model.
+    used = (res.data or {}).get("provider")
+    if provider and used and used != provider:
+        raise GenerationHardStop(
+            f"provider mismatch: requested {provider}, selector used {used} — "
+            f"refusing to spend on the wrong model (is grok-kie available?)")
     out = (res.data or {}).get("output") or (res.artifacts[0] if getattr(res, "artifacts", None) else None)
     if not out:
         raise RuntimeError("video generation returned no output path")
@@ -506,8 +521,11 @@ def _concat_clips(clip_paths: list[str], output_path: Path,
             return None
 
     list_file = output_path.parent / f"{output_path.stem}_concat.txt"
+    # ffmpeg's concat demuxer resolves each entry relative to the LIST FILE's own
+    # directory. The normalized shots live in that same directory, so reference them
+    # by bare filename — a project-root-relative path here gets doubled and fails.
     list_file.write_text(
-        "".join(f"file '{p.as_posix()}'\n" for p in norm_paths), encoding="utf-8"
+        "".join(f"file '{p.name}'\n" for p in norm_paths), encoding="utf-8"
     )
     joined = output_path.parent / f"{output_path.stem}_joined.mp4"
     try:

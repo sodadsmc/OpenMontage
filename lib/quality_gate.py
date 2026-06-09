@@ -229,15 +229,20 @@ class QualityGate:
         except Exception as e:
             return CheckResult("duration", False, 0.0, f"Cannot measure: {e}")
 
-        diff = abs(actual - target_s)
-        if diff > tolerance_s:
-            direction = "short" if actual < target_s else "long"
-            return CheckResult("duration", False, max(0, 1.0 - diff / target_s),
+        diff = actual - target_s
+        # Too SHORT by more than tolerance can't fill the slot cleanly → fail
+        # (assembly would have to freeze-pad a large gap, risking desync).
+        # Too LONG is fine: assembly trims every clip to the exact slot, and
+        # providers like Grok have a hard ~6s minimum clip, so any sub-6s slot is
+        # unavoidably a touch long. Treat over-length as acceptable.
+        if diff < -tolerance_s:
+            return CheckResult("duration", False, max(0, 1.0 + diff / target_s),
                                f"Clip is {actual:.1f}s, needs {target_s:.1f}s "
-                               f"({diff:.1f}s too {direction})")
+                               f"({abs(diff):.1f}s too short)")
 
+        note = "will trim to slot" if diff > tolerance_s else "within tolerance"
         return CheckResult("duration", True, 1.0,
-                           f"Duration OK ({actual:.1f}s vs {target_s:.1f}s target)")
+                           f"Duration OK ({actual:.1f}s vs {target_s:.1f}s target; {note})")
 
     # ------------------------------------------------------------------
     # Layer 2: Gemini semantic check
@@ -386,6 +391,30 @@ Return JSON:
 # Convenience: full quality-gated generation loop
 # ---------------------------------------------------------------------------
 
+class GenerationHardStop(Exception):
+    """A NON-retryable generation failure — out of credits, daily limit reached,
+    image host down, or a placeholder prompt. Retrying just burns more credits/time,
+    so we raise this to stop immediately and let the caller abort the batch."""
+
+
+# Substrings that mark a failure as non-retryable (matched case-insensitively).
+# Includes the out-of-credits / auth / rate-limit phrasings the active grok-kie
+# adapter surfaces (HTTP 402/403/429), so a SYSTEMIC failure aborts the batch on the
+# first shot instead of burning 3 retries x every remaining shot. False positives only
+# cause an (safe) early abort, never extra spend.
+_HARD_STOP_PATTERNS = (
+    "insufficient", "daily limit", "exceeded", "balance",
+    "failed to host", "placeholder", "(planned)", "quota",
+    "credit", "payment required", "not enough", "forbidden",
+    "unauthorized", "too many requests", "rate limit",
+)
+
+
+def _is_hard_stop(msg: str) -> bool:
+    m = (msg or "").lower()
+    return any(p in m for p in _HARD_STOP_PATTERNS)
+
+
 def generate_with_quality_gate(
     generate_fn,
     visual_spec: Any,
@@ -413,7 +442,14 @@ def generate_with_quality_gate(
     for attempt in range(max_attempts):
         try:
             clip_path = generate_fn(visual_spec, target_duration_s, attempt)
+        except GenerationHardStop:
+            raise
         except Exception as e:
+            if _is_hard_stop(str(e)):
+                # Out of credits / daily limit / host down / bad prompt — retrying
+                # only burns credits. Stop now and let the caller abort the batch.
+                _log.error("Non-retryable failure for %s (NOT retrying): %s", segment_id, e)
+                raise GenerationHardStop(str(e)) from e
             _log.warning("Generation attempt %d failed for %s: %s",
                          attempt + 1, segment_id, e)
             continue

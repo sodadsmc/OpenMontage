@@ -246,6 +246,15 @@
         "subtext": {
           "type": "string",
           "description": "Secondary text below the main terminal_text"
+        },
+        "text_overlay": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Caption lines burned over the playing footage (the 'text over footage' treatment) instead of a separate slate card."
+        },
+        "text_emphasis": {
+          "type": "integer",
+          "description": "Index of the emphasis line in text_overlay (amber/large); -1 = all lines equal weight."
         }
       },
       "additionalProperties": false,
