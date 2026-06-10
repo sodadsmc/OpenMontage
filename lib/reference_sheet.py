@@ -62,6 +62,7 @@ def build_reference_sheet(
     output_path: str | Path,
     detail: str = "the most distinctive component",
     apply_channel_style: bool = True,
+    source_note: str = "",
 ) -> tuple[str | None, str | None]:
     """Compose a multi-view reference sheet from curated real-photo URLs.
 
@@ -92,6 +93,10 @@ def build_reference_sheet(
         detail=detail,
         identity=", ".join(identity_tokens) if identity_tokens else subject,
     )
+    if source_note:
+        # e.g. "the references are labeled technical line diagrams — reproduce the
+        # machine's exact geometry from them, ignore the room/labels/text"
+        prompt = f"{prompt} {source_note.strip()}"
     if apply_channel_style:
         try:
             from lib.channel_style import apply_to_prompt

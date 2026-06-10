@@ -148,12 +148,22 @@ def _upload_premiumize(path: Path) -> str | None:
         up = requests.post(info["url"], data={"token": info["token"]},
                            files={"file": (path.name, f)}, timeout=180)
     up.raise_for_status()
+    # The post-upload pick must match name AND size: a same-named older file
+    # (e.g. a re-grounded canonical) would otherwise be returned and silently
+    # serve the WRONG image. The listing is eventually consistent, so poll.
     import time as _t
-    _t.sleep(2)
-    lst = requests.get(f"{base}/folder/list", params={"apikey": key}, timeout=30).json()
-    cand = [it for it in lst.get("content", [])
-            if it.get("type") == "file" and it.get("name") == path.name]
-    return cand[-1].get("link") if cand else None
+    for _ in range(8):
+        _t.sleep(2)
+        lst = requests.get(f"{base}/folder/list", params={"apikey": key}, timeout=30).json()
+        exact = [it for it in lst.get("content", [])
+                 if (it.get("type") == "file" and it.get("name") == path.name
+                     and int(it.get("size", -1)) == size and it.get("link"))]
+        if exact:
+            return exact[-1]["link"]
+    _log.warning("image_host: premiumize upload of %s not visible in listing "
+                 "(name+size match) — refusing to return a same-named older file",
+                 path.name)
+    return None
 
 
 def upload_image(path: str | Path) -> str | None:
