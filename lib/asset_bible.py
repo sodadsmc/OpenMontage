@@ -26,7 +26,7 @@ from typing import Any
 
 from lib.scored_script import ScoredScript, Segment
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 # Visual types that draw from real-world/generated footage (candidates for an
 # Asset Bible entry). Cards/animations are deterministic and need no anchor.
@@ -59,6 +59,24 @@ class AssetEntry:
     appears_in: list[str] = field(default_factory=list)
     continuity_group: str | None = None
     uniqueness_exempt: bool = True
+    # --- Subject identity (v1.1) -------------------------------------------
+    # When the asset depicts a NAMED real thing (the Therac-25, a specific
+    # building), its identity must be data, not a note: ``subject`` is the
+    # proper name, ``identity_tokens`` the locked physical description. Both
+    # are injected into every prompt of the asset, and a deterministic gate
+    # (validate_subject_identity) fails Phase A when a script prompt describes
+    # the subject generically instead — the failure mode that produced "a
+    # large beige linear accelerator" for a grounded Therac-25 anchor.
+    subject: str = ""                      # proper name, e.g. "Therac-25"
+    identity_tokens: list[str] = field(default_factory=list)
+    # --- Reference sheet (v1.1) --------------------------------------------
+    # Curated REAL source photos and the style-locked multi-view model sheet
+    # composed from them (lib/reference_sheet.py). The sheet rides into every
+    # keyframe edit as an extra reference so new angles stay on-model instead
+    # of being locked to the single canonical camera angle.
+    reference_images: list[str] = field(default_factory=list)  # curated real photos (paths/URLs)
+    reference_sheet: str = ""              # local path of the composed sheet
+    reference_sheet_url: str = ""          # hosted URL (keyframe-edit reference)
 
 
 @dataclass
@@ -107,12 +125,16 @@ class AssetBible:
         """Concatenate the base prompt with the asset's locked identity tokens.
 
         This is the single function the video seam calls so the same identity
-        tokens are injected into EVERY shot of an asset.
+        tokens are injected into EVERY shot of an asset. Subject identity comes
+        first — a named subject's locked description must outrank generic scene
+        wording in the prompt.
         """
         a = self.get(asset_id)
         if a is None:
             return base_prompt
         parts = [base_prompt.strip()]
+        if a.identity_tokens:
+            parts.append(", ".join(a.identity_tokens))
         if a.locked_attributes:
             parts.append(", ".join(a.locked_attributes))
         if a.period_constraints:
@@ -270,6 +292,62 @@ def _make_entry(asset_id: str, atype: str, name: str, segs: list[Segment]) -> As
         appears_in=[s.id for s in segs],
         uniqueness_exempt=True,
     )
+
+
+# ---------------------------------------------------------------------------
+# Subject identity enforcement
+# ---------------------------------------------------------------------------
+
+# Generic stand-ins authors reach for instead of a named subject. The gate only
+# fires when the segment's asset HAS a named subject — generic wording is fine
+# for genuinely generic scenes.
+_GENERIC_SUBJECT_TERMS = (
+    "linear accelerator", "linear-accelerator", "radiation therapy machine",
+    "radiation machine", "treatment machine", "medical machine",
+    "accelerator gantry", "the gantry", "a large machine", "hulking machine",
+)
+
+
+def _names_subject(text: str, subject: str) -> bool:
+    """Does the prompt text actually name the subject (hyphen/space tolerant)?"""
+    t = re.sub(r"[\s\-]+", "", text.lower())
+    s = re.sub(r"[\s\-]+", "", subject.lower())
+    return bool(s) and s in t
+
+
+def validate_subject_identity(script: ScoredScript, bible: "AssetBible") -> list[str]:
+    """Flag prompts that describe a NAMED asset subject with a generic term.
+
+    This is the deterministic guard against the "a large beige linear
+    accelerator" failure: the Asset Bible knew the machine was the Therac-25
+    (the anchor image was grounded on a real photo), but the prompt text gave
+    the video model license to redesign it. Any segment whose asset declares a
+    ``subject`` must NAME that subject in its prompt whenever it describes the
+    machine/building at all. Free, runs in Phase A before any spend.
+    """
+    errors: list[str] = []
+    for seg in script.segments:
+        if seg.visual.type not in FOOTAGE_TYPES:
+            continue
+        asset = bible.asset_for_segment(seg)
+        if asset is None or not asset.subject:
+            continue
+        prompts = [seg.visual.effective_prompt or ""]
+        prompts += [(getattr(sh, "ai_prompt", None) or "") for sh in seg.visual.shots]
+        for p in prompts:
+            if not p:
+                continue
+            low = p.lower()
+            generic_hit = next((t for t in _GENERIC_SUBJECT_TERMS if t in low), None)
+            if generic_hit and not _names_subject(p, asset.subject):
+                errors.append(
+                    f"{seg.id}: prompt says '{generic_hit}' but the asset's subject is "
+                    f"'{asset.subject}' ({asset.asset_id}) — name it, e.g. "
+                    f"'the {asset.subject}" +
+                    (f" — {asset.identity_tokens[0]}'" if asset.identity_tokens else "'") +
+                    ", so generation can't substitute a different machine"
+                )
+    return errors
 
 
 # ---------------------------------------------------------------------------

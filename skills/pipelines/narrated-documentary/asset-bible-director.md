@@ -49,6 +49,32 @@ python projects/<project>/script_v5/build_asset_bible.py             # generate 
 3. Confirm referential integrity passes (the script prints errors if an
    `asset_ref` doesn't resolve or a canonical image is missing).
 
+### Named subjects — identity is data, not a note
+
+When an asset depicts a NAMED real thing (the Therac-25, a specific building),
+set `subject` (the proper name) and `identity_tokens` (its locked physical
+description) on the entry. Both are injected into every prompt of the asset,
+and `lib/asset_bible.validate_subject_identity` HARD-FAILS Phase A when a
+script prompt describes the subject generically ("a large beige linear
+accelerator") instead of naming it — generic wording licenses the model to
+redesign the machine the anchor image shows. (`SKIP_IDENTITY_GATE=1` to
+override consciously.)
+
+### Reference sheets — multi-view identity for named subjects
+
+A single canonical locks ONE camera angle. For named subjects that appear in
+multiple shots/angles, build a reference sheet (`lib/reference_sheet.py`):
+curate real photos of the subject (`lib/image_search.py` + human review —
+the same HUMAN GATE as canonical grounding), then compose them + the approved
+canonical into one style-locked multi-view model sheet (Nano Banana
+multi-image edit, ~$0.05). Store on the entry (`reference_sheet` /
+`reference_sheet_url` — host DURABLY, never on a temp host) and every keyframe
+edit of the asset automatically includes it as an extra reference, so new
+angles stay on-model. **Review the sheet by eye before accepting it** — the
+known failure mode is the model abstracting the machine into a generic shape
+(the first Therac sheet attempt lost the gantry silhouette entirely; the
+template now forbids simplification, but eyes are the gate).
+
 ## Quality Bar
 
 - Exactly one canonical reference image per recurring asset

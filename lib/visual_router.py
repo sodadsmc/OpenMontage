@@ -214,7 +214,15 @@ def plan_ai_video(
                    or getattr(visual_spec, "description", "") or "")
     ai_style = getattr(visual_spec, "ai_style", None)
     seg_motion = getattr(visual_spec, "ai_motion", None)
-    locked = list(getattr(asset, "locked_attributes", []) or [])
+    # Identity tokens FIRST: a named subject's locked physical description must
+    # ride in every video prompt so the model can't redesign the machine the
+    # anchor image shows (texture keywords follow the subject in the prompt).
+    locked = (list(getattr(asset, "identity_tokens", []) or [])
+              + list(getattr(asset, "locked_attributes", []) or []))
+    # The asset's reference sheet (multi-view model sheet) joins every keyframe
+    # EDIT as an extra reference: new angles stay on-model instead of being
+    # locked to the canonical's single camera position.
+    sheet_url = getattr(asset, "reference_sheet_url", "") or None
     base_seed = abs(hash(segment_id)) % 1_000_000
 
     jobs: list[dict[str, Any]] = []
@@ -238,7 +246,8 @@ def plan_ai_video(
             keyframe: Path | str | None = canonical_ref
         else:
             keyframe = _nano_keyframe(
-                keyframe_prompt, canonical_ref, keyframe_dir / f"{segment_id}_{shot_id}_key.png"
+                keyframe_prompt, canonical_ref, keyframe_dir / f"{segment_id}_{shot_id}_key.png",
+                extra_ref_urls=[sheet_url] if sheet_url else None,
             )
             # Scene needs people but the canonical anchor is (deliberately) an empty
             # room: animate FROM a frame that already contains the subject, so the
@@ -249,6 +258,7 @@ def plan_ai_video(
                     keyframe_prompt, keyframe,
                     keyframe_dir / f"{segment_id}_{shot_id}_key_pop.png",
                     description=shot_prompt, narration=narration,
+                    extra_ref_urls=[sheet_url] if sheet_url else None,
                 )
                 if populated is not None:
                     keyframe = populated
@@ -562,10 +572,13 @@ def _needs_people(prompt: str) -> bool:
 
 def _populated_keyframe(keyframe_prompt: str, anchor: Path | str | None,
                         output_path: Path, description: str = "",
-                        narration: str = "") -> Path | str | None:
+                        narration: str = "",
+                        extra_ref_urls: list[str] | None = None) -> Path | str | None:
     """Edit the canonical (empty) anchor into a frame that already CONTAINS the
     shot's subject, then gate it before it anchors a paid i2v call.
 
+    ``extra_ref_urls`` (e.g. the asset's reference sheet) ride along so the
+    edit keeps the machine/location on-model while adding the person.
     Returns the populated keyframe (URL or path), or None to keep the original
     anchor — never raises; a failed populate degrades to the old behavior.
     """
@@ -588,7 +601,8 @@ def _populated_keyframe(keyframe_prompt: str, anchor: Path | str | None,
         "of the treatment table, never sinking into or merging with it), limbs and "
         "proportions plausible, same camera angle and lighting as the reference."
     )
-    populated = _nano_image(prompt, output_path, image_urls=[ref])
+    refs = [ref] + [u for u in (extra_ref_urls or []) if u]
+    populated = _nano_image(prompt, output_path, image_urls=refs)
     if populated is None:
         return None
 
@@ -646,7 +660,8 @@ def resolve_chain_anchor(prev_clip: str | Path, workdir: str | Path | None = Non
     return url
 
 
-def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Path | str | None:
+def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path,
+                   extra_ref_urls: list[str] | None = None) -> Path | str | None:
     """Resolve the per-shot image-to-video anchor.
 
     Default: use the canonical reference directly as the i2v anchor — a provider
@@ -655,7 +670,9 @@ def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Pat
 
     Opt-in per-shot variety (AI_PER_SHOT_KEYFRAMES=1): edit the canonical reference
     into a distinct per-shot framing via Nano Banana (hosting a local ref via
-    lib.image_host if needed). Falls back to the direct anchor if it fails.
+    lib.image_host if needed), with ``extra_ref_urls`` (the asset's reference
+    sheet) keeping the subject on-model at the new angle. Falls back to the
+    direct anchor if it fails.
 
     When there is no reference, generate a fresh keyframe via text-to-image.
     """
@@ -667,7 +684,8 @@ def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path) -> Pat
         from lib.image_host import upload_image
         url = ref if is_url else upload_image(ref)
         if url:
-            edited = _nano_image(prompt, output_path, image_urls=[url])
+            refs = [url] + [u for u in (extra_ref_urls or []) if u]
+            edited = _nano_image(prompt, output_path, image_urls=refs)
             if edited is not None:
                 return edited
         # hosting/edit failed -> fall through to the direct anchor
