@@ -60,6 +60,56 @@ sized to it. Write the words first; design the pictures against the words.
    (Therac-25, AECL, rads, PDP-11). New technical terms get an entry in the
    pronunciation dictionary BEFORE voice generation, not after a bad take.
 
+## Retention Architecture (the script is an anticipation machine)
+
+Viewers leave when they stop anticipating. Engineer for it:
+
+1. **Write the hook LAST.** The first ~30s must sell the script's actual best
+   material (the finished body decides what that is). Hook sentences under ten
+   words. Test against both formulas — Kallaway (context + contrast word +
+   contrarian statement) and Blackman (character + concept + dire stakes) —
+   then keep the channel's texture over formula compliance.
+2. **A roadmap beat inside the first ~90 seconds**: how big this gets + a
+   promise of the payoff ("six accidents, two countries — and the answer comes
+   down to a single byte"). This is what earns 11-minute commitment.
+3. **Setup-Tension-Payoff loops, not chronology.** Every act opens with a
+   claim or question; teach mechanisms only AFTER a question makes the viewer
+   want them; never spend the climax's horror early (a consequence revealed in
+   Act 2 makes Act 4 a confirmation instead of a revelation).
+4. **Every planted tease fires.** A forward-tease with no callback ("he will
+   eventually reproduce the error") is a broken promise the audience keeps.
+   The retention panel enumerates unfired setups — zero is the bar.
+5. **Ascending value**: second-best revelation early, best at the climax slot.
+
+## Ear + TTS Mechanics (the text is performed by a synthetic voice)
+
+- **One idea per sentence; ~20-word ceiling** (hard at 28). Shatter
+  dash-bracketed self-interruptions — the TTS sanitizer turns em-dashes into
+  commas, so "if X — if X restated — then Y" renders as a comma stumble.
+- **Active voice**; passives only as deliberate machine-voice devices.
+- **Contract aggressively** ("it's", "could've") — full forms only where the
+  weight is the point ("she is dead"). A contraction desert reads robotic.
+- **Numbers: round in audio, exact on the overlay.** "Sixteen to twenty-five
+  thousand rads" spoken; "16,500-25,000 RAD" burned on screen. Never speak a
+  range whose first bound ends in a sub-thousand component.
+- **Title before name** ("the hospital physicist, Fritz Hager"). Watch
+  homophone collisions with surnames (Tim Still).
+- **No alphanumeric tokens** ("Class3" → "Class Three"); new proper nouns get
+  pronunciation-dictionary entries BEFORE voice generation.
+- **Mid-segment ellipsis beats** for revelations ("It rolled over… to zero.");
+  `silence_after_s` only covers segment tails.
+- Voice stability ~0.5 (0.6+ flattens the staccato fragments).
+
+## Slop-Syntax Budgets (per episode, enforced by lint + style panel)
+
+- ONE rhetorical answer ("And the display? It read:…") — a signature, not a habit.
+- ONE negative parallelism ("didn't fail because X. It failed because Y") —
+  reserve it for the thesis.
+- Tricolons: never two in one segment; fragment-ending segments never 3+ in a row
+  (the metronome).
+- Zero banned vocabulary (delve/tapestry/moreover class), zero "think of it
+  as", zero "serves as".
+
 ## Shot Design — stage the beat, don't illustrate the setting
 
 The alignment gate only checks that the visual MATCHES the narration. A shot

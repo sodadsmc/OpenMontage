@@ -69,16 +69,18 @@ stages:
     checkpoint_required: true
     human_approval_default: true
     review_focus:
-      - Primary source identified and extracted
+      - Primary source identified, downloaded, and READ (page-cited extraction, not a summary)
       - Timeline events carry source citations
       - Stakeholder names verified against primary source
-      - At least 10 data points with source URLs
-      - Unverifiable claims flagged
+      - At least 10 data points with source URLs (target 35+)
+      - Primary-credibility data points carry page_or_section cites
+      - Unverifiable claims and cross-source conflicts flagged
     success_criteria:
       - research_brief schema valid
-      - data_points >= 10 with source_url and credibility
+      - lib/research_vetter.py lint passes (counts, citations, diversity, page-cite rule)
       - primary_source identified
       - timeline_events >= 5 with citations
+      - adversarial depth vet (vet_brief) run and gaps addressed or consciously accepted
 
   - name: segment
     skill: pipelines/narrated-documentary/segment-director

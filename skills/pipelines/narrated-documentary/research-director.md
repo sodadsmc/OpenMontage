@@ -227,12 +227,42 @@ Compile everything into `research_brief.json` following the schema. Ensure:
 
 | Metric | Minimum | Target |
 |--------|---------|--------|
-| Data points with source URLs | 10 | 20+ |
+| Data points with source URLs | 10 | 35+ |
+| Primary-source data points with page/section cites | All of them | — |
 | Timeline events with citations | 5 | 10+ |
 | Stakeholders verified from primary | 80% | 100% |
 | Web searches executed | 15 | 25+ |
-| Primary source identified | Required | — |
-| Unverifiable claims flagged | All | — |
+| Distinct source domains | 3 | 6+ |
+| Primary source identified AND actually read | Required | — |
+| Unverifiable claims + cross-source conflicts flagged | All | — |
+
+## The Vetter Gate (run before approval)
+
+The brief is not done when it exists — it is done when it survives the vetter:
+
+```
+python -m lib.research_vetter <brief.json> --report <artifacts>/research_vet.json
+python -m lib.research_vetter <brief.json> --script <scored_script.yaml> \
+    --claims-map <artifacts>/claims_map.json     # once a script exists
+```
+
+- **Lint (deterministic, free):** counts, citations, source diversity, and the
+  page-cite rule — a data point claiming `primary_source` credibility without a
+  `page_or_section` is the fingerprint of a brief that NAMED the primary source
+  but never extracted it. That exact failure shipped in the Therac v1 brief and
+  surfaced months later as fact-vetting false positives and missing story beats.
+- **Depth vet (adversarial Gemini):** what would a deep extraction of the named
+  primary source contain that this brief lacks? Citation inflation?
+  Single-source story threads? Conflicts recorded for claims that vary across
+  sources?
+- **Claims map:** every narration claim → supporting data_point ids. Unmapped
+  claims are enumerated research debt; the manifest's "claims trace to the
+  brief" is an artifact, not a promise.
+
+**Read PDFs directly.** Primary sources are usually PDFs (investigation
+reports, papers). Download them into `<project>/research/` and read them
+page-range by page-range — never settle for a secondary source's summary of a
+primary you have on disk.
 
 ## Execution Time
 

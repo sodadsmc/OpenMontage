@@ -700,6 +700,73 @@ def flow_review(script: Any, model: str = _DEFAULT_MODEL) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Reviewer 5 — retention architecture (whole script, one pass)
+# ---------------------------------------------------------------------------
+
+# Digital-retention craft per the channel's scriptwriting research: viewers
+# leave when they stop anticipating, so the script is judged as an engineered
+# anticipation machine — hook formulas, a scope-promise that earns runtime,
+# Setup-Tension-Payoff loops instead of chronology, ascending revelation
+# value, and every planted question paid off.
+RETENTION_RUBRIC = """\
+You are the RETENTION ARCHITECTURE reviewer for a digital documentary script.
+You receive every segment (id + narration + pacing + silence). Judge the
+script as an anticipation machine:
+
+1. "hook": grade the first ~30 seconds (first 2-3 segments) against BOTH
+   formulas — Kallaway (context + contrast word + contrarian statement) and
+   Blackman (character + concept + dire stakes). Check hook sentences stay
+   under ~10 words. Does it open a real curiosity gap AND sell the script's
+   actual best material (write-the-hook-last test: does the hook promise what
+   the body delivers)? Score 1-10 with specifics.
+2. "roadmap": is there a scope-promise/roadmap beat in the first ~90 seconds
+   (how big this gets + what the payoff will be)? If absent, say where it
+   would fit. Score 1-10.
+3. "loops": map the body into Setup-Tension-Payoff loops: every setup/tease
+   planted (segment id + quote), where it pays off (segment id), or UNFIRED.
+   Flag teaching-without-a-question stretches (mechanism explained before any
+   question makes the viewer want it) and value leaks (a climax revelation
+   spent early).
+4. "value_sequencing": are revelations in ascending order — second-best early
+   to build trust, the best at the climax slot? Name any inversions.
+5. "open_questions": every curiosity question the script plants, with status
+   closed/half-closed/never-closed (segment ids).
+
+Return ONLY JSON:
+{"hook": {"score": N, "kallaway": "...", "blackman": "...", "sells_payload": true/false, "issues": ["..."]},
+ "roadmap": {"score": N, "present": true/false, "where_it_fits": "..."},
+ "loops": [{"setup_segment": "...", "setup": "...", "payoff_segment": "..." or "", "status": "closed"|"half"|"unfired", "note": "..."}],
+ "value_sequencing": {"compliant": true/false, "inversions": ["..."]},
+ "open_questions": [{"question": "...", "planted": "seg_xxx", "status": "closed"|"half"|"never", "closed_at": "..."}],
+ "overall": N,
+ "top_fixes": ["..."]}
+"""
+
+
+def retention_review(script: Any, model: str = _DEFAULT_MODEL) -> dict:
+    """Whole-script retention-architecture review. Fail-closed on errors."""
+    try:
+        gem = _make_model(model)
+        lines = []
+        for seg in script.segments:
+            lines.append(f"[{seg.id}] (pacing: {seg.pacing or '-'}; "
+                         f"silence_after: {getattr(seg, 'silence_after_s', 0)}s)\n"
+                         f"{seg.narration.strip()}")
+        body = "\n\n".join(lines)
+        resp = gem.generate_content(
+            "\n\n".join([ADVERSARIAL_FRAMING, RETENTION_RUBRIC,
+                         f"SCRIPT ({len(script.segments)} segments):\n\n{body}"]))
+        out = _parse_json_response(resp.text)
+        out.setdefault("overall", 0)
+        out["verdict"] = "ok"
+        return out
+    except Exception as exc:  # noqa: BLE001
+        _log.error("retention review failed: %s", str(exc)[:200])
+        return {"verdict": "error", "error": str(exc)[:200], "overall": 0,
+                "loops": [], "open_questions": []}
+
+
+# ---------------------------------------------------------------------------
 # Reviewer 4 — shot doctor (visual staging per segment)
 # ---------------------------------------------------------------------------
 
@@ -855,7 +922,7 @@ def shot_review(script: Any, model: str = _DEFAULT_MODEL) -> list[dict]:
 # Panel aggregation
 # ---------------------------------------------------------------------------
 
-_PANELS = ("fact", "style", "flow", "shots")
+_PANELS = ("fact", "style", "flow", "shots", "retention")
 
 
 def _find_brief(script_path: Path) -> Path | None:
@@ -935,6 +1002,22 @@ def _summarize(report: dict) -> dict:
                 for r in sorted(scored, key=lambda r: r["staging_score"])[:5]
             ],
         }
+    if "retention" in report:
+        ret = report["retention"]
+        loops = ret.get("loops") or []
+        summary["retention"] = {
+            "overall": ret.get("overall", 0),
+            "hook_score": (ret.get("hook") or {}).get("score", 0),
+            "roadmap_present": (ret.get("roadmap") or {}).get("present", False),
+            "unfired_setups": [
+                {"setup_segment": l.get("setup_segment"), "setup": l.get("setup")}
+                for l in loops if l.get("status") == "unfired"
+            ],
+            "never_closed_questions": [
+                q.get("question") for q in (ret.get("open_questions") or [])
+                if q.get("status") == "never"
+            ],
+        }
     # The panel's pass/fail contract: critical (or unreviewable) fact issues
     # block; style and flow inform. Mirrors the CLI exit code.
     fact_results = report.get("fact", {}).get("results", [])
@@ -1005,6 +1088,9 @@ def run_panel(
     if "shots" in panels:
         _log.info("Running shot doctor (visual staging)")
         report["shots"] = {"results": shot_review(script, model=model)}
+    if "retention" in panels:
+        _log.info("Running retention architecture review (whole script)")
+        report["retention"] = retention_review(script, model=model)
 
     report["summary"] = _summarize(report)
 
@@ -1105,18 +1191,40 @@ def _print_shots(results: list[dict]) -> None:
             print(f"      support assets: {r['support_assets_hint']}")
 
 
+def _print_retention(ret: dict) -> None:
+    print(f"\n== RETENTION ARCHITECTURE ==  overall {ret.get('overall', 0)}/10")
+    if ret.get("error"):
+        print(f"  ERROR: {ret['error']}")
+        return
+    hook = ret.get("hook") or {}
+    print(f"  hook {hook.get('score', '?')}/10  sells_payload={hook.get('sells_payload')}")
+    for i in (hook.get("issues") or [])[:3]:
+        print(f"    - {_clip(str(i), 140)}")
+    rm = ret.get("roadmap") or {}
+    print(f"  roadmap {rm.get('score', '?')}/10  present={rm.get('present')}"
+          + (f"  fits: {_clip(str(rm.get('where_it_fits', '')), 100)}" if not rm.get("present") else ""))
+    for l in (ret.get("loops") or []):
+        if l.get("status") == "unfired":
+            print(f"  UNFIRED SETUP {l.get('setup_segment')}: {_clip(str(l.get('setup', '')), 110)}")
+    for q in (ret.get("open_questions") or []):
+        if q.get("status") == "never":
+            print(f"  NEVER CLOSED ({q.get('planted')}): {_clip(str(q.get('question', '')), 110)}")
+    for f in (ret.get("top_fixes") or [])[:5]:
+        print(f"  fix: {_clip(str(f), 160)}")
+
+
 def main(argv: list[str] | None = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(
         prog="python -m lib.script_review",
-        description="Adversarial script-review panel (fact / style / flow / shots).",
+        description="Adversarial script-review panel (fact / style / flow / shots / retention).",
     )
     parser.add_argument("script", help="Path to scored_script.yaml")
     parser.add_argument("--report", help="Write full JSON report to this path")
     parser.add_argument(
-        "--panel", default="fact,style,flow,shots",
-        help="Comma-separated subset of fact,style,flow,shots (default: all)")
+        "--panel", default="fact,style,flow,shots,retention",
+        help="Comma-separated subset of fact,style,flow,shots,retention (default: all)")
     parser.add_argument(
         "--brief", help="Path to research_brief.json (default: auto-discover)")
     parser.add_argument("--model", default=_DEFAULT_MODEL)
@@ -1152,6 +1260,8 @@ def main(argv: list[str] | None = None) -> int:
         _print_flow(report["flow"])
     if "shots" in report:
         _print_shots(report["shots"]["results"])
+    if "retention" in report:
+        _print_retention(report["retention"])
 
     passed = report["summary"]["passed"]
     print(f"\nPANEL: {'PASSED' if passed else 'FAILED'} "
