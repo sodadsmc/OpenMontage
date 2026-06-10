@@ -107,6 +107,8 @@ STYLE_VIOLATION_TYPES = frozenset({
     "weak_transition",
 })
 
+_SHOT_VERDICTS = frozenset({"stages", "illustrates"})
+
 # ---------------------------------------------------------------------------
 # Rubrics — kept as verbatim module constants so reviewers can audit exactly
 # what standard the panel applies (same convention as ALIGNMENT_RUBRIC in
@@ -698,10 +700,162 @@ def flow_review(script: Any, model: str = _DEFAULT_MODEL) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Reviewer 4 — shot doctor (visual staging per segment)
+# ---------------------------------------------------------------------------
+
+# A visual that merely ILLUSTRATES the setting wastes the beat: the alignment
+# gate passes it (it depicts what's narrated) but the frame makes no argument.
+# Canonical example from this channel: narration lands the irony "the machine's
+# display read: treatment delivered normally" — the weak shot is a portrait of
+# a calm terminal; the strong shot STAGES the irony in depth: the terminal
+# serene in the foreground while, small in the background, the patient on the
+# table flinches under the machine. The shot doctor hunts that gap.
+SHOT_RUBRIC = """\
+You are the SHOT DOCTOR — the visual-staging reviewer for an illustrated
+documentary. For each segment you get the NARRATION the viewer hears, the
+segment's editorial intent and pacing, and the CURRENT VISUAL PROMPT(S) that
+will generate the on-screen image (a keyframe animated by an image-to-video
+model).
+
+Your question is never "does the visual match the narration" (another gate
+checks that). Your question is: IS THIS THE STRONGEST SHOT? A beat's visual
+must STAGE its dramatic core — the conflict, irony, turn, or consequence in
+the narration — inside the frame, not merely illustrate the setting where it
+happened.
+
+Staging devices to consider (name the one the current shot misses):
+- foreground/background juxtaposition: two truths in one frame (the calm
+  machine readout in front, the suffering it denies behind)
+- the prop that lies: frame the object whose message contradicts reality
+- consequence in frame: the damage/result visible WITH its cause
+- scale contrast: the small human against the huge machine (power relations)
+- isolation: the subject alone in oversized negative space
+- point of view: the camera as a participant (the patient's view up at the
+  beam head; the operator's view of only the screen)
+- before/within the turn: stage the instant the narration pivots on
+
+HARD CHANNEL CONSTRAINTS — every suggestion must respect these:
+- Graphic-novel illustration; do NOT include style/medium words (the pipeline
+  appends style separately).
+- NO legible text, numbers, or readouts inside the generated frame (text warps
+  under image-to-video). When the WORDS are the irony (a screen message, a
+  label), the frame stages the silent prop (a calm glowing screen) and the
+  burned-caption overlay layer carries the words — propose "overlay_lines"
+  (short, ALL-CAPS-style caption lines) in that case.
+- Anonymous illustrated figures only; faces may show emotion but never depict
+  a real identifiable person's likeness.
+- Period 1985: CRT, beige metal, no modern hardware.
+- One frame per shot, generated from a single keyframe: stage compositions
+  that read in ONE still (depth, blocking, light), not edits or montages.
+
+Score staging_score 1-10: 9-10 = the frame argues the beat (a viewer with the
+sound off would still feel the irony/turn); 6-8 = solid but generic staging;
+3-5 = illustrates the setting, wastes the beat; 1-2 = works against the beat.
+Verdict "stages" (>=6) or "illustrates" (<=5).
+
+For every segment scoring <=7, write "staged_prompt": a concrete replacement
+shot prompt (content and composition only — subjects, blocking, depth,
+camera angle, light; no style words) that stages the dramatic core. Keep the
+segment's location/assets unless the staging genuinely needs a second
+recurring asset in frame — then name it in "support_assets_hint".
+
+Return ONLY a JSON array, one object per segment:
+{"segment_id": "...", "dramatic_core": "one line - the beat's conflict/irony/turn",
+ "verdict": "stages" | "illustrates", "staging_score": 1-10,
+ "missed_device": "which staging device the current shot leaves on the table ('' if none)",
+ "staged_prompt": "replacement shot prompt ('' when score >= 8)",
+ "overlay_lines": ["CAPTION LINE", ...] or [],
+ "support_assets_hint": "bible asset_id(s) the staging needs in-frame beyond the segment's own ('' if none)"}
+"""
+
+
+def _shot_error(segment_id: str, why: str) -> dict:
+    """Fail-closed placeholder for a segment the shot doctor could not review."""
+    return {
+        "segment_id": segment_id,
+        "staging_score": 0,
+        "verdict": "error",
+        "error": why[:200],
+    }
+
+
+def _normalize_shot(segment_id: str, raw: dict) -> dict:
+    """Coerce a model-produced shot review into the panel's contract."""
+    try:
+        score = max(1, min(10, int(raw.get("staging_score", 0))))
+    except (TypeError, ValueError):
+        return _shot_error(segment_id, f"non-integer staging_score {raw.get('staging_score')!r}")
+    verdict = str(raw.get("verdict", "")).lower().strip()
+    if verdict not in _SHOT_VERDICTS:
+        return _shot_error(segment_id, f"unrecognized verdict {verdict!r}")
+    overlay = raw.get("overlay_lines") or []
+    if not isinstance(overlay, list):
+        overlay = []
+    return {
+        "segment_id": segment_id,
+        "verdict": verdict,
+        "staging_score": score,
+        "dramatic_core": str(raw.get("dramatic_core", "")).strip(),
+        "missed_device": str(raw.get("missed_device", "")).strip(),
+        "staged_prompt": str(raw.get("staged_prompt", "")).strip(),
+        "overlay_lines": [str(x).strip() for x in overlay if str(x).strip()],
+        "support_assets_hint": str(raw.get("support_assets_hint", "")).strip(),
+    }
+
+
+_SHOT_TYPES = frozenset({"ai_video", "atmospheric_footage", "generated_footage"})
+
+
+def shot_review(script: Any, model: str = _DEFAULT_MODEL) -> list[dict]:
+    """Adversarially review every AI-video segment's visual STAGING.
+
+    Returns one dict per reviewed segment, in script order:
+    {segment_id, verdict: stages|illustrates, staging_score, dramatic_core,
+     missed_device, staged_prompt, overlay_lines, support_assets_hint}
+    (staging_score 0 + "error" when a segment could not be reviewed).
+    Non-generative segments (diagrams, cards) are skipped — their staging
+    lives in the diagram/card systems, not in shot prompts.
+    """
+    segments = [s for s in script.segments
+                if getattr(s.visual, "type", "") in _SHOT_TYPES]
+    if not segments:
+        return []
+    try:
+        gem = _make_model(model)
+    except Exception as exc:  # noqa: BLE001
+        _log.error("Cannot initialize Gemini: %s", exc)
+        return [_shot_error(s.id, str(exc)) for s in segments]
+
+    def block(seg: Any) -> str:
+        vs = seg.visual
+        prompts = [f'SHOT {sh.shot_id}: "{sh.ai_prompt}"' for sh in (vs.shots or [])]
+        if not prompts:
+            prompts = [f'PROMPT: "{vs.effective_prompt}"']
+        lines = [
+            f"segment_id: {seg.id}",
+            f"editorial_intent: {seg.editorial_intent or '-'}    pacing: {seg.pacing or '-'}",
+            f'NARRATION: "{seg.narration}"',
+            *prompts,
+        ]
+        if vs.ai_motion:
+            lines.append(f'MOTION: "{vs.ai_motion}"')
+        if vs.text_overlay:
+            lines.append(f"EXISTING OVERLAY LINES: {vs.text_overlay}")
+        if vs.asset_ref or vs.location_id:
+            lines.append(f"asset: {vs.asset_ref or vs.location_id}")
+        return "\n".join(lines)
+
+    return _run_batches(
+        gem, segments, SHOT_RUBRIC, block,
+        _normalize_shot, _shot_error, _STYLE_BATCH_SIZE,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Panel aggregation
 # ---------------------------------------------------------------------------
 
-_PANELS = ("fact", "style", "flow")
+_PANELS = ("fact", "style", "flow", "shots")
 
 
 def _find_brief(script_path: Path) -> Path | None:
@@ -763,6 +917,23 @@ def _summarize(report: dict) -> dict:
             "date_location_openers": flow["counts"]["date_location_openers"],
             "critical_findings": sum(
                 1 for f in flow["findings"] if f["severity"] == "critical"),
+        }
+    if "shots" in report:
+        results = report["shots"]["results"]
+        scored = [r for r in results if not r.get("error")]
+        illustrates = [r for r in scored if r["verdict"] == "illustrates"]
+        summary["shots"] = {
+            "segments": len(results),
+            "errors": len(results) - len(scored),
+            "average_staging": (
+                round(sum(r["staging_score"] for r in scored) / len(scored), 2)
+                if scored else 0.0
+            ),
+            "illustrates_count": len(illustrates),
+            "weakest_segments": [
+                {"segment_id": r["segment_id"], "staging_score": r["staging_score"]}
+                for r in sorted(scored, key=lambda r: r["staging_score"])[:5]
+            ],
         }
     # The panel's pass/fail contract: critical (or unreviewable) fact issues
     # block; style and flow inform. Mirrors the CLI exit code.
@@ -831,6 +1002,9 @@ def run_panel(
     if "flow" in panels:
         _log.info("Running flow review (whole script)")
         report["flow"] = flow_review(script, model=model)
+    if "shots" in panels:
+        _log.info("Running shot doctor (visual staging)")
+        report["shots"] = {"results": shot_review(script, model=model)}
 
     report["summary"] = _summarize(report)
 
@@ -907,18 +1081,42 @@ def _print_flow(flow: dict) -> None:
             print(f"      -> {_clip(f['suggestion'], 180)}")
 
 
+def _print_shots(results: list[dict]) -> None:
+    scored = [r for r in results if not r.get("error")]
+    avg = (sum(r["staging_score"] for r in scored) / len(scored)) if scored else 0.0
+    n_ill = sum(1 for r in scored if r["verdict"] == "illustrates")
+    print(f"\n== SHOT DOCTOR ==  average staging {avg:.1f}/10 over {len(scored)} "
+          f"segments; {n_ill} merely illustrate their beat")
+    for r in results:
+        if r.get("error"):
+            print(f"  {r['segment_id']}  ERROR: {r['error']}")
+    for r in sorted(scored, key=lambda r: r["staging_score"])[:10]:
+        if r["staging_score"] >= 8:
+            continue
+        print(f"  {r['segment_id']}  staging {r['staging_score']}/10 "
+              f"[{r['verdict']}]  core: {_clip(r['dramatic_core'], 90)}")
+        if r["missed_device"]:
+            print(f"      missed device: {r['missed_device']}")
+        if r["staged_prompt"]:
+            print(f"      staged: {_clip(r['staged_prompt'], 200)}")
+        if r["overlay_lines"]:
+            print(f"      overlay: {r['overlay_lines']}")
+        if r["support_assets_hint"]:
+            print(f"      support assets: {r['support_assets_hint']}")
+
+
 def main(argv: list[str] | None = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(
         prog="python -m lib.script_review",
-        description="Adversarial script-review panel (fact / style / flow).",
+        description="Adversarial script-review panel (fact / style / flow / shots).",
     )
     parser.add_argument("script", help="Path to scored_script.yaml")
     parser.add_argument("--report", help="Write full JSON report to this path")
     parser.add_argument(
-        "--panel", default="fact,style,flow",
-        help="Comma-separated subset of fact,style,flow (default: all)")
+        "--panel", default="fact,style,flow,shots",
+        help="Comma-separated subset of fact,style,flow,shots (default: all)")
     parser.add_argument(
         "--brief", help="Path to research_brief.json (default: auto-discover)")
     parser.add_argument("--model", default=_DEFAULT_MODEL)
@@ -952,6 +1150,8 @@ def main(argv: list[str] | None = None) -> int:
         _print_style(report["style"]["results"])
     if "flow" in report:
         _print_flow(report["flow"])
+    if "shots" in report:
+        _print_shots(report["shots"]["results"])
 
     passed = report["summary"]["passed"]
     print(f"\nPANEL: {'PASSED' if passed else 'FAILED'} "

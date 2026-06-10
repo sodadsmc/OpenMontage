@@ -85,6 +85,12 @@ class VisualSpec:
     ai_reference_image: str | None = None
     asset_ref: str | None = None
     shots: list[ShotSpec] = field(default_factory=list)
+    # Cross-asset staging: bible asset_ids whose reference sheets/canonicals
+    # ride into this segment's keyframe edits as EXTRA references. Lets one
+    # frame stage two anchored identities (e.g. the terminal in the foreground
+    # while the treatment-room machine looms in the background) without either
+    # drifting off-model. The segment's own asset stays the i2v anchor.
+    support_asset_refs: list[str] = field(default_factory=list)
 
     # Styled caption burned over this segment's footage ("text over footage").
     text_overlay: list[str] = field(default_factory=list)
@@ -135,6 +141,7 @@ class VisualSpec:
             ai_reference_image=d.get("ai_reference_image"),
             asset_ref=d.get("asset_ref"),
             shots=shots,
+            support_asset_refs=d.get("support_asset_refs", []),
             text_overlay=d.get("text_overlay", []),
             text_emphasis=d.get("text_emphasis", -1),
         )

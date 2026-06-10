@@ -221,8 +221,26 @@ def plan_ai_video(
               + list(getattr(asset, "locked_attributes", []) or []))
     # The asset's reference sheet (multi-view model sheet) joins every keyframe
     # EDIT as an extra reference: new angles stay on-model instead of being
-    # locked to the canonical's single camera position.
+    # locked to the canonical's single camera position. Cross-asset staging:
+    # support_asset_refs pull OTHER assets' sheets/canonicals in too, so a
+    # frame can hold two anchored identities (foreground terminal, background
+    # machine) without either drifting off-model.
+    extra_refs: list[str] = []
     sheet_url = getattr(asset, "reference_sheet_url", "") or None
+    if sheet_url:
+        extra_refs.append(sheet_url)
+    if bible is not None:
+        for ref_id in (getattr(visual_spec, "support_asset_refs", None) or []):
+            sup = bible.get(ref_id)
+            if sup is None:
+                _log.warning("ai_video: %s support_asset_ref '%s' not in bible", segment_id, ref_id)
+                continue
+            for u in (getattr(sup, "reference_sheet_url", ""), getattr(sup, "canonical_image_url", "")):
+                if u and u not in extra_refs:
+                    extra_refs.append(u)
+            # the support asset's identity must ride in the prompt too — the
+            # reference image alone won't stop the text describing it generically
+            locked += list(getattr(sup, "identity_tokens", []) or [])
     base_seed = abs(hash(segment_id)) % 1_000_000
 
     jobs: list[dict[str, Any]] = []
@@ -245,9 +263,14 @@ def plan_ai_video(
         if chain_from:
             keyframe: Path | str | None = canonical_ref
         else:
+            # Cross-asset shots NEED an edited keyframe (the raw canonical can't
+            # contain the support asset), so force the per-shot edit when
+            # support refs are present even without AI_PER_SHOT_KEYFRAMES=1.
+            force_edit = (bool(getattr(visual_spec, "support_asset_refs", None))
+                          and allow_paid_keyframes)
             keyframe = _nano_keyframe(
                 keyframe_prompt, canonical_ref, keyframe_dir / f"{segment_id}_{shot_id}_key.png",
-                extra_ref_urls=[sheet_url] if sheet_url else None,
+                extra_ref_urls=extra_refs or None, force_edit=force_edit,
             )
             # Scene needs people but the canonical anchor is (deliberately) an empty
             # room: animate FROM a frame that already contains the subject, so the
@@ -258,7 +281,7 @@ def plan_ai_video(
                     keyframe_prompt, keyframe,
                     keyframe_dir / f"{segment_id}_{shot_id}_key_pop.png",
                     description=shot_prompt, narration=narration,
-                    extra_ref_urls=[sheet_url] if sheet_url else None,
+                    extra_ref_urls=extra_refs or None,
                 )
                 if populated is not None:
                     keyframe = populated
@@ -661,18 +684,21 @@ def resolve_chain_anchor(prev_clip: str | Path, workdir: str | Path | None = Non
 
 
 def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path,
-                   extra_ref_urls: list[str] | None = None) -> Path | str | None:
+                   extra_ref_urls: list[str] | None = None,
+                   force_edit: bool = False) -> Path | str | None:
     """Resolve the per-shot image-to-video anchor.
 
     Default: use the canonical reference directly as the i2v anchor — a provider
     URL (host-free, passed straight to the video model) or a local path. Maximizes
     cross-shot consistency.
 
-    Opt-in per-shot variety (AI_PER_SHOT_KEYFRAMES=1): edit the canonical reference
-    into a distinct per-shot framing via Nano Banana (hosting a local ref via
-    lib.image_host if needed), with ``extra_ref_urls`` (the asset's reference
-    sheet) keeping the subject on-model at the new angle. Falls back to the
-    direct anchor if it fails.
+    Per-shot edit mode (AI_PER_SHOT_KEYFRAMES=1, or ``force_edit`` for
+    cross-asset shots whose raw canonical can't contain the support asset):
+    edit the canonical reference into a distinct per-shot framing via Nano
+    Banana (hosting a local ref via lib.image_host if needed), with
+    ``extra_ref_urls`` (reference sheets / support-asset canonicals) keeping
+    every anchored subject on-model at the new angle. Falls back to the direct
+    anchor if it fails.
 
     When there is no reference, generate a fresh keyframe via text-to-image.
     """
@@ -680,7 +706,7 @@ def _nano_keyframe(prompt: str, ref_image: str | None, output_path: Path,
     is_url = ref.startswith("http://") or ref.startswith("https://")
     have_ref = is_url or (bool(ref) and Path(ref).exists())
 
-    if have_ref and os.environ.get("AI_PER_SHOT_KEYFRAMES") == "1":
+    if have_ref and (force_edit or os.environ.get("AI_PER_SHOT_KEYFRAMES") == "1"):
         from lib.image_host import upload_image
         url = ref if is_url else upload_image(ref)
         if url:

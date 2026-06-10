@@ -60,6 +60,48 @@ sized to it. Write the words first; design the pictures against the words.
    (Therac-25, AECL, rads, PDP-11). New technical terms get an entry in the
    pronunciation dictionary BEFORE voice generation, not after a bad take.
 
+## Shot Design — stage the beat, don't illustrate the setting
+
+The alignment gate only checks that the visual MATCHES the narration. A shot
+can match and still waste the beat: the narration lands a devastating irony
+("the machine's display? It read: treatment delivered normally") and the
+visual is... a portrait of a terminal. Every segment's visual must stage the
+beat's **dramatic core** — its conflict, irony, turn, or consequence — inside
+the frame.
+
+The reference example (seg_005): the weak shot is the calm terminal alone.
+The strong shot holds both truths in one frame — **foreground**: the terminal
+serene, cursor blinking, untroubled; **background, small, through the
+doorway**: the patient flinching on the table under the machine. The frame
+itself makes the argument; a viewer with the sound off still feels it.
+
+Staging devices (pick the one the beat demands):
+
+- **Foreground/background juxtaposition** — two truths in one frame
+- **The prop that lies** — frame the object whose message contradicts reality
+- **Consequence in frame** — the damage visible WITH its cause
+- **Scale contrast** — the small human against the huge machine
+- **Isolation** — the subject alone in oversized negative space
+- **Point of view** — the camera as participant (the patient's view up at the
+  beam head; the operator's view of only the screen)
+- **The turn** — stage the instant the narration pivots on
+
+Channel-specific mechanics:
+
+- **Words belong to the overlay layer.** No legible text in generated frames
+  (i2v warps it) — stage the silent prop (a calm glowing screen) and put the
+  words in `text_overlay` ("TREATMENT DELIVERED NORMALLY"), where they render
+  deterministically.
+- **Cross-asset staging**: when a frame needs TWO anchored identities (the
+  terminal up front, the machine behind), set `support_asset_refs` on the
+  visual — the support assets' reference sheets/canonicals ride into the
+  keyframe edit and their identity tokens into the prompt, so neither subject
+  drifts off-model.
+- **The shot doctor enforces this**: `python -m lib.script_review <script>
+  --panel shots` adversarially scores every AI segment's staging (1-10),
+  names the missed device, and proposes a staged replacement prompt. Run it
+  before the narration gate; apply or consciously reject each suggestion.
+
 ## Visual Binding Rules
 
 1. **The visual must depict what the narration says.** `visual.description` /
