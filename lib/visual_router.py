@@ -226,21 +226,52 @@ def plan_ai_video(
     # frame can hold two anchored identities (foreground terminal, background
     # machine) without either drifting off-model.
     extra_refs: list[str] = []
+    ref_bindings: list[str] = []  # tells the edit model what each extra ref IS
+    fidelity_sheet: str | None = None  # sheet the keyframe gate compares against
+
+    def _local_or(url_asset: Any) -> str | None:
+        """Prefer the sheet's LOCAL file for the gate (Gemini runs from this
+        box, and the CDN hosting the URL is not always reachable locally —
+        the URL is for the image-EDIT provider, whose servers fetch it fine)."""
+        local = getattr(url_asset, "reference_sheet", "") or ""
+        if local and Path(local).exists():
+            return local
+        return getattr(url_asset, "reference_sheet_url", "") or None
+
     sheet_url = getattr(asset, "reference_sheet_url", "") or None
     if sheet_url:
         extra_refs.append(sheet_url)
+        own_subject = getattr(asset, "subject", "") or getattr(asset, "name", "the subject")
+        ref_bindings.append(
+            f"a MODEL REFERENCE SHEET of {own_subject} — every depiction of "
+            f"{own_subject} in this frame must copy that sheet exactly (same housing, "
+            "same proportions, same details), never a different design")
+        fidelity_sheet = _local_or(asset)
     if bible is not None:
         for ref_id in (getattr(visual_spec, "support_asset_refs", None) or []):
             sup = bible.get(ref_id)
             if sup is None:
                 _log.warning("ai_video: %s support_asset_ref '%s' not in bible", segment_id, ref_id)
                 continue
-            for u in (getattr(sup, "reference_sheet_url", ""), getattr(sup, "canonical_image_url", "")):
+            sup_subject = getattr(sup, "subject", "") or getattr(sup, "name", ref_id)
+            for u, kind in ((getattr(sup, "reference_sheet_url", ""), "model reference sheet"),
+                            (getattr(sup, "canonical_image_url", ""), "canonical scene image")):
                 if u and u not in extra_refs:
                     extra_refs.append(u)
+                    ref_bindings.append(
+                        f"a {kind} of {sup_subject} — render {sup_subject} EXACTLY "
+                        "as shown there, never a different design")
+                    if kind.startswith("model") and fidelity_sheet is None:
+                        fidelity_sheet = _local_or(sup)
             # the support asset's identity must ride in the prompt too — the
             # reference image alone won't stop the text describing it generically
             locked += list(getattr(sup, "identity_tokens", []) or [])
+    # The edit model receives the refs as an unlabeled image list; without this
+    # note it treats them as loose inspiration and redraws the machine. Naming
+    # what each reference IS is what makes the sheet binding, not advisory.
+    ref_note = (" || REFERENCE IMAGES: after the scene anchor, the additional "
+                "reference images are: " + "; ".join(ref_bindings)
+                if ref_bindings else "")
     base_seed = abs(hash(segment_id)) % 1_000_000
 
     jobs: list[dict[str, Any]] = []
@@ -259,7 +290,7 @@ def plan_ai_video(
         # spend on a per-shot keyframe that would normally never be used.
         keyframe_prompt = apply_to_prompt(
             bible.build_prompt_anchor(asset_id, shot_prompt) if bible is not None else shot_prompt
-        )
+        ) + ref_note
         if chain_from:
             keyframe: Path | str | None = canonical_ref
         else:
@@ -282,6 +313,7 @@ def plan_ai_video(
                     keyframe_dir / f"{segment_id}_{shot_id}_key_pop.png",
                     description=shot_prompt, narration=narration,
                     extra_ref_urls=extra_refs or None,
+                    fidelity_ref=fidelity_sheet,
                 )
                 if populated is not None:
                     keyframe = populated
@@ -596,7 +628,8 @@ def _needs_people(prompt: str) -> bool:
 def _populated_keyframe(keyframe_prompt: str, anchor: Path | str | None,
                         output_path: Path, description: str = "",
                         narration: str = "",
-                        extra_ref_urls: list[str] | None = None) -> Path | str | None:
+                        extra_ref_urls: list[str] | None = None,
+                        fidelity_ref: str | None = None) -> Path | str | None:
     """Edit the canonical (empty) anchor into a frame that already CONTAINS the
     shot's subject, then gate it before it anchors a paid i2v call.
 
@@ -618,32 +651,47 @@ def _populated_keyframe(keyframe_prompt: str, anchor: Path | str | None,
             return None
         ref = hosted
 
-    prompt = (
+    base_prompt = (
         f"{keyframe_prompt}. Place the subject(s) naturally INTO this scene with "
         "correct human anatomy: bodies resting ON surfaces (a patient lies on top "
         "of the treatment table, never sinking into or merging with it), limbs and "
         "proportions plausible, same camera angle and lighting as the reference."
     )
     refs = [ref] + [u for u in (extra_ref_urls or []) if u]
-    populated = _nano_image(prompt, output_path, image_urls=refs)
-    if populated is None:
-        return None
 
-    # Gate the keyframe BEFORE it anchors a paid clip (anatomy wrong in the still
-    # stays wrong in every frame of the clip). Soft-degrades if the gate is absent.
-    try:
-        from lib.quality_gate import validate_keyframe
-        ok, report = validate_keyframe(str(populated), description or keyframe_prompt,
-                                       narration=narration)
-        if not ok:
-            _log.warning("ai_video: populated keyframe failed the gate (%s) — keeping "
-                         "the canonical anchor", (report or {}).get("issues"))
+    # Coder->Critic loop (same pattern as diagram_codegen): the gate's concrete
+    # issues become corrective feedback for the next edit attempt. One failed
+    # attempt is information, not a verdict — a keyframe that anchors a whole
+    # clip is worth a couple of $0.04 retries.
+    max_attempts = max(1, int(os.environ.get("AI_KEYFRAME_ATTEMPTS", "3")))
+    feedback = ""
+    for attempt in range(1, max_attempts + 1):
+        populated = _nano_image(base_prompt + feedback, output_path, image_urls=refs)
+        if populated is None:
             return None
-    except ImportError:
-        pass
-    except Exception as exc:  # noqa: BLE001
-        _log.warning("ai_video: keyframe gate errored (%s) — using populated keyframe unGated", exc)
-    return populated
+        try:
+            from lib.quality_gate import validate_keyframe
+        except ImportError:
+            return populated  # gate absent — soft-degrade
+        try:
+            ok, report = validate_keyframe(str(populated), description or keyframe_prompt,
+                                           narration=narration,
+                                           reference_url=fidelity_ref or "")
+        except Exception as exc:  # noqa: BLE001
+            _log.warning("ai_video: keyframe gate errored (%s) — using populated keyframe unGated", exc)
+            return populated
+        if ok:
+            return populated
+        issues = (report or {}).get("issues") or []
+        _log.warning("ai_video: populated keyframe attempt %d/%d failed the gate (%s)",
+                     attempt, max_attempts, issues)
+        feedback = (
+            " || YOUR PREVIOUS ATTEMPT WAS REJECTED for these specific problems — "
+            "fix every one of them this time: " + "; ".join(str(i) for i in issues)
+        ) if issues else feedback
+    _log.warning("ai_video: populated keyframe exhausted %d attempts — keeping the canonical anchor",
+                 max_attempts)
+    return None
 
 
 def resolve_chain_anchor(prev_clip: str | Path, workdir: str | Path | None = None) -> str | None:

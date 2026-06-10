@@ -84,6 +84,10 @@ TEMPORAL_COHERENCE_MIN = 5
 KEYFRAME_ANATOMY_MIN = 6
 KEYFRAME_SUBJECT_MATCH_MIN = 5
 KEYFRAME_TEXT_FREE_MIN = 6
+# Fidelity vs the asset's model reference sheet (checked only when the caller
+# supplies one). An off-model machine in the keyframe stays off-model in every
+# frame of the clip — strictest threshold of the keyframe criteria.
+KEYFRAME_FIDELITY_MIN = 6
 
 # Max seconds to wait for the Gemini files API to finish PROCESSING an upload.
 UPLOAD_TIMEOUT_S = 180
@@ -652,6 +656,7 @@ def validate_keyframe(
     image: str,
     description: str,
     narration: str = "",
+    reference_url: str = "",
 ) -> tuple[bool, dict]:
     """Validate a still keyframe with Gemini before spending on i2v.
 
@@ -667,6 +672,11 @@ def validate_keyframe(
         description: What the keyframe should depict (shot/keyframe prompt).
         narration: Optional narration for the shot — extra context for
             subject matching.
+        reference_url: Optional model reference sheet (path or URL). When
+            given, the gate ALSO scores "reference_fidelity": is the depicted
+            machine/subject the SAME design as the sheet's, or a redesign?
+            This is what catches an edit that staged the right scene around
+            the wrong machine.
 
     Returns:
         (passed, detail) where detail contains "scores" (1-10 per criterion),
@@ -689,26 +699,33 @@ def validate_keyframe(
         _warn_no_key_once(f"keyframe QC for {image}")
         return True, {"passed": True, "skipped": "no GOOGLE_API_KEY"}
 
-    tmp_path: Path | None = None
-    uploaded = None
-    try:
-        # URL keyframes (hosted anchors for i2v providers) → temp file.
-        if str(image).startswith(("http://", "https://")):
+    def _localize(src: str, prefix: str) -> tuple[Path, Path | None]:
+        """Return (local_path, tmp_to_cleanup) for a path-or-URL image."""
+        if str(src).startswith(("http://", "https://")):
             import requests
 
-            resp = requests.get(image, timeout=60)
+            resp = requests.get(src, timeout=60)
             resp.raise_for_status()
-            suffix = Path(str(image).split("?")[0]).suffix or ".png"
-            fd, tmp_name = tempfile.mkstemp(prefix="_qg_keyframe_",
-                                            suffix=suffix)
+            suffix = Path(str(src).split("?")[0]).suffix or ".png"
+            fd, tmp_name = tempfile.mkstemp(prefix=prefix, suffix=suffix)
             os.close(fd)
-            tmp_path = Path(tmp_name)
-            tmp_path.write_bytes(resp.content)
-            local_path = tmp_path
-        else:
-            local_path = Path(image)
-            if not local_path.is_file():
-                raise FileNotFoundError(f"Keyframe not found: {image}")
+            tmp = Path(tmp_name)
+            tmp.write_bytes(resp.content)
+            return tmp, tmp
+        p = Path(src)
+        if not p.is_file():
+            raise FileNotFoundError(f"Image not found: {src}")
+        return p, None
+
+    tmp_path: Path | None = None
+    ref_tmp: Path | None = None
+    uploaded = None
+    ref_uploaded = None
+    try:
+        local_path, tmp_path = _localize(str(image), "_qg_keyframe_")
+        ref_local: Path | None = None
+        if reference_url:
+            ref_local, ref_tmp = _localize(str(reference_url), "_qg_refsheet_")
 
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(
@@ -720,26 +737,38 @@ def validate_keyframe(
             ),
         )
 
-        uploaded = genai.upload_file(path=str(local_path),
-                                     display_name=local_path.stem)
-        deadline = time.time() + UPLOAD_TIMEOUT_S
-        while uploaded.state.name == "PROCESSING":
-            if time.time() > deadline:
-                raise TimeoutError(
-                    f"Gemini upload still PROCESSING after {UPLOAD_TIMEOUT_S}s")
-            time.sleep(1)
-            uploaded = genai.get_file(uploaded.name)
-        if uploaded.state.name != "ACTIVE":
-            raise RuntimeError(
-                f"Gemini upload ended in state {uploaded.state.name}")
+        def _upload(p: Path):
+            up = genai.upload_file(path=str(p), display_name=p.stem)
+            deadline = time.time() + UPLOAD_TIMEOUT_S
+            while up.state.name == "PROCESSING":
+                if time.time() > deadline:
+                    raise TimeoutError(
+                        f"Gemini upload still PROCESSING after {UPLOAD_TIMEOUT_S}s")
+                time.sleep(1)
+                up = genai.get_file(up.name)
+            if up.state.name != "ACTIVE":
+                raise RuntimeError(f"Gemini upload ended in state {up.state.name}")
+            return up
+
+        uploaded = _upload(local_path)
+        if ref_local is not None:
+            ref_uploaded = _upload(ref_local)
 
         narration_note = (
             f'\nNarration for the shot: "{narration}"' if narration else ""
         )
+        fidelity_rubric = ""
+        fidelity_json = ""
+        if ref_uploaded is not None:
+            fidelity_rubric = """
+4. "reference_fidelity": The SECOND image is the official MODEL REFERENCE SHEET for the machine/subject this scene depicts. Compare the machine in the keyframe (first image) against the sheet: same overall housing shape, same proportions, same major components and their arrangement? 9-10 = unmistakably the same design (allowing for the keyframe's different angle, scale, and lighting); 4-6 = same general category but a visibly different design; 1-3 = a different machine entirely. Judge the DESIGN, not the rendering style."""
+            fidelity_json = ', "reference_fidelity": N'
+
         prompt = f"""You are a strict quality-control reviewer for a single illustrated keyframe that will be animated into a video clip (image-to-video). A flawed keyframe poisons every clip generated from it, so be critical.
 
 {_STYLE_NOTE}
 
+The FIRST image is the keyframe under review.{' The SECOND image is the model reference sheet.' if ref_uploaded is not None else ''}
 The keyframe should depict: "{description}"{narration_note}
 
 Score each criterion from 1 (terrible) to 10 (perfect):
@@ -748,13 +777,14 @@ Score each criterion from 1 (terrible) to 10 (perfect):
 
 2. "subject_match": Does the image actually contain the subjects, setting, and framing the description asks for?
 
-3. "text_free": Is the image free of baked-in LEGIBLE text, captions, signage, watermarks, or lettering? Indistinct impressionistic marks that merely suggest text are fine. 10 = nothing readable anywhere; 1-3 = clearly readable words.
+3. "text_free": Is the image free of baked-in LEGIBLE text, captions, signage, watermarks, or lettering? Indistinct impressionistic marks that merely suggest text are fine. 10 = nothing readable anywhere; 1-3 = clearly readable words.{fidelity_rubric}
 
 Return ONLY JSON:
-{{"anatomy_plausible": N, "subject_match": N, "text_free": N, "issues": ["short concrete description of each problem"]}}
+{{"anatomy_plausible": N, "subject_match": N, "text_free": N{fidelity_json}, "issues": ["short concrete description of each problem"]}}
 """
 
-        response = model.generate_content([uploaded, prompt])
+        parts = [uploaded] + ([ref_uploaded] if ref_uploaded is not None else []) + [prompt]
+        response = model.generate_content(parts)
         result = _parse_json_response(response.text)
 
         scores = {
@@ -762,12 +792,15 @@ Return ONLY JSON:
             "subject_match": int(result.get("subject_match", 0)),
             "text_free": int(result.get("text_free", 0)),
         }
+        if ref_uploaded is not None:
+            scores["reference_fidelity"] = int(result.get("reference_fidelity", 0))
         issues = [str(i) for i in (result.get("issues") or [])]
 
         passed = (
             scores["anatomy_plausible"] >= KEYFRAME_ANATOMY_MIN
             and scores["subject_match"] >= KEYFRAME_SUBJECT_MATCH_MIN
             and scores["text_free"] >= KEYFRAME_TEXT_FREE_MIN
+            and scores.get("reference_fidelity", 10) >= KEYFRAME_FIDELITY_MIN
         )
         detail = {"passed": passed, "scores": scores, "issues": issues}
         if not passed:
@@ -784,16 +817,18 @@ Return ONLY JSON:
         return False, {"passed": False, "error": str(e)[:200]}
 
     finally:
-        if uploaded is not None:
-            try:
-                genai.delete_file(uploaded.name)
-            except Exception:
-                pass
-        if tmp_path is not None:
-            try:
-                tmp_path.unlink()
-            except Exception:
-                pass
+        for up in (uploaded, ref_uploaded):
+            if up is not None:
+                try:
+                    genai.delete_file(up.name)
+                except Exception:
+                    pass
+        for tmp in (tmp_path, ref_tmp):
+            if tmp is not None:
+                try:
+                    tmp.unlink()
+                except Exception:
+                    pass
 
 
 def _parse_json_response(text: str) -> dict:
