@@ -75,7 +75,10 @@ _SEVERITY = {"info": 0, "warn": 1, "critical": 2, "error": 3}
 # Cap on serialized brief evidence injected into fact prompts. The brief is
 # passed verbatim (not summarized) so the reviewer cites the same artifacts a
 # human checker would — but a runaway brief must not starve the output budget.
-_EVIDENCE_CHAR_CAP = 14000
+# Sized for a DEEP brief (v2-class: 60 page-cited data points + 50 timeline
+# events serialize to ~35-50k chars). Truncating evidence makes the vetter
+# flag well-supported claims as unsupported — worse than the extra tokens.
+_EVIDENCE_CHAR_CAP = 60000
 
 # Brief sections that constitute checkable evidence. Anything else in the
 # brief (landscape analysis, audience insights) is strategy, not evidence,
@@ -431,7 +434,19 @@ def _brief_evidence(brief: dict | None) -> str:
         picked = brief
     text = json.dumps(picked, indent=1, ensure_ascii=False)
     if len(text) > _EVIDENCE_CHAR_CAP:
+        # Drop URLs first (the bulkiest, least probative field) before cutting
+        # actual claims — a truncated evidence block silently breaks vetting.
+        compact = json.loads(json.dumps(picked))
+        for dp in compact.get("data_points", []) or []:
+            dp.pop("source_url", None)
+        for ev in compact.get("timeline_events", []) or []:
+            ev.pop("source_url", None)
+        text = json.dumps(compact, indent=1, ensure_ascii=False)
+        _log.warning("brief evidence over cap — URLs dropped (%d chars)", len(text))
+    if len(text) > _EVIDENCE_CHAR_CAP:
         text = text[:_EVIDENCE_CHAR_CAP] + "\n...[evidence truncated]"
+        _log.warning("brief evidence STILL over cap — truncated; vetting may "
+                     "flag supported claims as unsupported")
     return (
         "RESEARCH BRIEF EVIDENCE (verified for this episode — primary "
         "evidence):\n" + text
