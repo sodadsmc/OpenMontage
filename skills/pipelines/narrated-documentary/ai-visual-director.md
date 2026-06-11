@@ -136,6 +136,15 @@ real event.
   motivated, rather than long pans/dollies into empty off-screen space the model
   must fill. Review hero clips for hallucinated junk, but don't trade away motion
   to prevent it.
+- **Animating an anchored MACHINE morphs it.** For hero-object reveal beats
+  (the Therac looming, equipment at rest), never ask the machine to move
+  ("the gantry head shifts") — i2v warps anchored geometry it animates. The
+  motion formula that holds: "the machine is COMPLETELY STILL — a fixed, rigid
+  object with no moving parts; the camera alone moves, a slow orbital arc with
+  the machine locked dead-center; the machine never changes form." Light and
+  small indicator events carry the life; the camera carries the drama.
+  (Proven on the seg_002 hero: subject-motion morphed it; the frozen-subject
+  orbit held the geometry through a full perspective rotation.)
 - **Re-generating keyframes per shot from scratch.** Keyframes are edited FROM the
   single canonical reference so the asset stays consistent — don't bypass it.
 - **Assuming you need a GPU box.** The bulk default is Grok cloud (no box). Wan on
