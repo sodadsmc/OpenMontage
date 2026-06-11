@@ -169,7 +169,15 @@ class GrokKieVideo(BaseTool):
             d = int(float(inputs.get("duration", MIN_DURATION)))
         except (TypeError, ValueError):
             d = MIN_DURATION
-        return max(MIN_DURATION, min(MAX_DURATION, d))
+        d = max(MIN_DURATION, min(MAX_DURATION, d))
+        # Empirical (video-1.5 via Kie, June 2026): durations above 10s snap DOWN
+        # to discrete steps — a 14s request returns a 10s clip, which then fails
+        # the duration gate and freeze-pads 4s at assembly. Round UP to the next
+        # supported step (10/15/20/25/30); the assembly trim cuts the excess, and
+        # a few extra cents per shot beats a frozen tail.
+        if d > 10:
+            d = min(MAX_DURATION, ((d + 4) // 5) * 5)
+        return d
 
     def estimate_cost(self, inputs: dict[str, Any]) -> float:
         return round(max(0.10, COST_PER_SECOND * self._duration(inputs)), 3)
