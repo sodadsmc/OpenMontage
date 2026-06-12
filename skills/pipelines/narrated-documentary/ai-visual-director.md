@@ -136,6 +136,15 @@ real event.
   motivated, rather than long pans/dollies into empty off-screen space the model
   must fill. Review hero clips for hallucinated junk, but don't trade away motion
   to prevent it.
+- **Revealed space gets furnished.** When the camera advances, i2v populates
+  newly visible areas with invented props (wheelchairs materializing mid-shot).
+  Three standing defenses: the planner appends a MOTION DISCIPLINE clause
+  (object permanence, bare revealed areas) to EVERY video prompt
+  automatically; the video gate scans background edges and revealed areas for
+  materializing objects; and authored prompts should specify props as fixed
+  singulars ("a single empty wheelchair parked against the left wall"), never
+  open plurals ("wheelchairs at the walls' edges" is an invitation to keep
+  adding them).
 - **Grok clips over 10s carry an internal extension seam.** Requests above 10s
   are fulfilled as a base clip + the provider's own auto-extension, joined by a
   crossfade with a slight camera re-anchor. On cuts and subject-motion shots it

@@ -501,7 +501,7 @@ Score each criterion from 1 (terrible) to 10 (perfect):
    - bodies or objects that MERGE or MELT into surfaces — e.g. a person whose torso or head sinks/blends INTO a bed, table, or wall instead of resting ON it;
    - room or corridor GEOMETRY that grows, stretches, or changes proportions during camera movement — e.g. a hallway that keeps elongating so the camera never gets closer to the door it is moving toward, walls or ceilings that warp or rescale;
    - morphing faces or limbs, extra or missing limbs, anatomy that deforms over time;
-   - objects or people that appear out of nowhere, dissolve, or transform into something else mid-clip;
+   - objects or people that appear out of nowhere, dissolve, or transform into something else mid-clip — pay special attention to BACKGROUND EDGES and areas newly revealed by camera movement, where furniture/props commonly materialize into already-visible space;
    - garbled, mutating, or nonsensical text/lettering.
    10 = none of these anywhere in the clip. 1-3 = at least one of these failures is clearly visible. The deliberate graphic-novel illustration style (ink linework, halftone, navy/amber duotone, film grain) is NOT an artifact.
    IMPORTANT: this criterion is ONLY about generation defects. A clip that simply

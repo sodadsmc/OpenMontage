@@ -51,6 +51,20 @@ MAX_SHOT_SECONDS = _PROVIDER_MAX_SHOT.get(DEFAULT_VIDEO_PROVIDER, 10.0)
 # same value (RENDER_FPS env) so the shot- and segment-level concats agree.
 TARGET_FPS = int(os.environ.get("RENDER_FPS", "30"))
 
+# Appended to EVERY video prompt at plan time (AI_MOTION_DISCIPLINE=0 disables).
+# These are the i2v failure modes that recur regardless of scene content —
+# props materializing in camera-revealed space (the seg_001 wheelchairs),
+# warping architecture, legible-text hallucination. Stating them once per shot
+# by hand proved unreliable; a law applied by the planner cannot be forgotten.
+MOTION_DISCIPLINE = (
+    " || MOTION DISCIPLINE: strict object permanence — nothing appears, "
+    "vanishes, or transforms anywhere in the frame; areas revealed by camera "
+    "movement contain only bare continuations of the established scene, never "
+    "new furniture, props, or figures; all architecture and objects stay "
+    "rigid and dimensionally constant; any text or screens stay indistinct "
+    "and illegible."
+)
+
 
 @dataclass
 class VisualAsset:
@@ -327,6 +341,8 @@ def plan_ai_video(
         video_prompt = apply_to_prompt(
             build_shot_prompt(scene_dict, {"mood": ai_style} if ai_style else None)
         )
+        if os.environ.get("AI_MOTION_DISCIPLINE", "1") != "0":
+            video_prompt += MOTION_DISCIPLINE
 
         jobs.append({
             "segment_id": segment_id,
