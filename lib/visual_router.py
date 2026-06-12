@@ -566,6 +566,22 @@ def _leg_durations(secs: float, n_sub: int,
     return [secs / n_sub] * n_sub
 
 
+# Strong continuous camera moves: any single Grok request over 10s is fulfilled
+# as base + the provider's internal auto-extension, joined by a crossfade with a
+# camera re-anchor — invisible on near-static shots, but on orbits/tracking
+# moves it reads as a fade-and-rewind (seg_002's orbit) or the environment
+# re-extending so the destination never arrives (seg_001's corridor walk).
+# Shots whose motion matches this pattern are chained at sub-10s legs instead:
+# our final-frame re-anchor is a hard continuation, not a fade.
+# AI_CONTINUOUS_LEG_CAP overrides (0 disables). Gentle moves ("slow push") are
+# deliberately NOT matched — their extension seams are imperceptible.
+_CONTINUOUS_CAM_RE = re.compile(
+    r"\b(orbit\w*|arc\w*|circl\w*|tracking|follows?|walking pace|"
+    r"pans? (?:across|around)|doll(?:y|ies)\w*)\b",
+    re.IGNORECASE,
+)
+
+
 def _plan_shots(visual_spec: Any, target_duration_s: float,
                 narration: str = "",
                 leg_boundaries: list[float] | None = None) -> list[dict[str, Any]]:
@@ -577,15 +593,20 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
     continuation of the scene, never a second independent take of the same moment.
     ``leg_boundaries`` (segment-relative sentence-end times from the narration
     alignment) snap chain seams to natural pauses instead of equal time slices.
+    Strong continuous camera moves chain at sub-10s legs (see _CONTINUOUS_CAM_RE).
     """
     import math
 
     base_prompt = (getattr(visual_spec, "effective_prompt", None)
                    or getattr(visual_spec, "description", "") or "")
+    cont_cap = float(os.environ.get("AI_CONTINUOUS_LEG_CAP", "10"))
 
     def expand(sid: str, prompt: str, ai_motion: str | None, hero: bool,
                secs: float, offset: float) -> list[dict[str, Any]]:
-        n_sub = max(1, math.ceil(secs / MAX_SHOT_SECONDS)) if secs > 0 else 1
+        cap = MAX_SHOT_SECONDS
+        if cont_cap > 0 and ai_motion and _CONTINUOUS_CAM_RE.search(ai_motion):
+            cap = min(cap, cont_cap)
+        n_sub = max(1, math.ceil(secs / cap)) if secs > 0 else 1
         prompts = _leg_prompts(narration, prompt, n_sub, motion=ai_motion,
                                total_duration_s=secs)
         # Boundaries are segment-relative; this shot occupies [offset, offset+secs).
@@ -618,14 +639,21 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
             out.extend(expand(
                 getattr(s, "shot_id"),
                 getattr(s, "ai_prompt", None) or base_prompt,
-                getattr(s, "ai_motion", None),
+                # Shot motion falls back to segment motion (same rule the video
+                # prompt uses) — the continuous-cam cap must see what the clip
+                # will actually be asked to do.
+                getattr(s, "ai_motion", None) or getattr(visual_spec, "ai_motion", None),
                 bool(getattr(s, "hero", False)),
                 secs, offset,
             ))
             offset += secs
         return out
 
-    n = max(1, math.ceil(target_duration_s / MAX_SHOT_SECONDS)) if target_duration_s > 0 else 1
+    seg_motion = getattr(visual_spec, "ai_motion", None)
+    cap = MAX_SHOT_SECONDS
+    if cont_cap > 0 and seg_motion and _CONTINUOUS_CAM_RE.search(seg_motion):
+        cap = min(cap, cont_cap)
+    n = max(1, math.ceil(target_duration_s / cap)) if target_duration_s > 0 else 1
     legs = _leg_prompts(narration, base_prompt, n, total_duration_s=target_duration_s)
     durs = _leg_durations(target_duration_s, n, leg_boundaries)
     return [
