@@ -509,7 +509,7 @@ Score each criterion from 1 (terrible) to 10 (perfect):
    missing prop, an action that doesn't happen) is a content_match problem, NOT an
    artifact — do not lower artifact_free for prompt-fidelity gaps.
 
-3. "temporal_coherence": Does the clip remain one continuous, stable scene — same place, same subjects, consistent spatial layout — from first frame to last, allowing for the described camera and subject motion? Score low if the scene's identity or layout drifts into a different-looking space, or if perspective/scale relationships do not stay physically consistent during the camera move.
+3. "temporal_coherence": Does the clip remain one continuous, stable scene — same place, same subjects, consistent spatial layout — from first frame to last, allowing for the described camera and subject motion? Score low if the scene's identity or layout drifts into a different-looking space, or if perspective/scale relationships do not stay physically consistent during the camera move. ALSO score low for internal SEAMS: a mid-clip crossfade/dissolve, a momentary double-exposure of two camera positions, or the camera position JUMPING BACKWARD and re-traversing motion it already completed (the provider's internal clip-extension artifact — reads as a glitchy loop to viewers).
 
 Return ONLY JSON:
 {{"content_match": N, "artifact_free": N, "temporal_coherence": N, "issues": ["short concrete description of each problem you saw"]}}

@@ -136,6 +136,15 @@ real event.
   motivated, rather than long pans/dollies into empty off-screen space the model
   must fill. Review hero clips for hallucinated junk, but don't trade away motion
   to prevent it.
+- **Grok clips over 10s carry an internal extension seam.** Requests above 10s
+  are fulfilled as a base clip + the provider's own auto-extension, joined by a
+  crossfade with a slight camera re-anchor. On cuts and subject-motion shots it
+  hides; on CONTINUOUS CAMERA MOVES (orbits, dollies) it reads as a fade +
+  rewind. For continuous-motion shots that need >10s: generate 10s and RETIME
+  to the slot (a slower move usually plays statelier anyway), or chain two legs
+  with our own final-frame continuation (a hard re-anchor beats their fade).
+  The video gate's temporal_coherence now flags mid-clip crossfades and
+  backward camera jumps on gated (non-hero) shots.
 - **Animating an anchored MACHINE morphs it.** For hero-object reveal beats
   (the Therac looming, equipment at rest), never ask the machine to move
   ("the gantry head shifts") — i2v warps anchored geometry it animates. The
