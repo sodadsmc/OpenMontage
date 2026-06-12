@@ -385,8 +385,20 @@ def generate_shot(
         kf = None
     out = Path(output_path)
 
-    def gen_fn(spec, dur, attempt):
-        return _gen_shot_clip(video_prompt, kf, dur, provider, seed + attempt, out)
+    def gen_fn(spec, dur, attempt, feedback=""):
+        # Coder->Critic: a rejected attempt's gate issues ride into the retry
+        # as corrective instructions — a seed re-roll fixes bad luck, but only
+        # a corrected prompt fixes a systematic failure (warping geometry,
+        # invented text, subject drift). Seed still bumps for variety.
+        prompt = video_prompt
+        if feedback:
+            prompt = (
+                f"{video_prompt} || THE PREVIOUS TAKE OF THIS SHOT WAS REJECTED "
+                f"for these specific problems — this take must avoid every one "
+                f"of them: {feedback}. Keep all architecture and objects rigid, "
+                "dimensionally constant, and physically consistent throughout."
+            )
+        return _gen_shot_clip(prompt, kf, dur, provider, seed + attempt, out)
 
     clip, _report = generate_with_quality_gate(
         gen_fn, visual_spec, duration_s, str(out),

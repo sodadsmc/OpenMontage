@@ -877,10 +877,17 @@ def generate_with_quality_gate(
     max_attempts: int = 3,
     enable_gemini: bool = True,
 ) -> tuple[Path | None, QualityReport | None]:
-    """Generate a visual asset with quality gate retry loop.
+    """Generate a visual asset with a Coder->Critic retry loop.
+
+    Retries are not blind seed re-rolls: the gate's concrete issues from the
+    failed attempt are passed back to ``generate_fn`` as ``feedback`` so the
+    next attempt's prompt can carry corrective instructions (the same pattern
+    that made the keyframe loop converge where seed-rolls kept failing).
+    Legacy 3-arg generate_fns keep working — feedback is only passed when the
+    callable accepts it.
 
     Args:
-        generate_fn: Callable(spec, duration, attempt) → Path
+        generate_fn: Callable(spec, duration, attempt[, feedback]) → Path
         visual_spec: VisualSpec from scored script (any object with
             .description; .narration is also read when present)
         target_duration_s: Required duration
@@ -891,12 +898,22 @@ def generate_with_quality_gate(
     Returns:
         (asset_path, final_report) or (None, last_report) if all attempts fail
     """
+    import inspect
+
     gate = QualityGate(enable_gemini=enable_gemini)
     last_report = None
+    feedback = ""
+    try:
+        takes_feedback = len(inspect.signature(generate_fn).parameters) >= 4
+    except (TypeError, ValueError):
+        takes_feedback = False
 
     for attempt in range(max_attempts):
         try:
-            clip_path = generate_fn(visual_spec, target_duration_s, attempt)
+            if takes_feedback:
+                clip_path = generate_fn(visual_spec, target_duration_s, attempt, feedback)
+            else:
+                clip_path = generate_fn(visual_spec, target_duration_s, attempt)
         except GenerationHardStop:
             raise
         except Exception as e:
@@ -926,6 +943,9 @@ def generate_with_quality_gate(
             "Quality gate FAILED for %s on attempt %d: %s",
             segment_id, attempt + 1, "; ".join(report.issues)
         )
+        # The critic's concrete complaints become the next attempt's
+        # corrective instructions (when the generator accepts feedback).
+        feedback = "; ".join(report.issues)[:600]
 
     _log.error("Quality gate failed %d times for %s", max_attempts, segment_id)
     return None, last_report
