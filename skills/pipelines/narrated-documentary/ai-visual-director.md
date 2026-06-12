@@ -145,6 +145,14 @@ real event.
   singulars ("a single empty wheelchair parked against the left wall"), never
   open plurals ("wheelchairs at the walls' edges" is an invitation to keep
   adding them).
+- **A traveling camera re-instantiates named props.** On walking/dolly shots,
+  any prop the VIDEO prompt asserts ("a notice board on the right") gets
+  rendered AGAIN in newly revealed space once the camera passes the original —
+  the model keeps satisfying the description (proven on seg_001: a second cork
+  board popped in at ~5s). For moving-camera shots, static set-dressing
+  belongs in the KEYFRAME prompt only; the video prompt describes motion, the
+  subject's action, and what should NOT change — it must not re-assert
+  one-time props the camera will move past.
 - **Grok clips over 10s carry an internal extension seam.** Requests above 10s
   are fulfilled as a base clip + the provider's own auto-extension, joined by a
   crossfade with a slight camera re-anchor. On cuts and subject-motion shots it

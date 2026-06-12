@@ -60,7 +60,9 @@ MOTION_DISCIPLINE = (
     " || MOTION DISCIPLINE: strict object permanence — nothing appears, "
     "vanishes, or transforms anywhere in the frame; areas revealed by camera "
     "movement contain only bare continuations of the established scene, never "
-    "new furniture, props, or figures; all architecture and objects stay "
+    "new furniture, props, or figures; every described object exists "
+    "exactly ONCE - never render a second copy of a prop the camera has "
+    "passed; all architecture and objects stay "
     "rigid and dimensionally constant; any text or screens stay indistinct "
     "and illegible."
 )
