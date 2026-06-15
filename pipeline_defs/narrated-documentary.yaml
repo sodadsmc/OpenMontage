@@ -102,6 +102,9 @@ stages:
       - Real historical events with named victims use archival_footage, not ai_video
       - Narration claims trace to research_brief data_points
       - Pacing types follow establishing/escalation/crisis/resolution vocabulary
+      - Scenes carry narration_mode and rhythm where the beat earns it (Scene Library, skills/creative/scene-library.md); blanks fall back to the emotional defaults
+      - First ~15s segments tagged retention_beat cold_open then value_proposition
+      - A retention_beat pattern_interrupt lands at least every ~90s of runtime
     success_criteria:
       - Schema-valid segment_plan artifact
       - Every scene has narration, visual_description, pacing, and a visual type
@@ -126,10 +129,14 @@ stages:
       - Multi-beat narration arcs have authored shots or an explicit chaining decision
       - Pronunciation dictionary covers every technical term before voice generation
       - Style critic (lib/script_review.py) findings applied or consciously rejected
+      - Scenes alternate narration_mode literal/evocative and set rhythm where natural (Scene Library, skills/creative/scene-library.md)
+      - The cold_open carries cold_open then value_proposition retention_beats in the first ~15s
+      - Every open_loop plant has a matching payoff later in the script — no unfired loops
     success_criteria:
       - Schema-valid scored_script artifact (scored_script.schema.json)
       - lib/narration_gate.py exits 0 on the script
       - lib/script_review.py reports no critical fact findings
+      - Unfired open_loops are a blocking validation error (script_validator.py rejects any planted loop without a payoff)
 
   - name: asset_bible
     skill: pipelines/narrated-documentary/asset-bible-director
@@ -321,6 +328,7 @@ stages:
       - Pacing follows establishing/escalation/crisis/resolution arc
       - Source audio muted (volume=0) on all footage clips
       - L/J-cuts present at sentence boundaries
+      - Scene audio_transition tags honored at the cut — j_cut/l_cut/sound_bridge used where set (Scene Library, skills/creative/scene-library.md)
       - Aspect ratio normalization applied to all clips
     success_criteria:
       - Schema-valid assembly_manifest artifact

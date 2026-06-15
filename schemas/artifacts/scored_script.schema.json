@@ -88,6 +88,54 @@
           "type": "string",
           "enum": ["establishing", "escalation", "crisis", "resolution"],
           "description": "Pacing type for cut timing and hold duration"
+        },
+        "rhythm": {
+          "type": "string",
+          "enum": ["fast", "medium", "lingering", "breath"],
+          "description": "Scene Library: shot-duration nuance over the pacing type. 'breath' = held near-silent beat after a peak (pair with silence_after_s)."
+        },
+        "narration_mode": {
+          "type": "string",
+          "enum": ["literal", "evocative", "none"],
+          "description": "Scene Library: narration↔visual relationship. literal=visual shows the words; evocative=visual evokes the feeling; none=no narration. Best work ALTERNATES."
+        },
+        "audio_transition": {
+          "type": "string",
+          "enum": ["hard_cut", "match_cut", "match_on_action", "j_cut", "l_cut", "sound_bridge", "contrast_cut"],
+          "description": "Scene Library: how this segment hands off to the next. j_cut=next audio leads; l_cut=prior audio trails; sound_bridge=shared sound glues."
+        },
+        "directors_move": {
+          "type": "string",
+          "enum": [
+            "genre_bait_and_switch",
+            "acclimatize_dont_ambush",
+            "recontextualized_replay",
+            "chronological_reveal_ladder",
+            "withhold_judgment",
+            "acts_within_acts",
+            "calibrated_cliffhanger",
+            "escalating_weirdness",
+            "delayed_antagonist_reveal",
+            "cold_open_inversion",
+            "visual_anchor_before_context"
+          ],
+          "description": "Scene Library: named reveal/withholding move applied at this beat (Taxonomy 5)."
+        },
+        "retention_beat": {
+          "type": "string",
+          "enum": ["cold_open", "value_proposition", "commitment_hook", "pattern_interrupt", "re_hook", "cliffhanger", "payoff", "none"],
+          "description": "Scene Library: episode-structure role. The first ~15s carries cold_open+value_proposition; long episodes need pattern_interrupt beats and a re_hook past ~7-8min."
+        },
+        "open_loop": {
+          "type": "object",
+          "description": "Scene Library: a planted tease (plant) and where it fires (payoff). Every plant MUST have a payoff somewhere — script_validator blocks unfired loops.",
+          "required": ["action", "id"],
+          "properties": {
+            "action": { "type": "string", "enum": ["plant", "payoff"] },
+            "id": { "type": "string", "description": "Loop key shared by the plant and its payoff (e.g. 'the_missing_byte')" },
+            "note": { "type": "string" }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

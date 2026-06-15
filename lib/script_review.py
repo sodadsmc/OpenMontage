@@ -782,6 +782,83 @@ def retention_review(script: Any, model: str = _DEFAULT_MODEL) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Reviewer 6 — story architecture ("The Director's Touch" scene library)
+# ---------------------------------------------------------------------------
+
+# Where retention_review judges the script as an anticipation machine (hook /
+# loops / value sequencing), this reviewer judges how it is DIRECTED: cold-open
+# specificity, pattern-interrupt cadence, the named reveal/withholding moves,
+# per-segment cliffhangers, and narration-mode alternation — the codified
+# vocabulary in lib/scene_library.py and skills/creative/scene-library.md.
+STORY_RUBRIC = """\
+You are the STORY ARCHITECTURE reviewer for an animated documentary script,
+applying "The Director's Touch" scene library. Each segment is given with its
+narration and its Scene Library tags (editorial_intent, pacing, narration_mode,
+directors_move, retention_beat, audio_transition) — any of which may be blank.
+Judge how well the episode is DIRECTED, not merely written:
+
+1. "cold_open": Do the first ~15s open a real curiosity loop AND state a value
+   proposition (what the viewer gets) before the 15-second cliff? Are the
+   opening segments carrying cold_open / value_proposition / commitment_hook
+   beats? Score 1-10; name the fix if weak.
+2. "pattern_interrupts": Walk the body. Is attention reset at least every ~90s
+   by a visual change, pacing change, POV shift, or an explicit
+   pattern_interrupt beat? Identify the LONGEST flat stretch (segment range +
+   rough seconds) and whether a re_hook exists past the mid-point of a long
+   episode.
+3. "reveal_architecture": For every tonal turn, dark turn, or contested
+   account, is the right named move applied (genre_bait_and_switch,
+   acclimatize_dont_ambush, recontextualized_replay, chronological_reveal_ladder,
+   withhold_judgment, calibrated_cliffhanger, delayed_antagonist_reveal,
+   cold_open_inversion, visual_anchor_before_context)? Name beats that SHOULD
+   carry a move but don't, and any move that is mis-applied. ETHICS: flag any
+   use of withhold_judgment / villain-framing that distorts rather than merely
+   sequences true information.
+4. "cliffhangers": Does each act/segment boundary end on forward pull rather
+   than a flat closure? List segments that dead-end.
+5. "narration_alternation": Does the script alternate literal (teach) and
+   evocative (feel) narration, or is it monotone?
+6. "audio_transitions": Are scene handoffs using audio bridges (j_cut / l_cut /
+   sound_bridge) where they would help, or is everything a hard cut?
+
+Return ONLY JSON:
+{"cold_open": {"score": N, "issues": ["..."]},
+ "pattern_interrupts": {"score": N, "longest_flat_stretch": "seg_x..seg_y (~Ns)", "re_hook_present": true/false, "issues": ["..."]},
+ "reveal_architecture": {"score": N, "missing_moves": [{"segment": "seg_x", "suggest": "move_name", "why": "..."}], "misapplied": ["..."], "ethics_flags": ["..."]},
+ "cliffhangers": {"score": N, "dead_ends": ["seg_x", "..."]},
+ "narration_alternation": {"score": N, "verdict": "alternates"|"monotone"},
+ "audio_transitions": {"score": N, "issues": ["..."]},
+ "overall": N,
+ "top_fixes": ["..."]}
+"""
+
+
+def story_architecture_review(script: Any, model: str = _DEFAULT_MODEL) -> dict:
+    """Whole-script story-architecture review (Scene Library). Fail-closed."""
+    try:
+        gem = _make_model(model)
+        tag_fields = ("editorial_intent", "pacing", "narration_mode",
+                      "directors_move", "retention_beat", "audio_transition")
+        lines = []
+        for seg in script.segments:
+            tags = [f"{f}={getattr(seg, f)}" for f in tag_fields
+                    if getattr(seg, f, None)]
+            lines.append(f"[{seg.id}] ({'; '.join(tags) or 'no tags'})\n"
+                         f"{seg.narration.strip()}")
+        body = "\n\n".join(lines)
+        resp = gem.generate_content(
+            "\n\n".join([ADVERSARIAL_FRAMING, STORY_RUBRIC,
+                         f"SCRIPT ({len(script.segments)} segments):\n\n{body}"]))
+        out = _parse_json_response(resp.text)
+        out.setdefault("overall", 0)
+        out["verdict"] = "ok"
+        return out
+    except Exception as exc:  # noqa: BLE001
+        _log.error("story architecture review failed: %s", str(exc)[:200])
+        return {"verdict": "error", "error": str(exc)[:200], "overall": 0}
+
+
+# ---------------------------------------------------------------------------
 # Reviewer 4 — shot doctor (visual staging per segment)
 # ---------------------------------------------------------------------------
 
@@ -937,7 +1014,7 @@ def shot_review(script: Any, model: str = _DEFAULT_MODEL) -> list[dict]:
 # Panel aggregation
 # ---------------------------------------------------------------------------
 
-_PANELS = ("fact", "style", "flow", "shots", "retention")
+_PANELS = ("fact", "style", "flow", "shots", "retention", "story")
 
 
 def _find_brief(script_path: Path) -> Path | None:
@@ -1033,6 +1110,18 @@ def _summarize(report: dict) -> dict:
                 if q.get("status") == "never"
             ],
         }
+    if "story" in report:
+        st = report["story"]
+        reveal = st.get("reveal_architecture") or {}
+        summary["story"] = {
+            "overall": st.get("overall", 0),
+            "cold_open_score": (st.get("cold_open") or {}).get("score", 0),
+            "missing_moves": [
+                m.get("segment") for m in (reveal.get("missing_moves") or [])
+            ],
+            "dead_ends": (st.get("cliffhangers") or {}).get("dead_ends", []),
+            "ethics_flags": reveal.get("ethics_flags", []),
+        }
     # The panel's pass/fail contract: critical (or unreviewable) fact issues
     # block; style and flow inform. Mirrors the CLI exit code.
     fact_results = report.get("fact", {}).get("results", [])
@@ -1106,6 +1195,9 @@ def run_panel(
     if "retention" in panels:
         _log.info("Running retention architecture review (whole script)")
         report["retention"] = retention_review(script, model=model)
+    if "story" in panels:
+        _log.info("Running story architecture review (whole script)")
+        report["story"] = story_architecture_review(script, model=model)
 
     report["summary"] = _summarize(report)
 
@@ -1228,6 +1320,34 @@ def _print_retention(ret: dict) -> None:
         print(f"  fix: {_clip(str(f), 160)}")
 
 
+def _print_story(st: dict) -> None:
+    print(f"\n== STORY ARCHITECTURE ==  overall {st.get('overall', 0)}/10")
+    if st.get("error"):
+        print(f"  ERROR: {st['error']}")
+        return
+    co = st.get("cold_open") or {}
+    print(f"  cold open {co.get('score', '?')}/10")
+    for i in (co.get("issues") or [])[:2]:
+        print(f"    - {_clip(str(i), 140)}")
+    pi = st.get("pattern_interrupts") or {}
+    print(f"  pattern interrupts {pi.get('score', '?')}/10  "
+          f"re_hook={pi.get('re_hook_present')}  "
+          f"longest flat: {_clip(str(pi.get('longest_flat_stretch', '-')), 60)}")
+    rv = st.get("reveal_architecture") or {}
+    for m in (rv.get("missing_moves") or [])[:5]:
+        print(f"  MISSING MOVE {m.get('segment')}: suggest {m.get('suggest')} "
+              f"— {_clip(str(m.get('why', '')), 100)}")
+    for e in (rv.get("ethics_flags") or []):
+        print(f"  ETHICS: {_clip(str(e), 140)}")
+    cl = st.get("cliffhangers") or {}
+    if cl.get("dead_ends"):
+        print(f"  dead-end segments: {', '.join(str(d) for d in cl['dead_ends'][:8])}")
+    na = st.get("narration_alternation") or {}
+    print(f"  narration {na.get('score', '?')}/10  [{na.get('verdict', '?')}]")
+    for f in (st.get("top_fixes") or [])[:5]:
+        print(f"  fix: {_clip(str(f), 160)}")
+
+
 def main(argv: list[str] | None = None) -> int:
     import argparse
 
@@ -1238,8 +1358,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("script", help="Path to scored_script.yaml")
     parser.add_argument("--report", help="Write full JSON report to this path")
     parser.add_argument(
-        "--panel", default="fact,style,flow,shots,retention",
-        help="Comma-separated subset of fact,style,flow,shots,retention (default: all)")
+        "--panel", default="fact,style,flow,shots,retention,story",
+        help="Comma-separated subset of fact,style,flow,shots,retention,story (default: all)")
     parser.add_argument(
         "--brief", help="Path to research_brief.json (default: auto-discover)")
     parser.add_argument("--model", default=_DEFAULT_MODEL)
@@ -1277,6 +1397,8 @@ def main(argv: list[str] | None = None) -> int:
         _print_shots(report["shots"]["results"])
     if "retention" in report:
         _print_retention(report["retention"])
+    if "story" in report:
+        _print_story(report["story"])
 
     passed = report["summary"]["passed"]
     print(f"\nPANEL: {'PASSED' if passed else 'FAILED'} "

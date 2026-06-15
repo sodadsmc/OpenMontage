@@ -78,10 +78,15 @@ stages:
       - At least 2 slots are marked hero
       - Slot count and target holds match the tone/duration math
       - era_mix is reflected in preferred_sources distribution
+      - "Scene Library (skills/creative/scene-library.md): scenes carry the optional Director's Touch tags where the beat earns them — narration_mode, rhythm, audio_transition, directors_move, retention_beat (unset tags fall back to the emotional-default mapping)"
+      - "narration_mode alternates literal and evocative across the plan (a plan that never leaves literal reads like captioned stock footage)"
+      - "Cold open cadence is respected — opening slots tagged retention_beat cold_open / value_proposition / commitment_hook, attention grab inside the first ~15s"
+      - "Pattern-interrupt cadence is respected — a retention_beat pattern_interrupt every 30-90s, and a re_hook past the mid-point on longer episodes"
     success_criteria:
       - Schema-valid scene_plan artifact
       - metadata.slots[] present with per-slot queries and preferred_sources
       - Sum of target_hold_seconds within 10% of brief.duration_seconds
+      - "Any Scene Library tags present on slots use the canonical vocabularies from skills/creative/scene-library.md (narration_mode, rhythm, audio_transition, directors_move, retention_beat)"
 
   - name: assets
     skill: pipelines/documentary-montage/asset-director

@@ -24,6 +24,7 @@ from typing import Any
 from lib.quality_gate import generate_with_quality_gate, GenerationHardStop
 from lib.shot_prompt_builder import build_shot_prompt
 from lib.channel_style import apply_to_prompt
+from lib import scene_library
 
 _log = logging.getLogger(__name__)
 
@@ -144,10 +145,18 @@ def route_scene(
             ai_reference_image=scene.get("ai_reference_image"),
             asset_ref=scene.get("asset_ref"),
             location_id=scene.get("location_id"),
+            # Scene Library tags ride along so the planner can derive a default
+            # camera move when ai_motion is blank.
+            editorial_intent=scene.get("editorial_intent"),
+            directors_move=scene.get("directors_move"),
+            pacing=scene.get("pacing"),
             shots=[],
         )
         return generate_ai_video(
             scene.get("scene_id", "scene"), spec, output_dir, target_duration,
+            editorial_intent=scene.get("editorial_intent", "") or "",
+            directors_move=scene.get("directors_move", "") or "",
+            pacing=scene.get("pacing", "") or "",
         )
     else:
         # stock_footage, archival, generated, mixed — handled elsewhere
@@ -177,6 +186,40 @@ def route_all_scenes(
 # AI video generation (the AI-primary seam)
 # ---------------------------------------------------------------------------
 
+def _derive_default_motion(visual_spec: Any, editorial_intent: str = "",
+                           directors_move: str = "", pacing: str = "") -> str:
+    """Scene Library default camera phrase for a beat, or '' to add no clause.
+
+    Returns '' when the author already set ai_motion (explicit always wins) or
+    when no mapping applies (unknown intent, or a static-hold beat). The tags
+    are read from the explicit args first, then from the visual_spec itself —
+    parse_scored_script_text denormalizes the segment's editorial_intent /
+    directors_move / pacing onto the visual, so a caller holding only
+    ``seg.visual`` still gets the emotionally-motivated default.
+
+    SCENE_LIBRARY_DEFAULT_MOTION=0 disables the derivation entirely (an escape
+    hatch to reproduce pre-Scene-Library behavior, same pattern as
+    AI_MOTION_DISCIPLINE).
+    """
+    if os.environ.get("SCENE_LIBRARY_DEFAULT_MOTION", "1") == "0":
+        return ""
+    if getattr(visual_spec, "ai_motion", None):
+        return ""
+    intent = editorial_intent or getattr(visual_spec, "editorial_intent", "") or ""
+    move = directors_move or getattr(visual_spec, "directors_move", "") or ""
+    pace = pacing or getattr(visual_spec, "pacing", "") or ""
+    # Shot content refines the bimodal technical_explanation default: a mechanism
+    # actuating gets a slow push, not a static hold.
+    parts = [getattr(visual_spec, "description", "") or "",
+             getattr(visual_spec, "effective_prompt", "") or ""]
+    shots = getattr(visual_spec, "shots", None) or []
+    if shots:
+        parts.append(getattr(shots[0], "ai_prompt", "") or "")
+    content = " ".join(p for p in parts if p)
+    return scene_library.default_camera_phrase(
+        editorial_intent=intent, directors_move=move, pacing=pace, content=content)
+
+
 def plan_ai_video(
     segment_id: str,
     visual_spec: Any,
@@ -187,6 +230,9 @@ def plan_ai_video(
     narration: str = "",
     allow_paid_keyframes: bool = True,
     leg_boundaries: list[float] | None = None,
+    editorial_intent: str = "",
+    directors_move: str = "",
+    pacing: str = "",
 ) -> list[dict[str, Any]]:
     """Phase A (planning): split a segment into shots, generate each shot's
     keyframe (Nano Banana — API, no GPU), and return fully-resolved shot-job
@@ -230,6 +276,16 @@ def plan_ai_video(
                    or getattr(visual_spec, "description", "") or "")
     ai_style = getattr(visual_spec, "ai_style", None)
     seg_motion = getattr(visual_spec, "ai_motion", None)
+    # Scene Library (The Director's Touch): when the author left motion blank,
+    # derive a default virtual-camera move from the beat's emotional/structural
+    # tags — a slow push for rising tension, a pull-back for a reveal, a static
+    # hold (→ no motion clause) for grief. This only fills the gap; an explicit
+    # ai_motion always wins, and the derived phrase flows through the same
+    # continuous-camera cap as a hand-written one (set on seg_motion AND passed
+    # to _plan_shots).
+    default_motion = _derive_default_motion(
+        visual_spec, editorial_intent, directors_move, pacing)
+    seg_motion = seg_motion or default_motion or None
     # Identity tokens FIRST: a named subject's locked physical description must
     # ride in every video prompt so the model can't redesign the machine the
     # anchor image shows (texture keywords follow the subject in the prompt).
@@ -293,7 +349,8 @@ def plan_ai_video(
     jobs: list[dict[str, Any]] = []
     for i, shot in enumerate(_plan_shots(visual_spec, target_duration_s,
                                          narration=narration,
-                                         leg_boundaries=leg_boundaries)):
+                                         leg_boundaries=leg_boundaries,
+                                         default_motion=default_motion)):
         shot_id = shot["shot_id"]
         shot_prompt = shot["ai_prompt"] or base_prompt
         shot_motion = shot["ai_motion"] or seg_motion
@@ -440,18 +497,26 @@ def generate_ai_video(
     asset: Any = None,
     enable_gemini: bool = True,
     narration: str = "",
+    editorial_intent: str = "",
+    directors_move: str = "",
+    pacing: str = "",
 ) -> VisualAsset | None:
     """Inline all-in-one AI video for one segment (plan + execute + concat).
 
     Used for non-batched runs. The two-phase prep/bulk path calls plan_ai_video
     (Phase A) and generate_shot (Phase B) directly instead. Returns None if no
     shot could be produced (the caller then falls back to stock footage).
+
+    ``editorial_intent`` / ``directors_move`` / ``pacing`` are Scene Library tags
+    that let the planner derive a default camera move when ai_motion is blank.
     """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     jobs = plan_ai_video(segment_id, visual_spec, output_dir, target_duration_s,
-                         bible=bible, asset=asset, narration=narration)
+                         bible=bible, asset=asset, narration=narration,
+                         editorial_intent=editorial_intent,
+                         directors_move=directors_move, pacing=pacing)
     clip_paths: list[str] = []
     done_clips: dict[str, str] = {}  # shot_id -> clip path (chain-anchor lookups)
     for job in jobs:
@@ -586,8 +651,14 @@ _CONTINUOUS_CAM_RE = re.compile(
 
 def _plan_shots(visual_spec: Any, target_duration_s: float,
                 narration: str = "",
-                leg_boundaries: list[float] | None = None) -> list[dict[str, Any]]:
+                leg_boundaries: list[float] | None = None,
+                default_motion: str = "") -> list[dict[str, Any]]:
     """Split a segment into shots — explicit visual_spec.shots, else auto by length.
+
+    ``default_motion`` is the Scene Library camera phrase derived from the beat's
+    emotional tags when the author left ai_motion blank. It is the final
+    fallback for shot motion so the continuous-camera cap sees the move the clip
+    will actually be asked to perform.
 
     Any logical shot longer than the provider's max single clip becomes a CHAIN of
     legs: each leg carries its own beat-progressed prompt and a ``chain_from`` link
@@ -641,17 +712,19 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
             out.extend(expand(
                 getattr(s, "shot_id"),
                 getattr(s, "ai_prompt", None) or base_prompt,
-                # Shot motion falls back to segment motion (same rule the video
-                # prompt uses) — the continuous-cam cap must see what the clip
-                # will actually be asked to do.
-                getattr(s, "ai_motion", None) or getattr(visual_spec, "ai_motion", None),
+                # Shot motion falls back to segment motion, then to the Scene
+                # Library default (same rule the video prompt uses) — the
+                # continuous-cam cap must see what the clip will actually do.
+                (getattr(s, "ai_motion", None)
+                 or getattr(visual_spec, "ai_motion", None)
+                 or default_motion or None),
                 bool(getattr(s, "hero", False)),
                 secs, offset,
             ))
             offset += secs
         return out
 
-    seg_motion = getattr(visual_spec, "ai_motion", None)
+    seg_motion = getattr(visual_spec, "ai_motion", None) or default_motion or None
     cap = MAX_SHOT_SECONDS
     if cont_cap > 0 and seg_motion and _CONTINUOUS_CAM_RE.search(seg_motion):
         cap = min(cap, cont_cap)

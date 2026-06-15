@@ -137,6 +137,8 @@ stages:
       - Timing structure leaves room for visual holds
       - Word count within +/-10% of duration target from selected concept
       - Script incorporates research data points where relevant
+      - "Cold open earns the first 15s: attention grab -> value proposition -> commitment hook (Scene Library, skills/creative/scene-library.md)"
+      - "A re-hook lands past the midpoint and every planted forward-tease has a payoff (no unfired loops)"
     success_criteria:
       - Schema-valid script artifact
       - Script sections map to distinct animation beats
@@ -158,6 +160,11 @@ stages:
       - Animation mode specified per scene, consistent with proposal
       - Transition logic is limited and meaningful
       - Every scene has a feasible tool path
+      # ── Scene Library / The Director's Touch (skills/creative/scene-library.md) ──
+      - "Scenes carry Scene Library tags: narration_mode alternates literal<->evocative (never all literal), and rhythm is set per beat (breath beats pair with a held silence after a peak)"
+      - "directors_move applied where the script supports it (e.g. visual_anchor_before_context, recontextualized_replay, calibrated_cliffhanger) — motivated, not decorative"
+      - "retention_beats placed: cold_open / value_proposition / commitment_hook on the opening scenes, pattern_interrupt every 30-90s, re_hook past the midpoint"
+      - "shot_language.shot_size and shot_language.camera_movement follow the editorial_intent emotional mapping (tension->slow push-in; revelation->pull-back; grief->static hold + drop-to-silence; teaching->medium+literal+steady; energy->fast cuts) where left for the planner to derive"
     success_criteria:
       - Schema-valid scene_plan artifact
       - Every scene includes animation mode and visual treatment

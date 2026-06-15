@@ -30,6 +30,8 @@ One YAML, one contract. Every segment carries:
 - `visual` — type + description + `ai_prompt`/`ai_motion`/`ai_style` (+ explicit `shots` for authored cuts)
 - `silence_after_s` — breathing room after the segment
 - `act`, `editorial_intent`, `pacing`, `music` — structure and mood
+- Scene Library tags (all optional, additive): `rhythm`, `narration_mode`,
+  `audio_transition`, `directors_move`, `retention_beat`, `open_loop`
 
 The narration is the spine: TTS audio is measured and every visual slot is
 sized to it. Write the words first; design the pictures against the words.
@@ -80,6 +82,36 @@ Viewers leave when they stop anticipating. Engineer for it:
    eventually reproduce the error") is a broken promise the audience keeps.
    The retention panel enumerates unfired setups — zero is the bar.
 5. **Ascending value**: second-best revelation early, best at the climax slot.
+
+## The Director's Touch — Scene Library tags (set the beat like a director)
+
+Per the codified Scene Library (`skills/creative/scene-library.md`), tag each
+segment so the episode reads as a layered, rhythmic piece — not a flat
+recitation. All tags are OPTIONAL and additive; set what the beat earns and
+leave the rest blank (the planner derives sensible defaults from
+`editorial_intent` — it never overrides a value you set).
+
+| Tag | Vocabulary | Set it when |
+|---|---|---|
+| `rhythm` | `fast / medium / lingering / breath` | shot-duration nuance; `breath` = held near-silent beat after a peak (pair with `silence_after_s`) |
+| `narration_mode` | `literal / evocative / none` | ALTERNATE — `literal` shows the words (teaching), `evocative` evokes the feeling; a script stuck on `literal` reads like captioned stock |
+| `audio_transition` | `hard_cut / match_cut / match_on_action / j_cut / l_cut / sound_bridge / contrast_cut` | how this segment hands off — `j_cut` next audio leads, `l_cut` prior trails, `sound_bridge` glues |
+| `directors_move` | Taxonomy 5 (named, optional) | the reveal/withholding pattern this beat runs (below) |
+| `retention_beat` | `cold_open / value_proposition / commitment_hook / pattern_interrupt / re_hook / cliffhanger / payoff / none` | the segment's episode-structure role |
+
+**Reveal/withholding moves** — apply where the script supports them:
+`visual_anchor_before_context` (striking image first, then explain),
+`recontextualized_replay` (reuse an earlier image after a reveal so its meaning
+inverts), `delayed_antagonist_reveal`, `chronological_reveal_ladder`,
+`acclimatize_dont_ambush`, `calibrated_cliffhanger`, `cold_open_inversion`.
+Use `withhold_judgment` only to *sequence true information*, never to distort it.
+
+**Open-loop discipline (this is what makes rule 4 mechanical).** Tag every
+forward-tease as `open_loop: {action: plant, id: 'the_missing_byte', note: ...}`
+and tag the segment that fires it `{action: payoff, id: 'the_missing_byte'}`.
+The same `id` joins them. **Every `plant` MUST have a matching `payoff`
+segment** — `script_validator` now BLOCKS unfired loops, so an un-paid tease
+fails the build, not just the audience's trust.
 
 ## Ear + TTS Mechanics (the text is performed by a synthetic voice)
 

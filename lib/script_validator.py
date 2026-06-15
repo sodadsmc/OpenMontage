@@ -23,7 +23,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from lib import scene_library
 from lib.scored_script import ScoredScript, Segment, VisualSpec
+
+# Words-per-second estimate for screen-time math (≈156 WPM narration). Only used
+# for the advisory retention-cadence/cold-open checks, never for timing.
+_WORDS_PER_SECOND = 2.6
+# Target ceiling between pattern interrupts (Scene Library Taxonomy 8: 30–90s).
+_MAX_INTERRUPT_GAP_S = 90.0
 
 
 # Known visual types and card types (must match schema)
@@ -119,6 +126,11 @@ def validate_structure(script: ScoredScript, asset_bible: Any = None) -> Validat
     _check_act_references(script, report)
     _check_manim_templates(script, report)
     _check_ai_shots(script, report)
+    _check_scene_library_tags(script, report)
+    _check_open_loops(script, report)
+    _check_cold_open(script, report)
+    _check_retention_cadence(script, report)
+    _check_narration_mode_variety(script, report)
     if asset_bible is not None:
         _check_asset_refs(script, asset_bible, report)
 
@@ -312,3 +324,180 @@ def _check_asset_refs(script: ScoredScript, asset_bible: Any, report: Validation
                 report.errors.append(
                     f"{seg.id}: asset_ref '{ref}' does not resolve in the Asset Bible"
                 )
+
+
+# ---------------------------------------------------------------------------
+# Scene Library checks (The Director's Touch — see lib/scene_library.py and
+# skills/creative/scene-library.md)
+# ---------------------------------------------------------------------------
+
+def _check_scene_library_tags(script: ScoredScript, report: ValidationReport):
+    """Every Scene Library tag, when present, must use a known value.
+
+    Blocking: a typo'd directors_move or narration_mode would silently no-op in
+    the planner/reviewer, so an invalid value is a contract error, not a
+    warning. Absent tags are fine (all tags are optional).
+    """
+    for seg in script.segments:
+        if not scene_library.is_known_narration_mode(seg.narration_mode):
+            report.errors.append(
+                f"{seg.id}: unknown narration_mode '{seg.narration_mode}'. "
+                f"Must be one of: {', '.join(sorted(scene_library.NARRATION_MODES))}"
+            )
+        if not scene_library.is_known_rhythm(seg.rhythm):
+            report.errors.append(
+                f"{seg.id}: unknown rhythm '{seg.rhythm}'. "
+                f"Must be one of: {', '.join(sorted(scene_library.RHYTHM))}"
+            )
+        if not scene_library.is_known_audio_transition(seg.audio_transition):
+            report.errors.append(
+                f"{seg.id}: unknown audio_transition '{seg.audio_transition}'. "
+                f"Must be one of: {', '.join(sorted(scene_library.AUDIO_TRANSITIONS))}"
+            )
+        if not scene_library.is_known_directors_move(seg.directors_move):
+            report.errors.append(
+                f"{seg.id}: unknown directors_move '{seg.directors_move}'. "
+                f"Must be one of: {', '.join(sorted(scene_library.DIRECTORS_MOVE_NAMES))}"
+            )
+        if not scene_library.is_known_retention_beat(seg.retention_beat):
+            report.errors.append(
+                f"{seg.id}: unknown retention_beat '{seg.retention_beat}'. "
+                f"Must be one of: {', '.join(sorted(scene_library.RETENTION_BEATS))}"
+            )
+
+
+def _check_open_loops(script: ScoredScript, report: ValidationReport):
+    """Every planted open_loop MUST be paid off (the 'every tease fires' rule).
+
+    Blocking on an unfired plant: a forward-tease with no callback is a broken
+    promise the audience keeps — zero unfired loops is the channel bar. A payoff
+    with no matching plant, or a payoff that precedes its plant, is a warning
+    (likely a mis-key, not a broken promise).
+    """
+    plants: dict[str, Segment] = {}
+    payoffs: dict[str, Segment] = {}
+    for seg in script.segments:
+        ol = seg.open_loop
+        if not ol:
+            continue
+        action = ol.get("action")
+        loop_id = ol.get("id")
+        if action not in ("plant", "payoff"):
+            report.errors.append(
+                f"{seg.id}: open_loop.action must be 'plant' or 'payoff' "
+                f"(got {action!r})"
+            )
+            continue
+        if not loop_id:
+            report.errors.append(f"{seg.id}: open_loop missing 'id'")
+            continue
+        (plants if action == "plant" else payoffs)[loop_id] = seg
+
+    for loop_id, seg in plants.items():
+        payoff = payoffs.get(loop_id)
+        if payoff is None:
+            report.errors.append(
+                f"{seg.id}: open_loop '{loop_id}' is planted but never paid off "
+                f"— every planted tease must fire"
+            )
+        elif payoff.index <= seg.index:
+            report.warnings.append(
+                f"{payoff.id}: open_loop '{loop_id}' pays off before/at its "
+                f"plant ({seg.id}) — payoff should come after the plant"
+            )
+    for loop_id, seg in payoffs.items():
+        if loop_id not in plants:
+            report.warnings.append(
+                f"{seg.id}: open_loop '{loop_id}' pays off a tease that was "
+                f"never planted"
+            )
+
+
+def _est_seconds(seg: Segment) -> float:
+    """Rough screen-time estimate for a segment (narration + trailing silence)."""
+    return seg.word_count / _WORDS_PER_SECOND + (seg.silence_after_s or 0.0)
+
+
+def _uses_retention_tags(script: ScoredScript) -> bool:
+    """True once the script opts into retention tagging (any retention_beat set).
+
+    The cold-open / cadence checks only fire for tagged scripts — a legacy
+    script that predates these fields shouldn't be nagged about them.
+    """
+    return any(seg.retention_beat for seg in script.segments)
+
+
+def _check_cold_open(script: ScoredScript, report: ValidationReport):
+    """The first ~15s should carry the hook (cold open + value proposition).
+
+    Advisory: the 15-second cliff is where most viewers leave. Only checked once
+    the script uses retention tags at all.
+    """
+    if not _uses_retention_tags(script):
+        return
+    elapsed = 0.0
+    early: list[Segment] = []
+    for seg in script.segments:
+        early.append(seg)
+        elapsed += _est_seconds(seg)
+        if elapsed >= 15.0:
+            break
+    hook_beats = {"cold_open", "value_proposition", "commitment_hook"}
+    if not any(seg.retention_beat in hook_beats for seg in early):
+        report.warnings.append(
+            "Cold open: the first ~15s carry no cold_open/value_proposition "
+            "retention_beat — open a curiosity loop and state the value "
+            "proposition before the 15-second cliff"
+        )
+
+
+def _check_retention_cadence(script: ScoredScript, report: ValidationReport):
+    """Warn on any stretch over ~90s with no pattern interrupt.
+
+    Advisory: a pattern interrupt is any reset of attention — a visual-type
+    change, a pacing change, or an explicit pattern_interrupt/re_hook beat.
+    Only checked once the script uses retention tags.
+    """
+    if not _uses_retention_tags(script):
+        return
+    gap = 0.0
+    last_type: str | None = None
+    last_pacing: str | None = None
+    for seg in script.segments:
+        vtype = seg.visual.type if seg.visual else None
+        changed = (
+            (last_type is not None and vtype != last_type)
+            or (last_pacing is not None and seg.pacing and seg.pacing != last_pacing)
+            or seg.retention_beat in ("pattern_interrupt", "re_hook", "cold_open")
+        )
+        if changed:
+            gap = 0.0
+        gap += _est_seconds(seg)
+        if gap > _MAX_INTERRUPT_GAP_S:
+            report.warnings.append(
+                f"{seg.id}: ~{gap:.0f}s since the last pattern interrupt "
+                f"(no visual/pacing change or pattern_interrupt beat) — target "
+                f"one every 30-90s to reset attention"
+            )
+            gap = 0.0
+        last_type = vtype
+        if seg.pacing:
+            last_pacing = seg.pacing
+
+
+def _check_narration_mode_variety(script: ScoredScript, report: ValidationReport):
+    """Warn when a tagged script never alternates narration mode.
+
+    Advisory: the best work alternates literal (teach) and evocative (feel); an
+    all-literal script reads like captioned stock footage. Only meaningful when
+    enough segments declare a mode.
+    """
+    modes = [seg.narration_mode for seg in script.segments if seg.narration_mode]
+    distinct = {m for m in modes if m in ("literal", "evocative")}
+    if len(modes) >= 5 and len(distinct) == 1:
+        only = next(iter(distinct))
+        report.warnings.append(
+            f"Narration mode: all {len(modes)} tagged segments are "
+            f"'{only}' — alternate literal (teach) and evocative (feel) so the "
+            f"episode doesn't read as a flat slideshow"
+        )

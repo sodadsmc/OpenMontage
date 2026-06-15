@@ -34,7 +34,7 @@ This stage is **two-phase** so the look is approved before the bulk spend:
 - **Images (canonical refs + keyframes):** Nano Banana via Kie.ai (`KIE_API_KEY`, model `google/nano-banana`). Kie returns a hosted URL that becomes the i2v anchor (no third-party host).
 - **Default video:** **Grok Imagine image-to-video via Kie.ai — cloud, no GPU box**; 6–30s clips (Grok video-1.5 via Kie; `GROK_KIE_MAX_SECONDS` rolls back the cap), #1 i2v Arena, ~$0.017/s.
 - **Hero shots:** the same Grok model, generated in prep for review; premium Veo/Runway is an opt-in escalation.
-- **Channel style:** the graphic-novel look (`styles/channel_styles/`, `CHANNEL_STYLE` env) is injected into every image + video prompt by `lib/channel_style.py`; `lib/finishing.py` applies the duotone + grain finishing pass at render. Per-segment `ai_style` carries **mood**, the channel style carries the **medium**.
+- **Channel style:** the graphic-novel look (`styles/channel_styles/`, `CHANNEL_STYLE` env) is injected into every image + video prompt by `lib/channel_style.py`; `lib/finishing.py` applies the duotone + grain finishing pass at render. Per-segment `ai_style` carries **mood**, the channel style carries the **medium**. Per-segment `ai_motion` is now **optional** — left blank, the planner derives the camera move from the segment's `editorial_intent` / `directors_move` per the Scene Library emotional mapping (see below); set it to override.
 - **Shot length is provider-aware** (Grok 30s, Wan 8s): segments split into the fewest, longest shots the model handles well — segments at/under the cap are a single clip (no concat).
 - **Multi-clip segments CHAIN, never duplicate.** When a segment still needs more than one
   clip, leg N+1 is anchored to leg N's extracted final frame (`resolve_chain_anchor`) with a
@@ -49,6 +49,63 @@ This stage is **two-phase** so the look is approved before the bulk spend:
 - **Narration is enforced, not assumed.** Phase A runs the narration↔visual alignment gate
   (`lib/narration_gate.py`) before any spend, and the post-generation Gemini gate checks the
   finished clip against BOTH the shot description and the narration it plays under.
+
+## Scene Library — The Director's Touch
+
+Camera moves are motivated by emotion, not chosen by hand. The planner
+(`lib/visual_router.py`) **auto-derives a default `ai_motion`** from each segment's
+`editorial_intent` / `directors_move` whenever `ai_motion` is left blank — it never
+overrides a value you set. So the contract is simple:
+
+- **Leave `ai_motion` blank** to accept the emotionally-motivated default.
+- **Set `ai_motion` explicitly** to override (e.g. a frozen-machine orbit for a hero reveal).
+
+The emotional mapping (full table in `skills/creative/scene-library.md`,
+data in `lib/scene_library.py`):
+
+| Segment intent / move | Derived default |
+|---|---|
+| escalation | slow push-in |
+| resolution | pull-back (dolly_out) |
+| emotional_impact | static hold + drop to silence |
+| technical_explanation | static for inert subjects; **slow macro push when a mechanism actuates** |
+| crisis_moment | fast / handheld |
+
+`technical_explanation` is content-aware: a beat that shows a mechanism working
+(a cam rotating, a lever snapping, gears turning) is seeded a slow push to the
+moving contact point — not a static hold — so the actuation reads. Static is
+reserved for inert subjects (a diagram, a still label).
+
+`directors_move` nudges the default too: **`recontextualized_replay` → pull-back**
+(re-frame an earlier image so its meaning inverts), **`calibrated_cliffhanger` →
+push-in** (lean the camera into an unresolved threat).
+
+### Two tiers of motion: the floor vs. the Motion Director
+
+The auto-derived default above is the **deterministic floor** — generic camera
+grammar (just the move). For motion at the level of a hand-authored prompt, use
+the **Motion Director** (`lib/motion_director.py`), which authors a full
+six-layer `ai_motion` — *subject action · motivated camera · textural qualifier ·
+secondary light/atmosphere · object-permanence law · compositional anchor* —
+grounded in the segment's narration, keyframe content, intent, and caption space,
+few-shot on the channel's own gold-standard motions:
+
+```
+python -m lib.motion_director <scored_script.yaml>          # propose for blank-motion AI segments
+python -m lib.motion_director <scored_script.yaml> --all --seg seg_003
+```
+
+It prints proposals to **review and paste** (it never overwrites your script) —
+the same author-then-review loop you'd use by hand. The emotional default is the
+*seed* it starts from, not a cage: a domain beat (e.g. show a mechanism actuate
+on a `technical_explanation`) can override the static-hold seed. Needs
+`GOOGLE_API_KEY`/`GEMINI_API_KEY`; falls back to the deterministic floor offline.
+
+These per-scene tags ride on the scored-script segment (all optional, additive):
+`rhythm`, `narration_mode`, `audio_transition`, `directors_move`, `retention_beat`
+(plus the `editorial_intent` that seeds the default). Authors set what the beat
+earns; the planner fills the rest. The graphic-novel channel constraint still holds —
+no legible on-screen text in the AI shot itself; slates/labels are separate cards.
 
 ## Workflow
 

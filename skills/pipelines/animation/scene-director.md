@@ -23,6 +23,8 @@ For each scene, define:
 - what is held,
 - how the scene exits.
 
+Then tag the beat like a director. Beyond the cinematography pair already in `shot_language` (`shot_size` + `camera_movement`), set the Scene Library tags the beat earns: `rhythm`, `narration_mode`, `audio_transition`, `directors_move`, and `retention_beat`. Anything left blank is filled from the emotional-default mapping below — see the next subsection.
+
 ### 2. Limit Transition Families
 
 Choose a small set of transition meanings:
@@ -75,7 +77,33 @@ Use `anime_scene` type for each scene. Plan:
 Reference: `remotion-composer/public/demo-props/mori-no-seishin.json` — 6 scenes using this pattern.
 Reference: `remotion-composer/public/demo-props/deep-ocean.json` — 6 underwater scenes with different palette.
 
-### 4. Use Metadata For Timing Rules
+### 4. Scene Library — The Director's Touch
+
+Tag every scene as a director would so the episode is layered and rhythmic, not a flat slideshow. These tags are all optional and additive — set what the beat earns, leave the rest blank. Full how/when reference: `skills/creative/scene-library.md`.
+
+Per-scene tags this stage sets (in addition to `shot_language.shot_size` + `camera_movement`):
+
+| Tag | Field | Vocabulary |
+|-----|-------|------------|
+| Rhythm | `rhythm` | `fast / medium / lingering / breath` (`breath` = held beat after a peak; pair with a silent beat) |
+| Narration mode | `narration_mode` | `literal / evocative / none` — alternate them; never stay all-`literal` |
+| Audio transition | `audio_transition` | `hard_cut / match_cut / match_on_action / j_cut / l_cut / sound_bridge / contrast_cut` |
+| Director's move | `directors_move` | named reveal/withholding move (e.g. `visual_anchor_before_context`, `calibrated_cliffhanger`) |
+| Retention beat | `retention_beat` | `cold_open / value_proposition / commitment_hook / pattern_interrupt / re_hook / cliffhanger / payoff / none` |
+
+**Let emotion drive the shot.** When you leave `shot_size`/`camera_movement` blank, derive them from the scene's `narrative_role` / intent via the Scene Library mapping — camera moves are motivated by emotion, not decoration:
+
+| Intent / role | shot_size | camera_movement | rhythm | narration_mode |
+|---|---|---|---|---|
+| tension / build_tension | `medium_close` | `dolly_in` (slow push) | fast | evocative |
+| revelation / deliver_payload | `wide` | `dolly_out` (pull-back) | lingering | evocative |
+| grief / emotional_beat | `close_up` | `static` (hold + drop to silence) | breath | evocative |
+| teaching / evidence | `medium` | `static` | medium | literal |
+| energy / escalation | `medium_close` | `handheld` (fast cuts) | fast | evocative |
+
+Open the cold open with `retention_beat: cold_open → value_proposition → commitment_hook`, drop a `pattern_interrupt` every 30–90s, and make sure every planted tease fires (a `cliffhanger` earns its `payoff`). Respect the channel's HARD constraints — graphic-novel style, no legible on-screen text — when choosing moves.
+
+### 5. Use Metadata For Timing Rules
 
 Recommended metadata keys:
 
@@ -85,7 +113,7 @@ Recommended metadata keys:
 - `tool_path_map`
 - `reusable_motifs`
 
-### 5. Quality Gate
+### 6. Quality Gate
 
 - every scene has a clear timing intent,
 - the transition system is limited and meaningful,

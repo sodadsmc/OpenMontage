@@ -96,6 +96,15 @@ class VisualSpec:
     text_overlay: list[str] = field(default_factory=list)
     text_emphasis: int = -1  # index of the amber/large line (-1 = all equal)
 
+    # Denormalized segment context for the Scene Library default-motion
+    # derivation (visual_router.plan_ai_video). These are SEGMENT-level tags
+    # (they also live on Segment) copied onto the visual at parse time so a
+    # caller holding only ``seg.visual`` — the two-phase batch path — can still
+    # derive the emotionally-motivated camera move when ai_motion is blank.
+    editorial_intent: str | None = None
+    directors_move: str | None = None
+    pacing: str | None = None
+
     @property
     def effective_prompt(self) -> str:
         """Prompt used for AI generation — explicit ai_prompt, else the description."""
@@ -178,6 +187,14 @@ class Segment:
     editorial_intent: str | None = None
     pacing: str | None = None
 
+    # Scene Library tags (The Director's Touch) — all optional/back-compatible.
+    rhythm: str | None = None              # fast / medium / lingering / breath
+    narration_mode: str | None = None      # literal / evocative / none
+    audio_transition: str | None = None    # hard_cut / j_cut / l_cut / sound_bridge / ...
+    directors_move: str | None = None      # named reveal/withholding move (Taxonomy 5)
+    retention_beat: str | None = None      # cold_open / pattern_interrupt / cliffhanger / ...
+    open_loop: dict[str, Any] | None = None  # {action: plant|payoff, id: <loop key>, note}
+
     @property
     def word_count(self) -> int:
         return len(self.narration.split())
@@ -233,6 +250,11 @@ def parse_scored_script_text(text: str) -> ScoredScript:
     segments = []
     for raw in doc["segments"]:
         vis = VisualSpec.from_dict(raw["visual"])
+        # Denormalize the segment's Scene Library tags onto the visual so the
+        # planner can derive a default camera move from seg.visual alone.
+        vis.editorial_intent = raw.get("editorial_intent")
+        vis.directors_move = raw.get("directors_move")
+        vis.pacing = raw.get("pacing")
         mus = MusicSpec.from_dict(raw["music"]) if raw.get("music") else None
 
         segments.append(Segment(
@@ -244,6 +266,12 @@ def parse_scored_script_text(text: str) -> ScoredScript:
             silence_after_s=raw.get("silence_after_s", 0.0),
             editorial_intent=raw.get("editorial_intent"),
             pacing=raw.get("pacing"),
+            rhythm=raw.get("rhythm"),
+            narration_mode=raw.get("narration_mode"),
+            audio_transition=raw.get("audio_transition"),
+            directors_move=raw.get("directors_move"),
+            retention_beat=raw.get("retention_beat"),
+            open_loop=raw.get("open_loop"),
         ))
 
     return ScoredScript(

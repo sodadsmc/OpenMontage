@@ -83,6 +83,38 @@ Recommended metadata keys per section:
 - `visual_priority`: what the viewer should focus on (the animation, the text, the data)
 - `hold_time_seconds`: minimum visual hold time after this section's content
 - `data_source`: if this section uses a research data point, reference it
+- `rhythm`: shot-duration nuance — `fast` / `medium` / `lingering` / `breath` (`breath` = held near-silent beat after a peak; pair with `silence_after_s`)
+- `narration_mode`: `literal` (visual shows the words) / `evocative` (visual evokes the feeling) / `none` — **alternate** them
+- `audio_transition`: how this beat hands off — `hard_cut` / `match_cut` / `match_on_action` / `j_cut` / `l_cut` / `sound_bridge` / `contrast_cut`
+- `directors_move`: named reveal move when one applies (see the Scene Library subsection below)
+- `retention_beat`: episode-structure role — `cold_open` / `value_proposition` / `commitment_hook` / `pattern_interrupt` / `re_hook` / `cliffhanger` / `payoff` / `none`
+- `open_loop`: `{ action: plant|payoff, id, note }` — tag a tease and where it fires (every `plant` needs a `payoff`)
+
+### 5a. Scene Library — The Director's Touch
+
+These per-segment tags (above) turn a flat beat list into a layered, rhythmic piece. They are all **optional and additive** — set what the beat earns; leave the rest blank and the planner fills a sensible default from the emotional mapping (it never overrides a value you set). Full how/when reference: `skills/creative/scene-library.md`.
+
+**Emotional defaults.** When you leave camera/motion blank, the planner derives it from `editorial_intent`: tension → slow push-in + lingering; revelation → pull-back + cue change; grief/gravity → static hold + drop-to-silence (`breath` + `silence_after_s`); teaching → medium + `literal` + steady; energy → fast cuts + `match_on_action`. Motion is *motivated by emotion, not decoration*.
+
+**Named director's moves** (`directors_move`, apply where the script supports them):
+
+| Move | Use |
+|------|-----|
+| `acclimatize_dont_ambush` | Plant foreboding teases so a dark turn is *earned*. |
+| `recontextualized_replay` | Reuse an earlier image after a reveal so its meaning inverts. |
+| `chronological_reveal_ladder` | A→Z, each escalation depending on the prior one. |
+| `calibrated_cliffhanger` | End on escalating threat without resolving it yet. |
+| `visual_anchor_before_context` | Show the striking image first, *then* explain it. |
+
+**Structural rules** (enforced by the validator):
+
+- **Cold open ≤15s**: 0–5s grab → value proposition → commitment hook. Tag those opening segments `cold_open` / `value_proposition` / `commitment_hook`.
+- **Pattern interrupt every 30–90s** — change angle, graphic, sound, or narration pace; tag `pattern_interrupt`.
+- **Mid-video `re_hook`** past ~7–8 min on a 15-min target.
+- **Every plant fires.** A forward-tease with no payoff is a broken promise — pair every `open_loop` `plant` with a `payoff` (zero unfired loops is the bar).
+- **Accuracy over manufactured suspense.** Use `withhold_judgment` to *sequence true information*, never to distort it.
+
+> HARD constraint reminder (step 3): keep on-screen text tight regardless of these tags — phrases over paragraphs, never wall-to-wall legible copy.
 
 ### 6. Research Integration
 

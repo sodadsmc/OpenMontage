@@ -31,6 +31,43 @@
           "mood": {
             "type": "string",
             "description": "Emotional mood tag for music and tone matching"
+          },
+          "rhythm": {
+            "type": "string",
+            "enum": ["fast", "medium", "lingering", "breath"],
+            "description": "Scene Library: shot-duration nuance over the pacing type ('breath' = held beat after a peak)."
+          },
+          "narration_mode": {
+            "type": "string",
+            "enum": ["literal", "evocative", "none"],
+            "description": "Scene Library: narration↔visual relationship (literal/evocative/none). Best work alternates."
+          },
+          "audio_transition": {
+            "type": "string",
+            "enum": ["hard_cut", "match_cut", "match_on_action", "j_cut", "l_cut", "sound_bridge", "contrast_cut"],
+            "description": "Scene Library: audio-aware handoff to the next scene (j_cut leads / l_cut trails / sound_bridge glues)."
+          },
+          "directors_move": {
+            "type": "string",
+            "enum": [
+              "genre_bait_and_switch",
+              "acclimatize_dont_ambush",
+              "recontextualized_replay",
+              "chronological_reveal_ladder",
+              "withhold_judgment",
+              "acts_within_acts",
+              "calibrated_cliffhanger",
+              "escalating_weirdness",
+              "delayed_antagonist_reveal",
+              "cold_open_inversion",
+              "visual_anchor_before_context"
+            ],
+            "description": "Scene Library: named reveal/withholding move (Taxonomy 5)."
+          },
+          "retention_beat": {
+            "type": "string",
+            "enum": ["cold_open", "value_proposition", "commitment_hook", "pattern_interrupt", "re_hook", "cliffhanger", "payoff", "none"],
+            "description": "Scene Library: episode-structure role (cold open / pattern interrupt / re-hook / cliffhanger / payoff)."
           }
         },
         "additionalProperties": false

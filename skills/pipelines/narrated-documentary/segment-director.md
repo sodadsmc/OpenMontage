@@ -128,7 +128,38 @@ Each scene gets a mood from: tense, calm, urgent, somber, technical,
 hopeful, ominous, reflective. The music selection stage uses these to
 match tracks to sections.
 
-### 7. Pre-Check Footage Availability
+### 7. Tag The Director's Touch (Scene Library)
+
+Beyond the seven base fields, give each scene a director's read. These tags are
+all **optional and additive** — set what the beat earns and leave the rest blank;
+the planner fills a sensible default from the emotional mapping (it never
+overrides what you set). See `skills/creative/scene-library.md` for the full how/when.
+
+- **`rhythm`** (`fast / medium / lingering / breath`) — shot-duration nuance on top
+  of `pacing`. Use `breath` for a held, near-silent beat right after a peak.
+- **`narration_mode`** (`literal / evocative / none`) — `literal` shows the words
+  (teaching/clarity), `evocative` evokes the feeling (emotion). **Alternate them** —
+  a script stuck on `literal` reads like captioned stock footage; `none` is for
+  observed beats with no narration.
+- **`audio_transition`** (`hard_cut / match_cut / match_on_action / j_cut / l_cut /
+  sound_bridge / contrast_cut`) — the audio-aware handoff to the next scene
+  (`j_cut` leads with sound, `l_cut` trails it, `sound_bridge` glues two scenes).
+- **`directors_move`** (Taxonomy 5, optional) — a named reveal/withholding move
+  where the *script supports it* (e.g. `visual_anchor_before_context`,
+  `cold_open_inversion`, `calibrated_cliffhanger`). Use these to *sequence true
+  information*, never to distort it.
+- **`retention_beat`** (`cold_open / value_proposition / commitment_hook /
+  pattern_interrupt / re_hook / cliffhanger / payoff / none`) — the scene's role in
+  episode structure. **Required discipline:** tag the first ~15s `cold_open` →
+  `value_proposition` → `commitment_hook`; drop a `pattern_interrupt` at least every
+  ~90s; add a `re_hook` past the midpoint on longer episodes; fire a `payoff` for
+  every loop you opened.
+
+If you leave `rhythm` / `narration_mode` / camera blank, the planner derives them
+from `editorial_intent` (tension → slow push-in; revelation → pull-back; grief →
+static hold + drop to silence; teaching → medium + literal + steady; energy → fast cuts).
+
+### 8. Pre-Check Footage Availability
 
 Before finalizing, do a quick mental check: can the Tier 1 queries
 plausibly return footage? If a scene describes a very specific internal
@@ -136,7 +167,7 @@ event (e.g., "the exact moment the valve failed"), that footage almost
 certainly does not exist. Flag it now and provide a realistic Tier 2
 alternative rather than letting the search stage fail silently.
 
-### 8. Emit The Segment Plan
+### 9. Emit The Segment Plan
 
 ```json
 {
@@ -153,7 +184,12 @@ alternative rather than letting the search stage fail silently.
         "industrial refinery aerial wide shot"
       ],
       "visual_description": "Wide aerial shot of a sprawling oil refinery at dawn...",
-      "mood": "calm"
+      "mood": "calm",
+      "rhythm": "lingering",
+      "narration_mode": "evocative",
+      "audio_transition": "l_cut",
+      "directors_move": "visual_anchor_before_context",
+      "retention_beat": "cold_open"
     }
   ]
 }

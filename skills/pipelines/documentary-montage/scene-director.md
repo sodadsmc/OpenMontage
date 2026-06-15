@@ -203,6 +203,34 @@ immersion for children.
 `enchanted`, `magical`, `glowing`, `dreamy`, `mystical`, `fairy`,
 `enchanted forest`, `magical world`.
 
+### The Director's Touch — Scene Library Tags
+
+Concrete imagery (steps 1-5) tells retrieval *what* to find. The Scene
+Library tells the cut *how the beat should land*. See
+`skills/creative/scene-library.md` for the full vocabulary. All tags are
+OPTIONAL and additive — set what the beat earns, leave the rest blank and
+the planner fills a sensible default from the emotional mapping.
+
+On each scene, tag what applies:
+
+| Tag | Field | When to reach for it |
+|-----|-------|---------------------|
+| `rhythm` | `fast / medium / lingering / breath` | Shot-hold nuance. `breath` = a held, near-silent beat after a peak (pair with a longer hold). |
+| `narration_mode` | `literal / evocative / none` | `literal` shows the words, `evocative` evokes the feeling — alternate them. `none` for observed/direct-cinema beats with no narration. |
+| `audio_transition` | `hard_cut / match_cut / match_on_action / j_cut / l_cut / sound_bridge / contrast_cut` | Audio-aware handoff to the *next* slot — complements `transition_out`. |
+| `directors_move` | Taxonomy 5 (named) | A reveal/withholding move — e.g. `visual_anchor_before_context` (striking image first, explain after), `recontextualized_replay`, `calibrated_cliffhanger`. |
+| `retention_beat` | `cold_open / value_proposition / commitment_hook / pattern_interrupt / re_hook / cliffhanger / payoff / none` | This slot's job in episode structure — tag the cold open, the 30-90s pattern interrupts, the re-hook, the payoff. |
+
+**Emotional defaults drive framing and hold.** When you leave `framing`,
+`movement`, or hold blank, derive them from the beat's emotion:
+tension → slow push-in + lingering; revelation → pull-back; grief/gravity →
+static hold + `breath` + drop-to-silence; teaching → medium + `literal` +
+steady; energy → fast cuts + `match_on_action`. Camera moves must be
+motivated by emotion, not decoration — but even subtle motion beats a dead
+frame for retention. (Channel constraints still hold: no legible on-screen
+text, graphic-novel style — the move lives in the virtual camera over the
+art, never in burned-in captions.)
+
 ### 6. Mark Hero Slots
 
 Every montage has 2-3 slots the whole piece depends on: the opening
@@ -243,6 +271,11 @@ For this pipeline, put documentary-montage-specific fields inside
       "start_seconds": 0.0,
       "end_seconds": 3.5,
       "narrative_role": "establish_context",
+      "rhythm": "lingering",
+      "narration_mode": "evocative",
+      "audio_transition": "j_cut",
+      "directors_move": "visual_anchor_before_context",
+      "retention_beat": "cold_open",
       "hero_moment": true,
       "texture_keywords": ["wet", "slow motion", "streetlamp"],
       "required_assets": [

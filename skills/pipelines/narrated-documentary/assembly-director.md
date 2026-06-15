@@ -69,6 +69,22 @@ sentence map. The rule: **cuts happen between sentences, never mid-
 sentence.** If the pacing type calls for a 3-second hold but the
 current sentence runs for 5 seconds, hold for 5 seconds.
 
+#### Scene Library — The Director's Touch
+
+When the scored script carries per-scene Scene Library tags (see
+`skills/creative/scene-library.md`), the assembly reads them to refine
+the cut — it never overrides a value the script set. At this stage you
+consume, not author:
+
+| Tag | What it drives in assembly |
+|-----|----------------------------|
+| `rhythm` | Tightens/loosens the hold inside the pacing type — `fast` trims toward the low end, `lingering` toward the high; `breath` = hold the frame and insert the `silence_after_s` beat. |
+| `audio_transition` | The audio handoff to the next cut (l_cut / j_cut / sound_bridge / hard_cut / match_* / contrast_cut) — see step 4. |
+| `narration_mode` | `none` signals an observed beat: let the image and music carry it, no VO ducking. |
+
+`directors_move` and `retention_beat` are upstream/editorial concerns
+and do not change the cut math here — leave them untouched.
+
 ```python
 pacing_engine.execute({
     "scoring_manifest": scoring_manifest,
@@ -90,21 +106,28 @@ investigation footage) must be muted. If the user specifically
 requests preserving source audio for a scene, that is a special case
 that needs explicit approval.
 
-### 4. Apply L/J-Cuts
+### 4. Apply Audio Transitions (L/J-Cuts and beyond)
 
-L/J-cuts create smoother transitions by offsetting audio and video
-cut points:
+Audio transitions create smoother handoffs by offsetting the audio and
+video cut points. Because all audio is built in post, these are fully
+available to you here. Honor the per-scene `audio_transition` tag from
+the scored script when present:
 
-- **L-cut (audio leads):** Start the next scene's narration 0.5-1.0s
-  before the video cuts to the new footage. The viewer hears the new
-  topic while still seeing the previous footage.
-- **J-cut (video leads):** Cut to the new footage 0.5-1.0s before the
-  narration transitions. The viewer sees the new context before
-  hearing about it.
+- **l_cut (prior audio trails):** Let the outgoing scene's narration or
+  SFX run 0.5-1.0s *over* the new image. The viewer sees the new
+  footage while still hearing the previous topic.
+- **j_cut (next audio leads):** Start segment N+1's narration/SFX 0.5-
+  1.0s *before* its visual appears. The viewer hears the new topic
+  while still seeing the previous footage.
+- **sound_bridge:** Carry one continuous sound or VO line across the
+  cut so a shared audio thread glues two shots together.
+- **hard_cut / match_cut / match_on_action / contrast_cut:** Cut audio
+  and video together; the named visual-match variants govern framing,
+  not the audio offset.
 
-Apply L/J-cuts at major scene transitions (not between every cut).
-Use L-cuts for escalation -> crisis transitions. Use J-cuts for
-establishing -> escalation transitions.
+Apply these at major scene transitions (not between every cut). When no
+tag is set, fall back to defaults: l_cuts for escalation -> crisis
+transitions, j_cuts for establishing -> escalation transitions.
 
 ### 5. Normalize Aspect Ratios
 
