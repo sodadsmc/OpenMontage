@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import font_manager
 from matplotlib import patheffects as _pe
-from matplotlib.patches import FancyBboxPatch, Rectangle
+from matplotlib.patches import Circle, FancyBboxPatch, Rectangle
 
 _log = logging.getLogger(__name__)
 
@@ -135,6 +135,72 @@ def flash(ax, cx, cy, t, t0, r0=0.9, r1=1.7, n=12, color=AMBER_HOT, d=0.6):
         ax.plot([cx + r0 * np.cos(ang), cx + r1 * np.cos(ang)],
                 [cy + r0 * np.sin(ang), cy + r1 * np.sin(ang)],
                 color=color, lw=3, alpha=a, zorder=6, solid_capstyle="round")
+
+
+# ---- motion primitives (fired beams, energy flow, scatter, pulse rings) -----
+# These add purposeful MOTION to a diagram beat: a beam that draws out like it
+# was fired, energy flowing along it, rays scattering, and a ring pulse on the
+# object that matters. They keep a static schematic feeling alive and let a beat
+# land its emphasis on the narrated word.
+
+def fired_beam(ax, x0, x1, y, t, t0, color=AMBER, lw=5, dur=0.45, alpha=1.0):
+    """A beam DRAWN from x0 to x1 over `dur` (fired), bright head leading, an
+    arrowhead landing on arrival — far more alive than a fade-in."""
+    if t < t0 or alpha <= 0.01:
+        return
+    prog = clamp((t - t0) / dur)
+    xt = x0 + (x1 - x0) * prog
+    ax.plot([x0, xt], [y, y], color=color, lw=lw, alpha=alpha,
+            solid_capstyle="round", zorder=4)
+    if prog < 1.0:
+        ax.scatter([xt], [y], s=110, c=AMBER_HOT, alpha=alpha, zorder=6, linewidths=0)
+    else:
+        ax.annotate("", xy=(x1, y), xytext=(x1 - 0.22, y),
+                    arrowprops=dict(arrowstyle="-|>", color=color, lw=lw,
+                                    mutation_scale=20, alpha=alpha), zorder=4)
+
+
+def beam_flow(ax, x0, x1, y, t, t0, color=AMBER_HOT, period=0.7, alpha=1.0):
+    """A bright COMET pulse looping along an already-fired beam — reads as energy
+    flow. Drawn as a few trailing dots so it registers (a single dot got lost)."""
+    if alpha <= 0.01 or t < t0:
+        return
+    for i, lag in enumerate((0.0, 0.07, 0.14)):
+        ph = (((t - t0) - lag) % period) / period
+        xt = x0 + (x1 - x0) * ph
+        ax.scatter([xt], [y], s=150 - i * 45, c=color,
+                   alpha=alpha * (0.95 - i * 0.28), zorder=6, linewidths=0)
+
+
+def scatter_rays(ax, x0, y0, t, t0, color=AMBER, alpha=1.0, n=9, dur=0.55,
+                 reach=3.0, spread=1.15):
+    """Shimmering rays fanning out from (x0,y0) — e.g. x-rays scattering off a
+    target. The rays flicker over time so the scatter feels live."""
+    if t < t0 or alpha <= 0.01:
+        return
+    prog = clamp((t - t0) / dur)
+    rs = np.random.RandomState(7)
+    for k in range(n):
+        a = (k / (n - 1) - 0.5) * spread + (rs.rand() - 0.5) * 0.18
+        r = reach * (0.62 + 0.38 * rs.rand()) * prog
+        flick = 0.65 + 0.35 * np.sin(t * 13 + k * 1.7)
+        ax.plot([x0, x0 + r * np.cos(a)], [y0, y0 + r * np.sin(a)],
+                color=color, lw=2, alpha=alpha * 0.9 * flick,
+                solid_capstyle="round", zorder=4)
+
+
+def pulse_glow(ax, cx, cy, t, t0, color=AMBER_HOT, d=1.3, rmax=1.5, alpha=1.0):
+    """A clearly-visible expanding RING (+ soft fill) at (cx,cy) — a 'this
+    matters' beat (danger, impact, emphasis). The ring reads where a faint glow
+    did not."""
+    a = pulse(t, t0, d)
+    if a <= 0.01:
+        return
+    r = rmax * (0.25 + 0.75 * a)
+    ax.add_patch(Circle((cx, cy), r, fill=False, edgecolor=color, lw=4.5 * a,
+                        alpha=0.85 * a * alpha, zorder=6))
+    ax.scatter([cx], [cy], s=2400 * a, c=color, alpha=0.16 * a * alpha,
+               zorder=2, linewidths=0)
 
 
 def _new_ax(fig):
@@ -358,6 +424,118 @@ def draw_linac(ax, t, dur):
              alpha=reveal(t, 39.0, 0.7), stroke=1.4)
 
     footer(ax, t)
+
+
+# ===========================================================================
+# SCENE: linac_synced — the two-mode linear accelerator, NARRATION-SYNCED.
+# Unlike draw_linac (hardcoded phase times), every reveal time comes from the
+# segment's word alignment, so beams fire / the target pops / x-rays scatter /
+# danger pulses land on the spoken words. This is the locked-in seg_007 diagram.
+# Build with: synced_linac(resolve_cues(alignment, LINAC_SYNC_CUES)).
+# ===========================================================================
+LINAC_SYNC_CUES = {
+    "title": "Therac-25", "machine": "two ways to fire", "kill": "could kill",
+    "electron": "electron mode", "xray": "X-ray mode", "target": "metal target",
+    "convert": "turns that force", "punishment": "takes the punishment",
+    "treatment": "gets the treatment", "rotate": "Two modes", "depends": "exactly where",
+}
+
+
+def resolve_cues(alignment, cue_phrases: dict) -> dict:
+    """Map each cue phrase to its spoken start time (0.0 when not found)."""
+    from lib.word_timing import words, find_phrase_start
+    ws = words(alignment)
+    return {k: (find_phrase_start(ws, p) or 0.0) for k, p in cue_phrases.items()}
+
+
+def synced_linac(C: dict) -> Callable:
+    """Return a draw(ax, t, dur) for the narration-synced two-mode linac diagram.
+
+    ``C`` is a {cue: start_seconds} map (resolve_cues(align, LINAC_SYNC_CUES)).
+    """
+    SPINE, GUN_X, TT_X, PAT_X = 5.3, 1.8, 5.0, 8.3
+
+    def draw(ax, t, _dur):
+        text(ax, 5, 9.25, "THE LINEAR ACCELERATOR", 46, AMBER,
+             alpha=reveal(t, C["title"], 0.6), stroke=1.6)
+        text(ax, 5, 8.45, "one machine  -  two ways to fire a beam", 24, CREAM,
+             alpha=reveal(t, C["machine"], 0.6))
+
+        # machine: staggered build — source, then turntable, then patient
+        g = reveal(t, C["machine"], 0.6)
+        gt = reveal(t, C["machine"] + 0.3, 0.6)
+        gp = reveal(t, C["machine"] + 0.6, 0.6)
+        box(ax, GUN_X, SPINE, 2.0, 1.2, edge=AMBER, alpha=g)
+        text(ax, GUN_X, SPINE + 0.16, "BEAM", 22, CREAM, alpha=g)
+        text(ax, GUN_X, SPINE - 0.30, "SOURCE", 22, CREAM, alpha=g)
+        box(ax, PAT_X, SPINE, 1.7, 1.2, edge=CREAM, alpha=gp)
+        text(ax, PAT_X, SPINE + 0.16, "PATIENT", 22, CREAM, alpha=gp)
+        text(ax, PAT_X, SPINE - 0.32, "(target area)", 17, MUTE, alpha=gp)
+        if gt > 0.01:
+            ax.add_patch(Circle((TT_X, SPINE), 0.92, fill=False, edgecolor=AMBER,
+                                lw=2.5, alpha=gt * 0.8, zorder=2))
+            ax.scatter([TT_X], [SPINE], s=26, c=AMBER, alpha=gt, zorder=3)
+            text(ax, TT_X, SPINE - 1.32, "turntable", 17, MUTE, alpha=gt * 0.9)
+
+        # "One of them could kill." — warning ring + ! on the patient
+        pulse_glow(ax, PAT_X, SPINE, t, C["kill"], color=AMBER_HOT, d=1.6, rmax=1.5, alpha=gp)
+        text(ax, PAT_X, SPINE + 1.15, "!", 40, AMBER_HOT, alpha=pulse(t, C["kill"], 1.6) * gp)
+
+        # target rides the turntable rim; pops in at its cue, rotates at "rotate"
+        rot = reveal(t, C["rotate"], 1.2)
+        ang = rot * np.pi
+        tx, ty = TT_X + 0.92 * np.cos(ang), SPINE + 0.92 * np.sin(ang)
+        tgt = reveal(t, C["target"], 0.45)
+        if tgt > 0.01:
+            sc = 1.0 + 0.3 * pulse(t, C["target"], 0.5)
+            box(ax, tx, ty, 0.6 * sc, 0.6 * sc, edge=AMBER_HOT, fill=AMBER_D,
+                fill_alpha=0.85, lw=3, alpha=tgt)
+            text(ax, tx, ty, "TARGET", 13, NAVY, alpha=tgt)
+
+        # ELECTRON MODE [electron, xray) — first beam fires here
+        e_on = reveal(t, C["electron"], 0.6) * (1 - reveal(t, C["xray"] - 0.3, 0.4))
+        if e_on > 0.01:
+            fired_beam(ax, GUN_X + 1.05, PAT_X - 0.9, SPINE, t, C["electron"],
+                       color=AMBER, lw=5, dur=0.6, alpha=e_on)
+            beam_flow(ax, GUN_X + 1.05, PAT_X - 0.9, SPINE, t, C["electron"] + 0.6,
+                      color=AMBER_HOT, period=0.85, alpha=e_on)
+            text(ax, 5, 7.0, "MODE 1  -  ELECTRON (direct)", 30, AMBER, alpha=e_on, stroke=1.2)
+            text(ax, 5, 2.2, "low power  -  straight to the patient", 25, CREAM, alpha=e_on)
+
+        # X-RAY MODE [xray, rotate) — thick beam fires INTO target, then scatters
+        x_on = reveal(t, C["xray"], 0.6) * (1 - reveal(t, C["rotate"] - 0.7, 0.8))
+        if x_on > 0.01:
+            text(ax, 5, 7.0, "MODE 2  -  X-RAY  (about 100x stronger)", 30, AMBER,
+                 alpha=x_on, stroke=1.2)
+            fired_beam(ax, GUN_X + 1.05, TT_X + 0.62, SPINE, t, C["xray"],
+                       color=AMBER_HOT, lw=11, dur=0.7, alpha=x_on)
+            beam_flow(ax, GUN_X + 1.05, TT_X + 0.62, SPINE, t, C["xray"] + 0.7,
+                      color=CREAM, period=0.5, alpha=x_on)
+            scatter_rays(ax, TT_X + 1.2, SPINE, t, C["convert"], alpha=x_on, reach=2.6)
+            text(ax, 5, 2.2, "beam hits the metal target  ->  scatters into X-rays", 24,
+                 CREAM, alpha=reveal(t, C["convert"], 0.6) * (1 - reveal(t, C["rotate"] - 0.7, 0.8)))
+            flash(ax, tx, ty, t, C["punishment"], r0=0.5, r1=1.7, n=16, color=AMBER_HOT, d=1.1)
+            pulse_glow(ax, tx, ty, t, C["punishment"], color=AMBER_HOT, d=1.1, rmax=1.0, alpha=x_on)
+            pulse_glow(ax, PAT_X, SPINE, t, C["treatment"], color=AMBER, d=1.3, rmax=1.3, alpha=x_on)
+
+        # TWO MODES, ONE MACHINE [rotate, depends) — the turntable rotates
+        tw = reveal(t, C["rotate"], 0.6) * (1 - reveal(t, C["depends"] - 0.2, 0.3))
+        if tw > 0.01:
+            text(ax, 5, 7.0, "TWO MODES  -  ONE MACHINE", 30, AMBER, alpha=tw, stroke=1.2)
+
+        # THE FOREBODING [depends, end]
+        dp = reveal(t, C["depends"], 0.5)
+        if dp > 0.01:
+            flash(ax, tx, ty, t, C["depends"] + 0.1, r0=0.7, r1=1.8, n=14, color=AMBER_HOT, d=1.3)
+            pulse_glow(ax, tx, ty, t, C["depends"] + 0.1, color=AMBER_HOT, d=1.5, rmax=1.4)
+            text(ax, 5, 7.0, "...everything depends on the target", 28, AMBER_HOT,
+                 alpha=dp, stroke=1.3)
+            text(ax, 5, 2.2, "being EXACTLY where it's supposed to be", 28, AMBER_HOT,
+                 alpha=dp, stroke=1.3)
+
+        footer(ax, t)
+
+    return draw
 
 
 def draw_race_condition(ax, t, dur):

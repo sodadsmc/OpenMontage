@@ -138,6 +138,46 @@ def words(alignment: dict) -> list[dict]:
     return result
 
 
+def _norm_word(w: str) -> str:
+    """Lowercase + strip edge punctuation for phrase matching (keeps interior
+    hyphens, so 'X-ray' → 'x-ray' and 'Therac-25' → 'therac-25')."""
+    lo, hi = 0, len(w)
+    while lo < hi and w[lo] in _EDGE_PUNCTUATION:
+        lo += 1
+    while hi > lo and w[hi - 1] in _EDGE_PUNCTUATION:
+        hi -= 1
+    return w[lo:hi].lower()
+
+
+def find_phrase_start(alignment_or_words: Any, phrase: str) -> float | None:
+    """Start time (s) of the first occurrence of ``phrase`` in the narration.
+
+    Accepts either an alignment dict or a pre-computed ``words()`` list. Matches
+    a normalized word SEQUENCE (lowercased, edge punctuation stripped) so
+    "X-ray mode" or "metal target" resolves to the moment its first word is
+    spoken. Falls back to matching just the phrase's first word if the full
+    sequence isn't found. Returns None when nothing matches.
+
+    WHY: this is what lets a manim reveal (or a caption) be scheduled to land on
+    the exact word it illustrates — the missing link between the narration
+    alignment and beat-level visual sync.
+    """
+    ws = (alignment_or_words if isinstance(alignment_or_words, list)
+          else words(alignment_or_words))
+    norm = [_norm_word(w["word"]) for w in ws]
+    target = [t for t in (_norm_word(x) for x in phrase.split()) if t]
+    if not target or not norm:
+        return None
+    n, m = len(norm), len(target)
+    for i in range(n - m + 1):
+        if norm[i:i + m] == target:
+            return ws[i]["start_s"]
+    for i, w in enumerate(norm):  # fallback: first word of the phrase
+        if w == target[0]:
+            return ws[i]["start_s"]
+    return None
+
+
 def sentence_ends(alignment: dict) -> list[float]:
     """End times (seconds) of sentence boundaries in the narration.
 
