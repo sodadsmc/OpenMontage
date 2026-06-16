@@ -482,6 +482,46 @@ def generate_shot(
     return clip
 
 
+def generate_flf_shot(
+    start_url: str,
+    end_url: str,
+    prompt: str,
+    duration_s: float,
+    output_path: Path | str,
+    mode: str = "std",
+    aspect_ratio: str = "16:9",
+) -> Path | None:
+    """FIRST-LAST-FRAME shot via Kling 3.0 on Kie — the controllable lane for EXPLANATORY
+    beats. Author two matched-framing keyframes (identical camera/lens/palette, only the
+    target objects differ); Kling interpolates between them, so exact counts, per-object
+    state, a locked camera, and the channel style are pinned BY CONSTRUCTION rather than
+    prompted. Use this instead of ``generate_shot`` when a beat must teach a precise fact
+    (count, state-change) that open i2v drifts on. Returns the conformed clip Path or None.
+
+    The precision is in the keyframes, not the model — keep the start/end delta small
+    (one state transition) and chain legs for multi-step arcs.
+    """
+    import math
+    from tools.video.kling_kie_video import KlingKieVideo
+
+    out = Path(output_path)
+    raw = out.with_name(out.stem + "_raw.mp4")
+    # Kling honors a 3-15s string duration; request ceil(window) then trim to the exact beat.
+    gen_dur = max(3, min(15, int(math.ceil(duration_s))))
+    res = KlingKieVideo().execute({
+        "prompt": prompt, "image_url": start_url, "end_image_url": end_url,
+        "duration": str(gen_dur), "mode": mode, "aspect_ratio": aspect_ratio,
+        "output_path": str(raw),
+    })
+    if not getattr(res, "success", False):
+        _log.warning("ai_video: FLF shot failed: %s", getattr(res, "error", ""))
+        return None
+    clip = (res.data or {}).get("output")
+    if not clip:
+        return None
+    return _trim_to_duration(str(clip), out, duration_s)
+
+
 def concat_segment_shots(clip_paths: list[str], output_path: Path | str,
                          target_duration_s: float) -> Path | None:
     """Concatenate a segment's shot clips into one clip of exactly target_duration_s."""
