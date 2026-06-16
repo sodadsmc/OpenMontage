@@ -38,7 +38,20 @@ This stage is **two-phase** so the look is approved before the bulk spend:
     1. **Derive the end frame DETERMINISTICALLY from the start** with `lib.flf.drain_endpoint` (blend toward navy = the subject goes cold/dead; `band=(lo,hi)` ramps a region, e.g. `(0.50,0.62)` drains the front/bottom three figures while the back three stay lit). A generative Nano "edit" of the start **drifts the composition and breaks the FLF match** — never use one for the end frame.
     2. **Keep the subject CONTAINED** (one clear object on black for "removed"/state beats; a flat, locked, depth-free composition for counts). A busy room over chained legs is what morphs; a contained subject + pinned endpoints makes object permanence hold by construction.
     3. **Ground the subject in the project's REAL references and the research brief** (`assets/_reference/_candidates`, `research/research_brief_v2.json`, the asset-bible canonicals). Match the shot to what actually existed — e.g. seg_009's "AECL removed the hardware safety" is the **fuse** that physically blew on the Therac-20 (per Leveson), not an invented equipment room. Run the research loop when the accurate object is unclear.
-  One transition per clip; chain legs for multi-step arcs (six→three→zero). Keep Grok for atmospheric/emotional shots, where free motion is the strength.
+    One transition per clip; chain legs for multi-step arcs (six→three→zero). Keep Grok for atmospheric/emotional shots, where free motion is the strength.
+  - **AUTO-ROUTE it from the script — no per-beat driver script.** Set `visual.flf` on the segment in `scored_script.yaml` and the pipeline routes it automatically: `build_render_package` excludes it from the paid i2v manifest (`_is_ai_segment` returns False), and the assembly's FLF lane (`lib.flf.generate_flf_segments` → `flf_segment`) generates the start keyframe, derives the deterministic end, and interpolates — caching to `assets/flf_segments/{seg_id}.mp4`. Schema:
+    ```yaml
+    visual:
+      type: ai_video
+      description: "the control screen, dark"          # narration-gate text
+      flf:
+        start_prompt: "a 1985 control terminal screen glowing warm amber, one object on black, flat hand-inked"
+        transition: "the screen glow slowly dims and dies to cold black; locked camera; nothing else moves"
+        drain: 0.92               # blend toward navy (subject goes cold/dead); default 0.85
+        band: [0.50, 0.62]        # OPTIONAL vertical ramp — drains only that region (dim N of M); omit = whole frame
+        anchor: fresh             # or a bible asset_id to ground the start keyframe on a real reference
+    ```
+    Best for DRAIN-class beats (going dark/cold/gone/dead, counts going cold, a region blanking). Beats that ADD/BRIGHTEN (accumulation, strobe-up, a pulse) don't fit the drain model — leave those on Grok (gated) or give them a bespoke pass.
 - **Channel style:** the graphic-novel look (`styles/channel_styles/`, `CHANNEL_STYLE` env) is injected into every image + video prompt by `lib/channel_style.py`; `lib/finishing.py` applies the duotone + grain finishing pass at render. Per-segment `ai_style` carries **mood**, the channel style carries the **medium**. Per-segment `ai_motion` is now **optional** — left blank, the planner derives the camera move from the segment's `editorial_intent` / `directors_move` per the Scene Library emotional mapping (see below); set it to override.
 - **Shot length is provider-aware** (Grok 30s, Wan 8s): segments split into the fewest, longest shots the model handles well — segments at/under the cap are a single clip (no concat).
 - **Multi-clip segments CHAIN, never duplicate.** When a segment still needs more than one

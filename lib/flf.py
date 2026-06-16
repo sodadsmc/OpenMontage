@@ -128,3 +128,74 @@ def flf_beat(start_png: str | Path, prompt: str, window_s: float, out: str | Pat
     if clip is None:
         return None
     return freeze_pad(clip, window_s, out)
+
+
+def flf_segment(spec, window_s: float, out: str | Path, *, keyframe_dir: str | Path,
+                bible=None, mode: str = "std") -> str | None:
+    """Generate one EXPLANATORY beat from a ``lib.scored_script.FLFSpec`` — the lane the
+    assembly auto-routes ``visual.flf`` beats to (the analogue of the Manim/diagram lane).
+
+    Authors the START keyframe via Nano Banana in the channel style — grounded on a bible
+    canonical when ``spec.anchor`` is an asset_id (else fresh) — derives the deterministic END,
+    interpolates via Kling 3.0 FLF, and conforms to ``window_s``. Returns the UN-finished clip
+    path (the episode finishing pass is applied once at assembly), or None on failure.
+    """
+    from lib import visual_router as vr
+    from lib import channel_style
+
+    keyframe_dir = Path(keyframe_dir)
+    keyframe_dir.mkdir(parents=True, exist_ok=True)
+    out = Path(out)
+    start_png = keyframe_dir / f"{out.stem}_flf_start.png"
+
+    refs = None
+    if spec.anchor and spec.anchor != "fresh" and bible is not None:
+        ref = bible.resolve_reference_image(spec.anchor)
+        if ref and Path(ref).exists():
+            from lib.image_host import upload_image
+            hosted = upload_image(str(ref))
+            refs = [hosted] if hosted else None
+    kf = vr._nano_image(channel_style.apply_to_prompt(spec.start_prompt), start_png, image_urls=refs)
+    if kf is None:
+        return None
+    # _nano_image may return a provider URL; pull it local so drain_endpoint can author the end.
+    if str(kf).startswith(("http://", "https://")):
+        import requests
+        start_png.write_bytes(requests.get(str(kf), timeout=60).content)
+    else:
+        start_png = Path(str(kf))
+
+    return flf_beat(start_png, spec.transition, window_s, out, mode=mode,
+                    derive=lambda s, o: drain_endpoint(s, o, drain=spec.drain, band=spec.band))
+
+
+def flf_beats_in_scope(script, seg_ids=None) -> list:
+    """The segments routed to the FLF lane (visual.flf set), optionally limited to seg_ids."""
+    return [s for s in script.segments
+            if getattr(s.visual, "flf", None) is not None
+            and (seg_ids is None or s.id in seg_ids)]
+
+
+def generate_flf_segments(script, dm, out_dir: str | Path, *, bible=None,
+                          keyframe_dir: str | Path | None = None, seg_ids=None) -> dict:
+    """Generate every FLF beat in scope to ``out_dir/{seg_id}.mp4`` — the controllable lane,
+    the analogue of the Manim diagram lane. Idempotent: an existing clip is reused, so this is
+    safe to call on every assembly. PAID (Nano + Kling), so gate the CALL behind --yes.
+
+    ``dm`` is a duration map (``dm.get_segment(id).total_duration_s`` = the slot). Returns
+    ``{seg_id: clip_path_or_None}``.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    keyframe_dir = Path(keyframe_dir) if keyframe_dir else out_dir / "_keyframes"
+    results: dict[str, str | None] = {}
+    for seg in flf_beats_in_scope(script, seg_ids):
+        out = out_dir / f"{seg.id}.mp4"
+        if out.exists():
+            results[seg.id] = str(out)
+            continue
+        ts = dm.get_segment(seg.id)
+        slot = ts.total_duration_s if ts else 5.0
+        results[seg.id] = flf_segment(seg.visual.flf, slot, out,
+                                      keyframe_dir=keyframe_dir, bible=bible)
+    return results

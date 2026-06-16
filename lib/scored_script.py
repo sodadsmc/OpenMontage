@@ -50,6 +50,33 @@ class ShotSpec:
 
 
 @dataclass
+class FLFSpec:
+    """A FIRST-LAST-FRAME transition for an EXPLANATORY beat (counts, state-changes, things
+    going dark/cold/gone). The start keyframe is authored with the subject present/lit; the END
+    frame is derived DETERMINISTICALLY from it (blend toward navy, optionally over a vertical
+    band) so Kling 3.0 interpolates a pinned, drift-free transition — exact counts, a locked
+    camera, and object permanence hold by construction. When a beat sets ``visual.flf`` the
+    assembly routes it through lib.flf instead of open Grok i2v (and it is skipped from the paid
+    i2v manifest). See lib/flf.py + skills/pipelines/narrated-documentary/ai-visual-director.md."""
+    start_prompt: str               # START keyframe content (subject present/lit); channel style appended at gen
+    transition: str                 # the Kling FLF prompt (start -> end), <= 500 chars
+    drain: float = 0.85             # deterministic end: blend weight toward navy (subject goes cold/dead)
+    band: tuple[float, float] | None = None   # optional (lo, hi) vertical ramp — drains only that region (dim N of M)
+    anchor: str = "fresh"           # "fresh", or a bible asset_id to ground/edit the start keyframe on a real reference
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "FLFSpec":
+        band = d.get("band")
+        return cls(
+            start_prompt=d["start_prompt"],
+            transition=d["transition"],
+            drain=float(d.get("drain", 0.85)),
+            band=tuple(band) if band else None,
+            anchor=d.get("anchor", "fresh"),
+        )
+
+
+@dataclass
 class VisualSpec:
     """What should appear on screen for a segment."""
     description: str
@@ -91,6 +118,10 @@ class VisualSpec:
     # while the treatment-room machine looms in the background) without either
     # drifting off-model. The segment's own asset stays the i2v anchor.
     support_asset_refs: list[str] = field(default_factory=list)
+
+    # First-last-frame transition (explanatory beats). When set, the assembly routes this
+    # segment through the FLF lane (lib.flf) and it is excluded from the paid i2v manifest.
+    flf: "FLFSpec | None" = None
 
     # Styled caption burned over this segment's footage ("text over footage").
     text_overlay: list[str] = field(default_factory=list)
@@ -151,6 +182,7 @@ class VisualSpec:
             asset_ref=d.get("asset_ref"),
             shots=shots,
             support_asset_refs=d.get("support_asset_refs", []),
+            flf=FLFSpec.from_dict(d["flf"]) if d.get("flf") else None,
             text_overlay=d.get("text_overlay", []),
             text_emphasis=d.get("text_emphasis", -1),
         )
