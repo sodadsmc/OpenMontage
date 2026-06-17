@@ -245,13 +245,20 @@ class GrokKieVideo(BaseTool):
         if not task_id:
             return ToolResult(success=False, error=f"No taskId in response: {str(data)[:200]}")
 
-        video_url = self._poll(base, headers, task_id)
+        video_url, credits = self._poll(base, headers, task_id)
         if not video_url:
             return ToolResult(success=False, error=f"Grok generation timed out/failed (task {task_id})")
 
         output_path = self._download(video_url, inputs.get("output_path"))
         if not output_path:
             return ToolResult(success=False, error=f"Failed to download video from {video_url}")
+
+        try:
+            from lib.cost_ledger import log as _cost_log
+            _cost_log("grok-kie", op, self.estimate_cost(inputs), credits=credits,
+                      duration_s=dur, task=task_id)
+        except Exception:  # noqa: BLE001
+            pass
 
         return ToolResult(
             success=True,
@@ -266,7 +273,7 @@ class GrokKieVideo(BaseTool):
             model=model,
         )
 
-    def _poll(self, base: str, headers: dict, task_id: str) -> str | None:
+    def _poll(self, base: str, headers: dict, task_id: str) -> tuple[str | None, float | None]:
         import requests
         deadline = time.time() + _MAX_POLL_TIME
         time.sleep(_POLL_INITIAL_WAIT)
@@ -280,14 +287,14 @@ class GrokKieVideo(BaseTool):
                 rec = r.json().get("data", {}) or {}
                 st = _state_of(rec)
                 if st == "success":
-                    return _extract_url(rec)
+                    return _extract_url(rec), rec.get("creditsConsumed")
                 if st == "failed":
                     _log.warning("grok_kie_video: task %s failed", task_id)
-                    return None
+                    return None, rec.get("creditsConsumed")
             except Exception as exc:  # noqa: BLE001
                 _log.warning("grok_kie_video: poll error for %s: %s", task_id, exc)
             time.sleep(_POLL_INTERVAL)
-        return None
+        return None, None
 
     @staticmethod
     def _download(url: str, output_path: str | None) -> str | None:

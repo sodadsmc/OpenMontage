@@ -174,6 +174,14 @@ class KlingKieVideo(BaseTool):
         if not output_path:
             return ToolResult(success=False, error=f"Failed to download video from {video_url}")
 
+        op = "first_last_frame" if end_url else "image_to_video"
+        try:
+            from lib.cost_ledger import log as _cost_log
+            _cost_log("kling-kie", op, self.estimate_cost(inputs), credits=credits,
+                      duration_s=int(self._duration(inputs)), task=task_id)
+        except Exception:  # noqa: BLE001
+            pass
+
         return ToolResult(
             success=True,
             data={"output": output_path, "provider": "kling-kie", "model": FLF_MODEL,

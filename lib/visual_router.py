@@ -964,6 +964,12 @@ def _nano_image(prompt: str, output_path: Path, image_urls: list[str] | None = N
         _log.warning("ai_video: keyframe generation error: %s", exc)
         return None
     if getattr(res, "success", False):
+        try:
+            from lib.cost_ledger import log as _cost_log
+            _cost_log("nano-banana", "image_edit" if image_urls else "image_generate",
+                      getattr(res, "cost_usd", 0.0) or 0.0)
+        except Exception:  # noqa: BLE001
+            pass
         data = res.data or {}
         # Prefer the provider-hosted URL as a HOST-FREE i2v anchor — avoids uploading
         # the local keyframe to a third-party host (catbox/0x0) that may be down.
