@@ -72,8 +72,22 @@ Return ONLY this JSON object:
   "revised_prompt": "..a concrete generation prompt that DEPICTS the action..",
   "lane": "grok|flf_state_morph|flf_drain|manim|mixed",
   "rationale": "..which rules fired and what changed vs the current take..",
-  "gate_precheck": {"narration_alignment": "match|partial|mismatch", "subject_named": true}
+  "gate_precheck": {"narration_alignment": "match|partial|mismatch", "subject_named": true},
+  "flf": null
 }
+
+When (and only when) lane is "flf_state_morph" or "flf_drain", set "flf" to:
+  {"start_prompt": "channel-style keyframe the shot STARTS on — subject present/lit, one contained composition, locked camera",
+   "transition": "the start->end change in <=500 chars (one change; camera locked)",
+   "drain": 0.85, "band": null, "anchor": "fresh"}
+- The END frame is derived DETERMINISTICALLY by darkening the start toward navy
+  (cold/dead), so author the change as a 'goes cold / dims / goes dark' transition.
+- drain 0.8-0.92 = strong (subject/region goes dead); lower = partial dimming.
+- band [lo,hi] (fractions of frame height) dims only a vertical region — use for
+  'N of M go dark' count reveals (e.g. [0.50,0.62] dims the front/bottom group);
+  null = whole frame.
+- anchor "fresh", or a bible asset_id to ground the start keyframe on a canonical.
+For any non-FLF lane, "flf" must be null.
 """
 
 
@@ -142,6 +156,7 @@ def _fallback(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
                       "lane tree + motion rules — run the server in a shell with GOOGLE_API_KEY "
                       "and network for that."),
         "gate_precheck": {"narration_alignment": "partial", "subject_named": False},
+        "flf": None,
         "_source": "fallback",
     }
 

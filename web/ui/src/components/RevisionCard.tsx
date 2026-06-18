@@ -1,7 +1,5 @@
 import type { Revision, Scene } from '../api'
 
-const estUsd = (slot: number) => Math.max(0.10, 0.017 * Math.round(slot || 0)).toFixed(2)
-
 function Row({ label, value }: { label: string; value?: string | string[] | null }) {
   if (!value || (Array.isArray(value) && value.length === 0)) return null
   return (
@@ -25,6 +23,8 @@ export default function RevisionCard({
   if (!rev) return null
   const da = rev.described_action || {}
   const gp = rev.gate_precheck || {}
+  const rate = (rev.lane || '').startsWith('flf') ? 0.084 : 0.017
+  const est = Math.max(0.10, rate * Math.round(scene.slot_s || 0)).toFixed(2)
   const src = (rev._source || '').startsWith('gemini') ? `director · ${rev._source}` : 'director · offline'
   const statusChip = status === 'drafted'
     ? <span className="rev-status drafted">awaiting approval</span>
@@ -76,7 +76,7 @@ export default function RevisionCard({
 
       {status === 'drafted' && (
         <div className="row" style={{ marginTop: 10, gap: 10 }}>
-          <button className="vbtn approve" onClick={() => onApprove(rid)}>Approve &amp; generate (~${estUsd(scene.slot_s)})</button>
+          <button className="vbtn approve" onClick={() => onApprove(rid)}>Approve &amp; generate (~${est})</button>
           <button className="vbtn reject" onClick={() => onReject(rid)}>Reject</button>
         </div>
       )}

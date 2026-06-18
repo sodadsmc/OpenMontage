@@ -28,10 +28,14 @@ from web.backend import feedback as fb
 from web.backend import scenes as scenes_mod
 from web.backend.scenes import PROJECTS_DIR
 
-# USD/sec by provider (from the cost map); grok-kie is the v1 lane.
-_RATE = {"grok-kie": 0.017, "kling-std": 0.084, "kling-pro": 0.168}
+# USD/sec by provider (from the cost map). grok = i2v; flf = Kling first-last-frame.
+_RATE = {"grok-kie": 0.017, "kling-kie": 0.084}
 _FLOOR_USD = 0.10
-DISPATCHABLE_LANES = {"grok"}
+DISPATCHABLE_LANES = {"grok", "flf_state_morph", "flf_drain"}
+
+
+def _lane_provider(lane: str) -> str:
+    return "kling-kie" if (lane or "").startswith("flf") else "grok-kie"
 
 _POOL = ThreadPoolExecutor(max_workers=1)        # serialize spend
 _JOBS: dict[str, dict] = {}                       # job_id -> record (in-memory; truth is on disk)
@@ -44,8 +48,8 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def estimate_usd(slot_s: float, provider: str = "grok-kie") -> float:
-    return round(max(_FLOOR_USD, _RATE.get(provider, 0.017) * round(slot_s or 0)), 2)
+def estimate_usd(slot_s: float, lane: str = "grok") -> float:
+    return round(max(_FLOOR_USD, _RATE[_lane_provider(lane)] * round(slot_s or 0)), 2)
 
 
 # ---- take index (ai_segments_takes.json) ---------------------------------
@@ -184,19 +188,20 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
     if scene is None:
         raise KeyError(sid)
 
-    est = estimate_usd(scene.get("slot_s") or 0)
+    slot = scene.get("slot_s") or 0
     revision = _find_revision(pid, sid, rid)
     if revision is None:
-        return {"status": "blocked", "error": "revision not found in log", "est_usd": est}
+        return {"status": "blocked", "error": "revision not found in log", "est_usd": estimate_usd(slot)}
+    lane = revision.get("lane")
+    est = estimate_usd(slot, lane)
 
     existing = _existing_take(pid, sid, rid)
     if existing:
         return {"status": "succeeded", "idempotent": True, "take": existing, "est_usd": est}
 
-    lane = revision.get("lane")
     if lane not in DISPATCHABLE_LANES:
         return {"status": "not_yet_auto_dispatched", "lane": lane, "est_usd": est,
-                "reason": f"v1 auto-dispatches the grok lane only; '{lane}' stays on the manual pipeline"}
+                "reason": f"'{lane}' isn't auto-dispatched yet — it stays on the manual pipeline"}
 
     if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
         return {"status": "blocked", "error": "dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)", "est_usd": est}
@@ -248,6 +253,7 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
 
         slot_s = float(scene.get("slot_s") or 0)
         narration = scene.get("narration", "")
+        lane = revision.get("lane") or "grok"
         described = revision.get("described_action", {}) or {}
         prompt = revision.get("revised_prompt") or scene.get("narration", "")
 
@@ -269,15 +275,32 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
         from lib import visual_router as vr
         from lib.quality_gate import GenerationHardStop, QualityGate
 
-        asset = vr.generate_ai_video(sid, spec, scratch, slot_s,
-                                     bible=None, asset=None, enable_gemini=True, narration=narration)
-        if asset is None or not getattr(asset, "path", None):
-            job.update(status="failed", error="generator returned no clip", ended_ts=_now()); return
-
-        conformed = vr._trim_to_duration(asset.path, str(take_target), slot_s) \
-            if hasattr(vr, "_trim_to_duration") else asset.path
-        if not conformed:
-            job.update(status="failed", error="conform to slot failed", ended_ts=_now()); return
+        if lane.startswith("flf"):
+            # FLF lane (Kling, transition images): author start keyframe -> derive matched
+            # end -> Kling interpolate -> conform to slot. Same path the fresh pipeline uses.
+            from lib import flf as flf_mod
+            from lib.scored_script import FLFSpec
+            f = revision.get("flf") or {}
+            flf_spec = FLFSpec(
+                start_prompt=f.get("start_prompt") or prompt,
+                transition=f.get("transition") or prompt,
+                drain=float(f.get("drain", 0.85)),
+                band=tuple(f["band"]) if f.get("band") else None,
+                anchor=f.get("anchor") or "fresh",
+            )
+            conformed = flf_mod.flf_segment(flf_spec, slot_s, str(take_target),
+                                            keyframe_dir=str(scratch), bible=None)
+            if not conformed:
+                job.update(status="failed", error="FLF generation failed (Nano/Kling/host)", ended_ts=_now()); return
+        else:
+            asset = vr.generate_ai_video(sid, spec, scratch, slot_s,
+                                         bible=None, asset=None, enable_gemini=True, narration=narration)
+            if asset is None or not getattr(asset, "path", None):
+                job.update(status="failed", error="generator returned no clip", ended_ts=_now()); return
+            conformed = vr._trim_to_duration(asset.path, str(take_target), slot_s) \
+                if hasattr(vr, "_trim_to_duration") else asset.path
+            if not conformed:
+                job.update(status="failed", error="conform to slot failed", ended_ts=_now()); return
 
         score = None
         passed = False
@@ -294,15 +317,16 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
             "take": take_n, "path": rel, "score": score, "passed": passed,
             "verdict": "accepted" if passed else "needs_review",
             "revision_id": rid, "spawned_by": spawned_by, "cost_usd": est,
-            "provider": "grok-kie", "issues": issues, "ts": _now(),
+            "provider": _lane_provider(lane), "lane": lane, "issues": issues, "ts": _now(),
         }
         _append_take(pid, sid, entry)
         fb.append_event(pid, actor="system", type="take_generated", scene_id=sid, payload=entry)
 
         try:
             from lib import cost_ledger
-            cost_ledger.log(provider="grok-kie", operation="image_to_video", cost_usd=est,
-                            duration_s=slot_s,
+            cost_ledger.log(provider=_lane_provider(lane),
+                            operation=("flf" if lane.startswith("flf") else "image_to_video"),
+                            cost_usd=est, duration_s=slot_s,
                             ledger=str(PROJECTS_DIR / pid / "artifacts" / "cost_ledger.jsonl"),
                             scene_id=sid, take=take_n, revision_id=rid, kind="take_regen")
         except Exception:

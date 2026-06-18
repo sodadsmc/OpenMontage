@@ -47,8 +47,12 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
       setDraft(d)
       setBusy(false)
       const da = d.revision.described_action || {}
-      const summary = (da.action_sequence && da.action_sequence[0]) || d.revision.lane || 'regenerate'
-      if (!confirm(`Director's plan: ${summary}\n\nSend to the pipeline and generate a new take via grok-kie? (~$${estUsd(scene.slot_s)})`)) return
+      const lane = d.revision.lane || 'grok'
+      const summary = (da.action_sequence && da.action_sequence[0]) || lane
+      const rate = lane.startsWith('flf') ? 0.084 : 0.017
+      const est = Math.max(0.10, rate * Math.round(scene.slot_s || 0)).toFixed(2)
+      const provider = lane.startsWith('flf') ? 'Kling FLF (transition frames)' : 'Grok i2v'
+      if (!confirm(`Lane: ${lane}\nDirector's plan: ${summary}\n\nGenerate a new take via ${provider}? (~$${est})`)) return
       const r = await jpost<Job>(`${base}/revision/${d.revision_id}/approve-and-dispatch`, {})
       setDraft(null); setJob(r); await reload()
       if (r.status === 'queued' && r.job_id) void pollJob(r.job_id)
