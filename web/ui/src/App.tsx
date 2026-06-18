@@ -36,6 +36,23 @@ export default function App() {
     })()
   }, [reload])
 
+  // Arrow keys cycle scenes (ignored while typing in a field).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null
+      if (t && ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName)) return
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+      setSelected((cur) => {
+        const i = scenes.findIndex((s) => s.id === cur)
+        if (i < 0) return cur
+        const ni = i + (e.key === 'ArrowRight' ? 1 : -1)
+        return ni >= 0 && ni < scenes.length ? scenes[ni].id : cur
+      })
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [scenes])
+
   if (error) {
     return <main className="app"><p className="muted">Backend not reachable ({error}). Start it with <code>uvicorn web.backend.app:app --port 8011</code> from the repo root.</p></main>
   }
@@ -43,6 +60,11 @@ export default function App() {
   const selectedScene = scenes.find((s) => s.id === selected) || null
   const counts: Record<string, number> = { approve: 0, needs_work: 0, reject: 0, pending: 0 }
   scenes.forEach((s) => { counts[statusOf(s)]++ })
+  const idx = scenes.findIndex((s) => s.id === selected)
+  const go = (d: number) => {
+    const ni = idx + d
+    if (ni >= 0 && ni < scenes.length) { setSelected(scenes[ni].id); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+  }
 
   return (
     <>
@@ -60,6 +82,13 @@ export default function App() {
       </header>
 
       <main className="app">
+        {scenes.length > 0 && (
+          <div className="navbar">
+            <button className="act" disabled={idx <= 0} onClick={() => go(-1)}>← Prev</button>
+            <span className="muted">Scene {idx + 1} of {scenes.length}{selectedScene ? ` · ${selectedScene.id}` : ''} &nbsp;·&nbsp; ← / → to cycle</span>
+            <button className="act" disabled={idx >= scenes.length - 1} onClick={() => go(1)}>Next →</button>
+          </div>
+        )}
         {project && selectedScene
           ? <SceneDetail key={selectedScene.id} project={project} scene={selectedScene} reload={() => reload(project)} />
           : <section className="detail"><p className="muted">Loading…</p></section>}

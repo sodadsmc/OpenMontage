@@ -44,6 +44,10 @@ body {
 
 .app { max-width: 1100px; margin: 0 auto; padding: 20px; display: grid; gap: 24px; }
 
+.navbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.navbar .act { min-width: 92px; }
+.navbar .muted { font-size: 13px; }
+
 .detail {
   background: var(--panel); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 18px;
@@ -173,6 +177,10 @@ details.shots pre { white-space: pre-wrap; font-size: 12px; color: var(--muted);
 .clipactions { display: flex; gap: 6px; flex: 0 0 auto; }
 .clipactions .act { padding: 5px 10px; font-size: 12px; }
 .clipactions .use { border-color: var(--amber); color: var(--amber); }
+
+/* spinner */
+.spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--line); border-top-color: var(--amber); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* job banner */
 .jobbanner { margin: 12px 0; padding: 10px 12px; border-radius: 9px; font-size: 13px; background: var(--navy); border: 1px solid var(--line); }

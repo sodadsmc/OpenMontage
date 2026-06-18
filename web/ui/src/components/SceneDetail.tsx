@@ -28,21 +28,40 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   const g = scene.auto_gate
   const srcUrl = viewUrl || scene.clip_url
   const mode = scene.narration_mode + (scene.narration_mode_default ? ' (default)' : '')
+  const working = busy || (!!job && (job.status === 'queued' || job.status === 'running'))
 
   const capture = async (kind: string, body: unknown) => {
     try { await jpost(`${base}/${kind}`, body); await reload() } catch (e) { alert('Save failed: ' + (e as Error).message) }
   }
 
-  const runDirectorPass = async () => {
+  // One action for the review loop: notes -> director re-plan -> (confirm cost) ->
+  // regenerate a new take in the pipeline -> review it here.
+  const fixInPipeline = async () => {
+    const n = note.trim()
+    if (!n && fb.notes.length === 0) { alert("Add a note first — what's wrong / what to keep."); return }
     setBusy(true); setJob(null)
     try {
-      const n = note.trim()
-      if (n) await jpost(`${base}/note`, { text: n })
+      if (n) { await jpost(`${base}/note`, { text: n }); setNote('') }
       await jpost(`${base}/regenerate`, { notes: n ? [n] : [], target: 'scene' })
-      setDraft(await jpost<DraftRevision>(`${base}/director-pass`, {}))
-      setNote('')
-    } catch (e) { alert('Director pass failed: ' + (e as Error).message) }
-    setBusy(false); await reload()
+      const d = await jpost<DraftRevision>(`${base}/director-pass`, {})
+      setDraft(d)
+      setBusy(false)
+      const da = d.revision.described_action || {}
+      const summary = (da.action_sequence && da.action_sequence[0]) || d.revision.lane || 'regenerate'
+      if (!confirm(`Director's plan: ${summary}\n\nSend to the pipeline and generate a new take via grok-kie? (~$${estUsd(scene.slot_s)})`)) return
+      const r = await jpost<Job>(`${base}/revision/${d.revision_id}/approve-and-dispatch`, {})
+      setDraft(null); setJob(r); await reload()
+      if (r.status === 'queued' && r.job_id) void pollJob(r.job_id)
+    } catch (e) { setBusy(false); alert('Fix failed: ' + (e as Error).message) }
+  }
+
+  // Verdict click. "Needs work" + a note auto-kicks the fix (generate a new take).
+  const onVerdict = async (v: Verdict) => {
+    await capture('verdict', { verdict: v })
+    if (v === 'needs_work') {
+      if (note.trim() || fb.notes.length > 0) await fixInPipeline()
+      else alert('Marked needs-work. Add a note describing the fix, then it auto-generates a new take.')
+    }
   }
 
   const pollJob = async (jobId: string) => {
@@ -142,7 +161,7 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
 
       <div className="verdicts">
         {VERDICTS.map((v) => (
-          <button key={v} className={`vbtn ${v}${fb.verdict === v ? ' active' : ''}`} onClick={() => capture('verdict', { verdict: v })}>{VLABEL[v]}</button>
+          <button key={v} className={`vbtn ${v}${fb.verdict === v ? ' active' : ''}`} disabled={working} onClick={() => onVerdict(v)}>{VLABEL[v]}</button>
         ))}
       </div>
 
@@ -163,12 +182,13 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
         <button className="act" onClick={() => { if (sugg.trim()) capture('suggestion', { text: sugg.trim(), change_type: ctype }).then(() => setSugg('')) }}>Add</button>
       </div>
 
-      <button className="regen" disabled={busy} onClick={runDirectorPass}>
-        {busy ? 'Running director pass…' : `↻ Regenerate scene ${scene.number} → run director pass`}
+      <button className="regen" disabled={working} onClick={fixInPipeline}>
+        {busy ? <><span className="spinner" />Planning the fix…</> : `↻ Fix scene ${scene.number} in the pipeline`}
       </button>
-      <div className="hint">Your notes go to the director (rules applied), not injected raw. Approve the revised plan to generate a new take.</div>
+      <div className="hint">Needs a note. The director re-plans from your notes (rules applied), you confirm the cost, then a new take is generated and shows up here to review. (Server needs KIE_API_KEY + network.)</div>
 
       <div>
+        {busy && !job && <div className="jobbanner running"><span className="spinner" />Planning the fix…</div>}
         {job && <JobBanner job={job} />}
         {draft && <RevisionCard scene={scene} rid={draft.revision_id} rev={draft.revision} status="drafted" onApprove={approveAndDispatch} onReject={reject} />}
         {fb.revisions.filter((r) => !draft || r.id !== draft.revision_id).slice().reverse().map((r) => (
@@ -245,5 +265,6 @@ function JobBanner({ job }: { job: Job }) {
     idempotent: ['✓', 'this revision was already generated'],
   }
   const [icon, text] = map[job.status] || ['', job.status]
-  return <div className={`jobbanner ${job.status}`}>{icon} {text}</div>
+  const spinning = ['queued', 'running', 'busy'].includes(job.status)
+  return <div className={`jobbanner ${job.status}`}>{spinning ? <span className="spinner" /> : `${icon} `}{text}</div>
 }
