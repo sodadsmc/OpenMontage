@@ -63,6 +63,11 @@ class FLFSpec:
     drain: float = 0.85             # deterministic end: blend weight toward navy (subject goes cold/dead)
     band: tuple[float, float] | None = None   # optional (lo, hi) vertical ramp — drains only that region (dim N of M)
     anchor: str = "fresh"           # "fresh", or a bible asset_id to ground/edit the start keyframe on a real reference
+    # CONTENT state-morph (a legible glyph/text change you must watch happen, e.g. X->E, an error
+    # code appearing). When set, the matched START/END frames are authored by PIL-compositing the
+    # text onto one Nano base (pixel-matched except the glyph) instead of draining — see lib.flf.
+    # {box:[x,y,w,h] fractions, start_text, end_text, color}.
+    morph: dict | None = None
 
     @classmethod
     def from_dict(cls, d: dict) -> "FLFSpec":
@@ -73,6 +78,7 @@ class FLFSpec:
             drain=float(d.get("drain", 0.85)),
             band=tuple(band) if band else None,
             anchor=d.get("anchor", "fresh"),
+            morph=d.get("morph"),
         )
 
 

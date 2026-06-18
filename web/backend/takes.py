@@ -287,6 +287,7 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
                 drain=float(f.get("drain", 0.85)),
                 band=tuple(f["band"]) if f.get("band") else None,
                 anchor=f.get("anchor") or "fresh",
+                morph=f.get("morph"),
             )
             conformed = flf_mod.flf_segment(flf_spec, slot_s, str(take_target),
                                             keyframe_dir=str(scratch), bible=None)

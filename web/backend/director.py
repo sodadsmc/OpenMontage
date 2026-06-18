@@ -79,13 +79,24 @@ Return ONLY this JSON object:
 When (and only when) lane is "flf_state_morph" or "flf_drain", set "flf" to:
   {"start_prompt": "channel-style keyframe the shot STARTS on — subject present/lit, one contained composition, locked camera",
    "transition": "the start->end change in <=500 chars (one change; camera locked)",
-   "drain": 0.85, "band": null, "anchor": "fresh"}
-- The END frame is derived DETERMINISTICALLY by darkening the start toward navy
-  (cold/dead), so author the change as a 'goes cold / dims / goes dark' transition.
-- drain 0.8-0.92 = strong (subject/region goes dead); lower = partial dimming.
-- band [lo,hi] (fractions of frame height) dims only a vertical region — use for
-  'N of M go dark' count reveals (e.g. [0.50,0.62] dims the front/bottom group);
-  null = whole frame.
+   "drain": 0.85, "band": null, "anchor": "fresh", "morph": null}
+
+Pick ONE of two end-frame techniques:
+1. DRAIN (default; for going cold / dims / goes dark / 'N of M go dark'):
+   - drain 0.8-0.92 = strong (subject/region goes dead); lower = partial dimming.
+   - band [lo,hi] (fractions of frame height) dims only a vertical region — e.g.
+     [0.50,0.62] dims the front/bottom group for a count reveal; null = whole frame.
+   - leave "morph" null.
+2. CONTENT MORPH (for a LEGIBLE on-screen glyph/text change — X->E, an error code
+   APPEARING, a number changing): the legible text is composited deterministically
+   (Grok/Nano can't render clean screen text). Set "morph" and author start_prompt
+   as a clean glowing screen with NO text:
+     "morph": {"box": [x,y,w,h] as fractions where the glyph sits (e.g. a centered
+                console readout [0.40,0.42,0.20,0.16]),
+               "start_text": "X" (or "" if nothing is shown before),
+               "end_text": "E" (or the code that appears, e.g. "MALFUNCTION 54"),
+               "color": "amber"}
+   When you set "morph", the drain/band fields are ignored.
 - anchor "fresh", or a bible asset_id to ground the start keyframe on a canonical.
 For any non-FLF lane, "flf" must be null.
 """

@@ -69,6 +69,74 @@ def drain_endpoint(src_png: str | Path, out_png: str | Path, *,
     return str(out_png)
 
 
+AMBER_RGB: tuple[int, int, int] = (232, 164, 76)   # #e8a44c — channel amber
+CREAM_RGB: tuple[int, int, int] = (230, 220, 198)   # #e6dcc6
+_GLYPH_FONT = "C:/Windows/Fonts/arialbd.ttf"
+
+
+def _resolve_color(c) -> tuple[int, int, int]:
+    if isinstance(c, (tuple, list)) and len(c) == 3:
+        return tuple(int(x) for x in c)  # type: ignore[return-value]
+    s = str(c or "amber").strip().lower()
+    if s == "cream":
+        return CREAM_RGB
+    if s.startswith("#") and len(s) == 7:
+        return tuple(int(s[i:i + 2], 16) for i in (1, 3, 5))  # type: ignore[return-value]
+    return AMBER_RGB
+
+
+def composite_text(src_png: str | Path, out_png: str | Path, text: str,
+                   box: tuple[float, float, float, float], *,
+                   color="amber", font_path: str = _GLYPH_FONT) -> str:
+    """Draw ``text`` fitted into ``box`` (x, y, w, h as FRACTIONS of the frame) on a COPY of
+    ``src_png`` — the matched-frame technique for a CONTENT state-morph (X->E, an error code
+    appearing). The START frame carries the 'before' glyph and the END a pixel-matched copy with
+    the 'after', so Kling interpolates only the glyph, never the composition. Empty text = a clean
+    copy (e.g. the START before a code appears). Returns ``out_png``.
+
+    Why composite, not a generative edit: a Nano 'edit' of the base redraws the whole frame and
+    breaks the FLF pixel-match (and Grok paints garbled screen text) — drawing the glyph
+    deterministically is the only drift-free way to carry legible on-screen text.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+
+    img = Image.open(src_png).convert("RGB")
+    out_png = Path(out_png)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    text = (text or "").strip()
+    if not text:
+        img.save(out_png)
+        return str(out_png)
+
+    w, h = img.size
+    bx, by, bw, bh = box[0] * w, box[1] * h, box[2] * w, box[3] * h
+    draw = ImageDraw.Draw(img)
+    size = max(8, int(bh))
+    font = None
+    try:
+        font = ImageFont.truetype(font_path, size)
+    except Exception:
+        font = ImageFont.load_default()
+
+    def _measure(f):
+        l, t, r, b = draw.textbbox((0, 0), text, font=f)
+        return r - l, b - t
+
+    tw, th = _measure(font)
+    while (tw > bw or th > bh) and size > 8:
+        size -= 2
+        try:
+            font = ImageFont.truetype(font_path, size)
+        except Exception:
+            break
+        tw, th = _measure(font)
+
+    draw.text((bx + bw / 2, by + bh / 2), text, font=font, fill=_resolve_color(color),
+              anchor="mm", stroke_width=max(1, size // 18), stroke_fill=NAVY)
+    img.save(out_png)
+    return str(out_png)
+
+
 def _probe_duration(path: str | Path) -> float:
     r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                         "-of", "csv=p=0", str(path)], capture_output=True, text=True)
@@ -164,6 +232,25 @@ def flf_segment(spec, window_s: float, out: str | Path, *, keyframe_dir: str | P
         start_png.write_bytes(requests.get(str(kf), timeout=60).content)
     else:
         start_png = Path(str(kf))
+
+    # CONTENT state-morph (a legible glyph/text change): composite the changed element onto
+    # matched START/END frames. Otherwise: derive the END by draining toward navy.
+    morph = getattr(spec, "morph", None)
+    if morph:
+        from lib.image_host import upload_image
+        s_png = keyframe_dir / f"{out.stem}_flf_start.png"
+        e_png = keyframe_dir / f"{out.stem}_flf_end.png"
+        box = tuple(morph.get("box") or (0.40, 0.42, 0.20, 0.16))
+        composite_text(start_png, s_png, morph.get("start_text", ""), box, color=morph.get("color", "amber"))
+        composite_text(start_png, e_png, morph.get("end_text", ""), box, color=morph.get("color", "amber"))
+        su, eu = upload_image(str(s_png)), upload_image(str(e_png))
+        if not (su and eu):
+            return None
+        if window_s <= MAX_FLF_SECONDS:
+            return vr.generate_flf_shot(su, eu, spec.transition, window_s, out, mode=mode)
+        raw = out.with_name(out.stem + "_flfraw.mp4")
+        clip = vr.generate_flf_shot(su, eu, spec.transition, float(MAX_FLF_SECONDS), raw, mode=mode)
+        return freeze_pad(clip, window_s, out) if clip else None
 
     return flf_beat(start_png, spec.transition, window_s, out, mode=mode,
                     derive=lambda s, o: drain_endpoint(s, o, drain=spec.drain, band=spec.band))
