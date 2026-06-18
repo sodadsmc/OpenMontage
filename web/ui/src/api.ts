@@ -116,3 +116,14 @@ export interface Job {
 }
 
 export interface DraftRevision { revision_id: string; revision: Revision }
+
+export interface ClipCandidate {
+  name: string
+  dir: string
+  rel: string
+  path: string
+  url: string
+  size_mb: number
+  mtime: number
+  seg_match: boolean
+}

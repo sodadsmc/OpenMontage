@@ -137,6 +137,16 @@ FLF is **segment-granular** (one lane per segment via `visual.flf`). To mix FLF 
 - **Discipline:** generate in **~3-min chunks**, review the chunk (contact sheet + cost preview), THEN spend on the next chunk.
 - **Cost ledger (persistent, append-only):** every paid call (grok-kie, kling-kie, nano) logs to `artifacts/cost_ledger.jsonl`. Read the running tally: `python -m lib.cost_ledger` (or `--since 2026-06-16`). **Announce paid generation cost before spending.**
 
+### Scene-review dashboard (run the server)
+
+A FastAPI + React app under `web/` for reviewing the cut scene-by-scene (number-badged clips, approve/reject + notes/suggestions, regenerate through the director pass, or swap in an existing clip). All commands run from the workspace root (`D:/OpenMontage2`).
+
+- **First-time setup:** `pip install -r web/requirements.txt`, then build the UI once: `npm install --prefix web/ui && npm run build --prefix web/ui`. (Without the build, the server still works — it serves the no-build fallback in `web/frontend/`.)
+- **Start the server:** `uvicorn web.backend.app:app --port 8011` → open **`http://localhost:8011`**. It defaults to the `therac-25-test` project and reads the live artifacts, so a browser refresh always shows current state.
+- **UI dev (hot reload):** run the API as above, and in another terminal `npm run dev --prefix web/ui` (Vite on `:5173`, proxies `/api` → `:8011`).
+- **Optional env:** `GOOGLE_API_KEY` enables the real director pass; `KIE_API_KEY` enables paid regenerate/dispatch; `OPENMONTAGE_DISABLE_DISPATCH=1` is a hard kill-switch for paid regeneration. `GET /api/health` reports what's wired.
+- **RUN IT YOURSELF in a terminal.** DON'T rely on an editor/agent-managed preview server — those get reaped between turns and the dashboard vanishes. If the port is busy, use `--port 8012`.
+
 ## 4. RULES & ANTI-PATTERNS (one-line DO/DON'T)
 
 - **Follow the narration verb.** DO find the verb in each line and stage it as a subject physically acting + a camera move. DON'T leave nothing in frame acting — that beat gets rejected.

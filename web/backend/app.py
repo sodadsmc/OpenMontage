@@ -195,6 +195,25 @@ def get_jobs(pid: str):
     return takes_mod.list_jobs(pid)
 
 
+@app.get(API + "/projects/{pid}/scenes/{sid}/clip-candidates")
+def get_clip_candidates(pid: str, sid: str):
+    return takes_mod.clip_candidates(pid, sid)
+
+
+@app.post(API + "/projects/{pid}/scenes/{sid}/use-clip")
+def post_use_clip(pid: str, sid: str, body: dict = Body(...)):
+    """Swap a scene to an existing clip we already have (manual take override)."""
+    path = body.get("path")
+    if not path:
+        raise HTTPException(400, "path required")
+    try:
+        return takes_mod.assign_clip(pid, sid, path, body.get("label", ""))
+    except FileNotFoundError:
+        raise HTTPException(404, "clip not found")
+    except ValueError:
+        raise HTTPException(403, "path outside project")
+
+
 # ---- media (range-served so video seeks) ----------------------------------
 
 @app.get(API + "/projects/{pid}/media/{path:path}")

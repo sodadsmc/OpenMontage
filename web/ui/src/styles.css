@@ -160,6 +160,20 @@ details.shots pre { white-space: pre-wrap; font-size: 12px; color: var(--muted);
 .take-chip.accepted { color: var(--ok); }
 .take-chip.needs_review { color: var(--warn); }
 
+/* swap-clip picker */
+.swapwrap { margin-top: 10px; }
+.swapbtn { font-size: 12px; padding: 6px 10px; }
+.swappanel { margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--navy); }
+.swappanel input { margin-bottom: 8px; }
+.cliplist { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.cliprow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); }
+.cliprow.seg { border-color: rgba(224,163,62,.4); }
+.clipmeta { min-width: 0; overflow: hidden; font-size: 12px; }
+.clipname { color: var(--ink); }
+.clipactions { display: flex; gap: 6px; flex: 0 0 auto; }
+.clipactions .act { padding: 5px 10px; font-size: 12px; }
+.clipactions .use { border-color: var(--amber); color: var(--amber); }
+
 /* job banner */
 .jobbanner { margin: 12px 0; padding: 10px 12px; border-radius: 9px; font-size: 13px; background: var(--navy); border: 1px solid var(--line); }
 .jobbanner.queued, .jobbanner.running, .jobbanner.busy { border-color: var(--amber); color: var(--amber); }

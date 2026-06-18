@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { API, jget, jpost } from '../api'
-import type { DraftRevision, Job, Scene, Verdict } from '../api'
+import type { ClipCandidate, DraftRevision, Job, Scene, Verdict } from '../api'
 import RevisionCard from './RevisionCard'
 
 const VERDICTS: Verdict[] = ['approve', 'needs_work', 'reject']
@@ -18,6 +18,9 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   const [job, setJob] = useState<Job | null>(null)
   const [busy, setBusy] = useState(false)
   const [viewUrl, setViewUrl] = useState<string | null>(null)
+  const [candidates, setCandidates] = useState<ClipCandidate[] | null>(null)
+  const [clipFilter, setClipFilter] = useState('')
+  const [swapOpen, setSwapOpen] = useState(false)
   const alive = useRef(true)
   useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
 
@@ -67,6 +70,20 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
     catch (e) { alert('Failed: ' + (e as Error).message) }
   }
 
+  const openSwap = async () => {
+    const next = !swapOpen; setSwapOpen(next)
+    if (next && !candidates) {
+      try { setCandidates(await jget<ClipCandidate[]>(`${base}/clip-candidates`)) }
+      catch (e) { alert('Load failed: ' + (e as Error).message) }
+    }
+  }
+
+  const useClip = async (c: ClipCandidate) => {
+    if (!confirm(`Use "${c.name}" as the clip for scene ${scene.number}?`)) return
+    try { await jpost(`${base}/use-clip`, { path: c.path, label: c.name }); setViewUrl(null); setSwapOpen(false); await reload() }
+    catch (e) { alert('Failed: ' + (e as Error).message) }
+  }
+
   return (
     <section className="detail">
       <Player scene={scene} srcUrl={srcUrl} />
@@ -82,6 +99,33 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
           ))}
         </div>
       )}
+
+      <div className="swapwrap">
+        <button className="act swapbtn" onClick={openSwap}>{swapOpen ? '▾ hide clips' : '⇄ swap to an existing clip'}</button>
+        {swapOpen && (
+          <div className="swappanel">
+            <input placeholder="filter by name…" value={clipFilter} onChange={(e) => setClipFilter(e.target.value)} />
+            {candidates === null
+              ? <div className="muted" style={{ padding: '8px 0' }}>loading…</div>
+              : (
+                <div className="cliplist">
+                  {candidates.filter((c) => c.name.toLowerCase().includes(clipFilter.toLowerCase())).slice(0, 60).map((c) => (
+                    <div key={c.rel} className={`cliprow${c.seg_match ? ' seg' : ''}`}>
+                      <div className="clipmeta">
+                        <span className="clipname">{c.name}</span>
+                        <span className="muted"> · {c.dir.replace('assets/', '')} · {c.size_mb}MB{c.seg_match ? ' · matches scene' : ''}</span>
+                      </div>
+                      <div className="clipactions">
+                        <button className="act" onClick={() => setViewUrl(c.url)}>preview</button>
+                        <button className="act use" onClick={() => useClip(c)}>use</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
+        )}
+      </div>
 
       <p className="narr">{scene.narration}</p>
 

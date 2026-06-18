@@ -92,7 +92,11 @@ def load_scenes(project_id: str) -> dict:
     art = project_dir / "artifacts"
 
     dm = _read_json(art / "duration_map_v6.json", {}) or {}
+    # ai_visual_assets_v6.json holds the current/approved AI-segment clips and is the
+    # primary source. visual_assets_v6.json (the older conformed map) is ONLY a fallback
+    # for scenes it doesn't cover (manim / text-card), so those still get a clip to show.
     assets = _read_json(art / "ai_visual_assets_v6.json", {}) or {}
+    final_assets = _read_json(art / "visual_assets_v6.json", {}) or {}
     # Regenerated takes live alongside the baseline (written by web.backend.takes);
     # an accepted take is preferred over the original without rewriting the manifest.
     takes_idx = _read_json(art / "ai_segments_takes.json", {}) or {}
@@ -115,7 +119,11 @@ def load_scenes(project_id: str) -> dict:
         seg_takes = takes_idx.get(sid, [])
         accepted = [t for t in seg_takes if t.get("verdict") == "accepted"]
         latest_accepted = max(accepted, key=lambda t: t.get("take", 0)) if accepted else None
-        preferred = latest_accepted["path"] if latest_accepted else assets.get(sid)
+        # The good AI-segment clips (ai_visual_assets) win; visual_assets_v6 is ONLY a
+        # fallback for scenes absent from it (manim / text-card), so AI scenes keep the
+        # exact clips that were reviewed and manim scenes still get a clip to show.
+        baseline = assets.get(sid) or final_assets.get(sid)
+        preferred = latest_accepted["path"] if latest_accepted else baseline
         clip_rel = _norm_rel(preferred, project_dir)
         active_take = latest_accepted["take"] if latest_accepted else 0  # 0 = baseline
         # Visuals are silent (TTS-first): the narration lives in a separate mp3

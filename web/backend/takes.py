@@ -21,6 +21,7 @@ import threading
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from pathlib import Path
 from types import SimpleNamespace
 
 from web.backend import feedback as fb
@@ -96,6 +97,76 @@ def get_job(job_id: str) -> dict | None:
 
 def list_jobs(pid: str) -> list[dict]:
     return [_job_view(j) for j in _JOBS.values() if j.get("project_id") == pid]
+
+
+# ---- existing-clip picker (swap a scene to a better clip we already have) ----
+
+_CLIP_DIRS = [
+    "assets/ai_segments", "assets/conformed_v6", "assets/visuals_synced",
+    "assets/visuals_v6", "assets/video/generated", "assets/video/clips", "renders",
+]
+
+
+def clip_candidates(pid: str, sid: str, limit: int = 120) -> list[dict]:
+    """List existing .mp4 clips in the project a scene could be swapped to.
+
+    Scene-matching clips are surfaced first, then everything else newest-first, so
+    'the clip we made for this' is easy to find (and previewable) in the UI.
+    """
+    base = PROJECTS_DIR / pid
+    seg_num = sid.split("_")[-1] if "_" in sid else sid
+    seen: set[str] = set()
+    out: list[dict] = []
+    for d in _CLIP_DIRS:
+        dd = base / d
+        if not dd.is_dir():
+            continue
+        for f in sorted(dd.glob("*.mp4")):
+            rel = str(f.relative_to(base)).replace("\\", "/")
+            if rel in seen:
+                continue
+            seen.add(rel)
+            try:
+                st = f.stat()
+            except OSError:
+                continue
+            name = f.name
+            seg_match = (sid in name) or (f"seg_{seg_num}" in name) or (f"_{seg_num}_" in name)
+            out.append({
+                "name": name, "dir": d, "rel": rel,
+                "path": f"projects/{pid}/{rel}",
+                "url": f"/api/projects/{pid}/media/{rel}",
+                "size_mb": round(st.st_size / 1_000_000, 1),
+                "mtime": st.st_mtime, "seg_match": seg_match,
+            })
+    out.sort(key=lambda x: (not x["seg_match"], -x["mtime"]))
+    return out[:limit]
+
+
+def assign_clip(pid: str, sid: str, path: str, label: str = "") -> dict:
+    """Set an EXISTING clip as the active take for a scene (manual override).
+
+    Reuses the take store: the assigned clip is recorded as an accepted take, so the
+    scene loader prefers it (the original baseline is never touched).
+    """
+    base = (PROJECTS_DIR / pid).resolve()
+    s = str(path).replace("\\", "/")
+    prefix = f"projects/{pid}/"
+    projrel = s[len(prefix):] if s.startswith(prefix) else s
+    target = (PROJECTS_DIR / pid / projrel).resolve()
+    target.relative_to(base)  # raises ValueError if the path escapes the project
+    if not target.is_file():
+        raise FileNotFoundError(projrel)
+    take_n = len(read_index(pid).get(sid, [])) + 1
+    entry = {
+        "take": take_n, "path": f"projects/{pid}/{projrel}",
+        "verdict": "accepted", "passed": True, "score": None,
+        "provider": "manual", "source": "existing-clip",
+        "label": label or Path(projrel).name, "cost_usd": 0.0, "ts": _now(),
+    }
+    _append_take(pid, sid, entry)
+    fb.append_event(pid, actor="human", type="take_generated", scene_id=sid, payload=entry)
+    return entry
 
 
 # ---- dispatch ------------------------------------------------------------
