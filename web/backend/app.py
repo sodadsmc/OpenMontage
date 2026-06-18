@@ -211,6 +211,8 @@ def media(pid: str, path: str):
 
 
 # ---- static frontend (mounted last so /api/* wins) ------------------------
-
-_FRONTEND = REPO_ROOT / "web" / "frontend"
+# Prefer the built React/Vite app (web/ui/dist); fall back to the vanilla app
+# (web/frontend) when the UI hasn't been built yet.
+_UI_DIST = REPO_ROOT / "web" / "ui" / "dist"
+_FRONTEND = _UI_DIST if (_UI_DIST / "index.html").is_file() else (REPO_ROOT / "web" / "frontend")
 app.mount("/", StaticFiles(directory=str(_FRONTEND), html=True), name="frontend")

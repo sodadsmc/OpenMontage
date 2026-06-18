@@ -1,0 +1,118 @@
+// Typed client for the scene-review backend.
+export const API = '/api'
+
+export async function jget<T>(u: string): Promise<T> {
+  const r = await fetch(u)
+  if (!r.ok) throw new Error(`${u} -> ${r.status}`)
+  return r.json() as Promise<T>
+}
+
+export async function jpost<T>(u: string, body?: unknown): Promise<T> {
+  const r = await fetch(u, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body ?? {}),
+  })
+  if (!r.ok) throw new Error(`${u} -> ${r.status}`)
+  return r.json() as Promise<T>
+}
+
+// ---- types ----
+export type Verdict = 'approve' | 'needs_work' | 'reject'
+
+export interface Project { id: string; title: string; scene_count: number | null }
+
+export interface AutoGate {
+  verdict?: string | null
+  score?: number | null
+  missing?: string[]
+  suggested_prompt?: string
+}
+
+export interface Take {
+  take: number
+  verdict: string
+  score: number | null
+  cost_usd?: number
+  revision_id?: string
+  ts?: string
+  url: string | null
+}
+
+export interface DescribedAction {
+  subjects?: string[]
+  setting?: string
+  action_sequence?: string[]
+  props?: string[]
+  on_screen_text?: string
+  manner?: string
+  characterization?: string
+  depiction_mode?: string
+  lane_plan?: { beat: string; lane: string }[]
+}
+
+export interface Revision {
+  revised_prompt?: string
+  lane?: string
+  rationale?: string
+  described_action?: DescribedAction
+  gate_precheck?: { narration_alignment?: string; subject_named?: boolean }
+  _source?: string
+  _error?: string
+}
+
+export interface RevisionEntry { id: string; revision: Revision; status: string; ts?: string }
+
+export interface Feedback {
+  verdict: Verdict | null
+  notes: { text: string; ts?: string }[]
+  suggestions: { text: string; change_type?: string; ts?: string }[]
+  revisions: RevisionEntry[]
+  takes: unknown[]
+  event_count: number
+}
+
+export interface Shot { shot_id: string; provider?: string; prompt?: string }
+
+export interface Scene {
+  number: number
+  id: string
+  narration: string
+  slot_s: number
+  timeline_start_s: number
+  lane: string | null
+  flf: boolean
+  narration_mode: string
+  narration_mode_default: boolean
+  clip_url: string | null
+  audio_url: string | null
+  active_take: number
+  take_count: number
+  takes: Take[]
+  shots: Shot[]
+  auto_gate: AutoGate | null
+  feedback: Feedback
+}
+
+export interface ScenesPayload { project_id: string; title: string; scenes: Scene[] }
+export interface Cost { total_usd: number; calls: number; by_provider: Record<string, number> }
+export interface Health {
+  director: { model: string; google_api_key_loaded: boolean; sdk_installed: boolean }
+  dispatch: { kie_api_key: boolean; disabled: boolean; lanes: string[] }
+}
+
+export type JobStatus =
+  | 'queued' | 'running' | 'succeeded' | 'failed' | 'blocked'
+  | 'not_yet_auto_dispatched' | 'busy' | 'idempotent'
+
+export interface Job {
+  job_id?: string
+  status: JobStatus
+  est_usd?: number
+  lane?: string
+  error?: string
+  reason?: string
+  take?: Take | null
+}
+
+export interface DraftRevision { revision_id: string; revision: Revision }

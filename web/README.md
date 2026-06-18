@@ -15,9 +15,24 @@ From the repo root:
 
 ```bash
 pip install -r web/requirements.txt
-uvicorn web.backend.app:app --reload --port 8000
-# open http://localhost:8000   (defaults to the therac-25-test project)
+# build the React UI once (FastAPI serves web/ui/dist; falls back to web/frontend if unbuilt)
+npm install --prefix web/ui && npm run build --prefix web/ui
+uvicorn web.backend.app:app --port 8011
+# open http://localhost:8011   (defaults to the therac-25-test project)
 ```
+
+### Frontend
+
+The UI is a **React + TypeScript + Vite** app in `web/ui/` (the original vanilla-JS
+app in `web/frontend/` remains as a no-build fallback). For UI development with
+hot reload, run the backend on :8011 and the Vite dev server alongside:
+
+```bash
+uvicorn web.backend.app:app --port 8011        # API
+npm run dev --prefix web/ui                     # UI on :5173, proxies /api -> :8011
+```
+
+`npm run build --prefix web/ui` emits `web/ui/dist`, which the backend serves at `/`.
 
 ## What it reads (read-only)
 
@@ -89,6 +104,6 @@ the **grok** lane only (FLF/manim stay on the manual pipeline). Set
 
 ## Not yet built (next steps)
 
-- Port the vanilla-JS frontend to React/Vite + reuse `remotion-composer`.
+- Reuse `remotion-composer` components in the React UI for in-browser composition preview.
 - Auto-dispatch the FLF / manim lanes (need authored keyframes / scene defs).
 - SSE live progress (currently polled) and balance-diff cost truthing.
