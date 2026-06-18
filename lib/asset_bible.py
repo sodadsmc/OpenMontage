@@ -30,8 +30,11 @@ SCHEMA_VERSION = "1.1"
 
 # Visual types that draw from real-world/generated footage (candidates for an
 # Asset Bible entry). Cards/animations are deterministic and need no anchor.
+# The PRIMARY path is ``ai_video`` — generated footage that depicts the
+# narration. ``atmospheric_footage`` is a LEGACY/non-primary mode kept only for
+# mood-only beats (and pre-migration scripts); do not author new segments to it.
 FOOTAGE_TYPES = {
-    "atmospheric_footage",
+    "atmospheric_footage",  # LEGACY: mood-only beats; not a primary visual path
     "archival_footage",
     "stock_footage",
     "generated_footage",
@@ -206,7 +209,8 @@ def extract_assets(script: ScoredScript) -> AssetBible:
 
     - One LOCATION asset per distinct ``visual.location_id``.
     - One SUBJECT asset per ``subject_continuity`` chain among footage segments
-      that have no ``location_id`` (e.g. an opening atmospheric pair).
+      that have no ``location_id`` (e.g. a deliberate mood treatment such as an
+      opening pair of atmospheric beats).
 
     One-off footage segments with no ``location_id`` and no continuity chain get
     NO asset — the seam generates them directly without a canonical anchor.

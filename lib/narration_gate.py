@@ -12,12 +12,23 @@ authoring agent's honor. The observed failure modes:
      another.
 
 This module is a pre-spend hard gate: it sends every generative segment's
-narration + prompts to Gemini and asks "would a viewer feel these belong
-together?" BEFORE any video credits are burned. It deliberately judges by
-documentary-b-roll standards (atmospheric footage that agrees with subject,
-location, era, mood, and stakes is a match — the visual does not need to
-caption the narration), so it flags real contradictions, not stylistic
-looseness.
+narration + prompts to Gemini and asks "does the visual DEPICT what the
+narration describes?" BEFORE any video credits are burned. The channel is
+AI-generation-first: every scene is generated to show the narrated subject
+performing the narrated action, so the gate's default standard is literal
+DEPICTION, not atmospheric agreement.
+
+The bar is per-beat, keyed off each segment's ``narration_mode``:
+  - ``literal`` (the default when unset): a "match" requires the visual to
+    depict the narrated subject + action (narration "the operator presses P"
+    -> hands at the keyboard pressing P, not "moody control room"). An
+    atmospheric-only prompt that merely agrees on subject/era/mood is a
+    "partial"/"mismatch" here, because the generator can and should show the
+    action.
+  - ``evocative``: the looser bar (atmospheric footage that agrees on subject,
+    location, era, mood, and stakes is a match) — a valid PER-BEAT treatment,
+    no longer the system-wide default.
+  - ``none``: minimal alignment expectation (e.g. a pure mood/transition beat).
 
 Fail-closed: an API or parse failure for a segment yields verdict "error",
 which fails the gate — we never green-light spend on an unvalidated segment.
@@ -50,11 +61,13 @@ _log = logging.getLogger(__name__)
 
 # Visual types that route to paid generative video — the only ones worth
 # gating (manim/text cards have their own validators and no prompt-drift
-# failure mode). Names match lib/script_validator.py and lib/asset_bible.py.
+# failure mode). Only GENERATED types belong here: ``atmospheric_footage`` is
+# RETRIEVED stock (judged by relevance, not this depiction gate) and is
+# intentionally excluded; ``generated_footage`` is a legacy alias for ai_video
+# kept for back-compat. Names match lib/script_validator.py and lib/asset_bible.py.
 GENERATIVE_TYPES = frozenset({
     "ai_video",
-    "atmospheric_footage",
-    "generated_footage",
+    "generated_footage",  # legacy alias for ai_video
 })
 
 # Documentary narration pace used to estimate on-screen duration from word
@@ -75,43 +88,55 @@ _BATCH_SIZE = 8
 # The alignment rubric. Kept as a single verbatim block so reviewers can
 # audit exactly what standard the gate applies.
 ALIGNMENT_RUBRIC = """\
-You are an alignment auditor for a documentary video pipeline.
+You are an alignment auditor for an AI-GENERATED documentary video pipeline.
 
-For each segment below you get the NARRATION (what the viewer hears) and the
-VISUAL PROMPT(s) (what an AI video model will be asked to generate for that
-exact stretch of narration). Judge whether a viewer watching the generated
-visual while hearing the narration would feel they belong together.
+Every visual here is generated from scratch (not retrieved stock), so the
+visual CAN and SHOULD depict exactly what the narration describes. For each
+segment you get the NARRATION (what the viewer hears), the VISUAL PROMPT(s)
+(what the AI video model will generate for that exact stretch), and a MODE
+that sets which standard to apply.
 
-Rules of judgement:
-- The visual does NOT need to literally caption the narration. Atmospheric
-  or period b-roll counts as a "match" when it agrees with the narration's
-  subject, location, era, mood, and stakes.
-- "match": the visual supports what is being said. Nothing on screen would
-  strike a viewer as contradicting the words.
-- "partial": the visual is compatible but misses an important element of the
-  narration (a named subject, a key action, an escalation), OR the narration
-  moves through several distinct beats (something appears -> someone reacts
-  -> a consequence sets in) while the prompt describes a single static beat
-  that cannot carry the arc for the estimated duration.
-- "mismatch": a viewer would notice the visual contradicts or ignores what
-  is being said — wrong location, wrong subject, wrong action, wrong era,
-  or a multi-beat narration arc covered by a single static beat so the
-  visual feels disconnected from the words.
-- "score": 1-10 overall alignment. 9-10 = the visual actively tells the
-  narrated moment; 7-8 = good supporting b-roll; 5-6 = compatible but with
-  real gaps; 1-4 = a viewer would be confused or pulled out of the film.
+Apply the standard by MODE:
+- MODE "literal" (the default): the visual must DEPICT the narrated subject
+  performing the narrated action. Narration "the operator back-spaces and
+  types P" -> hands at the keyboard doing exactly that. A prompt that only
+  sets mood or shows the right place/era WITHOUT the narrated action/subject
+  is NOT a match here — the generator could show the action and didn't.
+  (Non-depictable characterization like "because she was experienced" informs
+  HOW she moves; it is not itself a required on-screen element.)
+- MODE "evocative": looser. Atmospheric/period imagery that agrees with the
+  narration's subject, location, era, mood, and stakes counts as a match even
+  if it does not literally show the action.
+- MODE "none": minimal expectation — only a hard contradiction (wrong era,
+  wrong subject entirely) is a problem.
+
+Verdicts:
+- "match": meets the bar for its MODE. For "literal", the narrated subject and
+  action are clearly depicted; for "evocative", the imagery clearly agrees.
+- "partial": compatible but falls short of the MODE's bar — e.g. a "literal"
+  beat whose prompt sets the scene/mood but does not show the narrated action,
+  or names the wrong subject; OR the narration moves through several distinct
+  beats (something appears -> someone reacts -> a consequence) while one static
+  prompt covers a single beat and cannot carry the arc for the duration.
+- "mismatch": a viewer would notice the visual contradicts or ignores the
+  words — wrong location, wrong subject, wrong action, wrong era; or a
+  "literal" beat with no attempt to depict the narrated action.
+- "score": 1-10 overall. 9-10 = clearly depicts/enacts the narrated moment;
+  7-8 = depicts the subject + action with minor staging gaps; 5-6 = sets the
+  scene but the key action is unclear or missing (a "literal" beat cannot be a
+  "match" at this tier); 1-4 = a viewer would be confused or pulled out.
 - "missing_elements": concrete things the narration establishes that the
-  visual ignores and a viewer would expect to see (or see evolve).
+  visual fails to depict and a viewer would expect to SEE happen.
 - "extraneous_elements": things in the prompt that contradict the narration
   or introduce off-script content a viewer would question.
-- "suggested_prompt": only when verdict is "partial" or "mismatch" — a
-  revised prompt preserving the segment's visual approach that closes the
-  gaps; otherwise an empty string.
-- "narration_beats": the number of distinct narrative beats in the
-  NARRATION alone (ignore the visual). A beat is a distinct event or state
-  change a viewer would expect to register — e.g. "an error appears" ->
-  "operators ignore it" -> "ignoring becomes habit" is 3 beats. A single
-  sustained description or mood is 1 beat.
+- "suggested_prompt": only when verdict is "partial" or "mismatch" — a revised
+  prompt that preserves the segment's visual approach but DEPICTS the narrated
+  subject + action; otherwise an empty string.
+- "narration_beats": the number of distinct narrative beats in the NARRATION
+  alone (ignore the visual). A beat is a distinct event or state change a
+  viewer would expect to register — e.g. "an error appears" -> "operators
+  ignore it" -> "ignoring becomes habit" is 3 beats. A single sustained
+  description or mood is 1 beat.
 
 Return ONLY a JSON array, one object per segment, in the same order:
 [{"segment_id": "...", "verdict": "match"|"partial"|"mismatch",
@@ -181,8 +206,12 @@ def _segment_block(seg: Any) -> str:
     """
     vis = seg.visual
     est_s = seg.word_count / _WORDS_PER_SECOND
+    # Depiction is the default standard; a beat opts into the looser bar by
+    # setting narration_mode to "evocative" (or "none"). Unset -> "literal".
+    mode = (getattr(seg, "narration_mode", None) or "literal").lower()
     lines = [
         f"segment_id: {seg.id}",
+        f"MODE: {mode}",
         f"estimated_on_screen_duration: {est_s:.0f}s",
         f'NARRATION: "{seg.narration}"',
         f'VISUAL PROMPT: "{vis.effective_prompt}"',

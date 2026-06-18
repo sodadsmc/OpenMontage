@@ -234,9 +234,11 @@ class PacingEngine(BaseTool):
 
             if not clips:
                 warnings.append(
-                    f"{scene_id}: No clips provided. Flagged for AI gap-fill."
+                    f"{scene_id}: no retrieved clips — routed to AI generation."
                 )
-                # Emit a placeholder cut flagged for gap-fill
+                # Emit a placeholder cut routed to AI generation. A scene with no
+                # retrieved clips is an AI-generation job (the primary path), not a
+                # retrieval 'gap' — the source token is kept for consumer compat.
                 cuts.append({
                     "id": f"cut_{cut_index:03d}",
                     "source": "__gap_fill__",
@@ -247,7 +249,7 @@ class PacingEngine(BaseTool):
                     "transform": {
                         "animation": pacing_config.get("animation", "static"),
                     },
-                    "reason": f"{scene_id}: no clips — needs AI gap-fill",
+                    "reason": f"{scene_id}: no retrieved clips — route to AI generation",
                     "_scene_id": scene_id,
                     "_pacing": pacing,
                     "_timeline_start": timeline_cursor,

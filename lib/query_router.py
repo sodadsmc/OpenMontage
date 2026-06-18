@@ -1,4 +1,10 @@
-"""Source-aware query router for footage sourcing.
+"""Source-aware query router for the RETRIEVAL/archival fallback path.
+
+Scope: this serves the deliberate fallback of retrieving REAL footage/imagery
+(stock_footage / archival_footage and the knowledge/technical archives below).
+It is no longer the default visual acquisition for the AI channel — the primary
+path generates AI video that depicts the narration. Use this router only when a
+beat calls for genuine real-world/historical material.
 
 Transforms a scene's metadata into optimized queries per source adapter.
 Different sources respond to different query styles:

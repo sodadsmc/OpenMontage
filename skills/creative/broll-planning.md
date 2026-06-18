@@ -11,6 +11,8 @@ stock footage vs. AI generation, and how to get good results from each.
 
 ## The Decision Matrix: Stock vs. Generated
 
+> For the narrated-documentary channel, AI video is PRIMARY — every scene is generated to depict the narration (see `skills/pipelines/narrated-documentary/ai-visual-director.md`). This matrix applies to retrieval-first pipelines (documentary-montage, explainer, cinematic) where searching/choosing footage is the workflow.
+
 | Scene Need | Prefer Stock | Prefer Generated |
 |------------|-------------|-----------------|
 | Real-world establishing shot (city, office, nature) | **Yes** — stock excels here | Only if no good stock match |

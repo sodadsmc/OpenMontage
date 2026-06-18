@@ -319,6 +319,8 @@ judge each one against:
 
 **Acceptable-score rules of thumb (CLIP ViT-B/32 cosine):**
 
+> These thresholds apply ONLY to documentary-montage STOCK retrieval. AI-generated visuals (narrated-documentary) are judged by the depiction standard in `lib/narration_gate.py`, not by CLIP score.
+
 - `>= 0.30` — strong match, usually usable.
 - `0.22-0.30` — plausible, needs human judgement.
 - `< 0.22` — the corpus doesn't contain what you need. Grow it,

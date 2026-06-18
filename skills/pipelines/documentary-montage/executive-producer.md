@@ -26,6 +26,7 @@ a talking-head video, pick a different pipeline.
 ## Philosophy
 
 Documentary montage is retrieval-first, not generation-first.
+(If the project needs scenes generated to depict the narration, that's the narrated-documentary pipeline instead.)
 The corpus is the raw material; the edit is the thinking. Your job
 across all stages is to:
 

@@ -1,5 +1,7 @@
 # Scoring Director - Narrated Documentary Pipeline
 
+> **SCOPE:** The narrated-documentary channel is generation-first — ~99% of segments are AI-generated to DEPICT the narration (see `ai-visual-director.md`) and are NOT scored here. This three-layer scoring workflow applies ONLY to the rare archival/fallback case: `archival_footage` segments (genuine historical footage) or segments where AI generation hard-failed. If you're here for a normal scene, you're in the wrong stage.
+
 ## When To Use
 
 **Archival / fallback path only.** In the AI-primary pipeline, AI-generated video

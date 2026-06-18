@@ -148,7 +148,7 @@
         "description": {
           "type": "string",
           "minLength": 10,
-          "description": "Rich prose description of the visual. Must match the narration content."
+          "description": "Rich prose description of what the visual must SHOW/DEPICT — the concrete subject and action the narration describes, not mood alone (e.g. 'a technician reaches for the linac control dial as the screen flickers red', not 'moody medical equipment'). For a deliberate mood/atmospheric beat, set the segment's narration_mode to 'evocative'."
         },
         "type": {
           "type": "string",
@@ -163,7 +163,7 @@
             "diagram",
             "mixed"
           ],
-          "description": "Visual asset type — determines generation routing. 'ai_video' = AI-generated (primary source); footage types are stock/archival fallback."
+          "description": "Visual asset type — determines generation routing. 'ai_video' = AI-generated (the PRIMARY, default source: the visual is generated to depict the narration). 'archival_footage'/'stock_footage' = retrieved real footage, a deliberate fallback for genuine historical content. 'atmospheric_footage'/'generated_footage' are LEGACY (pre-migration) aliases — author new segments as 'ai_video' (set narration_mode='evocative' for a mood treatment)."
         },
         "card_type": {
           "type": "string",
@@ -231,7 +231,7 @@
         },
         "ai_fallback_prompt": {
           "type": "string",
-          "description": "Prompt for AI video generation if stock footage unavailable"
+          "description": "LEGACY (deprecated): stock-era field that framed AI as a fallback. For 'ai_video' use 'ai_prompt' instead. Retained read-only for back-compat with existing scripts."
         },
         "ai_prompt": {
           "type": "string",

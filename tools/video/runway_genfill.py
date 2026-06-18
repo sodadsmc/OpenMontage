@@ -1,8 +1,9 @@
-"""Runway Gen-4.5 gap-filling tool.
+"""Runway Gen-4.5 AI video generation tool.
 
-Generates short AI video clips to fill gaps where stock footage is
-unavailable. Uses ai_fallback_prompt from the scene plan with style
-modifiers for dark/moody documentary aesthetic.
+Primary AI video generation for narrated-documentary scenes — generates short
+clips that depict the specific subject and action the narration describes (not
+gap-fill). Uses the scene's ai_prompt with style modifiers for a dark/moody
+documentary aesthetic.
 """
 
 from __future__ import annotations
@@ -76,9 +77,9 @@ class RunwayGapFill(BaseTool):
         "duration_range": "5-10 seconds",
     }
     best_for = [
-        "filling footage gaps where stock clips are unavailable",
-        "generating dark/moody documentary b-roll",
-        "creating AI visuals from scene plan fallback prompts",
+        "primary AI video generation for narrated-documentary scenes",
+        "depicting the specific subject/action the narration describes",
+        "creating AI visuals from a scene's ai_prompt",
     ]
     not_good_for = [
         "long-form video generation (>10s)",
@@ -94,8 +95,8 @@ class RunwayGapFill(BaseTool):
             "prompt": {
                 "type": "string",
                 "description": (
-                    "AI fallback prompt from scene plan. Should describe: "
-                    "shot type, subject, action, camera movement."
+                    "Scene ai_prompt depicting the narration's subject/action. "
+                    "Should describe: shot type, subject, action, camera movement."
                 ),
             },
             "duration_seconds": {

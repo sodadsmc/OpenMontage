@@ -51,7 +51,7 @@ _OUTPUT_SCHEMA = {
                     "pacing",
                     "search_queries",
                     "visual_description",
-                    "ai_fallback_prompt",
+                    "ai_prompt",
                     "mood",
                     "visual_strategy",
                 ],
@@ -68,7 +68,7 @@ _OUTPUT_SCHEMA = {
                         "items": {"type": "string"},
                     },
                     "visual_description": {"type": "string"},
-                    "ai_fallback_prompt": {"type": "string"},
+                    "ai_prompt": {"type": "string"},
                     "min_duration": {"type": "number"},
                     "preferred_duration": {"type": "number"},
                     "mood": {"type": "string"},
@@ -394,8 +394,10 @@ For EACH scene in the template, generate:
    - Tier 3 (query 5): Generic atmospheric fallback
 6. **visual_description**: 10-20 words describing what should be shown on screen.
    Focus on SUBJECTS and SETTING, not mood words or camera angles.
-7. **ai_fallback_prompt**: A video generation prompt if stock footage unavailable.
-   Include shot type, subject, setting. No text, faces, or logos.
+7. **ai_prompt** (required for ai_video): a concrete scene + action — shot type,
+   subject, the action the narration describes, camera move. Exclude on-screen
+   text, faces, and logos. E.g. 'technician reaches for the control dial as the
+   screen flickers red'.
 8. **min_duration**: narration word count / 150 * 60 + 0.5
 9. **preferred_duration**: narration word count / 150 * 60 + 2.0
 10. **mood**: Use the mood from the template.

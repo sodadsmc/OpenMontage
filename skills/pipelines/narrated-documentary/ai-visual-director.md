@@ -188,10 +188,10 @@ stock/archival fallback (gap_fill stage).
 
 ## Ethics
 
-Real historical incidents (named victims, actual events) must use
-`archival_footage` (real footage), never `ai_video`. AI video is for atmospheric
-and illustrative shots only — never fabricate a real, identifiable person or a
-real event.
+Real, identifiable incidents/people (named victims, actual events) → use
+`archival_footage`. AI video generates ALL other beats, to DEPICT what the
+narration describes. Never fabricate a real, identifiable person or a specific
+real event as if it were footage.
 
 ## Common Mistakes
 

@@ -102,8 +102,8 @@ class VisualSpec:
 
     # Search / generation hints
     reference_period: str | None = None
-    search_queries: list[str] = field(default_factory=list)
-    ai_fallback_prompt: str | None = None
+    search_queries: list[str] = field(default_factory=list)  # LEGACY: retrieved-footage scenes only
+    ai_fallback_prompt: str | None = None  # LEGACY: use ai_prompt; kept for back-compat
 
     # AI-generated video (primary source)
     ai_prompt: str | None = None

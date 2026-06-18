@@ -3,10 +3,14 @@
 ## When To Use
 
 **Inverted in the AI-primary pipeline.** AI video is now the default (see
-`ai-visual-director.md`); this stage fills the few remaining GAPS — segments where
-AI generation failed the quality gate, or segments deliberately left for real
-footage. Fill those gaps from stock/archival via `direct_clip_search`, falling
-back to a one-off AI clip (`runway_gapfill`) only if no suitable real clip exists.
+`ai-visual-director.md`) and is generated UP FRONT for normal beats — this stage
+does NOT supply the general fallback for normal scenes. It fills the few remaining
+GAPS: segments where AI generation failed the quality gate, or segments deliberately
+left for real footage. For those gaps, use real/archival footage via
+`direct_clip_search` when the segment is `archival_footage` (genuine historical
+content). The one-off AI clip (`runway_gapfill`) is the LAST resort — reserved for
+an archival scene that has no usable real clip — not the general fallback for
+normal scenes (those are already AI-generated in the primary stage).
 
 ## Prerequisites
 

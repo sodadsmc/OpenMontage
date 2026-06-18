@@ -1,7 +1,7 @@
 """Script segmentation via Claude API.
 
 Analyzes a full script and segments it into scenes with pacing, search
-queries, visual descriptions, and AI fallback prompts. Designed for
+queries, visual descriptions, and AI video prompts. Designed for
 tech-disaster documentary production but adaptable to other styles.
 """
 
@@ -42,7 +42,7 @@ _SCENE_SCHEMA = {
                     "pacing",
                     "search_queries",
                     "visual_description",
-                    "ai_fallback_prompt",
+                    "ai_prompt",
                     "min_duration",
                     "preferred_duration",
                     "mood",
@@ -65,7 +65,7 @@ _SCENE_SCHEMA = {
                         "items": {"type": "string"},
                     },
                     "visual_description": {"type": "string"},
-                    "ai_fallback_prompt": {"type": "string"},
+                    "ai_prompt": {"type": "string"},
                     "min_duration": {"type": "number"},
                     "preferred_duration": {"type": "number"},
                     "mood": {
@@ -106,7 +106,7 @@ For EACH scene, provide:
    - Tier 2 (queries 3-4): Related but broader (e.g., "hospital radiation treatment room vintage")
    - Tier 3 (query 5): Generic fallback (e.g., "medical equipment dark moody")
 6. **visual_description**: A MODERATE description for visual matching. One sentence, 10-20 words, describing the main subject and setting. Do NOT over-specify — avoid era-specific details (like "1980s"), specific colors, exact camera angles, or lighting descriptions. SigLIP scores HIGHER with moderate descriptions like "hospital treatment room with medical radiation equipment" than ultra-specific ones like "dimly lit 1980s hospital with boxy radiation therapy machine and green phosphor monitors." Focus on WHAT is in the frame, not the mood or era.
-7. **ai_fallback_prompt**: A Runway Gen-4.5 ready prompt for AI video generation if no stock footage is found. Include: shot type, subject, action, camera movement. Exclude: text, faces, brand logos.
+7. **ai_prompt** (required for ai_video): a concrete scene + action — shot type, subject, the action the narration describes, camera move; exclude on-screen text/faces/logos. E.g. 'technician reaches for the control dial as the screen flickers red'.
 8. **min_duration**: Minimum acceptable duration in seconds (narration length + 0.5s buffer).
 9. **preferred_duration**: Ideal duration with breathing room (narration length + 1.5s buffer).
 10. **mood**: One of "tension", "neutral", "dramatic", or "resolution".

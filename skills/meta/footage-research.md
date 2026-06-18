@@ -1,5 +1,7 @@
 # Footage Research — Meta Skill
 
+> For the narrated-documentary (AI) channel this applies ONLY to `archival_footage` segments and AI-gate failures — the primary path is AI generation (see `ai-visual-director.md`). For retrieval-first pipelines (documentary-montage, explainer) this IS the primary workflow — read on.
+
 ## When to Use
 
 Read this before any footage search stage. It defines the four-bucket

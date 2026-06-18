@@ -531,6 +531,7 @@ Return ONLY valid JSON:
                 "ai_fallback_prompt": f"[GENERATE: {visual_strat} visual matching {mood} mood for [TOPIC]]",
                 "mood": mood,
                 "narrative_function": st.get("narrative_function", ""),
+                # legacy alias; prefer narration_mode (Scene Library)
                 "b_roll_relationship": st.get("b_roll_relationship", "literal"),
                 "energy_level": st.get("energy_level", "medium"),
             })

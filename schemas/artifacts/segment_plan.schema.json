@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "openmontage/artifacts/segment_plan",
   "title": "Segment Plan",
-  "description": "Script segmentation plan produced by the Segment Director. Splits narration into ordered scenes with search queries, visual descriptions, pacing types, and mood tags.",
+  "description": "Script segmentation plan produced by the Segment Director. Splits narration into ordered scenes with visual descriptions (what each scene must depict, generation-first), pacing types, and mood tags. Search queries are optional and apply only to retrieved-footage scenes.",
   "type": "object",
   "required": ["version", "scenes"],
   "properties": {
@@ -11,7 +11,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["scene_id", "narration", "duration_seconds", "pacing", "search_queries", "visual_description", "mood"],
+        "required": ["scene_id", "narration", "duration_seconds", "pacing", "visual_description", "mood"],
         "properties": {
           "scene_id": { "type": "string", "description": "Unique scene identifier (e.g. scene_01)" },
           "narration": { "type": "string", "description": "Full narration text for this scene" },
@@ -24,10 +24,9 @@
           "search_queries": {
             "type": "array",
             "items": { "type": "string" },
-            "minItems": 1,
-            "description": "Tiered search queries ordered from most specific to most general"
+            "description": "LEGACY (optional): tiered search queries, most specific to most general — only for retrieved 'stock_footage'/'archival_footage' scenes. Omit for generation-first 'ai_video' scenes (which are generated to depict the narration, not searched)."
           },
-          "visual_description": { "type": "string", "minLength": 20, "description": "Rich prose description of the ideal footage for this scene" },
+          "visual_description": { "type": "string", "minLength": 20, "description": "Rich prose description of what the scene must SHOW/DEPICT — the narrated subject and action (generation-first). For retrieved-footage scenes this also guides search." },
           "mood": {
             "type": "string",
             "description": "Emotional mood tag for music and tone matching"

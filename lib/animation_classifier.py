@@ -45,7 +45,7 @@ ANIMATION TYPES:
 - timeline: Chronological events, dates, temporal sequences
 - counter: Values changing over time, thresholds, overflow, accumulation
 - state_diagram: Modes, configurations, state changes, before/after comparisons
-- none: No animation needed — stock footage or atmospheric visuals are better
+- none: no animation needed — generate a static or low-motion AI visual when the narration names a concrete subject/action; consider stock only for a pure mood beat.
 
 RULES:
 - Scenes describing HOW something works physically → scientific_diagram

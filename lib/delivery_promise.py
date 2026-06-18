@@ -38,7 +38,7 @@ PROMISE_RULES: dict[str, dict[str, Any]] = {
         "still_fallback_allowed": True,
         "requires_video_generation": False,
         "min_motion_ratio": 0.3,
-        "description": "User-provided footage is the primary medium. Generated assets fill gaps only.",
+        "description": "When source footage is the chosen primary medium, generated assets fill coverage gaps — a per-project choice, not the system default.",
     },
     "data_explainer": {
         "still_fallback_allowed": True,
