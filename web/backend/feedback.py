@@ -1,0 +1,126 @@
+"""Human feedback as an append-only event log — the training record.
+
+Every review action is one immutable line in projects/<id>/feedback/events.jsonl.
+Nothing is ever mutated; the per-scene UI state is DERIVED by folding the log.
+This is deliberately the rich-log-now / decide-the-training-use-later design:
+the chain regenerate_requested -> (director revision) -> take -> verdict is what
+later trains the gate and the director, so we keep the whole stream.
+"""
+from __future__ import annotations
+
+import json
+import uuid
+from datetime import datetime, timezone
+
+from web.backend.scenes import PROJECTS_DIR
+
+_EVENT_TYPES = {
+    "human_verdict",
+    "human_note",
+    "human_suggestion",
+    "regenerate_requested",
+    "revision_drafted",     # actor=director: the rule-applied plan for a regenerate
+    "revision_approved",    # actor=human: pre-spend approval of a drafted revision
+    "revision_rejected",    # actor=human
+}
+
+
+def _fb_dir(project_id: str):
+    d = PROJECTS_DIR / project_id / "feedback"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def _events_path(project_id: str):
+    return _fb_dir(project_id) / "events.jsonl"
+
+
+def append_event(project_id: str, *, actor: str, type: str,
+                 scene_id: str | None = None, shot_id: str | None = None,
+                 payload: dict | None = None) -> dict:
+    if type not in _EVENT_TYPES:
+        raise ValueError(f"unknown event type {type!r}")
+    ev = {
+        "event_id": uuid.uuid4().hex[:12],
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "actor": actor,
+        "type": type,
+        "scene_id": scene_id,
+        "shot_id": shot_id,
+        "payload": payload or {},
+    }
+    with _events_path(project_id).open("a", encoding="utf-8") as f:
+        f.write(json.dumps(ev, ensure_ascii=False) + "\n")
+    return ev
+
+
+def read_events(project_id: str) -> list[dict]:
+    p = _events_path(project_id)
+    if not p.exists():
+        return []
+    out: list[dict] = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            out.append(json.loads(line))
+        except Exception:
+            continue
+    return out
+
+
+def empty_state() -> dict:
+    return {
+        "verdict": None,
+        "notes": [],
+        "suggestions": [],
+        "regenerate_requests": [],
+        "revisions": [],
+        "event_count": 0,
+    }
+
+
+def scene_states(project_id: str) -> dict[str, dict]:
+    """Fold the event log into per-scene UI state (latest verdict wins)."""
+    states: dict[str, dict] = {}
+    for ev in read_events(project_id):
+        sid = ev.get("scene_id")
+        if not sid:
+            continue
+        st = states.setdefault(sid, empty_state())
+        st["event_count"] += 1
+        t = ev.get("type")
+        p = ev.get("payload", {})
+        if t == "human_verdict":
+            st["verdict"] = p.get("verdict")
+        elif t == "human_note":
+            st["notes"].append({"text": p.get("text", ""), "ts": ev["ts"]})
+        elif t == "human_suggestion":
+            st["suggestions"].append({
+                "text": p.get("text", ""),
+                "change_type": p.get("change_type"),
+                "ts": ev["ts"],
+            })
+        elif t == "regenerate_requested":
+            st["regenerate_requests"].append({
+                "notes": p.get("notes", []),
+                "target": p.get("target", "scene"),
+                "status": "queued",
+                "ts": ev["ts"],
+            })
+        elif t == "revision_drafted":
+            st["revisions"].append({
+                "id": p.get("revision_id"),
+                "revision": p.get("revision"),
+                "notes": p.get("notes", []),
+                "status": "drafted",
+                "ts": ev["ts"],
+            })
+        elif t in ("revision_approved", "revision_rejected"):
+            rid = p.get("revision_id")
+            new_status = "approved" if t.endswith("approved") else "rejected"
+            for r in st["revisions"]:
+                if r["id"] == rid:
+                    r["status"] = new_status
+    return states
