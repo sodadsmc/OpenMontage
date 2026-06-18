@@ -10,6 +10,7 @@ Run from the repo root:
 """
 from __future__ import annotations
 
+import os
 import sys
 import uuid
 from pathlib import Path
@@ -32,6 +33,7 @@ from fastapi.staticfiles import StaticFiles  # noqa: E402
 from web.backend import director as director_mod  # noqa: E402
 from web.backend import feedback as fb  # noqa: E402
 from web.backend import scenes as scenes_mod  # noqa: E402
+from web.backend import takes as takes_mod  # noqa: E402
 
 app = FastAPI(title="OpenMontage Scene Review")
 API = "/api"
@@ -41,6 +43,18 @@ _CHANGE_TYPES = {"prompt", "motion", "seed", "keyframe", "lane", "duration", "ot
 
 
 # ---- read endpoints -------------------------------------------------------
+
+@app.get(API + "/health")
+def health():
+    return {
+        "director": director_mod.director_status(),
+        "dispatch": {
+            "kie_api_key": bool(os.environ.get("KIE_API_KEY")),
+            "disabled": os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1",
+            "lanes": sorted(takes_mod.DISPATCHABLE_LANES),
+        },
+    }
+
 
 @app.get(API + "/projects")
 def get_projects():
@@ -151,6 +165,34 @@ def post_revision_approve(pid: str, sid: str, rid: str):
 def post_revision_reject(pid: str, sid: str, rid: str):
     return fb.append_event(pid, actor="human", type="revision_rejected",
                            scene_id=sid, payload={"revision_id": rid})
+
+
+@app.post(API + "/projects/{pid}/scenes/{sid}/revision/{rid}/approve-and-dispatch")
+def post_approve_and_dispatch(pid: str, sid: str, rid: str):
+    """Approve a revision AND dispatch a regeneration job for it (the spend gate).
+
+    Logs the approval (audit), then enqueues a take job. The job fetches the prompt
+    from the logged revision server-side and hard-blocks if generation is unavailable.
+    """
+    ev = fb.append_event(pid, actor="human", type="revision_approved",
+                         scene_id=sid, payload={"revision_id": rid})
+    try:
+        return takes_mod.dispatch_take(pid, sid, rid, spawned_by=ev["event_id"])
+    except KeyError:
+        raise HTTPException(404, f"scene {sid} not found")
+
+
+@app.get(API + "/projects/{pid}/jobs/{job_id}")
+def get_job(pid: str, job_id: str):
+    j = takes_mod.get_job(job_id)
+    if not j:
+        raise HTTPException(404, "job not found")
+    return j
+
+
+@app.get(API + "/projects/{pid}/jobs")
+def get_jobs(pid: str):
+    return takes_mod.list_jobs(pid)
 
 
 # ---- media (range-served so video seeks) ----------------------------------

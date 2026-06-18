@@ -160,3 +160,29 @@ details.shots pre { white-space: pre-wrap; font-size: 12px; color: var(--muted);
   border-radius: 8px; padding: 10px; margin: 4px 0;
 }
 .revcard .vbtn { height: 36px; }
+
+/* ---- health chips ---- */
+.chip.ok-chip { color: var(--ok); border-color: rgba(76,195,138,.4); }
+
+/* ---- takes bar ---- */
+.takesbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 10px 0 0; font-size: 12px; }
+.take-chip {
+  font-size: 12px; padding: 4px 9px; border-radius: 8px; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); color: var(--muted);
+}
+.take-chip:hover { border-color: #34466a; }
+.take-chip.active { border-color: var(--amber); color: var(--amber); }
+.take-chip.accepted { color: var(--ok); }
+.take-chip.needs_review { color: var(--warn); }
+.takeflag { color: var(--amber); }
+
+/* ---- job banner ---- */
+.jobbanner {
+  margin: 12px 0; padding: 10px 12px; border-radius: 9px; font-size: 13px;
+  background: var(--navy); border: 1px solid var(--line);
+}
+.jobbanner.queued, .jobbanner.running, .jobbanner.busy { border-color: var(--amber); color: var(--amber); }
+.jobbanner.succeeded, .jobbanner.idempotent { border-color: var(--ok); color: var(--ok); }
+.jobbanner.failed { border-color: var(--bad); color: var(--bad); }
+.jobbanner.blocked { border-color: var(--bad); color: var(--bad); }
+.jobbanner.not_yet_auto_dispatched { border-color: var(--line); color: var(--muted); }

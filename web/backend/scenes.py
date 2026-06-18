@@ -93,6 +93,9 @@ def load_scenes(project_id: str) -> dict:
 
     dm = _read_json(art / "duration_map_v6.json", {}) or {}
     assets = _read_json(art / "ai_visual_assets_v6.json", {}) or {}
+    # Regenerated takes live alongside the baseline (written by web.backend.takes);
+    # an accepted take is preferred over the original without rewriting the manifest.
+    takes_idx = _read_json(art / "ai_segments_takes.json", {}) or {}
     align = _read_json(art / "narration_alignment_report.json", []) or []
     sm = _read_json(art / "shot_manifest_v6.json", {}) or {}
     title, scored = _load_scored(project_dir)
@@ -109,7 +112,12 @@ def load_scenes(project_id: str) -> dict:
     scenes: list[dict] = []
     for i, seg in enumerate(dm.get("segments", []), start=1):
         sid = seg.get("id")
-        clip_rel = _norm_rel(assets.get(sid), project_dir)
+        seg_takes = takes_idx.get(sid, [])
+        accepted = [t for t in seg_takes if t.get("verdict") == "accepted"]
+        latest_accepted = max(accepted, key=lambda t: t.get("take", 0)) if accepted else None
+        preferred = latest_accepted["path"] if latest_accepted else assets.get(sid)
+        clip_rel = _norm_rel(preferred, project_dir)
+        active_take = latest_accepted["take"] if latest_accepted else 0  # 0 = baseline
         # Visuals are silent (TTS-first): the narration lives in a separate mp3
         # and is only muxed at final render. Surface it so the UI can sync it.
         audio_rel = _norm_rel(seg.get("audio_path"), project_dir)
@@ -130,6 +138,21 @@ def load_scenes(project_id: str) -> dict:
             "narration_mode_default": mode is None,
             "clip_url": media_url(project_id, clip_rel) if clip_rel else None,
             "audio_url": media_url(project_id, audio_rel) if audio_rel else None,
+            "active_take": active_take,
+            "take_count": len(seg_takes),
+            "takes": [
+                {
+                    "take": t.get("take"),
+                    "verdict": t.get("verdict"),
+                    "score": t.get("score"),
+                    "cost_usd": t.get("cost_usd"),
+                    "revision_id": t.get("revision_id"),
+                    "ts": t.get("ts"),
+                    "url": (media_url(project_id, _norm_rel(t.get("path"), project_dir))
+                            if _norm_rel(t.get("path"), project_dir) else None),
+                }
+                for t in seg_takes
+            ],
             "shots": [
                 {
                     "shot_id": s.get("shot_id"),

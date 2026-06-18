@@ -50,16 +50,45 @@ director pass (rules applied), not raw note-injection.
 | GET | `/api/projects/{id}/cost` | cost-ledger summary |
 | GET | `/api/projects/{id}/events` | raw feedback event log (export) |
 | GET | `/api/projects/{id}/media/{path}` | serve a project file (range-enabled) |
+| GET | `/api/health` | director + dispatch availability |
 | POST | `/api/projects/{id}/scenes/{sid}/verdict` | `{verdict: approve\|needs_work\|reject}` |
 | POST | `/api/projects/{id}/scenes/{sid}/note` | `{text}` |
 | POST | `/api/projects/{id}/scenes/{sid}/suggestion` | `{text, change_type}` |
-| POST | `/api/projects/{id}/scenes/{sid}/regenerate` | `{notes[], target}` |
+| POST | `/api/projects/{id}/scenes/{sid}/regenerate` | `{notes[], target}` — log intent |
+| POST | `/api/projects/{id}/scenes/{sid}/director-pass` | run the director → drafted revision |
+| POST | `…/scenes/{sid}/revision/{rid}/approve` | approve a revision (no spend) |
+| POST | `…/scenes/{sid}/revision/{rid}/reject` | reject a revision |
+| POST | `…/scenes/{sid}/revision/{rid}/approve-and-dispatch` | approve + **generate a new take (spends)** |
+| GET | `/api/projects/{id}/jobs/{job_id}` | dispatch job status |
+| GET | `/api/projects/{id}/jobs` | dispatch jobs for the project |
+
+## Director pass + approve-and-dispatch
+
+`director-pass` turns the human's notes (intent) into a rule-compliant revision
+(`described_action` + revised prompt + lane + rationale) via Gemini — see
+`director.py`. `approve-and-dispatch` then regenerates that ONE scene as a **new
+take** through `lib.visual_router.generate_ai_video`, conforms it to the slot,
+re-scores it with the quality gate, and stores it as
+`assets/ai_segments/<sid>__take<N>.mp4` (the original is never clobbered; an
+accepted take is preferred by the scene loader). The take + cost are logged
+(`take_generated` event + `cost_ledger.jsonl`).
+
+**Spend safety:** dispatch needs `KIE_API_KEY` (generation) + `GOOGLE_API_KEY`
+(gate) and network; it hard-blocks gracefully without them. v1 auto-dispatches
+the **grok** lane only (FLF/manim stay on the manual pipeline). Set
+`OPENMONTAGE_DISABLE_DISPATCH=1` as a hard kill-switch (no job can spend).
+
+## Config / env
+
+| Var | Effect |
+|---|---|
+| `OPENMONTAGE_DIRECTOR_MODEL` | director Gemini model (default `gemini-2.5-flash`) |
+| `GOOGLE_API_KEY` | director pass + quality-gate scoring |
+| `KIE_API_KEY` | take generation (grok i2v via Kie) |
+| `OPENMONTAGE_DISABLE_DISPATCH=1` | kill-switch: dispatch always blocks |
 
 ## Not yet built (next steps)
 
-- Trigger the director-pass + pre-spend approval card from the UI (currently the
-  regenerate request is captured for the agent/script to act on).
-- Port the vanilla-JS frontend to React/Vite + reuse `remotion-composer` for
-  in-browser composition preview.
-- Per-scene cost attribution and live job progress (when generation is driven
-  from the UI).
+- Port the vanilla-JS frontend to React/Vite + reuse `remotion-composer`.
+- Auto-dispatch the FLF / manim lanes (need authored keyframes / scene defs).
+- SSE live progress (currently polled) and balance-diff cost truthing.

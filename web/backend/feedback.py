@@ -22,6 +22,7 @@ _EVENT_TYPES = {
     "revision_drafted",     # actor=director: the rule-applied plan for a regenerate
     "revision_approved",    # actor=human: pre-spend approval of a drafted revision
     "revision_rejected",    # actor=human
+    "take_generated",       # actor=system: a regenerated take landed (links revision->take->score)
 }
 
 
@@ -77,6 +78,7 @@ def empty_state() -> dict:
         "suggestions": [],
         "regenerate_requests": [],
         "revisions": [],
+        "takes": [],
         "event_count": 0,
     }
 
@@ -123,4 +125,6 @@ def scene_states(project_id: str) -> dict[str, dict]:
             for r in st["revisions"]:
                 if r["id"] == rid:
                     r["status"] = new_status
+        elif t == "take_generated":
+            st["takes"].append(p)
     return states

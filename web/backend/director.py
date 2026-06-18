@@ -7,17 +7,26 @@ narration verb, keyframe-carries-content, the Grok-screen trap, name the subject
 and emits a structured `described_action` + a revised prompt + a rationale. The UI
 shows that as a pre-spend approval card before anything is generated.
 
-Uses Gemini (the repo standard, gemini-2.5-flash) when GOOGLE_API_KEY is present;
-degrades to a deterministic restatement so the flow still works offline.
+Uses Gemini (the repo standard) when GOOGLE_API_KEY is present; degrades to a
+deterministic restatement so the flow still works offline. When it degrades, the
+reason is attached as `_error` so the operator can tell key/network/parse apart.
+
+Config:
+    OPENMONTAGE_DIRECTOR_MODEL   gemini model id (default gemini-2.5-flash)
 """
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import re
-from typing import Any
 
-_MODEL = "gemini-2.5-flash"
+_DEFAULT_MODEL = "gemini-2.5-flash"
+
+
+def _model_name() -> str:
+    return os.environ.get("OPENMONTAGE_DIRECTOR_MODEL", _DEFAULT_MODEL)
+
 
 RULES = """\
 You are the DIRECTOR for an AI-generated, depiction-first narrated documentary
@@ -68,15 +77,16 @@ Return ONLY this JSON object:
 """
 
 
-def _gemini(prompt: str) -> str | None:
+def _gemini(prompt: str) -> str:
+    """Call Gemini. Raises (caught by director_pass) so the reason is recorded."""
     from lib.env_loader import load_env
     load_env()
     if not os.environ.get("GOOGLE_API_KEY"):
-        return None
+        raise RuntimeError("GOOGLE_API_KEY not set")
     import google.generativeai as genai
     genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
     model = genai.GenerativeModel(
-        _MODEL,
+        _model_name(),
         generation_config=genai.types.GenerationConfig(
             temperature=0.4, max_output_tokens=2048, response_mime_type="application/json"
         ),
@@ -85,7 +95,7 @@ def _gemini(prompt: str) -> str | None:
 
 
 def _parse(text: str) -> dict:
-    text = text.strip()
+    text = (text or "").strip()
     if "```" in text:
         m = re.search(r"```(?:json)?\s*\n(.*?)```", text, re.DOTALL)
         if m:
@@ -127,9 +137,10 @@ def _fallback(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
         },
         "revised_prompt": (current + extra).strip(),
         "lane": lane,
-        "rationale": ("Offline fallback (no GOOGLE_API_KEY / LLM error): restated the "
-                      "current prompt to depict the narration and folded your notes in as "
-                      "constraints. A full director pass applies the lane tree + motion rules."),
+        "rationale": ("Offline fallback: restated the current prompt to depict the narration "
+                      "and folded your notes in as constraints. A full director pass applies the "
+                      "lane tree + motion rules — run the server in a shell with GOOGLE_API_KEY "
+                      "and network for that."),
         "gate_precheck": {"narration_alignment": "partial", "subject_named": False},
         "_source": "fallback",
     }
@@ -137,16 +148,27 @@ def _fallback(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
 
 def director_pass(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
     prompt = f"{RULES}\n{_SCHEMA_HINT}\n\n{_context_block(scene, notes, suggestions)}"
+    err = None
     try:
-        text = _gemini(prompt)
-    except Exception:
-        text = None
-    if text:
-        try:
-            rev = _parse(text)
-            if isinstance(rev, dict) and "revised_prompt" in rev:
-                rev["_source"] = f"gemini:{_MODEL}"
-                return rev
-        except Exception:
-            pass
-    return _fallback(scene, notes, suggestions)
+        rev = _parse(_gemini(prompt))
+        if isinstance(rev, dict) and "revised_prompt" in rev:
+            rev["_source"] = f"gemini:{_model_name()}"
+            return rev
+        err = "model returned an unexpected shape"
+    except Exception as e:  # network / key / quota / parse — record why we degraded
+        err = f"{type(e).__name__}: {e}"
+    rev = _fallback(scene, notes, suggestions)
+    if err:
+        rev["_error"] = err[:300]
+    return rev
+
+
+def director_status() -> dict:
+    """Report whether the real Gemini director is available (for /api/health)."""
+    from lib.env_loader import load_env
+    load_env()
+    return {
+        "model": _model_name(),
+        "google_api_key_loaded": bool(os.environ.get("GOOGLE_API_KEY")),
+        "sdk_installed": importlib.util.find_spec("google.generativeai") is not None,
+    }
