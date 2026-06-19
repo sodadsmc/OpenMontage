@@ -58,6 +58,15 @@ HARD RULES:
 - Legs <= 6s, chained (Grok extension 500s past ~6s).
 - depiction_mode: "literal" by default (depict the action); "atmospheric" only
   when the beat is genuinely a mood beat.
+
+DISPATCH PREFERENCE (so the fix can actually generate a take):
+- Auto-generation supports the GROK and FLF lanes only. PREFER a single grok or flf
+  lane that depicts the beat. A live-action depiction of the moment is usually better
+  than a diagram. Choose "mixed" or "manim" ONLY when a labeled diagram or an exact
+  taught count is essential and cannot be carried by one live-action or FLF shot.
+- When you DO choose "mixed", also fill "primary_shot" (see schema) with the single
+  best auto-dispatchable shot of the beat, so its live-action portion generates now
+  while the diagram is produced separately.
 """
 
 _SCHEMA_HINT = """\
@@ -73,7 +82,8 @@ Return ONLY this JSON object:
   "lane": "grok|flf_state_morph|flf_drain|manim|mixed",
   "rationale": "..which rules fired and what changed vs the current take..",
   "gate_precheck": {"narration_alignment": "match|partial|mismatch", "subject_named": true},
-  "flf": null
+  "flf": null,
+  "primary_shot": null
 }
 
 When (and only when) lane is "flf_state_morph" or "flf_drain", set "flf" to:
@@ -99,6 +109,13 @@ Pick ONE of two end-frame techniques:
    When you set "morph", the drain/band fields are ignored.
 - anchor "fresh", or a bible asset_id to ground the start keyframe on a canonical.
 For any non-FLF lane, "flf" must be null.
+
+When lane is "mixed", set "primary_shot" to the single auto-dispatchable shot to
+generate NOW (the rest of the beat — e.g. a labeled diagram — is produced separately):
+  {"lane": "grok" | "flf_state_morph" | "flf_drain",
+   "prompt": "a standalone, concrete generation prompt for JUST that one shot",
+   "flf": null}   # or the flf object (start_prompt/transition/...) if the primary lane is FLF
+For any non-"mixed" lane, "primary_shot" must be null.
 """
 
 
@@ -179,6 +196,7 @@ def _fallback(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
                       "and network for that."),
         "gate_precheck": {"narration_alignment": "partial", "subject_named": False},
         "flf": None,
+        "primary_shot": None,
         "_source": "fallback",
     }
 

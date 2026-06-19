@@ -37,6 +37,27 @@ DISPATCHABLE_LANES = {"grok", "flf_state_morph", "flf_drain"}
 def _lane_provider(lane: str) -> str:
     return "kling-kie" if (lane or "").startswith("flf") else "grok-kie"
 
+
+def _gen_target(revision: dict) -> dict:
+    """What to actually GENERATE for a revision.
+
+    A single auto-dispatchable lane (grok / flf_*) generates the revision itself. A 'mixed' lane
+    generates the director's ``primary_shot`` — the dispatchable live-action/flf sub-shot — and the
+    result is a PARTIAL take (the other beats, e.g. a labeled diagram, still need a manual/manim
+    pass). Returns ok=False when nothing can be auto-generated (e.g. a pure manim beat).
+    """
+    lane = revision.get("lane")
+    if lane in DISPATCHABLE_LANES:
+        return {"ok": True, "lane": lane, "prompt": revision.get("revised_prompt") or "",
+                "flf": revision.get("flf"), "partial": False}
+    if lane == "mixed":
+        ps = revision.get("primary_shot") or {}
+        if ps.get("lane") in DISPATCHABLE_LANES and (ps.get("prompt") or revision.get("revised_prompt")):
+            return {"ok": True, "lane": ps["lane"],
+                    "prompt": ps.get("prompt") or revision.get("revised_prompt") or "",
+                    "flf": ps.get("flf"), "partial": True}
+    return {"ok": False, "lane": lane}
+
 _POOL = ThreadPoolExecutor(max_workers=1)        # serialize spend
 _JOBS: dict[str, dict] = {}                       # job_id -> record (in-memory; truth is on disk)
 _ACTIVE: set[tuple[str, str]] = set()             # (pid, sid) currently generating
@@ -192,16 +213,16 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
     revision = _find_revision(pid, sid, rid)
     if revision is None:
         return {"status": "blocked", "error": "revision not found in log", "est_usd": estimate_usd(slot)}
-    lane = revision.get("lane")
-    est = estimate_usd(slot, lane)
+    tgt = _gen_target(revision)
+    est = estimate_usd(slot, tgt.get("lane") or "grok")
 
     existing = _existing_take(pid, sid, rid)
     if existing:
         return {"status": "succeeded", "idempotent": True, "take": existing, "est_usd": est}
 
-    if lane not in DISPATCHABLE_LANES:
-        return {"status": "not_yet_auto_dispatched", "lane": lane, "est_usd": est,
-                "reason": f"'{lane}' isn't auto-dispatched yet — it stays on the manual pipeline"}
+    if not tgt["ok"]:
+        return {"status": "not_yet_auto_dispatched", "lane": revision.get("lane"), "est_usd": est,
+                "reason": f"'{revision.get('lane')}' isn't auto-dispatched yet — it stays on the manual pipeline"}
 
     if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
         return {"status": "blocked", "error": "dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)", "est_usd": est}
@@ -220,7 +241,8 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
         job_id = uuid.uuid4().hex[:12]
         _JOBS[job_id] = {
             "job_id": job_id, "project_id": pid, "scene_id": sid, "revision_id": rid,
-            "status": "queued", "est_usd": est, "lane": lane,
+            "status": "queued", "est_usd": est, "lane": revision.get("lane"),
+            "partial": tgt["partial"],
             "created_ts": _now(), "started_ts": None, "ended_ts": None,
             "take": None, "error": None,
         }
@@ -255,7 +277,14 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
         narration = scene.get("narration", "")
         lane = revision.get("lane") or "grok"
         described = revision.get("described_action", {}) or {}
-        prompt = revision.get("revised_prompt") or scene.get("narration", "")
+        # Resolve what to generate: the revision itself, or (for 'mixed') its primary_shot.
+        tgt = _gen_target(revision)
+        if not tgt["ok"]:
+            job.update(status="failed", error=f"lane '{lane}' is not auto-dispatchable", ended_ts=_now()); return
+        gen_lane = tgt["lane"]
+        gen_flf = tgt["flf"]
+        partial = tgt["partial"]
+        prompt = tgt["prompt"] or revision.get("revised_prompt") or scene.get("narration", "")
 
         spec = SimpleNamespace(
             description=(described.get("action_sequence") or [narration])[0] or narration,
@@ -275,12 +304,12 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
         from lib import visual_router as vr
         from lib.quality_gate import GenerationHardStop, QualityGate
 
-        if lane.startswith("flf"):
+        if gen_lane.startswith("flf"):
             # FLF lane (Kling, transition images): author start keyframe -> derive matched
             # end -> Kling interpolate -> conform to slot. Same path the fresh pipeline uses.
             from lib import flf as flf_mod
             from lib.scored_script import FLFSpec
-            f = revision.get("flf") or {}
+            f = gen_flf or {}
             flf_spec = FLFSpec(
                 start_prompt=f.get("start_prompt") or prompt,
                 transition=f.get("transition") or prompt,
@@ -316,17 +345,20 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
         rel = f"projects/{pid}/assets/ai_segments/{sid}__take{take_n}.mp4"
         entry = {
             "take": take_n, "path": rel, "score": score, "passed": passed,
-            "verdict": "accepted" if passed else "needs_review",
+            # a partial (mixed) take never auto-accepts — the operator eyeballs it.
+            "verdict": "accepted" if (passed and not partial) else "needs_review",
             "revision_id": rid, "spawned_by": spawned_by, "cost_usd": est,
-            "provider": _lane_provider(lane), "lane": lane, "issues": issues, "ts": _now(),
+            "provider": _lane_provider(gen_lane), "lane": lane, "partial": partial,
+            "note": ("live-action portion only — the diagram/other beats need a manual pass" if partial else ""),
+            "issues": issues, "ts": _now(),
         }
         _append_take(pid, sid, entry)
         fb.append_event(pid, actor="system", type="take_generated", scene_id=sid, payload=entry)
 
         try:
             from lib import cost_ledger
-            cost_ledger.log(provider=_lane_provider(lane),
-                            operation=("flf" if lane.startswith("flf") else "image_to_video"),
+            cost_ledger.log(provider=_lane_provider(gen_lane),
+                            operation=("flf" if gen_lane.startswith("flf") else "image_to_video"),
                             cost_usd=est, duration_s=slot_s,
                             ledger=str(PROJECTS_DIR / pid / "artifacts" / "cost_ledger.jsonl"),
                             scene_id=sid, take=take_n, revision_id=rid, kind="take_regen")
