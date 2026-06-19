@@ -113,19 +113,30 @@ def _gemini(prompt: str) -> str:
     model = genai.GenerativeModel(
         _model_name(),
         generation_config=genai.types.GenerationConfig(
-            temperature=0.4, max_output_tokens=2048, response_mime_type="application/json"
+            # 2.5-flash is a THINKING model — thinking tokens draw down this same budget, so it
+            # must be generous or the JSON truncates mid-string (matches lib/narration_gate's 16384).
+            temperature=0.4, max_output_tokens=8192, response_mime_type="application/json"
         ),
     )
     return model.generate_content(prompt).text
 
 
 def _parse(text: str) -> dict:
+    """Lenient JSON parse: strip code fences, isolate the outermost object, and repair the
+    common LLM defect (a trailing comma before } or ]) that yields 'Expecting property name'."""
     text = (text or "").strip()
     if "```" in text:
-        m = re.search(r"```(?:json)?\s*\n(.*?)```", text, re.DOTALL)
+        m = re.search(r"```(?:json)?\s*\n?(.*?)```", text, re.DOTALL)
         if m:
             text = m.group(1).strip()
-    return json.loads(text)
+    if not text.startswith("{"):
+        i, j = text.find("{"), text.rfind("}")
+        if i != -1 and j > i:
+            text = text[i:j + 1]
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return json.loads(re.sub(r",(\s*[}\]])", r"\1", text))  # drop trailing commas
 
 
 def _context_block(scene: dict, notes: list[str], suggestions: list[dict]) -> str:
@@ -172,17 +183,29 @@ def _fallback(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
     }
 
 
-def director_pass(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
-    prompt = f"{RULES}\n{_SCHEMA_HINT}\n\n{_context_block(scene, notes, suggestions)}"
+_STRICT = ("\n\nIMPORTANT: your previous reply was not valid JSON. Return ONLY one strict JSON "
+           "object — double-quoted keys and strings, NO trailing commas, NO comments, NO prose.")
+
+
+def director_pass(scene: dict, notes: list[str], suggestions: list[dict], *, attempts: int = 3) -> dict:
+    """Re-plan a scene's visual from the narration + the human's notes (as instructions).
+
+    Retries the Gemini call on a parse/shape failure (re-asking for strict JSON) before falling
+    back — a malformed-JSON reply must NOT silently degrade to 'append the notes to the prompt'.
+    """
+    base = f"{RULES}\n{_SCHEMA_HINT}\n\n{_context_block(scene, notes, suggestions)}"
     err = None
-    try:
-        rev = _parse(_gemini(prompt))
-        if isinstance(rev, dict) and "revised_prompt" in rev:
-            rev["_source"] = f"gemini:{_model_name()}"
-            return rev
-        err = "model returned an unexpected shape"
-    except Exception as e:  # network / key / quota / parse — record why we degraded
-        err = f"{type(e).__name__}: {e}"
+    for attempt in range(max(1, attempts)):
+        try:
+            rev = _parse(_gemini(base if attempt == 0 else base + _STRICT))
+            if isinstance(rev, dict) and rev.get("revised_prompt"):
+                rev["_source"] = f"gemini:{_model_name()}"
+                if attempt:
+                    rev["_attempts"] = attempt + 1
+                return rev
+            err = "model returned an unexpected shape"
+        except Exception as e:  # network / key / quota / parse — try again, then degrade
+            err = f"{type(e).__name__}: {e}"
     rev = _fallback(scene, notes, suggestions)
     if err:
         rev["_error"] = err[:300]
