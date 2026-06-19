@@ -442,6 +442,9 @@ def generate_shot(
     context when the caller has no VisualSpec object (the bulk path) — without
     them the semantic check silently no-ops, which is how artifacted clips
     shipped in the first production run."""
+    # Interactive regens cap the per-shot gate re-roll via env so a gate-failing scene can't
+    # fan out to 3x calls/shot (the dashboard spend runaway). Bulk runs leave it unset (3).
+    max_attempts = max(1, int(os.environ.get("AI_SHOT_ATTEMPTS", str(max_attempts))))
     if visual_spec is None and (description or narration):
         from types import SimpleNamespace
         visual_spec = SimpleNamespace(description=description, narration=narration)
