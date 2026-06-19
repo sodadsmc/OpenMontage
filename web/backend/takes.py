@@ -248,7 +248,7 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
         }
 
     _POOL.submit(_run_take_job, pid, sid, rid, job_id, spawned_by, est)
-    return {"job_id": job_id, "status": "queued", "est_usd": est, "lane": lane}
+    return {"job_id": job_id, "status": "queued", "est_usd": est, "lane": revision.get("lane")}
 
 
 def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, est: float) -> None:
