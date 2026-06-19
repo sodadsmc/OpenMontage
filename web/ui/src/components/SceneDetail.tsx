@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { API, jget, jpost } from '../api'
-import type { ClipCandidate, DraftRevision, Job, Scene, Verdict } from '../api'
+import { API, jget, jpost, jdel } from '../api'
+import type { ClipCandidate, DraftRevision, Job, Scene, Take, Verdict } from '../api'
 import RevisionCard from './RevisionCard'
 
 const VERDICTS: Verdict[] = ['approve', 'needs_work', 'reject']
@@ -107,6 +107,15 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
     catch (e) { alert('Failed: ' + (e as Error).message) }
   }
 
+  const deleteTake = async (t: Take) => {
+    if (!confirm(`Delete take ${t.take}? It's removed from this list (the .mp4 stays on disk and can be re-added via swap).`)) return
+    try {
+      await jdel(`${base}/takes/${t.take}`)
+      if (viewUrl === t.url) setViewUrl(null)
+      await reload()
+    } catch (e) { alert('Delete failed: ' + (e as Error).message) }
+  }
+
   return (
     <section className="detail">
       <Player scene={scene} srcUrl={srcUrl} />
@@ -116,9 +125,12 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
           <span className="muted">takes:</span>
           <button className={`take-chip${!viewUrl ? ' active' : ''}`} onClick={() => setViewUrl(null)}>baseline</button>
           {scene.takes.map((t) => (
-            <button key={t.take} className={`take-chip ${t.verdict}${viewUrl === t.url ? ' active' : ''}`} onClick={() => setViewUrl(t.url)}>
-              take {t.take} ({t.verdict}{t.score != null ? ` · ${Math.round(t.score * 100)}%` : ''})
-            </button>
+            <span key={t.take} className="take-wrap">
+              <button className={`take-chip ${t.verdict}${viewUrl === t.url ? ' active' : ''}`} onClick={() => setViewUrl(t.url)}>
+                take {t.take} ({t.verdict}{t.score != null ? ` · ${Math.round(t.score * 100)}%` : ''})
+              </button>
+              <button className="take-del" title="delete this take" disabled={working} onClick={() => deleteTake(t)}>✕</button>
+            </span>
           ))}
         </div>
       )}

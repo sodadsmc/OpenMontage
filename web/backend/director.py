@@ -28,6 +28,45 @@ def _model_name() -> str:
     return os.environ.get("OPENMONTAGE_DIRECTOR_MODEL", _DEFAULT_MODEL)
 
 
+def _channel_look() -> str:
+    """The channel MEDIUM string (duotone / ink / halftone / grain). Shown to the
+    director so it composes a prompt COMPATIBLE with the fixed house look — the medium
+    is appended downstream regardless, but a vivid content prompt can overpower it."""
+    try:
+        from lib.channel_style import prompt_suffix
+        return prompt_suffix()
+    except Exception:
+        return ""
+
+
+def _style_block(scene: dict) -> str:
+    """The fixed channel LOOK + this segment's MOOD, with hard rules so the re-plan
+    stays on-style. Without this the director writes a pure-content prompt (e.g. a
+    brightly-lit lab with a clean 'hero' in a white coat) that renders full-colour and
+    breaks the duotone channel — the exact failure this block prevents."""
+    look = _channel_look() or ("graphic-novel duotone: deep navy + warm amber, bold ink, "
+                               "cross-hatch and halftone, heavy grain, illustrated not photoreal")
+    mood = scene.get("ai_style") or "(inherit the channel default mood)"
+    return (
+        "CHANNEL LOOK — every shot is rendered in this FIXED medium; your prompt MUST be "
+        "compatible with it and must never fight it:\n"
+        f"  {look}\n"
+        f"SEGMENT MOOD to preserve (reuse unless the re-plan truly changes the beat):\n"
+        f"  {mood}\n"
+        "STYLE HARD RULES:\n"
+        "- Render in the warm AMBER-on-navy 'old book page' duotone: bold ink, heavy halftone-dot "
+        "and film-grain print texture, keyed off ONE warm amber light source. Match the TONE of "
+        "the scene's canonical reference image (some beats are bright amber paper, others sink "
+        "toward navy shadow) — do NOT force pure black, and never render full-colour or photoreal.\n"
+        "- Keep it object/atmosphere-forward (period-1985 machinery, screens, hardware, paper) "
+        "rather than a brightly-lit human. No clean 'hero' character, no white or vividly-coloured "
+        "clothing as a focal mass; any people are illustrated and secondary, never a large detailed "
+        "face dominating the frame.\n"
+        "- Echo the palette and texture in words (amber-on-navy, ink, cross-hatch, halftone, grain) "
+        "inside revised_prompt so the look holds against the content."
+    )
+
+
 RULES = """\
 You are the DIRECTOR for an AI-generated, depiction-first narrated documentary
 (hand-inked graphic-novel style). A scene is GENERATED to DEPICT what the
@@ -81,6 +120,7 @@ Return ONLY this JSON object:
   "revised_prompt": "..a concrete generation prompt that DEPICTS the action..",
   "lane": "grok|flf_state_morph|flf_drain|manim|mixed",
   "rationale": "..which rules fired and what changed vs the current take..",
+  "ai_style": "..the MOOD for this beat — reuse the SEGMENT MOOD unless the re-plan truly changes it; phrase it to reinforce the duotone amber-on-navy channel look (e.g. 'cold clinical dread, oppressive dark, a single amber glow against deep navy')..",
   "gate_precheck": {"narration_alignment": "match|partial|mismatch", "subject_named": true},
   "flf": null,
   "primary_shot": null
@@ -195,6 +235,7 @@ def _fallback(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
                       "lane tree + motion rules — run the server in a shell with GOOGLE_API_KEY "
                       "and network for that."),
         "gate_precheck": {"narration_alignment": "partial", "subject_named": False},
+        "ai_style": scene.get("ai_style"),
         "flf": None,
         "primary_shot": None,
         "_source": "fallback",
@@ -211,13 +252,18 @@ def director_pass(scene: dict, notes: list[str], suggestions: list[dict], *, att
     Retries the Gemini call on a parse/shape failure (re-asking for strict JSON) before falling
     back — a malformed-JSON reply must NOT silently degrade to 'append the notes to the prompt'.
     """
-    base = f"{RULES}\n{_SCHEMA_HINT}\n\n{_context_block(scene, notes, suggestions)}"
+    base = (f"{RULES}\n{_style_block(scene)}\n{_SCHEMA_HINT}\n\n"
+            f"{_context_block(scene, notes, suggestions)}")
     err = None
     for attempt in range(max(1, attempts)):
         try:
             rev = _parse(_gemini(base if attempt == 0 else base + _STRICT))
             if isinstance(rev, dict) and rev.get("revised_prompt"):
                 rev["_source"] = f"gemini:{_model_name()}"
+                # Always carry a MOOD so dispatch can re-apply the house art-direction;
+                # default to the segment's canonical mood if the model omitted it.
+                if not rev.get("ai_style"):
+                    rev["ai_style"] = scene.get("ai_style")
                 if attempt:
                     rev["_attempts"] = attempt + 1
                 return rev

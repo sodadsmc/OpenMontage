@@ -214,6 +214,15 @@ def post_use_clip(pid: str, sid: str, body: dict = Body(...)):
         raise HTTPException(403, "path outside project")
 
 
+@app.delete(API + "/projects/{pid}/scenes/{sid}/takes/{take}")
+def delete_take(pid: str, sid: str, take: int):
+    """Delete a take from the review list (declutter). The .mp4 stays on disk."""
+    try:
+        return takes_mod.delete_take(pid, sid, take)
+    except KeyError as e:
+        raise HTTPException(404, str(e))
+
+
 # ---- media (range-served so video seeks) ----------------------------------
 
 @app.get(API + "/projects/{pid}/media/{path:path}")

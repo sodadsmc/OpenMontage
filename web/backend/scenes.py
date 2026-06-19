@@ -62,6 +62,9 @@ def _load_scored(project_dir: Path) -> tuple[str, dict[str, dict]]:
                 "type": seg.visual.type,
                 "narration_mode": seg.narration_mode,
                 "flf": seg.visual.flf is not None,
+                # The per-segment MOOD (house art-direction). Regeneration must re-apply
+                # this or the take drifts off-style — see web.backend.takes / director.
+                "ai_style": seg.visual.ai_style,
             }
             for seg in script.segments
         }
@@ -123,7 +126,9 @@ def load_scenes(project_id: str) -> dict:
         # fallback for scenes absent from it (manim / text-card), so AI scenes keep the
         # exact clips that were reviewed and manim scenes still get a clip to show.
         baseline = assets.get(sid) or final_assets.get(sid)
-        preferred = latest_accepted["path"] if latest_accepted else baseline
+        # Prefer the GRADED preview (duotone+grain finishing) so the dashboard shows the
+        # shippable look, not the raw ungraded clip; fall back to the raw take path.
+        preferred = (latest_accepted.get("preview") or latest_accepted["path"]) if latest_accepted else baseline
         clip_rel = _norm_rel(preferred, project_dir)
         active_take = latest_accepted["take"] if latest_accepted else 0  # 0 = baseline
         # Visuals are silent (TTS-first): the narration lives in a separate mp3
@@ -144,6 +149,8 @@ def load_scenes(project_id: str) -> dict:
             # Depiction is the default standard; unset narration_mode -> "literal".
             "narration_mode": mode or "literal",
             "narration_mode_default": mode is None,
+            # House art-direction mood for this beat; the regen path re-applies it.
+            "ai_style": sc.get("ai_style"),
             "clip_url": media_url(project_id, clip_rel) if clip_rel else None,
             "audio_url": media_url(project_id, audio_rel) if audio_rel else None,
             "active_take": active_take,
@@ -156,8 +163,8 @@ def load_scenes(project_id: str) -> dict:
                     "cost_usd": t.get("cost_usd"),
                     "revision_id": t.get("revision_id"),
                     "ts": t.get("ts"),
-                    "url": (media_url(project_id, _norm_rel(t.get("path"), project_dir))
-                            if _norm_rel(t.get("path"), project_dir) else None),
+                    "url": (media_url(project_id, _norm_rel(t.get("preview") or t.get("path"), project_dir))
+                            if _norm_rel(t.get("preview") or t.get("path"), project_dir) else None),
                 }
                 for t in seg_takes
             ],

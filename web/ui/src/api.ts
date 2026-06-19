@@ -17,6 +17,12 @@ export async function jpost<T>(u: string, body?: unknown): Promise<T> {
   return r.json() as Promise<T>
 }
 
+export async function jdel<T>(u: string): Promise<T> {
+  const r = await fetch(u, { method: 'DELETE' })
+  if (!r.ok) throw new Error(`${u} -> ${r.status}`)
+  return r.json() as Promise<T>
+}
+
 // ---- types ----
 export type Verdict = 'approve' | 'needs_work' | 'reject'
 

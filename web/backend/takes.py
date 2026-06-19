@@ -16,6 +16,7 @@ Safety (all enforced here):
 from __future__ import annotations
 
 import json
+import math
 import os
 import threading
 import uuid
@@ -32,6 +33,11 @@ from web.backend.scenes import PROJECTS_DIR
 _RATE = {"grok-kie": 0.017, "kling-kie": 0.084}
 _FLOOR_USD = 0.10
 DISPATCHABLE_LANES = {"grok", "flf_state_morph", "flf_drain"}
+
+# Spend safety for INTERACTIVE regens: cap the per-shot gate re-roll (the bulk default of 3
+# fanned out to a 13-call / $1.33 runaway on one gate-failing scene). Bounds worst-case to
+# legs x AI_SHOT_ATTEMPTS; dispatch_take additionally refuses jobs over OPENMONTAGE_REGEN_MAX_USD.
+os.environ.setdefault("AI_SHOT_ATTEMPTS", "2")
 
 
 def _lane_provider(lane: str) -> str:
@@ -58,6 +64,53 @@ def _gen_target(revision: dict) -> dict:
                     "flf": ps.get("flf"), "partial": True}
     return {"ok": False, "lane": lane}
 
+
+def _load_bible_asset(pid: str, sid: str):
+    """Resolve (AssetBible, AssetEntry) for a segment so a regenerated take ANCHORS on the
+    project's amber-graded canonical reference image — the same grounding the bulk pipeline
+    uses. The old regen path passed bible=None/asset=None, so takes had no styled anchor and
+    the generator freelanced the look (the off-style drift the operator flagged). Best-effort:
+    returns (None, None) on any miss so generation still proceeds (just unanchored)."""
+    try:
+        from lib.asset_bible import AssetBible
+        from lib.scored_script import load_scored_script
+        bpath = PROJECTS_DIR / pid / "artifacts" / "asset_bible_v6.json"
+        if not bpath.exists():
+            return None, None
+        bible = AssetBible.load(bpath)
+        seg = None
+        scripts = sorted((PROJECTS_DIR / pid).glob("**/scored_script.yaml"))
+        if scripts:
+            seg = next((s for s in load_scored_script(scripts[0]).segments if s.id == sid), None)
+        asset = bible.asset_for_segment(seg) if seg is not None else None
+        _refresh_canonical_url(asset)
+        return bible, asset
+    except Exception:
+        return None, None
+
+
+def _refresh_canonical_url(asset) -> None:
+    """Re-host the asset's LOCAL canonical image to a fresh public URL.
+
+    The bible stores a tmpfiles ``canonical_image_url`` that expires (~1h retention), so a regen
+    hours/days later hits a dead link (HTTP 404) and the keyframe edit fails ('generator returned
+    no clip'). Re-upload the local file (image_host prefers DURABLE premiumize when keyed) so the
+    i2v/edit provider can fetch the amber canonical anchor. Best-effort: leave the stored URL
+    untouched on any failure."""
+    if asset is None:
+        return
+    try:
+        local = getattr(asset, "canonical_reference_image", "") or ""
+        if not (local and Path(local).exists()):
+            return
+        from lib.image_host import upload_image
+        fresh = upload_image(local)
+        if fresh:
+            asset.canonical_image_url = fresh
+    except Exception:
+        pass
+
+
 _POOL = ThreadPoolExecutor(max_workers=1)        # serialize spend
 _JOBS: dict[str, dict] = {}                       # job_id -> record (in-memory; truth is on disk)
 _ACTIVE: set[tuple[str, str]] = set()             # (pid, sid) currently generating
@@ -71,6 +124,16 @@ def _now() -> str:
 
 def estimate_usd(slot_s: float, lane: str = "grok") -> float:
     return round(max(_FLOOR_USD, _RATE[_lane_provider(lane)] * round(slot_s or 0)), 2)
+
+
+def _worst_case_usd(slot_s: float, lane: str = "grok") -> tuple[float, int, int]:
+    """Worst-case regen spend = legs (<=6s, chained) x per-shot gate re-rolls (AI_SHOT_ATTEMPTS).
+    The $1.33 runaway was 3 legs x 3 attempts; dispatch_take refuses jobs whose worst case
+    exceeds OPENMONTAGE_REGEN_MAX_USD."""
+    n_legs = max(1, math.ceil((slot_s or 0) / 6.0))
+    attempts = max(1, int(os.environ.get("AI_SHOT_ATTEMPTS", "2")))
+    per_leg = _RATE[_lane_provider(lane)] * 6.0  # one ~6s leg
+    return round(n_legs * attempts * per_leg, 2), n_legs, attempts
 
 
 # ---- take index (ai_segments_takes.json) ---------------------------------
@@ -94,6 +157,26 @@ def _append_take(pid: str, sid: str, entry: dict) -> None:
         p = _index_path(pid)
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(json.dumps(idx, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def _graded_preview(pid: str, sid: str, take_n: int, abs_src: str) -> str | None:
+    """Render the duotone+grain GRADED sibling of a take so the dashboard reviews the
+    SHIPPABLE look — the channel finishing pass (lib.finishing.apply_finish) that final
+    assembly applies once at render. The RAW take is left untouched (assembly grades it, not
+    this preview, so it's never double-graded). Returns the project-relative graded path,
+    or None (then the dashboard serves the raw clip). Best-effort."""
+    try:
+        from lib.finishing import apply_finish
+        graded = PROJECTS_DIR / pid / "assets" / "ai_segments" / f"{sid}__take{take_n}.graded.mp4"
+        graded.parent.mkdir(parents=True, exist_ok=True)
+        out = apply_finish(abs_src, str(graded))
+        # apply_finish returns the OUTPUT on success, or the INPUT path if finishing is disabled
+        # (passthrough) — only treat a real graded file as a preview.
+        if out and graded.is_file() and Path(out).resolve() == graded.resolve():
+            return f"projects/{pid}/assets/ai_segments/{sid}__take{take_n}.graded.mp4"
+    except Exception:
+        pass
+    return None
 
 
 def _find_revision(pid: str, sid: str, rid: str) -> dict | None:
@@ -185,6 +268,7 @@ def assign_clip(pid: str, sid: str, path: str, label: str = "") -> dict:
     take_n = len(read_index(pid).get(sid, [])) + 1
     entry = {
         "take": take_n, "path": f"projects/{pid}/{projrel}",
+        "preview": _graded_preview(pid, sid, take_n, str(PROJECTS_DIR / pid / projrel)),
         "verdict": "accepted", "passed": True, "score": None,
         "provider": "manual", "source": "existing-clip",
         "label": label or Path(projrel).name, "cost_usd": 0.0, "ts": _now(),
@@ -192,6 +276,27 @@ def assign_clip(pid: str, sid: str, path: str, label: str = "") -> dict:
     _append_take(pid, sid, entry)
     fb.append_event(pid, actor="human", type="take_generated", scene_id=sid, payload=entry)
     return entry
+
+
+def delete_take(pid: str, sid: str, take_n: int) -> dict:
+    """Remove a take from the scene's take index (declutter the review list).
+
+    The .mp4 stays on disk (re-addable via the swap picker); only the index entry is
+    dropped and a ``take_deleted`` event is logged (the append-only record is never
+    rewritten). If the deleted take was active, the scene loader falls back to the next
+    accepted take — or the baseline — on its own."""
+    with _INDEX_LOCK:
+        idx = read_index(pid)
+        lst = idx.get(sid, [])
+        removed = next((t for t in lst if t.get("take") == take_n), None)
+        if removed is None:
+            raise KeyError(f"take {take_n} not found for {sid}")
+        idx[sid] = [t for t in lst if t.get("take") != take_n]
+        _index_path(pid).write_text(json.dumps(idx, indent=2, ensure_ascii=False), encoding="utf-8")
+    fb.append_event(pid, actor="human", type="take_deleted", scene_id=sid,
+                    payload={"take": take_n, "path": removed.get("path"),
+                             "revision_id": removed.get("revision_id")})
+    return {"deleted": take_n, "remaining": len(idx.get(sid, []))}
 
 
 # ---- dispatch ------------------------------------------------------------
@@ -224,6 +329,15 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
         return {"status": "not_yet_auto_dispatched", "lane": revision.get("lane"), "est_usd": est,
                 "reason": f"'{revision.get('lane')}' isn't auto-dispatched yet — it stays on the manual pipeline"}
 
+    # Spend ceiling: refuse a regen whose worst-case (legs x gate re-rolls) blows past the cap,
+    # so a gate-failing scene can't run away (the $1.33 / 13-call incident). Operator-tunable.
+    worst, n_legs, attempts = _worst_case_usd(slot, tgt.get("lane") or "grok")
+    ceiling = float(os.environ.get("OPENMONTAGE_REGEN_MAX_USD", "1.00"))
+    if worst > ceiling:
+        return {"status": "blocked", "est_usd": est, "worst_usd": worst,
+                "error": (f"worst-case ~${worst:.2f} ({n_legs} legs x {attempts} attempts/leg) exceeds the "
+                          f"${ceiling:.2f} regen ceiling — raise OPENMONTAGE_REGEN_MAX_USD to allow it")}
+
     if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
         return {"status": "blocked", "error": "dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)", "est_usd": est}
     if not os.environ.get("KIE_API_KEY"):
@@ -248,7 +362,8 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
         }
 
     _POOL.submit(_run_take_job, pid, sid, rid, job_id, spawned_by, est)
-    return {"job_id": job_id, "status": "queued", "est_usd": est, "lane": revision.get("lane")}
+    return {"job_id": job_id, "status": "queued", "est_usd": est, "worst_usd": worst,
+            "lane": revision.get("lane")}
 
 
 def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, est: float) -> None:
@@ -285,12 +400,17 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
         gen_flf = tgt["flf"]
         partial = tgt["partial"]
         prompt = tgt["prompt"] or revision.get("revised_prompt") or scene.get("narration", "")
+        # House art-direction: the per-segment MOOD (channel ai_style) must ride into the
+        # prompt builder, or the regen drifts off-style — the channel MEDIUM appended
+        # downstream (duotone/ink/halftone) gets overpowered by vivid content. Prefer the
+        # director's style-aware mood, else the canonical scored-script mood for the segment.
+        mood = revision.get("ai_style") or scene.get("ai_style")
 
         spec = SimpleNamespace(
             description=(described.get("action_sequence") or [narration])[0] or narration,
             effective_prompt=prompt, ai_prompt=prompt,
             ai_motion=(described.get("manner") or None),
-            type="ai_video", ai_style=None, ai_reference_image=None, asset_ref=None,
+            type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None,
             location_id=None, editorial_intent="", directors_move="", pacing="",
             shots=[], support_asset_refs=[], text_overlay=[],
         )
@@ -303,6 +423,11 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
 
         from lib import visual_router as vr
         from lib.quality_gate import GenerationHardStop, QualityGate
+
+        # Anchor the take on the segment's amber-graded canonical reference (asset bible) so it
+        # inherits the house look + locked subject design — the grounding the bulk pipeline uses
+        # and the regen path previously skipped (bible=None -> off-style drift).
+        bible, anchor_asset = _load_bible_asset(pid, sid)
 
         if gen_lane.startswith("flf"):
             # FLF lane (Kling, transition images): author start keyframe -> derive matched
@@ -319,12 +444,12 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
                 morph=f.get("morph"),
             )
             conformed = flf_mod.flf_segment(flf_spec, slot_s, str(take_target),
-                                            keyframe_dir=str(scratch), bible=None)
+                                            keyframe_dir=str(scratch), bible=bible)
             if not conformed:
                 job.update(status="failed", error="FLF generation failed (Nano/Kling/host)", ended_ts=_now()); return
         else:
             asset = vr.generate_ai_video(sid, spec, scratch, slot_s,
-                                         bible=None, asset=None, enable_gemini=True, narration=narration)
+                                         bible=bible, asset=anchor_asset, enable_gemini=True, narration=narration)
             if asset is None or not getattr(asset, "path", None):
                 job.update(status="failed", error="generator returned no clip", ended_ts=_now()); return
             conformed = vr._trim_to_duration(asset.path, str(take_target), slot_s) \
@@ -343,8 +468,9 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
             issues = [f"score unavailable: {type(e).__name__}: {e}"]
 
         rel = f"projects/{pid}/assets/ai_segments/{sid}__take{take_n}.mp4"
+        preview = _graded_preview(pid, sid, take_n, str(take_target))
         entry = {
-            "take": take_n, "path": rel, "score": score, "passed": passed,
+            "take": take_n, "path": rel, "preview": preview, "score": score, "passed": passed,
             # a partial (mixed) take never auto-accepts — the operator eyeballs it.
             "verdict": "accepted" if (passed and not partial) else "needs_review",
             "revision_id": rid, "spawned_by": spawned_by, "cost_usd": est,
