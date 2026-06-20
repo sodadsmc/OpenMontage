@@ -103,9 +103,9 @@ DISPATCH PREFERENCE (so the fix can actually generate a take):
   lane that depicts the beat. A live-action depiction of the moment is usually better
   than a diagram. Choose "mixed" or "manim" ONLY when a labeled diagram or an exact
   taught count is essential and cannot be carried by one live-action or FLF shot.
-- When you DO choose "mixed", also fill "primary_shot" (see schema) with the single
-  best auto-dispatchable shot of the beat, so its live-action portion generates now
-  while the diagram is produced separately.
+- When you DO choose "mixed", fill "beats" (see schema) with EVERY beat in order — all the
+  dispatchable beats (grok/flf) are generated and concatenated into one COMPLETE take; only a
+  "manim" beat becomes a labeled placeholder. (Also set "primary_shot" for back-compat.)
 """
 
 _SCHEMA_HINT = """\
@@ -123,7 +123,8 @@ Return ONLY this JSON object:
   "ai_style": "..the MOOD for this beat — reuse the SEGMENT MOOD unless the re-plan truly changes it; phrase it to reinforce the duotone amber-on-navy channel look (e.g. 'cold clinical dread, oppressive dark, a single amber glow against deep navy')..",
   "gate_precheck": {"narration_alignment": "match|partial|mismatch", "subject_named": true},
   "flf": null,
-  "primary_shot": null
+  "primary_shot": null,
+  "beats": null
 }
 
 When (and only when) lane is "flf_state_morph" or "flf_drain", set "flf" to:
@@ -150,12 +151,16 @@ Pick ONE of two end-frame techniques:
 - anchor "fresh", or a bible asset_id to ground the start keyframe on a canonical.
 For any non-FLF lane, "flf" must be null.
 
-When lane is "mixed", set "primary_shot" to the single auto-dispatchable shot to
-generate NOW (the rest of the beat — e.g. a labeled diagram — is produced separately):
-  {"lane": "grok" | "flf_state_morph" | "flf_drain",
-   "prompt": "a standalone, concrete generation prompt for JUST that one shot",
-   "flf": null}   # or the flf object (start_prompt/transition/...) if the primary lane is FLF
-For any non-"mixed" lane, "primary_shot" must be null.
+When lane is "mixed", set "beats" to the ORDERED list of beats — EVERY beat is generated and
+concatenated into ONE complete take (grok/flf beats are generated; a "manim" beat becomes a
+labeled placeholder for a manual pass). Order the beats to track the narration. Each beat:
+  {"lane": "grok" | "flf_state_morph" | "flf_drain" | "manim",
+   "desc": "3-6 word operator label (e.g. 'dose comparison diagram')",
+   "prompt": "a standalone, concrete channel-style generation prompt for JUST this beat",
+   "weight": 0.5,   # this beat's share of the scene duration; the weights sum to ~1.0
+   "flf": null}     # the flf object (start_prompt/transition/...) when lane is flf, else null
+Also set "primary_shot" to the single most important auto-dispatchable beat (back-compat).
+For any non-"mixed" lane, "beats" and "primary_shot" must be null.
 """
 
 

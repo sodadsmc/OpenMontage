@@ -165,6 +165,10 @@ def load_scenes(project_id: str) -> dict:
                     "ts": t.get("ts"),
                     "url": (media_url(project_id, _norm_rel(t.get("preview") or t.get("path"), project_dir))
                             if _norm_rel(t.get("preview") or t.get("path"), project_dir) else None),
+                    # Mixed multi-beat metadata so the UI can flag which beat needs fixing.
+                    "partial": t.get("partial", False),
+                    "beats": t.get("beats"),
+                    "note": t.get("note"),
                 }
                 for t in seg_takes
             ],

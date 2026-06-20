@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import subprocess
 import threading
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -34,9 +35,11 @@ _RATE = {"grok-kie": 0.017, "kling-kie": 0.084}
 _FLOOR_USD = 0.10
 DISPATCHABLE_LANES = {"grok", "flf_state_morph", "flf_drain"}
 
-# Spend safety for INTERACTIVE regens: cap the per-shot gate re-roll (the bulk default of 3
-# fanned out to a 13-call / $1.33 runaway on one gate-failing scene). Bounds worst-case to
-# legs x AI_SHOT_ATTEMPTS; dispatch_take additionally refuses jobs over OPENMONTAGE_REGEN_MAX_USD.
+# Spend safety for INTERACTIVE regens: ONE gate re-roll per shot (not the bulk default of 3,
+# which fanned out to a 13-call / $1.33 runaway). attempts=1 was tried but is a FALSE economy —
+# a single gate-failing leg then fails the WHOLE take after paying for the good legs (seg_014:
+# $0.51 spent, no clip). One re-roll lets a multi-leg take actually complete; typical cost is
+# still ~legs x $0.10 (the re-roll only fires on gate-failing legs). Bulk runs leave it unset (3).
 os.environ.setdefault("AI_SHOT_ATTEMPTS", "2")
 
 
@@ -57,6 +60,10 @@ def _gen_target(revision: dict) -> dict:
         return {"ok": True, "lane": lane, "prompt": revision.get("revised_prompt") or "",
                 "flf": revision.get("flf"), "partial": False}
     if lane == "mixed":
+        # New: a director that emits a per-beat `beats` array generates EVERY dispatchable beat
+        # and concats them (see _beat_plan / _store_mixed_take) — a complete take, not a partial.
+        if any((b.get("lane") in DISPATCHABLE_LANES) for b in (revision.get("beats") or [])):
+            return {"ok": True, "lane": "mixed", "prompt": "", "flf": None, "partial": True}
         ps = revision.get("primary_shot") or {}
         if ps.get("lane") in DISPATCHABLE_LANES and (ps.get("prompt") or revision.get("revised_prompt")):
             return {"ok": True, "lane": ps["lane"],
@@ -329,14 +336,26 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
         return {"status": "not_yet_auto_dispatched", "lane": revision.get("lane"), "est_usd": est,
                 "reason": f"'{revision.get('lane')}' isn't auto-dispatched yet — it stays on the manual pipeline"}
 
-    # Spend ceiling: refuse a regen whose worst-case (legs x gate re-rolls) blows past the cap,
-    # so a gate-failing scene can't run away (the $1.33 / 13-call incident). Operator-tunable.
-    worst, n_legs, attempts = _worst_case_usd(slot, tgt.get("lane") or "grok")
+    # Spend ceiling: block on the EXPECTED cost (legs x one pass). For a 'mixed' scene that's the
+    # sum of its DISPATCHABLE beats' legs (placeholders are free). The gate re-roll only spends
+    # extra on gate-failing legs (bounded 2x), so block on expected, not worst — blocking on worst
+    # wrongly refused ordinary ~30s scenes. Operator-tunable via OPENMONTAGE_REGEN_MAX_USD.
+    plan = _beat_plan(revision, slot, scene.get("narration", ""))
+    attempts = max(1, int(os.environ.get("AI_SHOT_ATTEMPTS", "2")))
+    if plan:
+        disp = [b for b in plan if b["dispatchable"]]
+        n_legs = sum(math.ceil(b["dur"] / 6.0) for b in disp)
+        expected = round(sum(math.ceil(b["dur"] / 6.0) * _RATE[_lane_provider(b["lane"])] * 6.0 for b in disp), 2)
+    else:
+        worst0, n_legs, _a = _worst_case_usd(slot, tgt.get("lane") or "grok")
+        expected = round(worst0 / max(1, _a), 2)
+    worst = round(expected * attempts, 2)
     ceiling = float(os.environ.get("OPENMONTAGE_REGEN_MAX_USD", "1.00"))
-    if worst > ceiling:
-        return {"status": "blocked", "est_usd": est, "worst_usd": worst,
-                "error": (f"worst-case ~${worst:.2f} ({n_legs} legs x {attempts} attempts/leg) exceeds the "
-                          f"${ceiling:.2f} regen ceiling — raise OPENMONTAGE_REGEN_MAX_USD to allow it")}
+    if expected > ceiling:
+        return {"status": "blocked", "est_usd": expected, "worst_usd": worst,
+                "error": (f"~${expected:.2f} for {n_legs} legs (~{slot:.0f}s, up to ${worst:.2f} if legs "
+                          f"retry) exceeds the ${ceiling:.2f} regen ceiling — raise OPENMONTAGE_REGEN_MAX_USD")}
+    est = expected  # record the realistic (beat-aware) cost on the job/take
 
     if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
         return {"status": "blocked", "error": "dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)", "est_usd": est}
@@ -356,7 +375,7 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
         _JOBS[job_id] = {
             "job_id": job_id, "project_id": pid, "scene_id": sid, "revision_id": rid,
             "status": "queued", "est_usd": est, "lane": revision.get("lane"),
-            "partial": tgt["partial"],
+            "partial": (any(not b["dispatchable"] for b in plan) if plan else tgt["partial"]),
             "created_ts": _now(), "started_ts": None, "ended_ts": None,
             "take": None, "error": None,
         }
@@ -364,6 +383,166 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
     _POOL.submit(_run_take_job, pid, sid, rid, job_id, spawned_by, est)
     return {"job_id": job_id, "status": "queued", "est_usd": est, "worst_usd": worst,
             "lane": revision.get("lane")}
+
+
+# ---- mixed multi-beat generation (generate every beat + concat into one complete take) ----
+
+def _beat_plan(revision: dict, slot_s: float, narration: str = "") -> list[dict]:
+    """Director-authored beats for a 'mixed' scene -> an ordered render plan. Each beat gets its
+    share of the slot (by ``weight``); grok/flf beats are generated, a manim/other beat becomes a
+    labeled placeholder. Returns [] for a non-mixed revision or a mixed one with no ``beats``."""
+    if revision.get("lane") != "mixed":
+        return []
+    beats = revision.get("beats") or []
+    if not beats:
+        return []
+    ws = [max(0.05, float(b.get("weight") or 0) or 1.0) for b in beats]
+    tot = sum(ws) or 1.0
+    plan = []
+    for i, (b, w) in enumerate(zip(beats, ws), start=1):
+        bl = (b.get("lane") or "grok").strip()
+        plan.append({
+            "idx": i, "lane": bl,
+            "prompt": (b.get("prompt") or revision.get("revised_prompt") or narration or "").strip(),
+            "flf": b.get("flf"),
+            "dur": round(max(2.0, slot_s * w / tot), 2),
+            "label": (b.get("desc") or b.get("beat") or b.get("prompt") or bl)[:60],
+            "dispatchable": bl in DISPATCHABLE_LANES,
+        })
+    return plan
+
+
+def _gen_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration: str,
+              bible, anchor_asset, mood) -> str | None:
+    """Generate ONE dispatchable beat (grok or flf) at ``beat['dur']`` -> out_path. Anchors on the
+    asset bible (house look). Returns the conformed clip path or None on failure."""
+    from lib import visual_router as vr
+    lane = beat["lane"]; prompt = beat["prompt"] or narration; dur = float(beat["dur"])
+    if lane.startswith("flf"):
+        from lib import flf as flf_mod
+        from lib.scored_script import FLFSpec
+        f = beat.get("flf") or {}
+        spec = FLFSpec(start_prompt=f.get("start_prompt") or prompt,
+                       transition=f.get("transition") or prompt,
+                       drain=float(f.get("drain", 0.85)),
+                       band=tuple(f["band"]) if f.get("band") else None,
+                       anchor=f.get("anchor") or "fresh", morph=f.get("morph"))
+        return flf_mod.flf_segment(spec, dur, str(out_path), keyframe_dir=str(scratch), bible=bible) or None
+    spec = SimpleNamespace(
+        description=prompt, effective_prompt=prompt, ai_prompt=prompt, ai_motion=None,
+        type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None, location_id=None,
+        editorial_intent="", directors_move="", pacing="", shots=[], support_asset_refs=[], text_overlay=[])
+    asset = vr.generate_ai_video(beat_id, spec, scratch, dur, bible=bible, asset=anchor_asset,
+                                 enable_gemini=True, narration=narration)
+    if asset is None or not getattr(asset, "path", None):
+        return None
+    return (vr._trim_to_duration(asset.path, str(out_path), dur)
+            if hasattr(vr, "_trim_to_duration") else asset.path) or None
+
+
+def _placeholder_card(tag: str, label: str, lane: str, dur: float, out_path: str) -> str:
+    """A deterministic channel-style placeholder clip for a beat that needs a manual pass (a manim
+    diagram) or whose generation failed — holds the timing and marks the gap so it's reviewable."""
+    from PIL import Image, ImageDraw, ImageFont
+    img = Image.new("RGB", (1280, 720), (10, 20, 40))
+    d = ImageDraw.Draw(img)
+    def fnt(sz):
+        try: return ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", sz)
+        except Exception: return ImageFont.load_default()
+    d.text((90, 250), f"{tag}  -  needs a pass", font=fnt(40), fill=(232, 164, 76))
+    d.text((90, 322), f"({lane})  {label}", font=fnt(26), fill=(190, 178, 150))
+    d.text((90, 400), "placeholder - produce this beat on the manual pipeline", font=fnt(22), fill=(120, 110, 90))
+    png = Path(str(out_path)).with_suffix(".png")
+    img.save(png)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", str(png),
+                    "-t", str(round(dur, 2)), "-vf", "scale=1280:720,setsar=1", "-r", "24",
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", str(out_path)], check=True)
+    return str(out_path)
+
+
+def _concat(clips: list[str], out_path: str) -> str | None:
+    """Concat beat clips (normalizing res/fps/sar) into one mp4. Returns the path or None."""
+    clips = [c for c in clips if c]
+    if not clips:
+        return None
+    inputs: list[str] = []
+    for c in clips:
+        inputs += ["-i", str(c)]
+    n = len(clips)
+    fc = "".join(f"[{i}:v]scale=1280:720,fps=24,setsar=1[v{i}];" for i in range(n))
+    fc += "".join(f"[v{i}]" for i in range(n)) + f"concat=n={n}:v=1[out]"
+    try:
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", fc,
+                        "-map", "[out]", "-r", "24", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                        str(out_path)], check=True)
+        return str(out_path)
+    except Exception:
+        return None
+
+
+def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, est: float,
+                      slot_s: float, narration: str, mood, take_n: int, scratch: Path,
+                      take_target: Path, bible, anchor_asset, plan: list[dict]) -> None:
+    """Generate EVERY beat of a 'mixed' scene and concat into ONE complete take. Dispatchable beats
+    (grok/flf) are generated; a manim/other beat — or one whose generation fails — becomes a labeled
+    placeholder so the timing holds and the take still completes. Each beat's status is recorded so
+    the operator can see exactly which beat needs fixing."""
+    from lib.quality_gate import QualityGate
+    beat_clips: list[str] = []
+    beat_meta: list[dict] = []
+    for b in plan:
+        i = b["idx"]
+        bdir = scratch / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
+        bout = scratch / f"beat{i}.mp4"
+        clip = None
+        status = "generated"
+        if b["dispatchable"]:
+            clip = _gen_beat(f"{sid}_b{i}", b, str(bout), bdir, narration, bible, anchor_asset, mood)
+            if clip is None:
+                status = "failed"
+        else:
+            status = "placeholder"
+        if clip is None:  # non-dispatchable beat, OR a generation that failed -> labeled placeholder
+            clip = _placeholder_card(f"BEAT {i}", b["label"], b["lane"], float(b["dur"]), str(bout))
+        beat_clips.append(clip)
+        beat_meta.append({"idx": i, "lane": b["lane"], "status": status, "label": b["label"]})
+
+    conformed = _concat(beat_clips, str(take_target))
+    if not conformed:
+        job.update(status="failed", error="beat concat failed", ended_ts=_now()); return
+
+    score = None; passed = False; issues: list[str] = []
+    gspec = SimpleNamespace(description=narration, narration=narration, ai_style=mood)
+    try:
+        report = QualityGate(enable_gemini=True).evaluate(
+            str(take_target), gspec, target_duration_s=slot_s, segment_id=sid)
+        score, passed, issues = round(report.overall_score, 3), report.passed, report.issues[:4]
+    except Exception as e:
+        issues = [f"score unavailable: {type(e).__name__}: {e}"]
+
+    needs = [m for m in beat_meta if m["status"] != "generated"]
+    partial = bool(needs)
+    rel = f"projects/{pid}/assets/ai_segments/{sid}__take{take_n}.mp4"
+    preview = _graded_preview(pid, sid, take_n, str(take_target))
+    note = ("; ".join(f"beat {m['idx']} ({m['lane']}) {m['status']}" for m in needs)
+            or f"all {len(beat_meta)} beats generated")
+    entry = {
+        "take": take_n, "path": rel, "preview": preview, "score": score, "passed": bool(passed),
+        "verdict": "accepted" if (passed and not partial) else "needs_review",
+        "revision_id": rid, "spawned_by": spawned_by, "cost_usd": est,
+        "provider": "mixed", "lane": "mixed", "partial": partial,
+        "beats": beat_meta, "note": note, "issues": issues, "ts": _now(),
+    }
+    _append_take(pid, sid, entry)
+    fb.append_event(pid, actor="system", type="take_generated", scene_id=sid, payload=entry)
+    try:
+        from lib import cost_ledger
+        cost_ledger.log(provider="mixed", operation="mixed_beats", cost_usd=est, duration_s=slot_s,
+                        ledger=str(PROJECTS_DIR / pid / "artifacts" / "cost_ledger.jsonl"),
+                        scene_id=sid, take=take_n, revision_id=rid, kind="take_regen", beats=len(beat_meta))
+    except Exception:
+        pass
+    job.update(status="succeeded", take=entry, ended_ts=_now())
 
 
 def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, est: float) -> None:
@@ -428,6 +607,14 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
         # inherits the house look + locked subject design — the grounding the bulk pipeline uses
         # and the regen path previously skipped (bible=None -> off-style drift).
         bible, anchor_asset = _load_bible_asset(pid, sid)
+
+        # MIXED multi-beat: generate every dispatchable beat + concat into one COMPLETE take
+        # (each beat's status recorded). Non-mixed scenes fall through to the single-shot path.
+        plan = _beat_plan(revision, slot_s, narration)
+        if plan and any(b["dispatchable"] for b in plan):
+            _store_mixed_take(job, pid, sid, rid, spawned_by, est, slot_s, narration, mood,
+                              take_n, scratch, take_target, bible, anchor_asset, plan)
+            return
 
         if gen_lane.startswith("flf"):
             # FLF lane (Kling, transition images): author start keyframe -> derive matched

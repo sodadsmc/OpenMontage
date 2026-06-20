@@ -29,6 +29,9 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   const srcUrl = viewUrl || scene.clip_url
   const mode = scene.narration_mode + (scene.narration_mode_default ? ' (default)' : '')
   const working = busy || (!!job && (job.status === 'queued' || job.status === 'running'))
+  // The take currently in the player (selected chip, else the active take) — drives the beat strip.
+  const shownTake = scene.takes.find((t) => t.url === viewUrl)
+    || (scene.active_take ? scene.takes.find((t) => t.take === scene.active_take) : undefined)
 
   const capture = async (kind: string, body: unknown) => {
     try { await jpost(`${base}/${kind}`, body); await reload() } catch (e) { alert('Save failed: ' + (e as Error).message) }
@@ -69,13 +72,23 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   }
 
   const pollJob = async (jobId: string) => {
-    for (let i = 0; i < 180 && alive.current; i++) {
+    // Generation can take 8-14 min; poll long enough not to give up before it lands.
+    // (The old 6-min cap was why a finished take could "never show up".)
+    for (let i = 0; i < 450 && alive.current; i++) {
       await sleep(2000)
       let j: Job
       try { j = await jget<Job>(`${API}/projects/${project}/jobs/${jobId}`) } catch { break }
       if (!alive.current) break
       setJob(j)
-      if (['succeeded', 'failed', 'blocked'].includes(j.status)) { await reload(); break }
+      if (['succeeded', 'failed', 'blocked'].includes(j.status)) {
+        // Auto-show the new take in the player — even a partial/needs_review take — so it
+        // doesn't stay on the baseline and appear to "not show up".
+        if (j.status === 'succeeded' && j.take) {
+          const rel = (j.take.preview || j.take.path || '').replace(`projects/${project}/`, '')
+          if (rel) setViewUrl(`${API}/projects/${project}/media/${rel}`)
+        }
+        await reload(); break
+      }
     }
   }
 
@@ -127,11 +140,23 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
           {scene.takes.map((t) => (
             <span key={t.take} className="take-wrap">
               <button className={`take-chip ${t.verdict}${viewUrl === t.url ? ' active' : ''}`} onClick={() => setViewUrl(t.url)}>
-                take {t.take} ({t.verdict}{t.score != null ? ` · ${Math.round(t.score * 100)}%` : ''})
+                take {t.take} ({t.verdict}{t.score != null ? ` · ${Math.round(t.score * 100)}%` : ''}){t.partial ? ' ⚠' : ''}
               </button>
               <button className="take-del" title="delete this take" disabled={working} onClick={() => deleteTake(t)}>✕</button>
             </span>
           ))}
+        </div>
+      )}
+
+      {shownTake?.beats && shownTake.beats.length > 0 && (
+        <div className="beatsbar">
+          <span className="muted">take {shownTake.take} beats:</span>
+          {shownTake.beats.map((b) => (
+            <span key={b.idx} className={`beat-chip ${b.status}`} title={b.label}>
+              {b.idx}. {b.lane} {b.status === 'generated' ? '✓' : `⚠ ${b.status}`}
+            </span>
+          ))}
+          {shownTake.partial && <span className="muted beat-hint">— ⚠ beats need a manual pass</span>}
         </div>
       )}
 

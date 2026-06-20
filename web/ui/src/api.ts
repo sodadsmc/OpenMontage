@@ -43,6 +43,11 @@ export interface Take {
   revision_id?: string
   ts?: string
   url: string | null
+  path?: string
+  preview?: string
+  partial?: boolean
+  beats?: { idx: number; lane: string; status: string; label: string }[]
+  note?: string
 }
 
 export interface DescribedAction {
