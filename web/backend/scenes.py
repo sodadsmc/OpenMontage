@@ -169,6 +169,7 @@ def load_scenes(project_id: str) -> dict:
                     "partial": t.get("partial", False),
                     "beats": t.get("beats"),
                     "note": t.get("note"),
+                    "vet": t.get("vet"),  # Gemini vet verdict (sync/polish + per-moment fixes)
                 }
                 for t in seg_takes
             ],

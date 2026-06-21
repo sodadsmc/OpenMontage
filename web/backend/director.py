@@ -90,6 +90,11 @@ HARD RULES:
 - Grok screen trap: Grok paints a cursor + garbled text on any legible CRT/UI.
   A legible on-screen glyph/error must be an FLF state-morph or a text overlay
   card, NEVER a raw Grok screen.
+- Grok needs a CONCRETE physical scene (a named subject doing a visible action in a place).
+  Grok CANNOT render an abstract idea — a "matching pattern", a comparison, "X resembles Y",
+  a labeled chart, data, or anything that only reads as a diagram. Route those to MANIM (a
+  diagram beat) or rewrite the grok beat as a concrete shot (NOT "the burns match the collimator
+  pattern" -> instead "extreme close-up of the rectangular collimator aperture, hard-edged shadow").
 - Keyframe carries content: the specific stuff (the person on the table, the 3
   folders, the error code) lives in the keyframe; the generator only adds MOTION.
 - Motion = the narration verb: state the subject's one concrete action + a

@@ -46,8 +46,13 @@ export interface Take {
   path?: string
   preview?: string
   partial?: boolean
-  beats?: { idx: number; lane: string; status: string; label: string }[]
+  beats?: { idx: number; lane: string; status: string; label: string; prompt?: string; dur?: number }[]
   note?: string
+  vet?: {
+    sync_score?: number; polish_score?: number; overall?: string
+    mismatches?: { narration?: string; on_screen?: string; issue?: string; fix?: string }[]
+    suggestions?: { where?: string; issue?: string; motion_idea?: string }[]
+  } | null
 }
 
 export interface DescribedAction {
@@ -62,14 +67,27 @@ export interface DescribedAction {
   lane_plan?: { beat: string; lane: string }[]
 }
 
+export interface Beat { lane: string; desc?: string; prompt?: string; weight?: number; flf?: unknown }
+
 export interface Revision {
   revised_prompt?: string
   lane?: string
   rationale?: string
   described_action?: DescribedAction
   gate_precheck?: { narration_alignment?: string; subject_named?: boolean }
+  beats?: Beat[] | null
   _source?: string
   _error?: string
+}
+
+// Per-beat service label + cost — mirror of web.backend.takes._beat_cost.
+export const SERVICE: Record<string, string> = {
+  grok: 'Grok i2v', flf_state_morph: 'Kling FLF', flf_drain: 'Kling FLF', manim: 'Manim (placeholder)',
+}
+export function beatCostUsd(lane: string, durS: number): number {
+  if ((lane || '').startsWith('flf')) return Math.round(Math.min(durS, 15) * 0.084 * 100) / 100  // one Kling clip
+  if (lane === 'grok') return Math.round(Math.ceil(durS / 6) * 0.102 * 100) / 100  // chained grok legs
+  return 0  // manim/other = free placeholder
 }
 
 export interface RevisionEntry { id: string; revision: Revision; status: string; ts?: string }

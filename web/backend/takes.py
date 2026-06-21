@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import shutil
 import subprocess
 import threading
 import uuid
@@ -141,6 +142,36 @@ def _worst_case_usd(slot_s: float, lane: str = "grok") -> tuple[float, int, int]
     attempts = max(1, int(os.environ.get("AI_SHOT_ATTEMPTS", "2")))
     per_leg = _RATE[_lane_provider(lane)] * 6.0  # one ~6s leg
     return round(n_legs * attempts * per_leg, 2), n_legs, attempts
+
+
+def _beat_cost(lane: str, dur: float) -> float:
+    """USD for ONE beat (one pass): grok = chained <=6s legs; flf = a SINGLE Kling interpolation
+    (<=15s, not legs); manim/other = a free placeholder. Mirror of api.ts beatCostUsd."""
+    lane = lane or "grok"
+    dur = float(dur or 0)
+    if lane.startswith("flf"):
+        return round(min(dur, 15.0) * _RATE["kling-kie"], 2)
+    if lane == "grok":
+        return round(math.ceil(dur / 6.0) * _RATE["grok-kie"] * 6.0, 2)
+    return 0.0
+
+
+def edit_revision(pid: str, sid: str, rid: str, beats: list) -> dict:
+    """Clone a drafted revision with operator-edited beats and log it as a NEW revision (the
+    append-only event log is never rewritten). The operator can rewrite a beat's prompt or change
+    its lane/service (e.g. a pricey FLF text beat -> a cheap grok shot). Returns
+    {revision_id, revision} so the UI can approve-and-dispatch the edited plan."""
+    rev = _find_revision(pid, sid, rid)
+    if rev is None:
+        raise KeyError(rid)
+    new_rev = dict(rev)
+    new_rev["beats"] = beats
+    new_rev["lane"] = "mixed"
+    new_rev["_source"] = (rev.get("_source") or "director") + " +operator-edit"
+    new_rid = uuid.uuid4().hex[:12]
+    fb.append_event(pid, actor="human", type="revision_drafted", scene_id=sid,
+                    payload={"revision_id": new_rid, "revision": new_rev, "notes": ["operator beat edit"]})
+    return {"revision_id": new_rid, "revision": new_rev}
 
 
 # ---- take index (ai_segments_takes.json) ---------------------------------
@@ -345,7 +376,7 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
     if plan:
         disp = [b for b in plan if b["dispatchable"]]
         n_legs = sum(math.ceil(b["dur"] / 6.0) for b in disp)
-        expected = round(sum(math.ceil(b["dur"] / 6.0) * _RATE[_lane_provider(b["lane"])] * 6.0 for b in disp), 2)
+        expected = round(sum(_beat_cost(b["lane"], b["dur"]) for b in disp), 2)
     else:
         worst0, n_legs, _a = _worst_case_usd(slot, tgt.get("lane") or "grok")
         expected = round(worst0 / max(1, _a), 2)
@@ -383,6 +414,26 @@ def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
     _POOL.submit(_run_take_job, pid, sid, rid, job_id, spawned_by, est)
     return {"job_id": job_id, "status": "queued", "est_usd": est, "worst_usd": worst,
             "lane": revision.get("lane")}
+
+
+def _vet_take(pid: str, sid: str, take_target, narration: str) -> dict | None:
+    """Gemini WATCHES the finished take against the narration and reports specific sync mismatches
+    + polish/motion fixes (lib.animation_vet) — the per-moment feedback the coarse pass/fail score
+    gate misses, and the 'eyes' the (text-only) director lacks. Best-effort: None on any failure.
+    One cheap Gemini call."""
+    try:
+        from lib.animation_vet import vet_animation
+        v = vet_animation(str(take_target), narration or "")
+        if not isinstance(v, dict) or v.get("skipped") or v.get("error"):
+            return None
+        return {
+            "sync_score": v.get("sync_score"), "polish_score": v.get("polish_score"),
+            "overall": v.get("overall"),
+            "mismatches": (v.get("mismatches") or [])[:5],
+            "suggestions": (v.get("suggestions") or [])[:4],
+        }
+    except Exception:
+        return None
 
 
 # ---- mixed multi-beat generation (generate every beat + concat into one complete take) ----
@@ -505,7 +556,12 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
         if clip is None:  # non-dispatchable beat, OR a generation that failed -> labeled placeholder
             clip = _placeholder_card(f"BEAT {i}", b["label"], b["lane"], float(b["dur"]), str(bout))
         beat_clips.append(clip)
-        beat_meta.append({"idx": i, "lane": b["lane"], "status": status, "label": b["label"]})
+        # Record enough to REGENERATE just this beat later (prompt/lane/dur) and to REUSE its clip.
+        beat_meta.append({
+            "idx": i, "lane": b["lane"], "status": status, "label": b["label"],
+            "prompt": b["prompt"], "flf": b.get("flf"), "dur": b["dur"],
+            "clip": f"projects/{pid}/assets/ai_segments/_takes_scratch/{sid}__take{take_n}/beat{i}.mp4",
+        })
 
     conformed = _concat(beat_clips, str(take_target))
     if not conformed:
@@ -531,7 +587,8 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
         "verdict": "accepted" if (passed and not partial) else "needs_review",
         "revision_id": rid, "spawned_by": spawned_by, "cost_usd": est,
         "provider": "mixed", "lane": "mixed", "partial": partial,
-        "beats": beat_meta, "note": note, "issues": issues, "ts": _now(),
+        "beats": beat_meta, "note": note, "issues": issues,
+        "vet": _vet_take(pid, sid, take_target, narration), "ts": _now(),
     }
     _append_take(pid, sid, entry)
     fb.append_event(pid, actor="system", type="take_generated", scene_id=sid, payload=entry)
@@ -663,7 +720,7 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
             "revision_id": rid, "spawned_by": spawned_by, "cost_usd": est,
             "provider": _lane_provider(gen_lane), "lane": lane, "partial": partial,
             "note": ("live-action portion only — the diagram/other beats need a manual pass" if partial else ""),
-            "issues": issues, "ts": _now(),
+            "issues": issues, "vet": _vet_take(pid, sid, take_target, narration), "ts": _now(),
         }
         _append_take(pid, sid, entry)
         fb.append_event(pid, actor="system", type="take_generated", scene_id=sid, payload=entry)
@@ -694,6 +751,180 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
                 pass
         else:
             job.update(status="failed", error=f"{name}: {e}", ended_ts=_now())
+    finally:
+        with _LOCK:
+            _ACTIVE.discard((pid, sid))
+
+
+# ---- per-beat regeneration (redo only the selected beats; reuse the rest) -------------------
+
+def regen_beats(pid: str, sid: str, src_take_n: int, edits: list, spawned_by: str = "") -> dict:
+    """Regenerate ONLY the selected beats of a mixed take, reuse the others' clips, re-concat into
+    a NEW take. ``edits`` = [{idx, lane?, prompt?, desc?, flf?}]. Cost = only the edited dispatchable
+    beats (reused beats are free). Returns a queued-job status record."""
+    try:
+        from lib.env_loader import load_env
+        load_env()
+    except Exception:
+        pass
+    src = next((t for t in read_index(pid).get(sid, []) if t.get("take") == src_take_n), None)
+    if src is None:
+        return {"status": "blocked", "error": f"take {src_take_n} not found"}
+    src_beats = src.get("beats") or []
+    if not src_beats:
+        return {"status": "blocked", "error": "that take has no beats to regenerate"}
+    emap = {int(e["idx"]): e for e in (edits or []) if e.get("idx") is not None}
+    if not emap:
+        return {"status": "blocked", "error": "select at least one beat to regenerate"}
+
+    def _lane(i):
+        return (emap.get(i, {}).get("lane")) or next((b["lane"] for b in src_beats if b["idx"] == i), "grok")
+
+    def _dur(i):
+        return next((float(b.get("dur") or 0) for b in src_beats if b["idx"] == i), 0.0) or max(2.0, (src_beats and 5.0) or 5.0)
+
+    expected = round(sum(_beat_cost(_lane(i), _dur(i)) for i in emap if _lane(i) in DISPATCHABLE_LANES), 2)
+    ceiling = float(os.environ.get("OPENMONTAGE_REGEN_MAX_USD", "1.00"))
+    if expected > ceiling:
+        return {"status": "blocked", "est_usd": expected,
+                "error": f"~${expected:.2f} for the selected beats exceeds the ${ceiling:.2f} ceiling — raise OPENMONTAGE_REGEN_MAX_USD"}
+    if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
+        return {"status": "blocked", "error": "dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)", "est_usd": expected}
+    if not os.environ.get("KIE_API_KEY"):
+        return {"status": "blocked", "error": "KIE_API_KEY not set", "est_usd": expected}
+    if not os.environ.get("GOOGLE_API_KEY"):
+        return {"status": "blocked", "error": "GOOGLE_API_KEY not set", "est_usd": expected}
+
+    with _LOCK:
+        if (pid, sid) in _ACTIVE:
+            busy = next((jid for jid, j in _JOBS.items()
+                         if j.get("project_id") == pid and j.get("scene_id") == sid
+                         and j.get("status") in ("queued", "running")), None)
+            return {"status": "busy", "job_id": busy, "error": "a job is already running for this scene"}
+        _ACTIVE.add((pid, sid))
+        job_id = uuid.uuid4().hex[:12]
+        _JOBS[job_id] = {
+            "job_id": job_id, "project_id": pid, "scene_id": sid, "revision_id": src.get("revision_id"),
+            "status": "queued", "est_usd": expected, "lane": "mixed", "partial": False,
+            "created_ts": _now(), "started_ts": None, "ended_ts": None, "take": None, "error": None,
+        }
+    _POOL.submit(_run_regen_beats_job, pid, sid, src_take_n, edits, job_id, spawned_by, expected)
+    return {"job_id": job_id, "status": "queued", "est_usd": expected, "lane": "mixed"}
+
+
+def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -> None:
+    job = _JOBS[job_id]
+    try:
+        try:
+            from lib.env_loader import load_env
+            load_env()
+        except Exception:
+            pass
+        if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
+            job.update(status="blocked", error="dispatch disabled", ended_ts=_now()); return
+        if not os.environ.get("KIE_API_KEY"):
+            job.update(status="blocked", error="KIE_API_KEY not set", ended_ts=_now()); return
+        job.update(status="running", started_ts=_now())
+
+        data = scenes_mod.load_scenes(pid)
+        scene = next((s for s in data["scenes"] if s["id"] == sid), None)
+        src = next((t for t in read_index(pid).get(sid, []) if t.get("take") == src_take_n), None)
+        if scene is None or src is None:
+            job.update(status="failed", error="scene or source take vanished", ended_ts=_now()); return
+        src_beats = sorted(src.get("beats") or [], key=lambda b: b.get("idx", 0))
+        slot_s = float(scene.get("slot_s") or 0)
+        narration = scene.get("narration", "")
+        mood = scene.get("ai_style")
+        emap = {int(e["idx"]): e for e in (edits or []) if e.get("idx") is not None}
+
+        take_n = len(read_index(pid).get(sid, [])) + 1
+        seg_dir = PROJECTS_DIR / pid / "assets" / "ai_segments"
+        scratch = seg_dir / "_takes_scratch" / f"{sid}__take{take_n}"
+        scratch.mkdir(parents=True, exist_ok=True)
+        take_target = seg_dir / f"{sid}__take{take_n}.mp4"
+        bible, anchor_asset = _load_bible_asset(pid, sid)
+
+        beat_clips = []
+        beat_meta = []
+        for sb in src_beats:
+            i = sb["idx"]
+            bout = scratch / f"beat{i}.mp4"
+            clip_rel = f"projects/{pid}/assets/ai_segments/_takes_scratch/{sid}__take{take_n}/beat{i}.mp4"
+            if i in emap:
+                e = emap[i]
+                lane = e.get("lane") or sb.get("lane") or "grok"
+                prompt = (e.get("prompt") or sb.get("prompt") or narration or "").strip()
+                dur = float(sb.get("dur") or 0) or max(2.0, slot_s / max(1, len(src_beats)))
+                beat = {"lane": lane, "prompt": prompt, "flf": e.get("flf") or sb.get("flf"), "dur": dur,
+                        "label": (e.get("desc") or prompt[:60] or lane)}
+                bdir = scratch / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
+                clip = None
+                status = "generated"
+                if lane in DISPATCHABLE_LANES:
+                    clip = _gen_beat(f"{sid}_b{i}", beat, str(bout), bdir, narration, bible, anchor_asset, mood)
+                    if clip is None:
+                        status = "failed"
+                else:
+                    status = "placeholder"
+                if clip is None:
+                    clip = _placeholder_card(f"BEAT {i}", beat["label"], lane, dur, str(bout))
+                beat_meta.append({"idx": i, "lane": lane, "status": status, "label": beat["label"],
+                                  "prompt": prompt, "flf": beat["flf"], "dur": dur, "clip": clip_rel})
+            else:
+                # reuse the source beat's clip (recorded path, else the take-scratch convention)
+                rel = (sb.get("clip") or "").split(f"projects/{pid}/")[-1]
+                srcp = (PROJECTS_DIR / pid / rel) if rel else \
+                    (seg_dir / "_takes_scratch" / f"{sid}__take{src_take_n}" / f"beat{i}.mp4")
+                if srcp.exists():
+                    shutil.copy(str(srcp), str(bout)); clip = str(bout)
+                else:
+                    clip = _placeholder_card(f"BEAT {i}", sb.get("label", ""), sb.get("lane", "grok"),
+                                             float(sb.get("dur") or 5.0), str(bout))
+                beat_meta.append({**{k: sb.get(k) for k in ("idx", "lane", "status", "label", "prompt", "flf", "dur")},
+                                  "clip": clip_rel})
+            beat_clips.append(clip)
+
+        conformed = _concat(beat_clips, str(take_target))
+        if not conformed:
+            job.update(status="failed", error="beat concat failed", ended_ts=_now()); return
+
+        from lib.quality_gate import QualityGate
+        score = None; passed = False; issues = []
+        gspec = SimpleNamespace(description=narration, narration=narration, ai_style=mood)
+        try:
+            report = QualityGate(enable_gemini=True).evaluate(str(take_target), gspec, target_duration_s=slot_s, segment_id=sid)
+            score, passed, issues = round(report.overall_score, 3), report.passed, report.issues[:4]
+        except Exception as e:
+            issues = [f"score unavailable: {type(e).__name__}: {e}"]
+
+        needs = [m for m in beat_meta if m["status"] != "generated"]
+        partial = bool(needs)
+        rel = f"projects/{pid}/assets/ai_segments/{sid}__take{take_n}.mp4"
+        preview = _graded_preview(pid, sid, take_n, str(take_target))
+        note = (f"regen of take {src_take_n} beats {sorted(emap)}; "
+                + ("; ".join(f"beat {m['idx']} {m['status']}" for m in needs) or "all beats present"))
+        entry = {
+            "take": take_n, "path": rel, "preview": preview, "score": score, "passed": bool(passed),
+            "verdict": "accepted" if (passed and not partial) else "needs_review",
+            "revision_id": src.get("revision_id"), "spawned_by": spawned_by, "cost_usd": est,
+            "provider": "mixed", "lane": "mixed", "partial": partial, "beats": beat_meta,
+            "note": note, "issues": issues,
+            "vet": _vet_take(pid, sid, take_target, narration), "ts": _now(),
+        }
+        _append_take(pid, sid, entry)
+        fb.append_event(pid, actor="system", type="take_generated", scene_id=sid, payload=entry)
+        try:
+            from lib import cost_ledger
+            cost_ledger.log(provider="mixed", operation="regen_beats", cost_usd=est, duration_s=slot_s,
+                            ledger=str(PROJECTS_DIR / pid / "artifacts" / "cost_ledger.jsonl"),
+                            scene_id=sid, take=take_n, kind="take_regen", beats=len(emap))
+        except Exception:
+            pass
+        job.update(status="succeeded", take=entry, ended_ts=_now())
+    except Exception as e:
+        name = type(e).__name__
+        job.update(status=("blocked" if name == "GenerationHardStop" else "failed"),
+                   error=f"{name}: {e}", ended_ts=_now())
     finally:
         with _LOCK:
             _ACTIVE.discard((pid, sid))

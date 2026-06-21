@@ -167,6 +167,18 @@ def post_revision_reject(pid: str, sid: str, rid: str):
                            scene_id=sid, payload={"revision_id": rid})
 
 
+@app.post(API + "/projects/{pid}/scenes/{sid}/revision/{rid}/edit")
+def post_revision_edit(pid: str, sid: str, rid: str, body: dict = Body(...)):
+    """Operator-edited beat plan -> a new drafted revision (approve-and-dispatch that one)."""
+    beats = body.get("beats")
+    if not isinstance(beats, list):
+        raise HTTPException(400, "beats (list) required")
+    try:
+        return takes_mod.edit_revision(pid, sid, rid, beats)
+    except KeyError:
+        raise HTTPException(404, "revision not found")
+
+
 @app.post(API + "/projects/{pid}/scenes/{sid}/revision/{rid}/approve-and-dispatch")
 def post_approve_and_dispatch(pid: str, sid: str, rid: str):
     """Approve a revision AND dispatch a regeneration job for it (the spend gate).
@@ -221,6 +233,18 @@ def delete_take(pid: str, sid: str, take: int):
         return takes_mod.delete_take(pid, sid, take)
     except KeyError as e:
         raise HTTPException(404, str(e))
+
+
+@app.post(API + "/projects/{pid}/scenes/{sid}/takes/{take}/regen-beats")
+def post_regen_beats(pid: str, sid: str, take: int, body: dict = Body(...)):
+    """Regenerate only the selected beats of a mixed take (reuse the rest). Body:
+    {"edits": [{"idx": 2, "lane": "grok", "prompt": "..."}, ...]}."""
+    edits = body.get("edits")
+    if not isinstance(edits, list) or not edits:
+        raise HTTPException(400, "edits (non-empty list of {idx, prompt?, lane?}) required")
+    ev = fb.append_event(pid, actor="human", type="regenerate_requested", scene_id=sid,
+                         payload={"target": "beats", "source_take": take, "edits": edits})
+    return takes_mod.regen_beats(pid, sid, take, edits, spawned_by=ev["event_id"])
 
 
 # ---- media (range-served so video seeks) ----------------------------------

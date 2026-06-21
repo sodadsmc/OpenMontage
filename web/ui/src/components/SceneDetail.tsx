@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { API, jget, jpost, jdel } from '../api'
-import type { ClipCandidate, DraftRevision, Job, Scene, Take, Verdict } from '../api'
+import type { Beat, ClipCandidate, DraftRevision, Job, Scene, Take, Verdict } from '../api'
 import RevisionCard from './RevisionCard'
+import BeatFixer from './BeatFixer'
 
 const VERDICTS: Verdict[] = ['approve', 'needs_work', 'reject']
 const VLABEL: Record<Verdict, string> = { approve: 'Approve', needs_work: 'Needs work', reject: 'Reject' }
@@ -49,6 +50,9 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
       const d = await jpost<DraftRevision>(`${base}/director-pass`, {})
       setDraft(d)
       setBusy(false)
+      // Mixed: don't auto-dispatch. Show the editable beat card so you can review the per-beat
+      // services + cost (and swap a beat) before approving.
+      if (d.revision.lane === 'mixed' && (d.revision.beats?.length ?? 0) > 0) return
       const da = d.revision.described_action || {}
       const lane = d.revision.lane || 'grok'
       const summary = (da.action_sequence && da.action_sequence[0]) || lane
@@ -93,11 +97,45 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   }
 
   const approveAndDispatch = async (rid: string) => {
-    if (!confirm(`Approve this plan and generate a new take?\nThis spends ~$${estUsd(scene.slot_s)} via grok-kie (Kie credits).`)) return
+    // The RevisionCard already confirmed the (beat-aware) cost before calling this.
     let r: Job
     try { r = await jpost<Job>(`${base}/revision/${rid}/approve-and-dispatch`, {}) }
     catch (e) { alert('Dispatch failed: ' + (e as Error).message); return }
     setDraft(null); setJob(r); await reload()
+    if (r.status === 'queued' && r.job_id) void pollJob(r.job_id)
+  }
+
+  // Operator edited the beat plan in the card -> log the edits as a new revision, then dispatch it.
+  const approveEdited = async (origRid: string, beats: Beat[], _total: number) => {
+    let d: DraftRevision
+    try { d = await jpost<DraftRevision>(`${base}/revision/${origRid}/edit`, { beats }) }
+    catch (e) { alert('Edit failed: ' + (e as Error).message); return }
+    await approveAndDispatch(d.revision_id)
+  }
+
+  // Feed the Gemini vet's findings (it WATCHED the clip) back to the director as a note, so it
+  // re-plans the parts it couldn't see — closing the director's output blind spot.
+  const replanFromVet = async () => {
+    const v = shownTake?.vet
+    if (!v) return
+    const fixes = (v.mismatches || []).map((m) => `[${m.issue}] ${m.fix || m.on_screen}`).filter(Boolean)
+    const noteText = `Vet feedback (clip watched vs narration): ${v.overall || ''} ${fixes.join(' ')}`.trim()
+    setBusy(true); setJob(null)
+    try {
+      await jpost(`${base}/note`, { text: noteText })
+      await jpost(`${base}/regenerate`, { notes: [noteText], target: 'scene' })
+      const d = await jpost<DraftRevision>(`${base}/director-pass`, {})
+      setDraft(d); setBusy(false)
+    } catch (e) { setBusy(false); alert('Re-plan failed: ' + (e as Error).message) }
+  }
+
+  // Redo only selected beats of an existing take (reuse the rest), re-concat into a new take.
+  const regenBeats = async (srcTake: number, edits: { idx: number; lane: string; prompt: string }[], total: number) => {
+    if (!confirm(`Regenerate ${edits.length} beat(s) of take ${srcTake} and reuse the rest? (~$${total.toFixed(2)})`)) return
+    let r: Job
+    try { r = await jpost<Job>(`${base}/takes/${srcTake}/regen-beats`, { edits }) }
+    catch (e) { alert('Regen failed: ' + (e as Error).message); return }
+    setJob(r); await reload()
     if (r.status === 'queued' && r.job_id) void pollJob(r.job_id)
   }
 
@@ -157,6 +195,29 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
             </span>
           ))}
           {shownTake.partial && <span className="muted beat-hint">— ⚠ beats need a manual pass</span>}
+        </div>
+      )}
+
+      {shownTake?.beats && shownTake.beats.length > 0 && (
+        <BeatFixer scene={scene} take={shownTake} working={working} onRegen={regenBeats} />
+      )}
+
+      {shownTake?.vet && (
+        <div className="vetpanel">
+          <div className="section-label" style={{ margin: '8px 0 4px' }}>
+            🔍 Gemini vet — watched take {shownTake.take}
+            {shownTake.vet.sync_score != null && <span className="chip" style={{ marginLeft: 6 }}>sync {shownTake.vet.sync_score}/10</span>}
+            {shownTake.vet.polish_score != null && <span className="chip">polish {shownTake.vet.polish_score}/10</span>}
+          </div>
+          {shownTake.vet.overall && <div className="muted" style={{ fontSize: 13 }}>{shownTake.vet.overall}</div>}
+          {shownTake.vet.mismatches && shownTake.vet.mismatches.length > 0 && (
+            <ul className="list vet-list">
+              {shownTake.vet.mismatches.map((m, i) => (
+                <li key={i}><b>{m.issue}</b>: {m.on_screen} <span className="muted">— fix: {m.fix}</span></li>
+              ))}
+            </ul>
+          )}
+          <button className="act" disabled={working} onClick={replanFromVet}>↻ re-plan from this vet</button>
         </div>
       )}
 
@@ -231,9 +292,9 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
       <div>
         {busy && !job && <div className="jobbanner running"><span className="spinner" />Planning the fix…</div>}
         {job && <JobBanner job={job} />}
-        {draft && <RevisionCard scene={scene} rid={draft.revision_id} rev={draft.revision} status="drafted" onApprove={approveAndDispatch} onReject={reject} />}
+        {draft && <RevisionCard scene={scene} rid={draft.revision_id} rev={draft.revision} status="drafted" onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />}
         {fb.revisions.filter((r) => !draft || r.id !== draft.revision_id).slice().reverse().map((r) => (
-          <RevisionCard key={r.id} scene={scene} rid={r.id} rev={r.revision} status={r.status} onApprove={approveAndDispatch} onReject={reject} />
+          <RevisionCard key={r.id} scene={scene} rid={r.id} rev={r.revision} status={r.status} onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />
         ))}
       </div>
 
