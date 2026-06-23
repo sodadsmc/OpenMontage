@@ -1,182 +1,101 @@
-# Session Handoff — Scene-Review Dashboard + Depiction-First Migration
+# Session Handoff — Scene-Review Dashboard: regen flow hardening
 
-Date: 2026-06-18 · Branch: `v6-baseline` · Repo: `D:/OpenMontage2`
+**Date:** 2026-06-21 · **Branch:** `v6-baseline` · **Project worked on:** `projects/therac-25-test`
 
-This session produced two things: (A) a **depiction-first migration** of the narrated-documentary
-pipeline, and (B) a new **scene-review dashboard** (`web/`) with a director-driven regenerate loop.
-Read this top-to-bottom before continuing.
+> For the earlier **depiction-first migration** + the dashboard's original design, see the previous handoff: `git show 0abb1b8:SESSION_HANDOFF.md`.
 
----
-
-## 1. TL;DR
-
-- The narrated-documentary channel is now **generation-first / depict-the-narration**, not
-  stock-footage / atmospheric. Gate, schemas, routing, and skills were updated to match.
-- There's a working **review dashboard** (FastAPI + React/Vite) where you review each scene's clip,
-  mark approve / needs-work / reject, add notes, and **regenerate a fix** — your notes go through a
-  **director pass** (Gemini re-plans under the channel rules) and the new clip is generated as a
-  **take** you review. Every action is logged to an append-only event log = **training data**.
-- Regeneration auto-dispatches the **Grok** and **FLF (Kling)** lanes, incl. true **state-morph**
-  (X→E / "error code appears") and a partial path for **mixed** beats. `manim`/diagram stays manual.
+This session was almost entirely about the **scene-review dashboard** (`web/`, FastAPI + React/Vite, runs on `:8011` via `web/start_dashboard.bat`) and its **AI-video regeneration flow**. We took it from "regenerate one shot" to a full operator-driven, vetted, multi-beat editor — fixing a long string of bugs along the way. The clip being iterated is the Therac-25 documentary in the amber graphic-novel house style.
 
 ---
 
-## 2. Git state
+## Current state
 
-- **Branch:** `v6-baseline` (NOT main). HEAD = `9ffdff1`.
-- **This session's commits** (oldest→newest):
-  - `a371d45` fix: make narrated-documentary depiction-first (retire stock-era b-roll standard)
-  - `32543c9` feat: scene-review dashboard (FastAPI + UI) with director-pass approval
-  - `b41354e` feat: approve-and-dispatch scene regeneration (new takes) + configurable Gemini director
-  - `4749064` feat: React + TypeScript + Vite port of the scene-review UI
-  - `8692722` fix: manim scenes display + clip-swap picker + dashboard run docs   ← tag `scene-review-v1` is here
-  - `25b8c6c` feat(web/ui): scene Next/Back nav + one-click "Fix in pipeline" + progress spinners
-  - `cea92e9` feat(web): FLF auto-dispatch — full director path completes for the transition-frame lane
-  - `50a5437` feat(flf): true content state-morph keyframe authoring (matched-frame text composite)
-  - `d7f57ec` fix(director): stop silent fallback to note-appending — re-plan reliably from narration
-  - `9ffdff1` feat(dispatch): bias director to a dispatchable lane + auto-dispatch mixed's primary shot
-- **Tag** `scene-review-v1` points at `8692722` — now **5 commits behind HEAD**; re-tag at `9ffdff1`
-  if you want a current checkpoint.
-- **Uncommitted:**
-  - `web/start_dashboard.bat` — NEW, untracked (a double-click launcher). Safe to commit.
-  - `lib/visual_router.py` — modified, but this is **pre-existing WIP that predates this session**
-    (an `AI_GROK_LEG_CAP` leg-cap change). It was deliberately NOT committed this session to avoid
-    bundling someone else's WIP. Decide what to do with it.
-  - `diagram.png` — pre-existing modification, not from this session.
+**Commits this session (newest first):**
+- `3f3fc46` feat(web): editable beat plan, per-beat regen, and the Gemini vet feedback loop
+- `d90a67f` feat(web): mixed multi-beat generation + beat indicator, reliable job poll
+- `321e5f1` feat(generation): make per-shot gate re-roll cap env-controllable (AI_SHOT_ATTEMPTS)
+- `66e949f` feat(web): style-aware + spend-safe regeneration, take delete, graded previews
+- `ea71bec` fix(web): dispatch_take 500 — return referenced undefined 'lane'
+
+**Uncommitted (mine — NOT yet committed):** `web/backend/{takes,app,feedback}.py`, `web/ui/src/components/{SceneDetail,BeatFixer}.tsx`. These hold: the **"↺ start fresh" scene reset**, the **beat-fixer prefill/fallback fix**, and the **FLF `drain: null` crash fix** (all below). Worth committing as one chunk.
+
+**Uncommitted (PRE-EXISTING, NOT mine — leave alone):** `diagram.png`, `lib/visual_router.py` (a leg-cap WIP: `AI_GROK_LEG_CAP`/`AI_CONTINUOUS_LEG_CAP`). Never bundle these. NOTE: my one committed `visual_router.py` change (the `AI_SHOT_ATTEMPTS` line in `321e5f1`) was isolated from the WIP via a checkout-dance; the WIP still sits uncommitted on top.
+
+**Server:** runs detached via `web/start_dashboard.bat` (survives across turns). Restart after any backend change. Use `http://127.0.0.1:8011` (NOT `localhost` — uvicorn binds IPv4-only).
+
+**Spend:** ~$10.63 of Grok/Kling regen this session (81 calls); a meaningful slice was wasted on the bugs below (runaways + crashes that spent then failed). Dispatch is LIVE (real KIE key). Guards now cap it.
 
 ---
 
-## 3. Part A — Depiction-first migration
+## Issues hit — cause → fix
 
-**The change:** the channel moved from stock footage (a visual only had to be *atmospherically
-relevant*) to **custom AI video that must DEPICT what the narration describes**. The migration was
-half-done; `a371d45` finished it. Key edits:
+### 1. `dispatch_take` 500 (NameError) — masked a paid background job  *(fixed, `ea71bec`)*
+"Fix failed: …/approve-and-dispatch → 500." `dispatch_take` queued the job, then `return {… "lane": lane}` — but `lane` is only defined inside `_run_take_job`. NameError fired AFTER `_POOL.submit`, so the HTTP call 500'd **while a paid generation ran in the background** (masked as failure). Fix: `"lane": revision.get("lane")`.
 
-- `lib/narration_gate.py` — the pre-spend gate rubric rewritten to **depiction-first** and
-  **mode-aware** (per-segment `narration_mode`: `literal` = depict the action [default], `evocative`
-  = the looser atmospheric bar, `none` = minimal). `atmospheric_footage` dropped from the gated set.
-- `schemas/artifacts/scored_script.schema.json` + `segment_plan.schema.json` — `visual.description`
-  now "must DEPICT"; `search_queries` made optional/legacy; `ai_fallback_prompt` deprecated for
-  `ai_prompt`; type enum reframed (ai_video primary, footage = deliberate fallback).
-- Dispatch/authoring code (`lib/visual_router.py` docstrings, `tools/assembly/pacing_engine.py`,
-  `tools/script/segment.py`, `template_applier.py`, `tools/video/runway_genfill.py`) reframed from
-  "gap-fill / fallback-to-stock" to generation-first.
-- Skills/docs: `skills/pipelines/narrated-documentary/{footage-search,scoring,gap-fill,ai-visual}-director.md`,
-  `skills/creative/broll-planning.md`, `skills/meta/footage-research.md`, `README.md` got scope
-  banners. **`documentary-montage` / `hybrid` / `source_led` were intentionally left retrieval-first.**
-- Full audit + rationale: the change was driven by a deduped audit; the keystone is the gate rubric.
+### 2. Regenerated takes were off-style  *(fixed, `66e949f`)*
+take2/take3 of seg_009 came out bright/colorful/digital, not the amber house style. Three causes in the regen path:
+- `takes.py` hardcoded `ai_style=None` → per-segment **mood** never reached the prompt builder.
+- the director's `revised_prompt` had no style tags and the director was never shown the channel look.
+- **biggest:** regen called `generate_ai_video(bible=None)` → no **canonical-reference anchor**; the bulk pipeline anchors every shot on the amber-graded canonicals in `assets/asset_bible/`.
+Fixes: surface `ai_style` on the scene (`scenes.py`) + pass into the spec; make the director style-aware (`director.py`: channel look + mood + hard rules); anchor regen on the asset bible (`_load_bible_asset` → pass `bible`/`asset`).
 
-**Watch-out:** the tightened gate will fail atmospheric-only prompts on `literal` beats — that's
-intended. Tag a beat `narration_mode: evocative` where atmosphere is genuinely right.
+### 3. "generator returned no clip" after the anchor fix — stale canonical URL  *(fixed, `66e949f`)*
+The bible's `canonical_image_url` was an **expired tmpfiles.org link (HTTP 404)** (those last ~1h). Fix: `_refresh_canonical_url` re-hosts the LOCAL canonical to a fresh durable URL via `lib.image_host` (prefers premiumize when keyed). (A "non-fatal fallback" I added here was later **removed** — see #5.)
 
----
+### 4. "Black + amber" — clips didn't match the strict look  *(fixed, `66e949f`)*
+A 5-agent codebase investigation found the strict two-tone look comes from the **FINISHING GRADE** (`lib/finishing.py` / `channel_style.finish_filter` — desaturate→duotone-curves→grain), which only runs **once at final assembly**, never on per-clip takes. So **the dashboard was showing RAW, ungraded clips**. Also: shadows map to navy `#0a1428`, never pure black. Fix: **graded previews** — each take goes through `apply_finish` into a `*.graded.mp4` and the dashboard serves THAT (raw kept for assembly, no double-grade). Backfilled existing takes. Floor kept navy.
 
-## 4. Part B — The scene-review dashboard (`web/`)
+### 5. Spend runaway — $1.33 / 13 Grok calls on one scene  *(fixed, `66e949f` + `321e5f1`)*
+A gate-FAILING mixed scene fanned out: `generate_shot` retries the gate **3× per leg** (was hardcoded) × ~3 legs = 9 calls, all failing — then my non-fatal fallback ran a SECOND full generation (4 more). Had to **kill the server** (the `OPENMONTAGE_DISABLE_DISPATCH` kill-switch only checks at job *start*). Fixes: removed the fallback; made the per-shot cap env-controllable (`AI_SHOT_ATTEMPTS`); added a **spend ceiling** (`OPENMONTAGE_REGEN_MAX_USD`, default $1.00) in `dispatch_take`.
 
-### 4.1 Purpose
-Review the cut **scene-by-scene** and iterate: review clip → mark needs-work + add a note → the note
-becomes **instructions** (director re-plans) → regenerate a new **take** → review → iterate. Every
-action is logged as **training data** to teach the auto-gate/director later.
+### 6. Cost felt too high / scenes over-blocked  *(fixed)*
+A ~30s scene blocked at worst-case $1.02 > $1.00. First fix — **single-pass (`AI_SHOT_ATTEMPTS=1`)** — was a **FALSE ECONOMY**: one gate-failing leg then fails the WHOLE take after paying for the good legs (seg_014: $0.51 spent, no clip). Reverted to **2 (one re-roll)** and changed the ceiling to block on **EXPECTED** cost (legs × one pass), not worst-case. Also fixed the cost model: **FLF is one Kling interpolation (≤15s), not 6s "legs."**
 
-### 4.2 How to run
-```bash
-# from D:/OpenMontage2
-pip install -r web/requirements.txt
-npm install --prefix web/ui && npm run build --prefix web/ui   # build the React UI once
-uvicorn web.backend.app:app --port 8011                        # -> http://localhost:8011
-```
-Or just double-click **`web/start_dashboard.bat`** (runs it in its own window, survives independently).
-UI hot-reload dev: `npm run dev --prefix web/ui` (Vite :5173, proxies `/api` → :8011).
+### 7. "Doesn't show up" — finished takes never displayed  *(fixed, `d90a67f`)*
+Two frontend bugs: (a) the job poll **gave up after 6 min** but jobs take 8–14 min → finished take never refreshed; (b) partial/mixed takes are `needs_review`, not auto-promoted. Fix (`SceneDetail.pollJob`): poll up to ~15 min + auto-show the new take (even partial) when it lands.
 
-> **Important:** don't rely on an agent/editor-managed server — those get reaped between turns (this
-> bit us repeatedly). Run it yourself in a terminal / via the .bat.
+### 8. "mixed" lane only made a PARTIAL take  *(fixed, `d90a67f`)*
+A mixed scene generated only the *primary* beat → a partial take that didn't auto-promote (hit on seg_009/012/014). Fix: **full mixed-beat generation** — the director emits a `beats` array (lane/desc/prompt/weight/flf); dispatch generates EVERY dispatchable beat and concats into one take; a manim/failed beat becomes a **labeled placeholder**; per-beat status recorded; a **beat indicator** strip shows which beat needs fixing.
 
-### 4.3 Env vars
-| Var | Effect |
-|---|---|
-| `GOOGLE_API_KEY` | director pass (Gemini) + quality-gate scoring |
-| `KIE_API_KEY` | generation (Grok i2v, Kling FLF, Nano keyframes) |
-| `OPENMONTAGE_DIRECTOR_MODEL` | director model, default `gemini-2.5-flash` |
-| `OPENMONTAGE_DISABLE_DISPATCH=1` | hard kill-switch — dispatch always blocks (use for safe testing) |
+### 9. The dose diagram (seg_012) — grok garbles legible scales  *(solved, $0)*
+Grok garbles legible numbers ("screen trap"); FLF can't sweep a needle. Solved with a **deterministic PIL stat-card** ("PRESCRIBED 200 / ADMINISTERED ~20,000 / 100× the prescribed dose") spliced ahead of the phone-call take — $0, legible, graded on-style. (Memory: stat-card-diagram-splice-technique.)
 
-`GET /api/health` reports director + dispatch readiness.
+### 10. Editable beat plan + per-service cost  *(built, `3f3fc46`)*
+Built: editable beat rows in the approval card (lane select + per-beat cost + editable prompt + total); an **edit endpoint** (`/revision/{rid}/edit` logs a new revision); mixed scenes no longer auto-dispatch on needs-work — they **draft the editable card first**.
 
-### 4.4 Architecture
-- `web/backend/scenes.py` — **read-only** scene model. Joins `duration_map_v6.json` (order, narration,
-  slot, lane) + `ai_visual_assets_v6.json` (clip per ai_video seg; PRIMARY) + `visual_assets_v6.json`
-  (fallback clip for manim/text-card) + `narration_alignment_report.json` (auto-gate) +
-  `shot_manifest_v6.json` (sub-shots) + an accepted **take** if present. Prefers an accepted take >
-  ai_visual_assets > visual_assets.
-- `web/backend/feedback.py` — append-only **event log** `projects/<id>/feedback/events.jsonl`; per-scene
-  state derived by folding it. Event types: `human_verdict`, `human_note`, `human_suggestion`,
-  `regenerate_requested`, `revision_drafted` (director), `revision_approved`/`rejected`, `take_generated`.
-- `web/backend/director.py` — the **director pass**: notes (intent) → rule-compliant revision
-  (`described_action` + `revised_prompt` + `lane` + `rationale` + optional `flf`/`morph`/`primary_shot`)
-  via Gemini. Retries + lenient JSON parse; falls back to a restatement only if all attempts fail
-  (records `_error`). `max_output_tokens=8192` (2.5-flash thinking tokens were truncating the JSON).
-- `web/backend/takes.py` — the **job runner / dispatcher**. `dispatch_take` validates + queues;
-  `_run_take_job` (ThreadPool, 1 worker) generates and stores a take. `_gen_target` resolves what to
-  generate. Also `clip_candidates`/`assign_clip` (the **⇄ swap-to-existing-clip** picker).
-- `web/backend/app.py` — FastAPI: read endpoints, range-served media, capture endpoints,
-  director-pass, approve-and-dispatch, jobs, clip-candidates/use-clip, `/api/health`, static UI mount.
-- `web/ui/` — **React 18 + TS + Vite** (the served frontend; build → `web/ui/dist`). `web/frontend/` is
-  a **vanilla-JS no-build fallback that LAGS** the React app (missing nav/swap/spinners) — FastAPI
-  serves `web/ui/dist` when built, else `web/frontend/`.
-- Writes: `projects/<id>/feedback/events.jsonl` + `projects/<id>/artifacts/ai_segments_takes.json`
-  (the take index). Both are under the **gitignored** `projects/` dir.
+### 11. Per-beat regeneration  *(built, `3f3fc46`)*
+"No option to change the notes and generate only them." Built: **redo only selected beats** (edit prompt/lane), **reuse the rest's clips**, re-concat. Cost = only the redone beats; each beat's clip+prompt is recorded for reuse (`BeatFixer.tsx` + `regen_beats`/`_run_regen_beats_job`). Plus a **director rule**: grok needs a CONCRETE physical scene; abstract pattern/matching/diagram ideas → manim or rewrite.
 
-### 4.5 The regenerate / dispatch model (lanes)
-- "Needs work" + a note → records the verdict → **auto-runs the fix** (director pass → cost confirm →
-  generate). Spinners during planning + generating. The director turns notes into instructions and
-  **picks the lane**.
-- Auto-dispatch supports **`grok`** (i2v, ~$0.017/s) and **`flf_state_morph`/`flf_drain`** (Kling
-  first-last-frame, ~$0.084/s). The director is **biased to prefer a single grok/flf lane**.
-- **`mixed`** (e.g. diagram + live-action): the director emits a `primary_shot`; the dispatcher
-  generates that single shot as a **PARTIAL take** (verdict `needs_review`, flagged "diagram/other
-  beats need a manual pass"). `mixed` without a primary_shot, and pure `manim`, return
-  `not_yet_auto_dispatched` (manual pipeline).
-- **FLF lanes:** `lib.flf.flf_segment` authors the start keyframe (Nano) and either **drains** the end
-  (`drain_endpoint`, for going-dark/dim/"N of M go dark" via `band`) or, for a **content state-morph**,
-  composites a glyph/code onto matched frames (`composite_text` — the X→E technique, new this session),
-  then Kling interpolates. The `morph` field drives the latter: `{box, start_text, end_text, color}`.
-- **Safety:** the prompt is fetched server-side from the logged revision (not the request body);
-  KIE/GOOGLE/kill-switch gates; one job per scene; idempotent on repeat approval; cost confirmed before
-  spend and logged to `cost_ledger.jsonl`.
+### 12. Empty prompt → narration fallback (beat 2 placeholdered)  *(fixed, UNCOMMITTED)*
+Redoing beats with **blank** prompt boxes (old takes had no stored per-beat prompts) made the backend fall back to the **whole narration** → generic shot → beat 2 failed → placeholder. Fix: prefill the redo box with `b.prompt || b.label`; backend falls back to the beat **label**, not the narration.
 
-### 4.6 therac-25 project state
-- seg_006 → swapped to `assets/seg006_grok/seg006_explained_final.mp4` (the "explained" clip).
-- seg_007 → swapped to `assets/visuals_synced/seg_007_sketch_final.mp4` (the newer animated manim).
-  Both are accepted takes in `ai_segments_takes.json` (project-local, gitignored).
-- Operator feedback (verdicts/notes/takes for seg_001–009) is in `projects/therac-25-test/feedback/events.jsonl`.
-- ⚠ Duration mismatch on the swapped clips vs their slots (seg_006 clip 28.7s vs 11.2s slot; seg_007
-  34.5s vs 45.6s) — fine for review, but at final render they'd be trimmed/freeze-padded. Re-time those
-  beats before a final render if they're keepers.
+### 13. "Why aren't we using the Gemini vetting?" → wired it in  *(built, `3f3fc46`)*
+The dashboard used only the **coarse `quality_gate` score** (it passed a bad take at 0.94). `lib/animation_vet.py` **WATCHES the clip vs the narration** and reports per-moment sync mismatches + fixes (it scored that same take **1/10**). Wired into every take (`_vet_take`), surfaced per-take, + a **"↺ re-plan from the vet"** button that feeds findings back to the director — the eyes the text-only director lacks.
+
+### 14. seg_015 got messy → "start fresh"  *(built, UNCOMMITTED)*
+Built a **scene reset**: a `scene_reset` event (`feedback.py`) clears the folded UI state (notes/verdict/revisions) so the next director pass isn't polluted; `reset_scene` (`takes.py`) drops the scene's takes from the index; files + log preserved. **"↺ start fresh"** button in `SceneDetail`. Ran it on seg_015, then drove a **clean single-shot regen** → a good on-style Yakima establishing shot (gate 0.99; vet sync-3/polish-4, expected for an atmospheric beat).
+
+### 15. seg_019 crash — `float() argument … not 'NoneType'`  *(fixed, UNCOMMITTED)*
+A director-planned **FLF dose-readout beat** had `"drain": null`. `float(f.get("drain", 0.85))` returns `None` when the key exists as null (not the default) → crash **after beats 1&2 had generated** (~$0.30 sunk). Fix: `float(f.get("drain") if … is not None else 0.85)` in BOTH FLF spots, and **wrapped `_gen_beat` in try/except → None** so one beat's error becomes a placeholder, never a take-killing crash.
 
 ---
 
-## 5. Known issues / caveats
-1. **Server reaping** — agent-started servers die between turns; use `web/start_dashboard.bat` or your own terminal.
-2. **`lib/visual_router.py`** carries pre-existing uncommitted leg-cap WIP (not from this session) — resolve it.
-3. **Tag** `scene-review-v1` is behind HEAD — re-tag at `9ffdff1` if desired.
-4. **`google.generativeai` is deprecated** (FutureWarning) across the repo — eventual migration to `google.genai`.
-5. **FLF state-morph box** is placed by the director in relative fractions (it never sees the keyframe), so
-   placement is approximate — FLF is eyeball-reviewed; nudge the box via a note → re-plan.
-6. **Non-text morphs** (a needle swinging to a reading) aren't handled by `composite_text` — use drain or a manual pass.
-7. **Mixed = partial** (live-action only; the diagram half needs a manual/manim pass). Full mixed isn't wired.
-8. **Job progress is polled**, not SSE.
-9. Dashboard narration = the **duration_map** narration (what was actually voiced); `scored_script.yaml`
-   narration may differ where it was rewritten post-audio.
+## Recurring themes / still-open
+- **Grok fails on small/abstract beats** ("operator presses P", "collimator matching pattern", "hip with striped burns") → placeholders. Mitigations: the director concrete-shot rule, the **per-beat regen** (redo just the bad one), and the **vet** that flags it. Grok is still a coin-flip on these — the human-in-the-loop beat editor is the real answer.
+- **Gate score vs vet disagree by design** — gate = technical/style quality, vet = narration sync + motion. Use both.
+- **Atmospheric vs literal:** "pattern repeats" beats (seg_015) work best as ONE clean establishing shot; literal multi-beat sequences (seg_019) are where the per-beat fragility lives.
+- **Wasted spend on failures:** a beat crash/gate-fail still bills the beats that generated first. The `_gen_beat` wrap (#15) + spend ceiling reduce but don't eliminate this.
 
-## 6. Suggested next steps
-- Commit `web/start_dashboard.bat`; decide on `lib/visual_router.py` WIP; re-tag a checkpoint.
-- **Full mixed generation** — wire manim auto-dispatch + per-beat concat so mixed beats fully generate.
-- **FLF non-text morphs** (needle/dial to a reading) — bespoke matched-frame author beyond text.
-- **SSE live progress** + Kie balance-diff for true (not estimated) spend.
-- Reuse `remotion-composer` components in the UI for in-browser composition preview.
-- Consider exposing `narration_mode` per scene in the dashboard so reviewers can flip literal/atmospheric.
+## Suggested next steps
+1. **Commit the uncommitted chunk** (reset + prefill fix + FLF drain fix) — all bug/feature fixes.
+2. **seg_019:** re-dispatch the (good) plan now the FLF crash is fixed — but make beat 1 ("operator presses P") concrete first or it'll placeholder again. The FLF dose-readout beat is the right call (clean legible "DOSE: 16,500–25,000 RADS").
+3. Consider: vet score on the take chip; a per-beat vet (map findings → beat index) for one-click targeted fixes.
+4. The pre-existing `visual_router.py` leg-cap WIP + `diagram.png` still need an owner decision.
 
-## 7. Key files
-- Dashboard: `web/backend/{scenes,feedback,director,takes,app}.py`, `web/ui/src/{App.tsx,api.ts,components/*}`, `web/README.md`, `web/start_dashboard.bat`.
-- FLF/morph: `lib/flf.py` (`composite_text`, `drain_endpoint`, `flf_segment`), `lib/scored_script.py` (`FLFSpec`).
-- Gate/migration: `lib/narration_gate.py`, `schemas/artifacts/scored_script.schema.json`, `docs/PRODUCTION_WORKFLOW.md` (the "Scene-review dashboard" run section).
-- Cost: `lib/cost_ledger.py`, `projects/therac-25-test/artifacts/cost_ledger.jsonl`.
+## Key files
+- `web/backend/takes.py` — the regen engine: dispatch, single/mixed/per-beat generation, beat plan, cost (`_beat_cost`/`_worst_case_usd`), graded previews, vet (`_vet_take`), reset.
+- `web/backend/director.py` — the rule-applied planner (style-aware, beats schema, concrete-grok rule).
+- `web/backend/{scenes,feedback,app}.py` — scene model / append-only feedback log / FastAPI routes.
+- `web/ui/src/components/{SceneDetail,RevisionCard,BeatFixer}.tsx` — review UI / editable plan / per-beat fixer.
+- `lib/{finishing,channel_style,animation_vet,flf,image_host,asset_bible}.py` — grade, style, vet, FLF, hosting, canonical anchors.
+- `styles/channel_styles/graphic-novel-disaster.yaml` — the house style (navy `#0a1428` + amber `#e8a44c`, duotone+grain).
