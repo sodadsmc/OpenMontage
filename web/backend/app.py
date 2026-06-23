@@ -235,6 +235,12 @@ def delete_take(pid: str, sid: str, take: int):
         raise HTTPException(404, str(e))
 
 
+@app.post(API + "/projects/{pid}/scenes/{sid}/reset")
+def post_reset_scene(pid: str, sid: str):
+    """Start a scene fresh: clear its takes + folded feedback (files + log preserved)."""
+    return takes_mod.reset_scene(pid, sid)
+
+
 @app.post(API + "/projects/{pid}/scenes/{sid}/takes/{take}/regen-beats")
 def post_regen_beats(pid: str, sid: str, take: int, body: dict = Body(...)):
     """Regenerate only the selected beats of a mixed take (reuse the rest). Body:

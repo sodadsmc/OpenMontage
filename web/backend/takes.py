@@ -337,6 +337,19 @@ def delete_take(pid: str, sid: str, take_n: int) -> dict:
     return {"deleted": take_n, "remaining": len(idx.get(sid, []))}
 
 
+def reset_scene(pid: str, sid: str) -> dict:
+    """Start a scene FRESH: drop all its takes from the index and append a scene_reset event so the
+    folded feedback (notes/verdict/revisions) is cleared and the next director pass isn't polluted
+    by stale notes. The .mp4 files and the append-only event log are preserved (recoverable)."""
+    with _INDEX_LOCK:
+        idx = read_index(pid)
+        cleared = len(idx.get(sid, []))
+        idx.pop(sid, None)
+        _index_path(pid).write_text(json.dumps(idx, indent=2, ensure_ascii=False), encoding="utf-8")
+    fb.append_event(pid, actor="human", type="scene_reset", scene_id=sid, payload={"cleared_takes": cleared})
+    return {"reset": sid, "cleared_takes": cleared}
+
+
 # ---- dispatch ------------------------------------------------------------
 
 def dispatch_take(pid: str, sid: str, rid: str, spawned_by: str = "") -> dict:
@@ -468,27 +481,32 @@ def _gen_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration:
     """Generate ONE dispatchable beat (grok or flf) at ``beat['dur']`` -> out_path. Anchors on the
     asset bible (house look). Returns the conformed clip path or None on failure."""
     from lib import visual_router as vr
-    lane = beat["lane"]; prompt = beat["prompt"] or narration; dur = float(beat["dur"])
-    if lane.startswith("flf"):
-        from lib import flf as flf_mod
-        from lib.scored_script import FLFSpec
-        f = beat.get("flf") or {}
-        spec = FLFSpec(start_prompt=f.get("start_prompt") or prompt,
-                       transition=f.get("transition") or prompt,
-                       drain=float(f.get("drain", 0.85)),
-                       band=tuple(f["band"]) if f.get("band") else None,
-                       anchor=f.get("anchor") or "fresh", morph=f.get("morph"))
-        return flf_mod.flf_segment(spec, dur, str(out_path), keyframe_dir=str(scratch), bible=bible) or None
-    spec = SimpleNamespace(
-        description=prompt, effective_prompt=prompt, ai_prompt=prompt, ai_motion=None,
-        type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None, location_id=None,
-        editorial_intent="", directors_move="", pacing="", shots=[], support_asset_refs=[], text_overlay=[])
-    asset = vr.generate_ai_video(beat_id, spec, scratch, dur, bible=bible, asset=anchor_asset,
-                                 enable_gemini=True, narration=narration)
-    if asset is None or not getattr(asset, "path", None):
+    try:
+        lane = beat["lane"]; prompt = beat["prompt"] or narration; dur = float(beat["dur"])
+        if lane.startswith("flf"):
+            from lib import flf as flf_mod
+            from lib.scored_script import FLFSpec
+            f = beat.get("flf") or {}
+            spec = FLFSpec(start_prompt=f.get("start_prompt") or prompt,
+                           transition=f.get("transition") or prompt,
+                           drain=float(f.get("drain") if f.get("drain") is not None else 0.85),
+                           band=tuple(f["band"]) if f.get("band") else None,
+                           anchor=f.get("anchor") or "fresh", morph=f.get("morph"))
+            return flf_mod.flf_segment(spec, dur, str(out_path), keyframe_dir=str(scratch), bible=bible) or None
+        spec = SimpleNamespace(
+            description=prompt, effective_prompt=prompt, ai_prompt=prompt, ai_motion=None,
+            type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None, location_id=None,
+            editorial_intent="", directors_move="", pacing="", shots=[], support_asset_refs=[], text_overlay=[])
+        asset = vr.generate_ai_video(beat_id, spec, scratch, dur, bible=bible, asset=anchor_asset,
+                                     enable_gemini=True, narration=narration)
+        if asset is None or not getattr(asset, "path", None):
+            return None
+        return (vr._trim_to_duration(asset.path, str(out_path), dur)
+                if hasattr(vr, "_trim_to_duration") else asset.path) or None
+    except Exception:
+        # One beat's error (bad spec, provider hiccup) must NOT crash the whole take — the caller
+        # turns a None into a labeled placeholder so the other beats still render.
         return None
-    return (vr._trim_to_duration(asset.path, str(out_path), dur)
-            if hasattr(vr, "_trim_to_duration") else asset.path) or None
 
 
 def _placeholder_card(tag: str, label: str, lane: str, dur: float, out_path: str) -> str:
@@ -682,7 +700,7 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
             flf_spec = FLFSpec(
                 start_prompt=f.get("start_prompt") or prompt,
                 transition=f.get("transition") or prompt,
-                drain=float(f.get("drain", 0.85)),
+                drain=float(f.get("drain") if f.get("drain") is not None else 0.85),
                 band=tuple(f["band"]) if f.get("band") else None,
                 anchor=f.get("anchor") or "fresh",
                 morph=f.get("morph"),
@@ -853,7 +871,9 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
             if i in emap:
                 e = emap[i]
                 lane = e.get("lane") or sb.get("lane") or "grok"
-                prompt = (e.get("prompt") or sb.get("prompt") or narration or "").strip()
+                # Fall back to the beat's own (concrete) prompt/label before the whole narration —
+                # an empty redo box that fell through to the generic narration is what failed beat 2.
+                prompt = (e.get("prompt") or sb.get("prompt") or sb.get("label") or narration or "").strip()
                 dur = float(sb.get("dur") or 0) or max(2.0, slot_s / max(1, len(src_beats)))
                 beat = {"lane": lane, "prompt": prompt, "flf": e.get("flf") or sb.get("flf"), "dur": dur,
                         "label": (e.get("desc") or prompt[:60] or lane)}

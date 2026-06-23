@@ -158,6 +158,13 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
     catch (e) { alert('Failed: ' + (e as Error).message) }
   }
 
+  // Start fresh: clear all this scene's takes + folded feedback (files + event log kept).
+  const resetScene = async () => {
+    if (!confirm(`Start scene ${scene.number} fresh?\nClears all its takes and notes/revisions so the next attempt is clean. The .mp4 files and the event log are kept.`)) return
+    try { await jpost(`${base}/reset`, {}); setViewUrl(null); setDraft(null); setJob(null); await reload() }
+    catch (e) { alert('Reset failed: ' + (e as Error).message) }
+  }
+
   const deleteTake = async (t: Take) => {
     if (!confirm(`Delete take ${t.take}? It's removed from this list (the .mp4 stays on disk and can be re-added via swap).`)) return
     try {
@@ -223,6 +230,7 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
 
       <div className="swapwrap">
         <button className="act swapbtn" onClick={openSwap}>{swapOpen ? '▾ hide clips' : '⇄ swap to an existing clip'}</button>
+        <button className="act" disabled={working} onClick={resetScene}>↺ start fresh</button>
         {swapOpen && (
           <div className="swappanel">
             <input placeholder="filter by name…" value={clipFilter} onChange={(e) => setClipFilter(e.target.value)} />

@@ -17,7 +17,7 @@ export default function BeatFixer({ scene, take, working, onRegen }: {
   const slot = scene.slot_s || 0
   const [open, setOpen] = useState(false)
   const [edits, setEdits] = useState<Record<number, Edit>>(() =>
-    Object.fromEntries(beats.map((b) => [b.idx, { redo: b.status !== 'generated', lane: b.lane, prompt: b.prompt || '' }])),
+    Object.fromEntries(beats.map((b) => [b.idx, { redo: b.status !== 'generated', lane: b.lane, prompt: b.prompt || b.label || '' }])),
   )
   if (beats.length === 0) return null
 
