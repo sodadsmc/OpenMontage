@@ -1,5 +1,16 @@
 # OpenMontage - Shared Project Context
 
+> ## ⚠️ REALITY BANNER
+> The "Instruction-Driven (Agent-First)" architecture described below — **"No Python orchestrator…
+> the agent drives the pipeline"** via manifests + checkpoints + stage-director skills — is the
+> *original* design, but it is **not what runs**. That formal layer (`pipeline_defs/`, `skills/`,
+> `lib/checkpoint.py`, `lib/pipeline_loader.py`) is imported only by tests. The **real** pipeline is
+> ordinary imperative Python in `lib/*.py` driven by `projects/therac-25-test/script_v5/*.py` and the
+> `web/` dashboard, documented step-by-step in
+> **[`docs/PRODUCTION_WORKFLOW.md`](docs/PRODUCTION_WORKFLOW.md)**. Read that for how production
+> actually happens; the sections below are accurate for tool/registry/style conventions but
+> aspirational for orchestration.
+
 This is the single source of truth for project architecture and conventions. All platform-specific agent files (CLAUDE.md, CODEX.md, CURSOR.md, COPILOT.md) should point here instead of duplicating this content.
 
 ## Identity

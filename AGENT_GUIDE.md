@@ -1,5 +1,24 @@
 # OpenMontage - Agent Guide
 
+> ## ⚠️ REALITY BANNER (read before trusting anything below)
+> Much of this guide describes a **formal manifest/checkpoint/stage-director pipeline**
+> (`pipeline_defs/`, `skills/pipelines/`, `lib/checkpoint.py`). **That system is LEGACY and
+> does not run** — it is imported only by tests and has produced no real output. The actual
+> production pipeline (the one that makes the Therac-25 documentary) is documented in
+> **[`docs/PRODUCTION_WORKFLOW.md`](docs/PRODUCTION_WORKFLOW.md)** and lives in `lib/*.py`,
+> `projects/therac-25-test/script_v5/*.py`, and the `web/` dashboard.
+>
+> - **"Rule Zero — all production goes through `pipeline_defs/`" is superseded.** Production goes
+>   through `docs/PRODUCTION_WORKFLOW.md`. Writing a scored-script beat and generating it through the
+>   dashboard / `build_*.py` scripts is the sanctioned path, NOT a Rule-Zero violation.
+> - **Still useful below:** the Decision Communication Contract, the cost/announce-before-spend
+>   discipline, the provider/capability registry, and the music/preflight protocols. Read those.
+> - **Ignore below:** the stage-machine, checkpoint protocol, `human_approval_default`, and the
+>   per-pipeline manifest/skill ceremony — none of it is wired to the running code.
+>
+> This banner is the source of truth wherever it conflicts with the legacy text. (Cleanup 2026-06:
+> the legacy layer is slated for deletion once the documentary ships.)
+
 Start here. This is the complete operating guide and agent contract for OpenMontage.
 
 For architecture, key files, and conventions see [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md).
