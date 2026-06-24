@@ -23,6 +23,7 @@ _EVENT_TYPES = {
     "revision_approved",    # actor=human: pre-spend approval of a drafted revision
     "revision_rejected",    # actor=human
     "take_generated",       # actor=system: a regenerated take landed (links revision->take->score)
+    "take_deleted",         # actor=human: a take dropped from the review list (file kept on disk)
     "scene_reset",          # actor=human: start the scene fresh — clears the folded UI state below
 }
 
@@ -128,6 +129,9 @@ def scene_states(project_id: str) -> dict[str, dict]:
                     r["status"] = new_status
         elif t == "take_generated":
             st["takes"].append(p)
+        elif t == "take_deleted":
+            tk = p.get("take")
+            st["takes"] = [x for x in st["takes"] if x.get("take") != tk]
         elif t == "scene_reset":
             # Start fresh: clear the folded state (notes/verdict/revisions/takes) so the next
             # director pass isn't polluted by stale notes. The raw event log is preserved.
