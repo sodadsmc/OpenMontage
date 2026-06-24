@@ -1,13 +1,14 @@
 """Visual strategy router for the narrated-documentary pipeline.
 
-Reads a scene's ``visual_strategy`` field and generates the appropriate
-visual asset — Manim animation, Mermaid diagram, Remotion chart, or
-text card.  Scenes routed to ``stock_footage``, ``archival``, or
-``generated`` are handled by the existing footage_search and gap_fill
-stages and return None here.
+The channel is generation-first: ``ai_video`` scenes are generated to DEPICT
+the narration (the primary path). This router reads a scene's visual type and
+produces the appropriate asset — AI video, Manim animation, Mermaid diagram,
+Remotion chart, or text card. Scenes typed as retrieved footage
+(``stock_footage``/``archival_footage``) are the deliberate fallback for real
+historical content and are handled by the footage_search stage, returning None
+here.
 
-Runs AFTER footage_search and BEFORE assembly.  Produces short MP4 or
-PNG files that the assembly stage inserts alongside stock footage cuts.
+Produces short MP4 or PNG files that the assembly stage inserts into the cut.
 """
 from __future__ import annotations
 
@@ -36,7 +37,7 @@ HERO_VIDEO_PROVIDER = "grok-kie"     # same model for the hero preview (matches 
 # Max single-shot length per provider (their reliable clip range). A segment is split
 # into the FEWEST shots that fit, so a longer-clip model (Grok: 6-30s via Kie's
 # video-1.5 wrapper) yields fewer, longer continuous shots — fewer cuts, cheaper, and
-# more cinematic for atmospheric b-roll. Segments at/under the cap become a single
+# smoother for continuous depiction arcs. Segments at/under the cap become a single
 # clip (no concat). When a segment still needs multiple legs, the legs CHAIN: leg N+1
 # is anchored to leg N's extracted final frame (see resolve_chain_anchor) with a
 # beat-progressed prompt — a continuation, not a parallel re-roll of the same scene.
@@ -548,7 +549,9 @@ def generate_ai_video(
 
     Used for non-batched runs. The two-phase prep/bulk path calls plan_ai_video
     (Phase A) and generate_shot (Phase B) directly instead. Returns None if no
-    shot could be produced (the caller then falls back to stock footage).
+    shot could be produced; the caller must handle this explicitly (fail the
+    segment loudly so it can be re-prompted). Stock footage is NOT the default
+    fallback — the channel is generation-first.
 
     ``editorial_intent`` / ``directors_move`` / ``pacing`` are Scene Library tags
     that let the planner derive a default camera move when ai_motion is blank.
@@ -676,15 +679,22 @@ def _leg_durations(secs: float, n_sub: int,
     return [secs / n_sub] * n_sub
 
 
-# Strong continuous camera moves: any single Grok request over 10s is fulfilled
-# as base + the provider's internal auto-extension, joined by a crossfade with a
-# camera re-anchor — invisible on near-static shots, but on orbits/tracking
-# moves it reads as a fade-and-rewind (seg_002's orbit) or the environment
-# re-extending so the destination never arrives (seg_001's corridor walk).
-# Shots whose motion matches this pattern are chained at sub-10s legs instead:
-# our final-frame re-anchor is a hard continuation, not a fade.
-# AI_CONTINUOUS_LEG_CAP overrides (0 disables). Gentle moves ("slow push") are
-# deliberately NOT matched — their extension seams are imperceptible.
+# Two leg caps govern how a long shot is split into chained sub-clips:
+#
+# 1. HARD PROVIDER CEILING (AI_GROK_LEG_CAP, default 6s). Grok Imagine i2v on Kie
+#    fulfils any request >6s through an internal video-EXTENSION sub-call whose
+#    prompt budget our full channel-style prompt overflows -> HTTP 500 (verified:
+#    a 23.6s single clip 500s 3x; the same beat as 4x ~6s legs succeeds). So EVERY
+#    Grok i2v shot longer than ~6s MUST chain into <=6s legs, regardless of motion.
+#    This is a hard generation limit, not a stylistic choice. (0 disables.)
+# 2. CONTINUOUS-CAMERA CAP (AI_CONTINUOUS_LEG_CAP, default 10s). Strong continuous
+#    moves (orbit/tracking/dolly) read as a fade-and-rewind when fulfilled by the
+#    provider's auto-extension, so they were historically chained at sub-10s legs.
+#    With the 6s hard cap now always active this is mostly subsumed, but it stays
+#    so a continuous move never chains LONGER than 10s even if the hard cap is off.
+# Whether a motion is continuous-cam only affects seam handling, NOT whether to
+# split — the 6s ceiling forces the split. ("slow push" used to be left as one
+# long clip because its seam is imperceptible; that was the bug — it still 500s.)
 _CONTINUOUS_CAM_RE = re.compile(
     r"\b(orbit\w*|arc\w*|circl\w*|tracking|follows?|walking pace|"
     r"pans? (?:across|around)|doll(?:y|ies)\w*)\b",
@@ -716,12 +726,15 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
     base_prompt = (getattr(visual_spec, "effective_prompt", None)
                    or getattr(visual_spec, "description", "") or "")
     cont_cap = float(os.environ.get("AI_CONTINUOUS_LEG_CAP", "10"))
+    grok_cap = float(os.environ.get("AI_GROK_LEG_CAP", "6"))  # hard >6s extension-500 ceiling
 
     def expand(sid: str, prompt: str, ai_motion: str | None, hero: bool,
                secs: float, offset: float) -> list[dict[str, Any]]:
         cap = MAX_SHOT_SECONDS
         if cont_cap > 0 and ai_motion and _CONTINUOUS_CAM_RE.search(ai_motion):
             cap = min(cap, cont_cap)
+        if grok_cap > 0:  # every Grok i2v >6s 500s on the extension path -> hard-chain
+            cap = min(cap, grok_cap)
         n_sub = max(1, math.ceil(secs / cap)) if secs > 0 else 1
         prompts = _leg_prompts(narration, prompt, n_sub, motion=ai_motion,
                                total_duration_s=secs)
@@ -771,6 +784,8 @@ def _plan_shots(visual_spec: Any, target_duration_s: float,
     cap = MAX_SHOT_SECONDS
     if cont_cap > 0 and seg_motion and _CONTINUOUS_CAM_RE.search(seg_motion):
         cap = min(cap, cont_cap)
+    if grok_cap > 0:  # hard >6s extension-500 ceiling (applies to every i2v shot)
+        cap = min(cap, grok_cap)
     n = max(1, math.ceil(target_duration_s / cap)) if target_duration_s > 0 else 1
     legs = _leg_prompts(narration, base_prompt, n, total_duration_s=target_duration_s)
     durs = _leg_durations(target_duration_s, n, leg_boundaries)
