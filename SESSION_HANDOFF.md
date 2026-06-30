@@ -1,101 +1,117 @@
-# Session Handoff — Scene-Review Dashboard: regen flow hardening
+# Session Handoff — Build FLF visual cohesion for action sequences
 
-**Date:** 2026-06-21 · **Branch:** `v6-baseline` · **Project worked on:** `projects/therac-25-test`
+**Date:** 2026-06-29 · **Branch:** `v6-baseline` · **Project:** `projects/therac-25-test`
 
-> For the earlier **depiction-first migration** + the dashboard's original design, see the previous handoff: `git show 0abb1b8:SESSION_HANDOFF.md`.
+> Previous handoff (scene-review regen hardening): `git show f3a0513:SESSION_HANDOFF.md`.
 
-This session was almost entirely about the **scene-review dashboard** (`web/`, FastAPI + React/Vite, runs on `:8011` via `web/start_dashboard.bat`) and its **AI-video regeneration flow**. We took it from "regenerate one shot" to a full operator-driven, vetted, multi-beat editor — fixing a long string of bugs along the way. The clip being iterated is the Therac-25 documentary in the amber graphic-novel house style.
+## TL;DR
 
----
+This session hardened the **narration-following** and **first-run shot quality** of the Therac-25
+documentary, then hit the next wall: **multi-beat action shots have no visual cohesion** (the figure
+appears/disappears, faces backwards, teleports, the door floats with no walls). **The next session's
+job is to build chained-keyframe-set + Kling-FLF cohesion** (~2–3 days). The full design is below and
+in memory (`flf-cohesion-action-sequences.md`).
 
-## Current state
+## What this session did (state you're inheriting)
 
-**Commits this session (newest first):**
-- `3f3fc46` feat(web): editable beat plan, per-beat regen, and the Gemini vet feedback loop
-- `d90a67f` feat(web): mixed multi-beat generation + beat indicator, reliable job poll
-- `321e5f1` feat(generation): make per-shot gate re-roll cap env-controllable (AI_SHOT_ATTEMPTS)
-- `66e949f` feat(web): style-aware + spend-safe regeneration, take delete, graded previews
-- `ea71bec` fix(web): dispatch_take 500 — return referenced undefined 'lane'
+All on `v6-baseline`, committed and (should be) pushed to `origin = github.com/sodadsmc/OpenMontage`:
 
-**Uncommitted (mine — NOT yet committed):** `web/backend/{takes,app,feedback}.py`, `web/ui/src/components/{SceneDetail,BeatFixer}.tsx`. These hold: the **"↺ start fresh" scene reset**, the **beat-fixer prefill/fallback fix**, and the **FLF `drain: null` crash fix** (all below). Worth committing as one chunk.
+1. **Recovered a near-fatal git loss.** The object store was accidentally deleted and recovered via
+   `winfr /extensive` (D: is **exFAT**). `v6-baseline` is now pushed to the user's own repo as a real
+   backup. Auto-gc disabled (`gc.cruftPacks=false`, `maintenance.auto=false`) — a Windows cruft-pack
+   bug. **Don't run `git gc`/`repack` or `-delete` under `.git/`.** (memory: `git-object-store-safety`)
+2. **De-confused the docs.** `CLAUDE.md`/`AGENT_GUIDE.md`/`PROJECT_CONTEXT.md` now point to the REAL
+   pipeline (`docs/PRODUCTION_WORKFLOW.md`); the legacy `pipeline_defs/`+`skills/` system is flagged dead.
+   ~108 scratch `_*.py` files moved to `scratch/` (gitignored).
+3. **Depiction-first prompt rewrites** (commit history; scored_script is gitignored): 13 atmospheric
+   segments rewritten to depict the narration; `narration_mode` dial set (seg_037 evocative). The
+   **narration gate is caption-blind and noisy** — do NOT hard-enforce `--fail-on partial`; it's an
+   advisory smell-test, the dashboard eyeball is the real bar.
+4. **Machine consistency:** the real-Therac-25 reference sheet (`therac25_reference_sheet.png`) is now
+   propagated to ALL machine-bearing assets in `asset_bible_v6.json` (was only on kennestone). Injected
+   at generation via `visual_router.py:309-330`.
+5. **First-run shot fixes — commit `c69c176`** `feat(generation): action-aware shot-list + verb-locked
+   motion + full-body keyframe gate`:
+   - Director decomposes narration into discrete actions (`_decompose_actions` pre-pass in
+     `web/backend/director.py`) → ONE beat per action (shot list) + server-side re-ask. Verified on
+     seg_019: 2 collapsed beats → **4 action beats**, each with a `motion` verb.
+   - `beat["motion"]` now flows director → `takes.py` (`_beat_plan`/`_gen_beat`, the hard-coded
+     `ai_motion=None` is gone) → the prompt builder (no more default Ken-Burns zoom).
+   - Full-body person keyframe on every person leg + a `full_figure` keyframe gate
+     (`quality_gate.py KEYFRAME_FULL_FIGURE_MIN`) + non-"waist-up" framing (`shot_prompt_builder.py`).
 
-**Uncommitted (PRE-EXISTING, NOT mine — leave alone):** `diagram.png`, `lib/visual_router.py` (a leg-cap WIP: `AI_GROK_LEG_CAP`/`AI_CONTINUOUS_LEG_CAP`). Never bundle these. NOTE: my one committed `visual_router.py` change (the `AI_SHOT_ATTEMPTS` line in `321e5f1`) was isolated from the WIP via a checkout-dance; the WIP still sits uncommitted on top.
+## THE TASK: chained-keyframe-set + FLF cohesion
 
-**Server:** runs detached via `web/start_dashboard.bat` (survives across turns). Restart after any backend change. Use `http://127.0.0.1:8011` (NOT `localhost` — uvicorn binds IPv4-only).
+**Problem.** A multi-action scene now splits into the right beats, but each beat is an INDEPENDENT
+Grok i2v clip in the `mixed` lane (`takes.py:_store_mixed_take` loops beats sharing nothing). So
+seg_019 (Cox rises → struck → stumbles → pounds) renders as 4 disconnected clips: Cox materializes,
+faces backwards, runs out from behind the machine, pounds a wall-less door.
 
-**Spend:** ~$10.63 of Grok/Kling regen this session (81 calls); a meaningful slice was wasted on the bugs below (runaways + crashes that spent then failed). Dispatch is LIVE (real KIE key). Guards now cap it.
+**Key facts (verified this session):**
+- Today's FLF (`lib/flf.py`) only DERIVES the end from the start — `drain_endpoint` (darken) or
+  `composite_text` (stamp a glyph). It **cannot move a body** and **does not chain**. seg_006/009 FLF
+  were small same-frame morphs. So action-continuity FLF is **net-new**.
+- BUT `lib/visual_router.py:generate_flf_shot` (~:523) ALREADY takes a real `start_url` AND `end_url`
+  → Kling can interpolate two different authored frames. The gap is purely upstream authoring.
+- Grok-chaining (`resolve_chain_anchor`, visual_router.py:~922) exists and is what's ALREADY failing —
+  Grok invents the motion in the middle.
 
----
+**The fix = HYBRID (not pure-FLF, not grok-chaining):** author a CONSISTENT posed keyframe SET
+(same figure/room/camera, via the `asset_bible` reference sheet, each Kᵢ grounded on Kᵢ₋₁ + the sheet),
+then Kling-FLF the SHORT interpolation between adjacent keyframes. Beat N's END frame IS beat N+1's
+START → figure/room can't jump; the door has walls by construction.
 
-## Issues hit — cause → fix
+**FLF limit:** it interpolates, not biomechanics. A big jump (lying→standing) morphs → subdivide with
+an intermediate keyframe. A big cross-room translation (the stumble) may need to stay a Grok leg
+seeded from a keyframe.
 
-### 1. `dispatch_take` 500 (NameError) — masked a paid background job  *(fixed, `ea71bec`)*
-"Fix failed: …/approve-and-dispatch → 500." `dispatch_take` queued the job, then `return {… "lane": lane}` — but `lane` is only defined inside `_run_take_job`. NameError fired AFTER `_POOL.submit`, so the HTTP call 500'd **while a paid generation ran in the background** (masked as failure). Fix: `"lane": revision.get("lane")`.
+### Net-new to build (reuse everything else)
+1. `start_image` / `end_image` params on `lib/flf.py` `flf_segment`(:201) + `flf_beat`(:165): when set,
+   skip the fresh-Nano START (flf.py:226) and accept a real authored END (not drain/derive). Add the
+   fields to `FLFSpec` in `lib/scored_script.py:52-82`. **(start = small; end-authoring = medium)**
+2. **Director** (`web/backend/director.py:148-187`): when `described_action` is one subject in one
+   setting across the actions, mark a CHAINED run and emit an ordered keyframe SET (K0..Kn, one per
+   action boundary) + the FLF pair prompts, instead of N islands. Add an end-keyframe authoring option
+   to the `flf` schema block (today only drain/band/morph). **(medium)**
+3. **Keyframe authoring:** reuse `_populated_keyframe` (visual_router.py:~851) — author K0 from the
+   room canonical + Cox reference sheet; author each Kᵢ as a Nano edit whose PRIMARY ref is Kᵢ₋₁ + the
+   reference sheet, prompt = the pose delta only. Grounding each frame on its predecessor locks
+   figure+room identity across the set.
+4. **Dispatch** (`web/backend/takes.py:_store_mixed_take` ~554-584): thread a `prev_end_frame` across
+   the loop → `_gen_beat`(:480) → `flf_segment(start_image=...)` so END(N)=START(N+1). For a Grok
+   travel beat inside the run, reuse `resolve_chain_anchor` on the prior clip. **(medium)**
 
-### 2. Regenerated takes were off-style  *(fixed, `66e949f`)*
-take2/take3 of seg_009 came out bright/colorful/digital, not the amber house style. Three causes in the regen path:
-- `takes.py` hardcoded `ai_style=None` → per-segment **mood** never reached the prompt builder.
-- the director's `revised_prompt` had no style tags and the director was never shown the channel look.
-- **biggest:** regen called `generate_ai_video(bible=None)` → no **canonical-reference anchor**; the bulk pipeline anchors every shot on the amber-graded canonicals in `assets/asset_bible/`.
-Fixes: surface `ai_style` on the scene (`scenes.py`) + pass into the spec; make the director style-aware (`director.py`: channel look + mood + hard rules); anchor regen on the asset bible (`_load_bible_asset` → pass `bible`/`asset`).
+**Reuse (no rebuild):** `generate_flf_shot` (two endpoints), `resolve_chain_anchor` (last-frame
+extract+host), `_populated_keyframe`, the reference sheet (`asset_bible.py:75-82`), the action
+decomposer + mixed-beat concat scaffold.
 
-### 3. "generator returned no clip" after the anchor fix — stale canonical URL  *(fixed, `66e949f`)*
-The bible's `canonical_image_url` was an **expired tmpfiles.org link (HTTP 404)** (those last ~1h). Fix: `_refresh_canonical_url` re-hosts the LOCAL canonical to a fresh durable URL via `lib.image_host` (prefers premiumize when keyed). (A "non-fatal fallback" I added here was later **removed** — see #5.)
+### seg_019 test plan (the golden case)
+6 keyframes, all SAME locked low-3/4 camera + room + Cox figure (amber-on-navy):
+`K0 lying flat → K1 propped on elbows → K2 on his feet → K3 flinch-in-place (2nd beam) → K4 mid-lurch
+toward door → K5 fist on the door (walls visible)`. 5 FLF pairs, each pair's start = prior pair's end.
+P4 (K3→K4, the cross-room travel) is the risky one — try FLF with the K4 mid-point first; fall back to
+a Grok leg seeded from K3 if it slides.
 
-### 4. "Black + amber" — clips didn't match the strict look  *(fixed, `66e949f`)*
-A 5-agent codebase investigation found the strict two-tone look comes from the **FINISHING GRADE** (`lib/finishing.py` / `channel_style.finish_filter` — desaturate→duotone-curves→grain), which only runs **once at final assembly**, never on per-clip takes. So **the dashboard was showing RAW, ungraded clips**. Also: shadows map to navy `#0a1428`, never pure black. Fix: **graded previews** — each take goes through `apply_finish` into a `*.graded.mp4` and the dashboard serves THAT (raw kept for assembly, no double-grade). Backfilled existing takes. Floor kept navy.
+**Honest expectation:** structurally coherent on run 1 (no teleporting, door has walls), but plan to
+re-author 1–3 keyframes (Nano identity drift — mitigated by the reference sheet) and re-roll the 1
+big-motion pair. Per-beat regen already exists in the dashboard.
 
-### 5. Spend runaway — $1.33 / 13 Grok calls on one scene  *(fixed, `66e949f` + `321e5f1`)*
-A gate-FAILING mixed scene fanned out: `generate_shot` retries the gate **3× per leg** (was hardcoded) × ~3 legs = 9 calls, all failing — then my non-fatal fallback ran a SECOND full generation (4 more). Had to **kill the server** (the `OPENMONTAGE_DISABLE_DISPATCH` kill-switch only checks at job *start*). Fixes: removed the fallback; made the per-shot cap env-controllable (`AI_SHOT_ATTEMPTS`); added a **spend ceiling** (`OPENMONTAGE_REGEN_MAX_USD`, default $1.00) in `dispatch_take`.
-
-### 6. Cost felt too high / scenes over-blocked  *(fixed)*
-A ~30s scene blocked at worst-case $1.02 > $1.00. First fix — **single-pass (`AI_SHOT_ATTEMPTS=1`)** — was a **FALSE ECONOMY**: one gate-failing leg then fails the WHOLE take after paying for the good legs (seg_014: $0.51 spent, no clip). Reverted to **2 (one re-roll)** and changed the ceiling to block on **EXPECTED** cost (legs × one pass), not worst-case. Also fixed the cost model: **FLF is one Kling interpolation (≤15s), not 6s "legs."**
-
-### 7. "Doesn't show up" — finished takes never displayed  *(fixed, `d90a67f`)*
-Two frontend bugs: (a) the job poll **gave up after 6 min** but jobs take 8–14 min → finished take never refreshed; (b) partial/mixed takes are `needs_review`, not auto-promoted. Fix (`SceneDetail.pollJob`): poll up to ~15 min + auto-show the new take (even partial) when it lands.
-
-### 8. "mixed" lane only made a PARTIAL take  *(fixed, `d90a67f`)*
-A mixed scene generated only the *primary* beat → a partial take that didn't auto-promote (hit on seg_009/012/014). Fix: **full mixed-beat generation** — the director emits a `beats` array (lane/desc/prompt/weight/flf); dispatch generates EVERY dispatchable beat and concats into one take; a manim/failed beat becomes a **labeled placeholder**; per-beat status recorded; a **beat indicator** strip shows which beat needs fixing.
-
-### 9. The dose diagram (seg_012) — grok garbles legible scales  *(solved, $0)*
-Grok garbles legible numbers ("screen trap"); FLF can't sweep a needle. Solved with a **deterministic PIL stat-card** ("PRESCRIBED 200 / ADMINISTERED ~20,000 / 100× the prescribed dose") spliced ahead of the phone-call take — $0, legible, graded on-style. (Memory: stat-card-diagram-splice-technique.)
-
-### 10. Editable beat plan + per-service cost  *(built, `3f3fc46`)*
-Built: editable beat rows in the approval card (lane select + per-beat cost + editable prompt + total); an **edit endpoint** (`/revision/{rid}/edit` logs a new revision); mixed scenes no longer auto-dispatch on needs-work — they **draft the editable card first**.
-
-### 11. Per-beat regeneration  *(built, `3f3fc46`)*
-"No option to change the notes and generate only them." Built: **redo only selected beats** (edit prompt/lane), **reuse the rest's clips**, re-concat. Cost = only the redone beats; each beat's clip+prompt is recorded for reuse (`BeatFixer.tsx` + `regen_beats`/`_run_regen_beats_job`). Plus a **director rule**: grok needs a CONCRETE physical scene; abstract pattern/matching/diagram ideas → manim or rewrite.
-
-### 12. Empty prompt → narration fallback (beat 2 placeholdered)  *(fixed, UNCOMMITTED)*
-Redoing beats with **blank** prompt boxes (old takes had no stored per-beat prompts) made the backend fall back to the **whole narration** → generic shot → beat 2 failed → placeholder. Fix: prefill the redo box with `b.prompt || b.label`; backend falls back to the beat **label**, not the narration.
-
-### 13. "Why aren't we using the Gemini vetting?" → wired it in  *(built, `3f3fc46`)*
-The dashboard used only the **coarse `quality_gate` score** (it passed a bad take at 0.94). `lib/animation_vet.py` **WATCHES the clip vs the narration** and reports per-moment sync mismatches + fixes (it scored that same take **1/10**). Wired into every take (`_vet_take`), surfaced per-take, + a **"↺ re-plan from the vet"** button that feeds findings back to the director — the eyes the text-only director lacks.
-
-### 14. seg_015 got messy → "start fresh"  *(built, UNCOMMITTED)*
-Built a **scene reset**: a `scene_reset` event (`feedback.py`) clears the folded UI state (notes/verdict/revisions) so the next director pass isn't polluted; `reset_scene` (`takes.py`) drops the scene's takes from the index; files + log preserved. **"↺ start fresh"** button in `SceneDetail`. Ran it on seg_015, then drove a **clean single-shot regen** → a good on-style Yakima establishing shot (gate 0.99; vet sync-3/polish-4, expected for an atmospheric beat).
-
-### 15. seg_019 crash — `float() argument … not 'NoneType'`  *(fixed, UNCOMMITTED)*
-A director-planned **FLF dose-readout beat** had `"drain": null`. `float(f.get("drain", 0.85))` returns `None` when the key exists as null (not the default) → crash **after beats 1&2 had generated** (~$0.30 sunk). Fix: `float(f.get("drain") if … is not None else 0.85)` in BOTH FLF spots, and **wrapped `_gen_beat` in try/except → None** so one beat's error becomes a placeholder, never a take-killing crash.
-
----
-
-## Recurring themes / still-open
-- **Grok fails on small/abstract beats** ("operator presses P", "collimator matching pattern", "hip with striped burns") → placeholders. Mitigations: the director concrete-shot rule, the **per-beat regen** (redo just the bad one), and the **vet** that flags it. Grok is still a coin-flip on these — the human-in-the-loop beat editor is the real answer.
-- **Gate score vs vet disagree by design** — gate = technical/style quality, vet = narration sync + motion. Use both.
-- **Atmospheric vs literal:** "pattern repeats" beats (seg_015) work best as ONE clean establishing shot; literal multi-beat sequences (seg_019) are where the per-beat fragility lives.
-- **Wasted spend on failures:** a beat crash/gate-fail still bills the beats that generated first. The `_gen_beat` wrap (#15) + spend ceiling reduce but don't eliminate this.
-
-## Suggested next steps
-1. **Commit the uncommitted chunk** (reset + prefill fix + FLF drain fix) — all bug/feature fixes.
-2. **seg_019:** re-dispatch the (good) plan now the FLF crash is fixed — but make beat 1 ("operator presses P") concrete first or it'll placeholder again. The FLF dose-readout beat is the right call (clean legible "DOSE: 16,500–25,000 RADS").
-3. Consider: vet score on the take chip; a per-beat vet (map findings → beat index) for one-click targeted fixes.
-4. The pre-existing `visual_router.py` leg-cap WIP + `diagram.png` still need an owner decision.
+## How to run / test
+- **Dashboard:** `web/start_dashboard.bat` (uvicorn, port 8011, its own window — survives across turns,
+  NO auto-reload → **restart after any backend edit**). Use `http://127.0.0.1:8011` (NOT localhost).
+- **Drive a regen via API:** POST `…/scenes/seg_019/director-pass` (no notes) → `…/revision/{rid}/
+  approve-and-dispatch` → poll `…/jobs/{job_id}`. (See this session's transcript for the exact python.)
+- **Dispatch is LIVE/paid** (KIE + GOOGLE keys in `.env`). seg_019 ≈ $0.40 for 4 beats; the FLF version
+  adds Nano keyframes (~$0.04 each) — **announce cost before spend**. Spend ceiling
+  `OPENMONTAGE_REGEN_MAX_USD` (default $1.00) in `takes.py:dispatch_take`.
+- **"Needs work" is only a verdict** — it does NOT regenerate. Regenerate = director-pass → approve-and-dispatch.
 
 ## Key files
-- `web/backend/takes.py` — the regen engine: dispatch, single/mixed/per-beat generation, beat plan, cost (`_beat_cost`/`_worst_case_usd`), graded previews, vet (`_vet_take`), reset.
-- `web/backend/director.py` — the rule-applied planner (style-aware, beats schema, concrete-grok rule).
-- `web/backend/{scenes,feedback,app}.py` — scene model / append-only feedback log / FastAPI routes.
-- `web/ui/src/components/{SceneDetail,RevisionCard,BeatFixer}.tsx` — review UI / editable plan / per-beat fixer.
-- `lib/{finishing,channel_style,animation_vet,flf,image_host,asset_bible}.py` — grade, style, vet, FLF, hosting, canonical anchors.
-- `styles/channel_styles/graphic-novel-disaster.yaml` — the house style (navy `#0a1428` + amber `#e8a44c`, duotone+grain).
+- `lib/flf.py` — FLF/Kling first-last-frame (the file to extend with start_image/end_image).
+- `lib/visual_router.py` — `generate_flf_shot` (two-endpoint Kling), `resolve_chain_anchor`,
+  `_populated_keyframe`, `plan_ai_video`.
+- `web/backend/director.py` — `_decompose_actions`, the lane/shot-list rules, `_SCHEMA_HINT` (add end-auth).
+- `web/backend/takes.py` — `_store_mixed_take` / `_gen_beat` (thread prev_end_frame), `dispatch_take`.
+- `lib/scored_script.py` — `FLFSpec` (add start_image/end_image).
+- `lib/asset_bible.py` — reference sheet (figure identity across keyframes).
+- `docs/PRODUCTION_WORKFLOW.md` — the real pipeline recipe + lane decision tree.
