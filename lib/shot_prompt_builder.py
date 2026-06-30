@@ -109,7 +109,21 @@ def build_shot_prompt(
     # Layer 2: Movement — shot size and camera movement
     movement_parts = []
     if sl.get("shot_size"):
-        movement_parts.append(_SHOT_SIZE_PHRASES.get(sl["shot_size"], sl["shot_size"]))
+        shot_size = sl["shot_size"]
+        # For a person performing a whole-body action, never default a "medium"
+        # shot to waist-up — that crops the legs and breaks the action staging.
+        # Use full-figure framing instead. Deliberate close-ups/portraits
+        # (close_up, medium_close, insert, over_shoulder, etc.) keep their tight
+        # framing, and an explicit close framing on the scene is honored.
+        if (
+            shot_size == "medium"
+            and scene.get("subject_is_person")
+            and scene.get("whole_body_action")
+            and not scene.get("close_up")
+        ):
+            movement_parts.append("full figure, head-to-toe, feet visible, room to move")
+        else:
+            movement_parts.append(_SHOT_SIZE_PHRASES.get(shot_size, shot_size))
     if sl.get("camera_movement") and sl["camera_movement"] != "static":
         movement_parts.append(_MOVEMENT_PHRASES.get(sl["camera_movement"], sl["camera_movement"]))
     if movement_parts:

@@ -365,8 +365,26 @@ def plan_ai_video(
         keyframe_prompt = apply_to_prompt(
             bible.build_prompt_anchor(asset_id, shot_prompt) if bible is not None else shot_prompt
         ) + ref_note
+        # A person can be present in this leg even when the per-leg prompt is
+        # terse — scan the narration too so chained legs 2+ aren't misread as
+        # empty just because the action verb lives in the voiceover.
+        needs_person = (_needs_people(shot_prompt) or _needs_people(narration))
         if chain_from:
             keyframe: Path | str | None = canonical_ref
+            # A chained PERSON leg must NOT anchor on the empty canonical (it would
+            # melt a body out of the furniture). Give it its own populated
+            # full-body frame so every leg of the action starts from a real figure.
+            if (allow_paid_keyframes and needs_person
+                    and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0"):
+                populated = _populated_keyframe(
+                    keyframe_prompt, canonical_ref,
+                    keyframe_dir / f"{segment_id}_{shot_id}_key_pop.png",
+                    description=shot_prompt, narration=narration,
+                    extra_ref_urls=extra_refs or None,
+                    fidelity_ref=fidelity_sheet,
+                )
+                if populated is not None:
+                    keyframe = populated
         else:
             # Cross-asset shots NEED an edited keyframe (the raw canonical can't
             # contain the support asset), so force the per-shot edit when
@@ -380,7 +398,7 @@ def plan_ai_video(
             # Scene needs people but the canonical anchor is (deliberately) an empty
             # room: animate FROM a frame that already contains the subject, so the
             # video model never melts a person out of the furniture.
-            if (allow_paid_keyframes and _needs_people(shot_prompt)
+            if (allow_paid_keyframes and needs_person
                     and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0"):
                 populated = _populated_keyframe(
                     keyframe_prompt, keyframe,
@@ -393,10 +411,26 @@ def plan_ai_video(
                     keyframe = populated
 
         # Motion/mood video prompt + the channel style medium
+        # Fail-closed motion seam: a person beat with no authored motion must NOT
+        # emit a still + MOTION_DISCIPLINE-only prompt (which reads as "hold");
+        # give it a motivated, non-static camera move so the figure actually acts.
+        leg_motion = shot_motion
+        if not leg_motion and needs_person:
+            leg_motion = "slow handheld push following the subject's movement"
+        # Tell the prompt builder to frame a person doing a whole-body action
+        # head-to-toe, overriding the channel "waist up" default that crops legs.
+        # A deliberate close-up/portrait keeps its tight framing (errs toward wide:
+        # only explicit close-up language, not incidental "face"/"hands" mentions).
+        _is_close = bool(re.search(
+            r"\b(close[- ]?ups?|tight on|extreme close|macro|portrait)\b",
+            shot_prompt, re.I))
         scene_dict = {
             "description": shot_prompt,
             "texture_keywords": locked,
-            "shot_language": ({"camera_movement": shot_motion} if shot_motion else {}),
+            "shot_language": ({"camera_movement": leg_motion} if leg_motion else {}),
+            "subject_is_person": needs_person,
+            "whole_body_action": needs_person and not _is_close,
+            "close_up": _is_close,
         }
         video_prompt = apply_to_prompt(
             build_shot_prompt(scene_dict, {"mood": ai_style} if ai_style else None)
@@ -844,7 +878,9 @@ def _populated_keyframe(keyframe_prompt: str, anchor: Path | str | None,
         f"{keyframe_prompt}. Place the subject(s) naturally INTO this scene with "
         "correct human anatomy: bodies resting ON surfaces (a patient lies on top "
         "of the treatment table, never sinking into or merging with it), limbs and "
-        "proportions plausible, same camera angle and lighting as the reference."
+        "proportions plausible, same camera angle and lighting as the reference. "
+        "full figure, head-to-toe, both legs and feet visible inside the frame "
+        "with margin, NOT cropped at the waist."
     )
     refs = [ref] + [u for u in (extra_ref_urls or []) if u]
 

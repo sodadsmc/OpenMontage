@@ -468,6 +468,7 @@ def _beat_plan(revision: dict, slot_s: float, narration: str = "") -> list[dict]
         plan.append({
             "idx": i, "lane": bl,
             "prompt": (b.get("prompt") or revision.get("revised_prompt") or narration or "").strip(),
+            "motion": b.get("motion"),
             "flf": b.get("flf"),
             "dur": round(max(2.0, slot_s * w / tot), 2),
             "label": (b.get("desc") or b.get("beat") or b.get("prompt") or bl)[:60],
@@ -494,7 +495,8 @@ def _gen_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration:
                            anchor=f.get("anchor") or "fresh", morph=f.get("morph"))
             return flf_mod.flf_segment(spec, dur, str(out_path), keyframe_dir=str(scratch), bible=bible) or None
         spec = SimpleNamespace(
-            description=prompt, effective_prompt=prompt, ai_prompt=prompt, ai_motion=None,
+            description=prompt, effective_prompt=prompt, ai_prompt=prompt,
+            ai_motion=beat.get("motion") or None,
             type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None, location_id=None,
             editorial_intent="", directors_move="", pacing="", shots=[], support_asset_refs=[], text_overlay=[])
         asset = vr.generate_ai_video(beat_id, spec, scratch, dur, bible=bible, asset=anchor_asset,
@@ -663,9 +665,12 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
         spec = SimpleNamespace(
             description=(described.get("action_sequence") or [narration])[0] or narration,
             effective_prompt=prompt, ai_prompt=prompt,
-            ai_motion=(described.get("manner") or None),
+            ai_motion=(revision.get("motion") or None),
             type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None,
-            location_id=None, editorial_intent="", directors_move="", pacing="",
+            location_id=None,
+            editorial_intent=(revision.get("editorial_intent") or scene.get("editorial_intent") or ""),
+            directors_move="",
+            pacing=(revision.get("pacing") or scene.get("pacing") or ""),
             shots=[], support_asset_refs=[], text_overlay=[],
         )
 

@@ -84,6 +84,13 @@ TEMPORAL_COHERENCE_MIN = 5
 KEYFRAME_ANATOMY_MIN = 6
 KEYFRAME_SUBJECT_MATCH_MIN = 5
 KEYFRAME_TEXT_FREE_MIN = 6
+# A person performing a whole-body action (standing/rising/walking/staggering/
+# pounding) must be framed head-to-toe, NOT cut off at the torso or waist —
+# a legless figure can't perform the staged motion, and the crop poisons the
+# i2v. Fail-closed below this so the keyframe retry regenerates before paid
+# video. Scored 10 ("not applicable") for deliberate close-ups/portraits, so
+# this never fails an intentional crop.
+KEYFRAME_FULL_FIGURE_MIN = 6
 # Fidelity vs the asset's model reference sheet (checked only when the caller
 # supplies one). An off-model machine in the keyframe stays off-model in every
 # frame of the clip — strictest threshold of the keyframe criteria.
@@ -495,7 +502,7 @@ The clip was generated for this shot description:
 
 Score each criterion from 1 (terrible) to 10 (perfect):
 
-1. "content_match": Does the clip depict the subject, setting, and action of the description (and stay consistent with the narration, if given)?
+1. "content_match": Does the clip depict the subject, setting, and action of the description (and stay consistent with the narration, if given)? When a person performs a WHOLE-BODY action (standing/rising/walking/staggering/pounding), the figure must be framed full_figure — head-to-toe with both feet visible; score low if the subject is cut off at the waist / legs missing so the staged motion can't read. (This does NOT apply to a deliberate close-up, portrait, or hands-only shot.)
 
 2. "artifact_free": Watch for these specific AI generation failures across the WHOLE clip:
    - bodies or objects that MERGE or MELT into surfaces — e.g. a person whose torso or head sinks/blends INTO a bed, table, or wall instead of resting ON it;
@@ -777,10 +784,12 @@ Score each criterion from 1 (terrible) to 10 (perfect):
 
 2. "subject_match": Does the image actually contain the subjects, setting, and framing the description asks for?
 
-3. "text_free": Is the image free of baked-in LEGIBLE text, captions, signage, watermarks, or lettering? Indistinct impressionistic marks that merely suggest text are fine. 10 = nothing readable anywhere; 1-3 = clearly readable words.{fidelity_rubric}
+3. "text_free": Is the image free of baked-in LEGIBLE text, captions, signage, watermarks, or lettering? Indistinct impressionistic marks that merely suggest text are fine. 10 = nothing readable anywhere; 1-3 = clearly readable words.
+
+4. "full_figure": When a person performs a WHOLE-BODY action (standing/rising/walking/staggering/pounding), is the figure shown head-to-toe — both feet visible — and NOT cut off at the torso or waist by the frame edge? 9-10 = the whole body, head to feet, is inside the frame; 1-3 = the figure is cropped at the waist/torso or its legs/feet are missing. CRUCIAL: this applies ONLY when the description implies a person doing a whole-body action. If the shot is a DELIBERATE close-up, portrait, head-and-shoulders, or hands-only framing — or there is no person performing a whole-body action — this criterion does NOT apply: score it 10.{fidelity_rubric}
 
 Return ONLY JSON:
-{{"anatomy_plausible": N, "subject_match": N, "text_free": N{fidelity_json}, "issues": ["short concrete description of each problem"]}}
+{{"anatomy_plausible": N, "subject_match": N, "text_free": N, "full_figure": N{fidelity_json}, "issues": ["short concrete description of each problem"]}}
 """
 
         parts = [uploaded] + ([ref_uploaded] if ref_uploaded is not None else []) + [prompt]
@@ -791,6 +800,9 @@ Return ONLY JSON:
             "anatomy_plausible": int(result.get("anatomy_plausible", 0)),
             "subject_match": int(result.get("subject_match", 0)),
             "text_free": int(result.get("text_free", 0)),
+            # Default 10 = not-applicable: a missing score (e.g. a deliberate
+            # close-up the model scored N/A) must not fail the full-figure gate.
+            "full_figure": int(result.get("full_figure", 10)),
         }
         if ref_uploaded is not None:
             scores["reference_fidelity"] = int(result.get("reference_fidelity", 0))
@@ -800,6 +812,7 @@ Return ONLY JSON:
             scores["anatomy_plausible"] >= KEYFRAME_ANATOMY_MIN
             and scores["subject_match"] >= KEYFRAME_SUBJECT_MATCH_MIN
             and scores["text_free"] >= KEYFRAME_TEXT_FREE_MIN
+            and scores["full_figure"] >= KEYFRAME_FULL_FIGURE_MIN
             and scores.get("reference_fidelity", 10) >= KEYFRAME_FIDELITY_MIN
         )
         detail = {"passed": passed, "scores": scores, "issues": issues}

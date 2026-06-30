@@ -99,15 +99,28 @@ HARD RULES:
   folders, the error code) lives in the keyframe; the generator only adds MOTION.
 - Motion = the narration verb: state the subject's one concrete action + a
   motivated camera move.
+- SHOT LIST: FIRST decompose the narration into action_sequence = EVERY distinct
+  physical movement, ONE entry per motion verb. Break compound clauses apart —
+  e.g. "Cox is getting off the table when it hits him, and he pounds on the door"
+  is THREE actions: ["tries to rise from the table", "the second dose strikes him
+  mid-rise", "staggers to the door and pounds on it"]. Do NOT compress several
+  movements into one vague summary like "receives radiation" or "gets treatment".
+  THEN, when action_sequence has MULTIPLE actions, emit ONE beat per action in
+  narration order (a shot list) and seed "beats" one-to-one from action_sequence —
+  never merge sequential actions into a single beat. The "prefer a single lane"
+  preference below applies ONLY to a SINGLE-action beat; a multi-action sequence
+  MUST be a shot list ("mixed").
 - Legs <= 6s, chained (Grok extension 500s past ~6s).
 - depiction_mode: "literal" by default (depict the action); "atmospheric" only
   when the beat is genuinely a mood beat.
 
-DISPATCH PREFERENCE (so the fix can actually generate a take):
-- Auto-generation supports the GROK and FLF lanes only. PREFER a single grok or flf
-  lane that depicts the beat. A live-action depiction of the moment is usually better
-  than a diagram. Choose "mixed" or "manim" ONLY when a labeled diagram or an exact
-  taught count is essential and cannot be carried by one live-action or FLF shot.
+DISPATCH PREFERENCE (so the fix can actually generate a take) — applies to a
+SINGLE-action beat only (a multi-action sequence MUST be a shot list per SHOT LIST above):
+- Auto-generation supports the GROK and FLF lanes only. For a SINGLE-action beat, PREFER a
+  single grok or flf lane that depicts the beat. A live-action depiction of the moment is
+  usually better than a diagram. Choose "mixed" or "manim" ONLY when a labeled diagram or an
+  exact taught count is essential and cannot be carried by one live-action or FLF shot — or
+  when the narration is a multi-action sequence that requires a shot list.
 - When you DO choose "mixed", fill "beats" (see schema) with EVERY beat in order — all the
   dispatchable beats (grok/flf) are generated and concatenated into one COMPLETE take; only a
   "manim" beat becomes a labeled placeholder. (Also set "primary_shot" for back-compat.)
@@ -117,7 +130,7 @@ _SCHEMA_HINT = """\
 Return ONLY this JSON object:
 {
   "described_action": {
-    "subjects": [".."], "setting": "..", "action_sequence": ["..ordered concrete beats.."],
+    "subjects": [".."], "setting": "..", "action_sequence": ["..ONE concrete physical action per entry; enumerate EVERY movement verb separately, in order; do NOT compress compound movements into a summary.."],
     "props": [".."], "on_screen_text": "..(or empty)..", "manner": "..",
     "characterization": "..", "depiction_mode": "literal|atmospheric",
     "lane_plan": [{"beat": "..", "lane": "grok|flf_state_morph|flf_drain|manim"}]
@@ -158,10 +171,15 @@ For any non-FLF lane, "flf" must be null.
 
 When lane is "mixed", set "beats" to the ORDERED list of beats — EVERY beat is generated and
 concatenated into ONE complete take (grok/flf beats are generated; a "manim" beat becomes a
-labeled placeholder for a manual pass). Order the beats to track the narration. Each beat:
+labeled placeholder for a manual pass). Order the beats to track the narration, and SEED
+"beats" ONE-TO-ONE from described_action.action_sequence: emit exactly one beat per action in
+that sequence, in order (do not merge two actions into one beat, do not drop an action). Each beat:
   {"lane": "grok" | "flf_state_morph" | "flf_drain" | "manim",
    "desc": "3-6 word operator label (e.g. 'dose comparison diagram')",
    "prompt": "a standalone, concrete channel-style generation prompt for JUST this beat",
+   "motion": "REQUIRED — the ONE concrete subject action for THIS beat + a motivated camera "
+             "move that stages it (e.g. 'Cox shoves up off the table and swings his legs down; "
+             "handheld camera rises with him'). NEVER a generic zoom/push.",
    "weight": 0.5,   # this beat's share of the scene duration; the weights sum to ~1.0
    "flf": null}     # the flf object (start_prompt/transition/...) when lane is flf, else null
 Also set "primary_shot" to the single most important auto-dispatchable beat (back-compat).
@@ -255,6 +273,45 @@ def _fallback(scene: dict, notes: list[str], suggestions: list[dict]) -> dict:
 _STRICT = ("\n\nIMPORTANT: your previous reply was not valid JSON. Return ONLY one strict JSON "
            "object — double-quoted keys and strings, NO trailing commas, NO comments, NO prose.")
 
+_SHOTLIST_REASK = ("\n\nIMPORTANT: your described_action.action_sequence lists MULTIPLE sequential "
+                   "actions, but you merged them into fewer beats. Set lane=\"mixed\" and emit "
+                   "\"beats\" ONE-TO-ONE with action_sequence — exactly one beat per action, in "
+                   "order, each with its own \"motion\". Do not merge or drop any action.")
+
+_DECOMPOSE = """You are a documentary shot-list assistant. Read the narration and list EVERY \
+distinct on-screen PHYSICAL action or movement, in order, as a shot list — ONE entry per movement \
+verb. Break compound clauses apart. Include ONLY things a camera can SHOW a subject DOING; OMIT \
+narration-only facts (dates, statistics, dose numbers, names with no action). Return ONLY JSON: \
+{"actions": ["..", ".."]}.
+
+EXAMPLE
+Narration: "The operator presses P. The machine fires a second time. Cox is getting off the table \
+when it hits him. He pounds on the treatment room door. Simulations put the dose at 25,000 rads."
+{"actions": ["the operator presses the P key", "the machine beam fires", "Cox starts to rise off \
+the table", "the second dose strikes him mid-rise", "Cox staggers to the sealed door and pounds on it"]}
+(The 25,000-rads simulation is narration-only, no action -> omitted.)
+
+NARRATION: "__NARR__"
+"""
+
+
+def _decompose_actions(narration: str) -> list[str]:
+    """Focused pre-pass: extract the granular on-screen action list from the narration.
+
+    A single-purpose call is far more reliable than asking the director to decompose AND plan
+    in one shot (gemini-flash compresses to a 2-action summary in the combined call). Best-effort:
+    returns [] on any failure so the director still runs.
+    """
+    narration = (narration or "").strip()
+    if not narration:
+        return []
+    try:
+        out = _parse(_gemini(_DECOMPOSE.replace("__NARR__", narration.replace('"', "'"))))
+        acts = out.get("actions") if isinstance(out, dict) else None
+        return [a.strip() for a in (acts or []) if isinstance(a, str) and a.strip()]
+    except Exception:
+        return []
+
 
 def director_pass(scene: dict, notes: list[str], suggestions: list[dict], *, attempts: int = 3) -> dict:
     """Re-plan a scene's visual from the narration + the human's notes (as instructions).
@@ -262,13 +319,38 @@ def director_pass(scene: dict, notes: list[str], suggestions: list[dict], *, att
     Retries the Gemini call on a parse/shape failure (re-asking for strict JSON) before falling
     back — a malformed-JSON reply must NOT silently degrade to 'append the notes to the prompt'.
     """
+    # Dedicated decomposition pre-pass: a focused "list every physical action" call, far more
+    # reliable than asking the director to decompose AND plan at once. Its list is authoritative.
+    actions = _decompose_actions(scene.get("narration", ""))
+    action_directive = ""
+    if len(actions) > 1:
+        action_directive = (
+            "\n\nACTION SHOT-LIST (authoritative, derived from the narration): "
+            + json.dumps(actions) +
+            "\nSet lane=\"mixed\", set described_action.action_sequence to EXACTLY this list, and "
+            "emit \"beats\" ONE-TO-ONE with it — one beat per action, in order, do NOT merge or "
+            "drop any action. Each beat gets its own concrete prompt and its own \"motion\" verb.")
     base = (f"{RULES}\n{_style_block(scene)}\n{_SCHEMA_HINT}\n\n"
-            f"{_context_block(scene, notes, suggestions)}")
+            f"{_context_block(scene, notes, suggestions)}{action_directive}")
     err = None
+    asked_shotlist = False
     for attempt in range(max(1, attempts)):
         try:
             rev = _parse(_gemini(base if attempt == 0 else base + _STRICT))
             if isinstance(rev, dict) and rev.get("revised_prompt"):
+                # Shot-list enforcement: for a multi-action segment, the model must emit one
+                # beat per action. If it collapsed the sequence into fewer beats, re-ask ONCE
+                # (via the existing retry path) before accepting — merged actions are the
+                # "action shots come out wrong" failure.
+                seq = ((rev.get("described_action") or {}).get("action_sequence") or [])
+                beats = rev.get("beats") or []
+                target = max(len(seq), len(actions))  # decomposed action list is authoritative
+                if not asked_shotlist and target > 1 and len(beats) < target:
+                    asked_shotlist = True
+                    err = (f"shot-list: {target} sequential actions but emitted "
+                           f"{len(beats)} beat(s); must emit one beat per action")
+                    base += _SHOTLIST_REASK
+                    continue
                 rev["_source"] = f"gemini:{_model_name()}"
                 # Always carry a MOOD so dispatch can re-apply the house art-direction;
                 # default to the segment's canonical mood if the model omitted it.
