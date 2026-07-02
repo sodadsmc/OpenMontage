@@ -234,6 +234,7 @@ def plan_ai_video(
     editorial_intent: str = "",
     directors_move: str = "",
     pacing: str = "",
+    ground_keyframe: str | None = None,
 ) -> list[dict[str, Any]]:
     """Phase A (planning): split a segment into shots, generate each shot's
     keyframe (Nano Banana — API, no GPU), and return fully-resolved shot-job
@@ -369,8 +370,13 @@ def plan_ai_video(
         # terse — scan the narration too so chained legs 2+ aren't misread as
         # empty just because the action verb lives in the voiceover.
         needs_person = (_needs_people(shot_prompt) or _needs_people(narration))
-        if chain_from:
-            keyframe: Path | str | None = canonical_ref
+        if ground_keyframe and i == 0:
+            # Chained-keyframe (cohesion) beat: the caller pre-authored this beat's keyframe
+            # grounded on the prior beat's keyframe, so use it directly as the i2v anchor instead
+            # of authoring a fresh populated keyframe that would drift the figure/room identity.
+            keyframe: Path | str | None = ground_keyframe
+        elif chain_from:
+            keyframe = canonical_ref
             # A chained PERSON leg must NOT anchor on the empty canonical (it would
             # melt a body out of the furniture). Give it its own populated
             # full-body frame so every leg of the action starts from a real figure.
@@ -578,6 +584,7 @@ def generate_ai_video(
     editorial_intent: str = "",
     directors_move: str = "",
     pacing: str = "",
+    ground_keyframe: str | None = None,
 ) -> VisualAsset | None:
     """Inline all-in-one AI video for one segment (plan + execute + concat).
 
@@ -596,7 +603,8 @@ def generate_ai_video(
     jobs = plan_ai_video(segment_id, visual_spec, output_dir, target_duration_s,
                          bible=bible, asset=asset, narration=narration,
                          editorial_intent=editorial_intent,
-                         directors_move=directors_move, pacing=pacing)
+                         directors_move=directors_move, pacing=pacing,
+                         ground_keyframe=ground_keyframe)
     clip_paths: list[str] = []
     done_clips: dict[str, str] = {}  # shot_id -> clip path (chain-anchor lookups)
     for job in jobs:

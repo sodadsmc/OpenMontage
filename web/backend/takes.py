@@ -16,6 +16,7 @@ Safety (all enforced here):
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import shutil
@@ -30,6 +31,8 @@ from types import SimpleNamespace
 from web.backend import feedback as fb
 from web.backend import scenes as scenes_mod
 from web.backend.scenes import PROJECTS_DIR
+
+_log = logging.getLogger(__name__)
 
 # USD/sec by provider (from the cost map). grok = i2v; flf = Kling first-last-frame.
 _RATE = {"grok-kie": 0.017, "kling-kie": 0.084}
@@ -117,6 +120,21 @@ def _refresh_canonical_url(asset) -> None:
             asset.canonical_image_url = fresh
     except Exception:
         pass
+
+
+def _scene_gold_ref(pid: str, sid: str) -> str | None:
+    """The scene's LOCKED gold reference frame — an approved still (figure + machine + room) that every
+    chained keyframe and every per-beat re-roll grounds on, so identity/design stay pinned to the
+    approved standard (printing press, not slot machine). Convention:
+    ``projects/{pid}/assets/ai_segments/_gold_refs/{sid}.png``. Returns a hosted URL, or None if unset."""
+    p = PROJECTS_DIR / pid / "assets" / "ai_segments" / "_gold_refs" / f"{sid}.png"
+    if not p.exists():
+        return None
+    try:
+        from lib.image_host import upload_image
+        return upload_image(str(p)) or None
+    except Exception:
+        return None
 
 
 _POOL = ThreadPoolExecutor(max_workers=1)        # serialize spend
@@ -511,6 +529,93 @@ def _gen_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration:
         return None
 
 
+def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration: str,
+                      bible, anchor_asset, mood, prev_keyframe, gold_ref=None):
+    """Chained-keyframe Grok beat (the cohesion path for a multi-beat ACTION sequence).
+
+    Authors THIS beat's keyframe as a Nano edit grounded on the PRIOR beat's keyframe (+ the segment
+    canonical + the machine reference sheet) so the figure + room identity carry across the whole
+    sequence — instead of each beat re-imagining the figure from the empty canonical. Then animates
+    it with Grok via generate_ai_video (ground_keyframe=) so the leg-chain/concat/conform machinery is
+    reused. FLF is NOT used here: it needs pixel-matched frames and morphs the background when you
+    re-pose a figure (proven on seg_019 — see memory flf-cohesion-action-sequences). Returns
+    (clip_or_None, keyframe_or_None); the caller threads the returned keyframe into the next beat."""
+    from lib import visual_router as vr
+    from lib import channel_style
+    from lib.image_host import upload_image
+    prompt = (beat.get("prompt") or narration or "").strip()
+    try:
+        dur = float(beat["dur"])
+        canon = (getattr(anchor_asset, "canonical_image_url", "") or "") if anchor_asset else ""
+        sheet_local = (getattr(anchor_asset, "reference_sheet", "") or "") if anchor_asset else ""
+        sheet_url = ""
+        if sheet_local and Path(sheet_local).exists():
+            sheet_url = upload_image(sheet_local) or ""          # re-host (stored sheet URL may be stale)
+        elif anchor_asset is not None:
+            sheet_url = getattr(anchor_asset, "reference_sheet_url", "") or ""
+        # Author the chained keyframe: anchor on the prior beat's keyframe (carries figure+room),
+        # falling back to the canonical for the first beat; canonical+sheet ride as extra refs.
+        anchor = prev_keyframe or canon or None
+        if not anchor:
+            _log.warning("chained beat %s: no anchor (bible/canonical missing) — this beat degrades "
+                         "to non-chained and the action sequence loses cohesion here", beat_id)
+        # Grounding refs, in priority order: the LOCKED GOLD frame (the identity 'plate') so the figure
+        # + machine match the approved standard; then the canonical (room) + the machine model sheet.
+        extra = [u for u in (([gold_ref] if gold_ref else [])
+                             + ([canon] if (prev_keyframe and canon) else [])
+                             + ([sheet_url] if sheet_url else [])) if u]
+        # NAME the Therac-25 in the prompt so it can't drift to a C-arm/donut regardless of the
+        # (advisory) fidelity gate; and bind the gold frame so identity is copied, not reinvented.
+        tokens = "; ".join([t for t in ((getattr(anchor_asset, "identity_tokens", None) or [])
+                                         + (getattr(anchor_asset, "locked_attributes", None) or []))
+                            if t]) if anchor_asset else ""
+        gold_clause = (" || GOLD REFERENCE: the FIRST reference image is this scene's locked gold frame "
+                       "— render the SAME person (same face, build, gown) and the SAME machine and room "
+                       "design as it, exactly." if gold_ref else "")
+        machine_clause = (f" || The machine is the AECL Therac-25 and MUST match this design: {tokens}."
+                          if tokens else "")
+        # Guard the recurring Nano failure modes: the "comic-page" diptych and ghosted/fading figures.
+        kf_prompt = channel_style.apply_to_prompt(prompt) + gold_clause + machine_clause + (
+            " || COMPOSITION: ONE single continuous full-bleed illustration that fills the whole frame "
+            "— NOT a multi-panel comic page, no split panels, no panel borders, gutters, or side-by-side "
+            "frames. Every figure is solid and fully rendered, never faint, ghosted, or dissolving.")
+        kf_path = Path(scratch) / "keyframe.png"
+        kf = None
+        if anchor and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0":
+            kf = vr._populated_keyframe(
+                kf_prompt, anchor, kf_path,
+                description=(beat.get("label") or prompt), narration=narration,
+                extra_ref_urls=extra or None,
+                fidelity_ref=(sheet_local if (sheet_local and Path(sheet_local).exists()) else (sheet_url or "")),
+            )
+            # The keyframe gate over-rejects here (unreliable Therac fidelity check). If it exhausted,
+            # USE the authored chained keyframe anyway (the last attempt is on disk) instead of dropping
+            # to an ungrounded fallback that breaks cohesion — the operator eyeballs the take.
+            if kf is None and kf_path.exists() and kf_path.stat().st_size > 1024:
+                _log.warning("chained beat %s: keyframe gate exhausted — using the authored chained "
+                             "keyframe anyway (operator eyeballs)", beat_id)
+                kf = str(kf_path)
+        spec = SimpleNamespace(
+            description=prompt, effective_prompt=prompt, ai_prompt=prompt,
+            ai_motion=beat.get("motion") or None,
+            type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None, location_id=None,
+            editorial_intent="", directors_move="", pacing="", shots=[], support_asset_refs=[], text_overlay=[])
+        # enable_gemini=False: the interactive path is operator-eyeballed, and the semantic clip gate
+        # was FALSE-rejecting good chained clips (beat3) into placeholders. Layer-1 (file/static/dur)
+        # still runs inside generate_shot; the operator is the real bar here.
+        asset = vr.generate_ai_video(beat_id, spec, scratch, dur, bible=bible, asset=anchor_asset,
+                                     enable_gemini=False, narration=narration,
+                                     ground_keyframe=(str(kf) if kf else None))
+        if asset is None or not getattr(asset, "path", None):
+            return None, (str(kf) if kf else (str(prev_keyframe) if prev_keyframe else None))
+        clip = (vr._trim_to_duration(asset.path, str(out_path), dur)
+                if hasattr(vr, "_trim_to_duration") else asset.path)
+        return (clip or None), (str(kf) if kf else (str(prev_keyframe) if prev_keyframe else None))
+    except Exception:
+        # Keep the chain alive on failure: thread the last good keyframe forward.
+        return None, (str(prev_keyframe) if prev_keyframe else None)
+
+
 def _placeholder_card(tag: str, label: str, lane: str, dur: float, out_path: str) -> str:
     """A deterministic channel-style placeholder clip for a beat that needs a manual pass (a manim
     diagram) or whose generation failed — holds the timing and marks the gap so it's reviewable."""
@@ -553,7 +658,8 @@ def _concat(clips: list[str], out_path: str) -> str | None:
 
 def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, est: float,
                       slot_s: float, narration: str, mood, take_n: int, scratch: Path,
-                      take_target: Path, bible, anchor_asset, plan: list[dict]) -> None:
+                      take_target: Path, bible, anchor_asset, plan: list[dict],
+                      chained: bool = False) -> None:
     """Generate EVERY beat of a 'mixed' scene and concat into ONE complete take. Dispatchable beats
     (grok/flf) are generated; a manim/other beat — or one whose generation fails — becomes a labeled
     placeholder so the timing holds and the take still completes. Each beat's status is recorded so
@@ -561,6 +667,12 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
     from lib.quality_gate import QualityGate
     beat_clips: list[str] = []
     beat_meta: list[dict] = []
+    # Chained cohesion only has meaning with >1 chainable (non-flf dispatchable) beat — a single
+    # such beat behaves like the normal path, so don't engage the chained authoring for it.
+    use_chain = chained and sum(
+        1 for _b in plan if _b["dispatchable"] and not (_b.get("lane") or "").startswith("flf")) > 1
+    gold_ref = _scene_gold_ref(pid, sid) if use_chain else None  # the locked 'plate' every beat grounds on
+    prev_kf = None  # chained-keyframe carry: beat N's keyframe grounds beat N+1's
     for b in plan:
         i = b["idx"]
         bdir = scratch / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
@@ -568,7 +680,16 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
         clip = None
         status = "generated"
         if b["dispatchable"]:
-            clip = _gen_beat(f"{sid}_b{i}", b, str(bout), bdir, narration, bible, anchor_asset, mood)
+            if use_chain and not (b.get("lane") or "").startswith("flf"):
+                # Cohesion path: ground this beat's keyframe on the prior beat's so the figure/room
+                # carry across the action sequence; thread the keyframe forward. (FLF beats keep the
+                # normal state-morph path — they don't carry figure identity.)
+                clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bout), bdir, narration,
+                                             bible, anchor_asset, mood, prev_kf, gold_ref=gold_ref)
+                if kf:
+                    prev_kf = kf
+            else:
+                clip = _gen_beat(f"{sid}_b{i}", b, str(bout), bdir, narration, bible, anchor_asset, mood)
             if clip is None:
                 status = "failed"
         else:
@@ -606,7 +727,7 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
         "take": take_n, "path": rel, "preview": preview, "score": score, "passed": bool(passed),
         "verdict": "accepted" if (passed and not partial) else "needs_review",
         "revision_id": rid, "spawned_by": spawned_by, "cost_usd": est,
-        "provider": "mixed", "lane": "mixed", "partial": partial,
+        "provider": "mixed", "lane": "mixed", "partial": partial, "chained": use_chain,
         "beats": beat_meta, "note": note, "issues": issues,
         "vet": _vet_take(pid, sid, take_target, narration), "ts": _now(),
     }
@@ -693,7 +814,8 @@ def _run_take_job(pid: str, sid: str, rid: str, job_id: str, spawned_by: str, es
         plan = _beat_plan(revision, slot_s, narration)
         if plan and any(b["dispatchable"] for b in plan):
             _store_mixed_take(job, pid, sid, rid, spawned_by, est, slot_s, narration, mood,
-                              take_n, scratch, take_target, bible, anchor_asset, plan)
+                              take_n, scratch, take_target, bible, anchor_asset, plan,
+                              chained=bool(revision.get("chained")))
             return
 
         if gen_lane.startswith("flf"):
@@ -866,6 +988,11 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
         scratch.mkdir(parents=True, exist_ok=True)
         take_target = seg_dir / f"{sid}__take{take_n}.mp4"
         bible, anchor_asset = _load_bible_asset(pid, sid)
+        # Printing-press re-roll: re-generated beats ground on the scene's locked GOLD frame + the
+        # neighbouring kept beats, so a touch-up matches the approved standard instead of dice-rolling.
+        chained = bool(src.get("chained"))
+        gold_ref = _scene_gold_ref(pid, sid) if chained else None
+        prev_kf = None
 
         beat_clips = []
         beat_meta = []
@@ -886,7 +1013,13 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 clip = None
                 status = "generated"
                 if lane in DISPATCHABLE_LANES:
-                    clip = _gen_beat(f"{sid}_b{i}", beat, str(bout), bdir, narration, bible, anchor_asset, mood)
+                    if chained and not lane.startswith("flf"):
+                        clip, kf = _gen_chained_beat(f"{sid}_b{i}", beat, str(bout), bdir, narration,
+                                                     bible, anchor_asset, mood, prev_kf, gold_ref=gold_ref)
+                        if kf:
+                            prev_kf = kf
+                    else:
+                        clip = _gen_beat(f"{sid}_b{i}", beat, str(bout), bdir, narration, bible, anchor_asset, mood)
                     if clip is None:
                         status = "failed"
                 else:
@@ -905,6 +1038,10 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 else:
                     clip = _placeholder_card(f"BEAT {i}", sb.get("label", ""), sb.get("lane", "grok"),
                                              float(sb.get("dur") or 5.0), str(bout))
+                # Thread the kept beat's authored keyframe forward so a later re-rolled beat grounds on it.
+                _kept_kf = seg_dir / "_takes_scratch" / f"{sid}__take{src_take_n}" / f"b{i}" / "keyframe.png"
+                if _kept_kf.exists():
+                    prev_kf = str(_kept_kf)
                 beat_meta.append({**{k: sb.get(k) for k in ("idx", "lane", "status", "label", "prompt", "flf", "dur")},
                                   "clip": clip_rel})
             beat_clips.append(clip)
@@ -932,7 +1069,7 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
             "take": take_n, "path": rel, "preview": preview, "score": score, "passed": bool(passed),
             "verdict": "accepted" if (passed and not partial) else "needs_review",
             "revision_id": src.get("revision_id"), "spawned_by": spawned_by, "cost_usd": est,
-            "provider": "mixed", "lane": "mixed", "partial": partial, "beats": beat_meta,
+            "provider": "mixed", "lane": "mixed", "partial": partial, "chained": chained, "beats": beat_meta,
             "note": note, "issues": issues,
             "vet": _vet_take(pid, sid, take_target, narration), "ts": _now(),
         }

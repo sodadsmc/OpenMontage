@@ -813,8 +813,15 @@ Return ONLY JSON:
             and scores["subject_match"] >= KEYFRAME_SUBJECT_MATCH_MIN
             and scores["text_free"] >= KEYFRAME_TEXT_FREE_MIN
             and scores["full_figure"] >= KEYFRAME_FULL_FIGURE_MIN
-            and scores.get("reference_fidelity", 10) >= KEYFRAME_FIDELITY_MIN
         )
+        # reference_fidelity is ADVISORY, not blocking: the Gemini fidelity check proved unreliable
+        # for the Therac-25 (it hallucinated a "C-arm" the model sheet explicitly is NOT, and
+        # over-flagged sound frames), rejecting good keyframes and forcing ungrounded fallbacks that
+        # broke cohesion. It is scored + surfaced for the operator's eyeball, never fails the frame.
+        _fid = scores.get("reference_fidelity")
+        if _fid is not None and _fid < KEYFRAME_FIDELITY_MIN:
+            issues.append(f"[advisory] reference_fidelity {_fid}/10 below {KEYFRAME_FIDELITY_MIN} — "
+                          "machine may be off-model; eyeball it (this fidelity gate is unreliable here)")
         detail = {"passed": passed, "scores": scores, "issues": issues}
         if not passed:
             _log.warning("Keyframe QC FAILED for %s: %s", image, detail)

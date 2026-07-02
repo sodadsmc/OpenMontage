@@ -78,8 +78,9 @@ a rule-compliant plan that satisfies the intent. Apply these rules:
 LANE DECISION TREE (pick exactly one primary lane per scene; beats inside a scene
 may split — that is a "mixed" scene):
 - MANIM/sketch: a mechanism, a labeled diagram, or a precise taught count.
-- FLF state-morph: ONE element changes to a specific new state the viewer must
-  watch (a glyph X->E, an error code appearing, a needle to a reading, 6->3).
+- FLF state-morph: ONE LEGIBLE element changes to a specific new state the viewer must
+  watch (a glyph X->E, an error code appearing, a needle to a reading, 6->3). NOT for a
+  beam firing, a light flaring, or a machine activating — that is gross MOTION, so use GROK.
 - FLF drain (RARE): a "going cold/dark" full-stop; reads like a fade — use sparingly.
 - GROK i2v (default): a subject physically ACTS and a camera move stages the verb.
 
@@ -142,7 +143,8 @@ Return ONLY this JSON object:
   "gate_precheck": {"narration_alignment": "match|partial|mismatch", "subject_named": true},
   "flf": null,
   "primary_shot": null,
-  "beats": null
+  "beats": null,
+  "chained": false
 }
 
 When (and only when) lane is "flf_state_morph" or "flf_drain", set "flf" to:
@@ -183,6 +185,10 @@ that sequence, in order (do not merge two actions into one beat, do not drop an 
    "weight": 0.5,   # this beat's share of the scene duration; the weights sum to ~1.0
    "flf": null}     # the flf object (start_prompt/transition/...) when lane is flf, else null
 Also set "primary_shot" to the single most important auto-dispatchable beat (back-compat).
+Set "chained": true when the beats are ONE subject acting continuously in ONE setting (a physical
+action sequence — e.g. a person rises, is struck, crosses to a door, and pounds on it): dispatch then
+grounds each beat's keyframe on the PREVIOUS beat's so the figure and room stay consistent across the
+cuts. Set "chained": false for a montage of different subjects or places.
 For any non-"mixed" lane, "beats" and "primary_shot" must be null.
 """
 
@@ -313,6 +319,47 @@ def _decompose_actions(narration: str) -> list[str]:
         return []
 
 
+_CHAINED_CLASSIFY = """You classify shot continuity for a documentary's visuals. Read the narration \
+and decide whether the beats form ONE CONTINUOUS CONNECTED SCENE in a single place/time (each shot \
+flows from the previous one, so grounding each shot on the last keeps the figure and room consistent) \
+— versus a MONTAGE that jumps between different places, times, or unrelated people.
+
+Return ONLY JSON: {"chained": true|false}.
+- true  = one continuous event in one location. A figure and/or setting carries across the beats EVEN \
+IF several things act (an operator, a machine, and a patient can all be part of ONE room's event). \
+Narrated facts or statistics layered over that continuous action do NOT make it a montage.
+- false = the beats jump between different LOCATIONS, DATES, or unrelated PEOPLE (a montage / timeline), \
+or there is no connected physical scene at all.
+
+EXAMPLE (true)
+Narration: "The operator presses P. The machine fires a second time. Cox is getting off the table when \
+it hits him. He pounds on the treatment room door. Simulations later put the doses at 16 to 25 thousand rads."
+{"chained": true}
+EXAMPLE (false)
+Narration: "June 1985. Katie Yarbrough, Marietta, Georgia. July 1985. Frances Hill, Hamilton, Ontario. \
+December 1985. Yakima, Washington."
+{"chained": false}
+
+NARRATION: "__NARR__"
+"""
+
+
+def _classify_chained(narration: str):
+    """Focused pre-pass: is the on-screen action ONE continuous single-subject sequence (chainable),
+    or a montage / statistical beat? A single-purpose call is far more reliable than folding this
+    into the director's combined plan (the combined flag is ~50/50 on real action sequences).
+    Returns True/False, or None on any failure so the caller can fall back."""
+    narration = (narration or "").strip()
+    if not narration:
+        return None
+    try:
+        out = _parse(_gemini(_CHAINED_CLASSIFY.replace("__NARR__", narration.replace('"', "'"))))
+        v = out.get("chained") if isinstance(out, dict) else None
+        return bool(v) if isinstance(v, bool) else None
+    except Exception:
+        return None
+
+
 def director_pass(scene: dict, notes: list[str], suggestions: list[dict], *, attempts: int = 3) -> dict:
     """Re-plan a scene's visual from the narration + the human's notes (as instructions).
 
@@ -356,6 +403,18 @@ def director_pass(scene: dict, notes: list[str], suggestions: list[dict], *, att
                 # default to the segment's canonical mood if the model omitted it.
                 if not rev.get("ai_style"):
                     rev["ai_style"] = scene.get("ai_style")
+                # Chained-keyframe cohesion. The director's own flag is flaky on action sequences
+                # (it correctly rejects montages but is ~50/50 on real sequences), so decide with a
+                # FOCUSED classifier prepass — reliable the same way _decompose_actions is — and fall
+                # back to the director's flag / a structural default only if it is unavailable.
+                if rev.get("lane") == "mixed" and len(rev.get("beats") or []) > 1:
+                    cc = _classify_chained(scene.get("narration", ""))
+                    if cc is not None:
+                        rev["chained"] = cc
+                    elif rev.get("chained") is None:
+                        rev["chained"] = bool((rev.get("described_action") or {}).get("setting"))
+                else:
+                    rev["chained"] = False
                 if attempt:
                     rev["_attempts"] = attempt + 1
                 return rev
