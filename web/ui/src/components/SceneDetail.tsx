@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { API, jget, jpost, jdel } from '../api'
+import { API, beatCostUsd, jget, jpost, jdel } from '../api'
 import type { Beat, ClipCandidate, DraftRevision, Job, KeyframePreview, Scene, Take, Verdict } from '../api'
 import RevisionCard from './RevisionCard'
 import BeatFixer from './BeatFixer'
@@ -72,7 +72,9 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
     if (working) return
     setBusy(true); setJob(null)
     try {
-      const d = await jpost<DraftRevision>(`${base}/director-pass`, {})
+      // Reuse the draft the operator is LOOKING at — a fresh director-pass here would silently
+      // discard the reviewed plan and re-plan nondeterministically (and orphan any prior stills).
+      const d = draft ?? await jpost<DraftRevision>(`${base}/director-pass`, {})
       setDraft(d)
       if (!(d.revision.lane === 'mixed' && d.revision.chained && (d.revision.beats?.length ?? 0) > 1)) {
         setBusy(false)
@@ -325,7 +327,13 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
         {job && <JobBanner job={job} />}
         {job?.kind === 'keyframes' && job.keyframes && (
           <KeyframeStills project={project} frames={job.keyframes} rid={draft?.revision_id}
-                          onApprove={approveAndDispatch} working={working} />
+                          onApprove={approveAndDispatch} working={working}
+                          estUsd={(() => {
+                            const beats = draft?.revision.beats || []
+                            const totW = beats.reduce((s, b) => s + (Number(b.weight) || 0), 0) || 1
+                            const t = beats.reduce((s, b) => s + beatCostUsd(b.lane, (scene.slot_s || 0) * (Number(b.weight) || 0) / totW), 0)
+                            return Math.round(t * 100) / 100
+                          })()} />
         )}
         {draft && <RevisionCard scene={scene} rid={draft.revision_id} rev={draft.revision} status="drafted" onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />}
         {fb.revisions.filter((r) => !draft || r.id !== draft.revision_id).slice().reverse().map((r) => (
@@ -343,23 +351,30 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   )
 }
 
-function KeyframeStills({ project, frames, rid, onApprove, working }: {
-  project: string; frames: KeyframePreview[]; rid?: string; onApprove: (rid: string) => void; working: boolean
+function KeyframeStills({ project, frames, rid, onApprove, working, estUsd }: {
+  project: string; frames: KeyframePreview[]; rid?: string; onApprove: (rid: string) => void; working: boolean; estUsd: number
 }) {
+  const authored = frames.filter((f) => f.status === 'authored').length
+  const approve = () => {
+    if (!rid) return
+    // This button spends the full video cost — confirm like RevisionCard.approve does.
+    if (!confirm(`Animate this ${frames.length}-beat plan from the approved stills? (~$${estUsd.toFixed(2)} via the per-beat services${authored < frames.length ? `; ${frames.length - authored} beat(s) FAILED to author and will re-author at dispatch` : ''})`)) return
+    onApprove(rid)
+  }
   return (
     <div className="kfpreview">
       <div className="hint">Keyframe stills — no video yet. Eyeball figure + machine consistency; if good, approve to animate (dispatch reuses these exact stills, no re-authoring).</div>
       <div className="kfgrid" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
         {frames.map((f) => (
           <div key={f.idx} className={`kfcell ${f.status}`} style={{ width: 220 }}>
-            {f.media && f.status === 'authored'
-              ? <img src={`${API}/projects/${project}/media/${f.media}`} alt={f.label} loading="lazy" style={{ width: '100%', borderRadius: 4, display: 'block' }} />
+            {(f.media || f.url) && f.status === 'authored'
+              ? <img src={f.media ? `${API}/projects/${project}/media/${f.media}` : f.url!} alt={f.label} loading="lazy" style={{ width: '100%', borderRadius: 4, display: 'block' }} />
               : <div className="nobadge">beat {f.idx} failed to author</div>}
             <div className="kflabel" style={{ fontSize: 12, opacity: 0.8 }}>b{f.idx} · {f.label}</div>
           </div>
         ))}
       </div>
-      {rid && <button className="act use" disabled={working} onClick={() => onApprove(rid)}>✓ approve keyframes → animate</button>}
+      {rid && <button className="act use" disabled={working} onClick={approve}>✓ approve keyframes → animate</button>}
     </div>
   )
 }

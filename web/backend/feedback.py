@@ -25,6 +25,7 @@ _EVENT_TYPES = {
     "take_generated",       # actor=system: a regenerated take landed (links revision->take->score)
     "take_deleted",         # actor=human: a take dropped from the review list (file kept on disk)
     "scene_reset",          # actor=human: start the scene fresh — clears the folded UI state below
+    "keyframes_authored",   # actor=system: the chained keyframe SET for a revision was previewed
 }
 
 

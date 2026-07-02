@@ -575,24 +575,40 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
                     fig_urls.append(_u)
                 fig_tokens += [t for t in (getattr(_a, "identity_tokens", None) or []) if t]
         # Grounding refs, priority: LOCKED GOLD frame (identity 'plate'); character sheet(s); the
-        # canonical (room); the machine model sheet.
-        extra = [u for u in (([gold_ref] if gold_ref else []) + fig_urls
-                             + ([canon] if (prev_keyframe and canon) else [])
-                             + ([sheet_url] if sheet_url else [])) if u]
+        # canonical (room); the machine model sheet. Bindings are built IN THE SAME ORDER the edit
+        # model receives the images ([anchor] + extras): a positional mislabel teaches the model to
+        # copy identity from the wrong image (the old text called the ANCHOR the gold frame).
+        extra, bindings = [], []
+        if gold_ref:
+            extra.append(gold_ref)
+            bindings.append("this scene's locked GOLD frame — render the SAME person (same face, "
+                            "build, gown) and the SAME machine and room design as it, exactly")
+        for _u in fig_urls:
+            extra.append(_u)
+            bindings.append("a character REFERENCE SHEET — every depiction of that person must "
+                            "match it exactly (same face, build, hair, gown)")
+        if prev_keyframe and canon:
+            extra.append(canon)
+            bindings.append("the room's canonical scene image (room layout/design reference)")
+        if sheet_url:
+            extra.append(sheet_url)
+            bindings.append("the machine's MODEL REFERENCE SHEET — every depiction of the machine "
+                            "must copy that sheet exactly, never a different design")
         # NAME the Therac-25 + the character in the prompt so they can't drift, regardless of the
-        # (advisory) fidelity gate; and bind the gold frame so identity is copied, not reinvented.
+        # (advisory) fidelity gate; and bind each reference by its actual position in the image list.
         tokens = "; ".join([t for t in ((getattr(anchor_asset, "identity_tokens", None) or [])
                                          + (getattr(anchor_asset, "locked_attributes", None) or []))
                             if t]) if anchor_asset else ""
-        gold_clause = (" || GOLD REFERENCE: the FIRST reference image is this scene's locked gold frame "
-                       "— render the SAME person (same face, build, gown) and the SAME machine and room "
-                       "design as it, exactly." if gold_ref else "")
+        ref_clause = ((" || REFERENCE IMAGES: after the first image (the scene anchor you are "
+                       "editing), the additional reference images are, in order: "
+                       + "; ".join(f"({n}) {b}" for n, b in enumerate(bindings, start=1)) + ".")
+                      if bindings else "")
         figure_clause = (f" || The person MUST match the character reference sheet exactly (same face, "
                          f"build, hair, gown): {'; '.join(fig_tokens)}." if fig_tokens else "")
         machine_clause = (f" || The machine is the AECL Therac-25 and MUST match this design: {tokens}."
                           if tokens else "")
         # Guard the recurring Nano failure modes: the "comic-page" diptych and ghosted/fading figures.
-        kf_prompt = channel_style.apply_to_prompt(prompt) + gold_clause + figure_clause + machine_clause + (
+        kf_prompt = channel_style.apply_to_prompt(prompt) + ref_clause + figure_clause + machine_clause + (
             " || COMPOSITION: ONE single continuous full-bleed illustration that fills the whole frame "
             "— NOT a multi-panel comic page, no split panels, no panel borders, gutters, or side-by-side "
             "frames. Every figure is solid and fully rendered, never faint, ghosted, or dissolving.")
@@ -613,7 +629,10 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
                              "keyframe anyway (operator eyeballs)", beat_id)
                 kf = str(kf_path)
         if not video:   # keyframe-preview mode: return the authored still, no paid video
-            return None, (str(kf) if kf else (str(prev_keyframe) if prev_keyframe else None))
+            # Authoring failed -> None, NOT prev_keyframe: the preview must record a FAILED beat,
+            # never silently pass off the previous beat's still as this beat's "authored" frame
+            # (the operator would approve a duplicate and pay to animate the wrong pose).
+            return None, (str(kf) if kf else None)
         spec = SimpleNamespace(
             description=prompt, effective_prompt=prompt, ai_prompt=prompt,
             ai_motion=beat.get("motion") or None,
@@ -631,6 +650,8 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
                 if hasattr(vr, "_trim_to_duration") else asset.path)
         return (clip or None), (str(kf) if kf else (str(prev_keyframe) if prev_keyframe else None))
     except Exception:
+        if not video:
+            return None, None   # preview mode: report the failure honestly (see above)
         # Keep the chain alive on failure: thread the last good keyframe forward.
         return None, (str(prev_keyframe) if prev_keyframe else None)
 
@@ -1120,18 +1141,25 @@ def _keyframe_review_dir(pid: str, sid: str, rid: str) -> Path:
 
 
 def _load_preauthored_keyframes(pid: str, sid: str, rid: str) -> dict:
-    """{beat_idx: keyframe_url_or_path} of operator-previewed keyframes for this revision, if any."""
+    """{beat_idx: keyframe_path_or_url} of operator-previewed keyframes for this revision, if any.
+
+    Prefers the LOCAL still on disk (the dispatch pipeline re-hosts a local path fresh via the
+    selector) — the stored url lives on an expiring temp host (tmpfiles/provider CDN) and can be
+    dead within hours of the preview. Entries that failed to author are skipped, so a dead ref can
+    never be handed to a paid beat as its ground keyframe."""
     f = _keyframe_review_dir(pid, sid, rid) / "keyframes.json"
     if not f.exists():
         return {}
     try:
         out = {}
         for k in json.loads(f.read_text(encoding="utf-8")):
-            if k.get("idx") is None:
+            if k.get("idx") is None or k.get("status") != "authored":
                 continue
-            ref = k.get("url") or (str(PROJECTS_DIR / pid / k["path"]) if k.get("path") else None)
-            if ref:
-                out[int(k["idx"])] = ref
+            local = (PROJECTS_DIR / pid / k["media"]) if k.get("media") else None
+            if local is not None and local.is_file() and local.stat().st_size > 1024:
+                out[int(k["idx"])] = str(local)
+            elif k.get("url"):
+                out[int(k["idx"])] = k["url"]
         return out
     except Exception:
         return {}
@@ -1157,10 +1185,19 @@ def author_scene_keyframes(pid: str, sid: str, rid: str) -> dict:
     plan = _beat_plan(revision, float(scene.get("slot_s") or 0), scene.get("narration", ""))
     if not (plan and bool(revision.get("chained"))):
         return {"status": "not_applicable", "error": "keyframe preview applies to a chained multi-beat scene"}
+    # Guard PARITY with dispatch: _store_mixed_take only engages the chained path (and the still
+    # reuse) when there is >1 chainable (non-FLF dispatchable) beat — previewing anything less
+    # would spend on stills that dispatch then silently ignores.
+    n = sum(1 for b in plan if b["dispatchable"] and not (b.get("lane") or "").startswith("flf"))
+    if n < 2:
+        return {"status": "not_applicable",
+                "error": f"dispatch only chains >1 non-FLF beats (this plan has {n}) — previewing "
+                         "would pay for stills the dispatch ignores"}
+    if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
+        return {"status": "blocked", "error": "dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)"}
     if not os.environ.get("KIE_API_KEY"):
         return {"status": "blocked", "error": "KIE_API_KEY not set — keyframe authoring disabled"}
-    n = sum(1 for b in plan if b["dispatchable"] and not (b.get("lane") or "").startswith("flf"))
-    est = round(max(1, n) * 0.04, 2)  # keyframes only, no video
+    est = round(n * 0.04, 2)  # keyframes only, no video (per-beat Nano; gate retries can cost more)
     with _LOCK:
         if (pid, sid) in _ACTIVE:
             busy = next((jid for jid, j in _JOBS.items()
@@ -1187,6 +1224,9 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
             load_env()
         except Exception:
             pass
+        # Re-check the spend guards inside the worker (defense in depth, mirrors _run_take_job).
+        if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
+            job.update(status="blocked", error="dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)", ended_ts=_now()); return
         if not os.environ.get("KIE_API_KEY"):
             job.update(status="blocked", error="KIE_API_KEY not set", ended_ts=_now()); return
         job.update(status="running", started_ts=_now())
@@ -1198,6 +1238,19 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
         narration = scene.get("narration", "")
         plan = _beat_plan(revision, float(scene.get("slot_s") or 0), narration)
         review = _keyframe_review_dir(pid, sid, rid)
+        # Idempotent per revision (printing press, not slot machine): if this rid's stills already
+        # exist and every one authored, return them instead of paying to re-author the same plan
+        # (covers a re-click and crash-after-author recovery — this job once failed AFTER the spend).
+        prior = review / "keyframes.json"
+        if prior.exists():
+            try:
+                frames = json.loads(prior.read_text(encoding="utf-8"))
+                if frames and all(k.get("status") == "authored" for k in frames):
+                    job.update(status="succeeded", keyframes=frames, ended_ts=_now(),
+                               error=None, est_usd=0.0)  # nothing spent on this run
+                    return
+            except Exception:
+                pass
         review.mkdir(parents=True, exist_ok=True)
         bible, anchor_asset = _load_bible_asset(pid, sid)
         gold_ref = _scene_gold_ref(pid, sid)
@@ -1214,7 +1267,7 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
             media = f"assets/ai_segments/_keyframe_review/{sid}__{rid}/b{i}/keyframe.png"
             rel = f"projects/{pid}/{media}"
             if not kf:
-                frames.append({"idx": i, "label": b["label"], "path": rel, "media": media, "url": None, "status": "failed"})
+                frames.append({"idx": i, "label": b["label"], "path": rel, "media": None, "url": None, "status": "failed"})
                 continue
             prev_kf = kf
             local = bdir / "keyframe.png"
@@ -1223,17 +1276,30 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
                 url = str(kf)
                 try:
                     import requests
-                    local.write_bytes(requests.get(str(kf), timeout=90).content)
+                    r = requests.get(str(kf), timeout=90)
+                    r.raise_for_status()                # never write an HTTP error body as a PNG
+                    if len(r.content) > 1024:
+                        local.write_bytes(r.content)
                 except Exception:
-                    pass
+                    _log.warning("keyframe preview %s b%s: could not mirror %s to disk — the grid "
+                                 "will render the (expiring) hosted copy", sid, i, kf)
             elif Path(str(kf)).exists():
                 if Path(str(kf)) != local:
                     local.write_bytes(Path(str(kf)).read_bytes())
                 url = upload_image(str(local))
-            frames.append({"idx": i, "label": b["label"], "path": rel, "media": media, "url": url, "status": "authored"})
+            # "authored" only when the operator can actually SEE it (local mirror or live URL) —
+            # media only when the durable local copy really exists (the reuse loader prefers it).
+            ok = local.is_file() and local.stat().st_size > 1024
+            frames.append({"idx": i, "label": b["label"], "path": rel, "media": (media if ok else None),
+                           "url": url, "status": "authored" if (ok or url) else "failed"})
         (review / "keyframes.json").write_text(json.dumps(frames, indent=2), encoding="utf-8")
-        fb.append_event(pid, actor="system", type="keyframes_authored", scene_id=sid,
-                        payload={"revision_id": rid, "keyframes": frames})
+        try:
+            fb.append_event(pid, actor="system", type="keyframes_authored", scene_id=sid,
+                            payload={"revision_id": rid, "keyframes": frames})
+        except Exception:
+            # The event log is history, not truth — a logging hiccup must never mark a job whose
+            # PAID stills are already safely on disk as failed (it did once: unregistered type).
+            _log.exception("keyframes_authored event append failed for %s/%s", sid, rid)
         job.update(status="succeeded", keyframes=frames, ended_ts=_now())
     except Exception as e:
         name = type(e).__name__

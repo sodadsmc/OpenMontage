@@ -415,8 +415,14 @@ def director_pass(scene: dict, notes: list[str], suggestions: list[dict], *, att
                     cc = _classify_chained(scene.get("narration", ""))
                     if cc is not None:
                         rev["chained"] = cc
-                    elif rev.get("chained") is None:
-                        rev["chained"] = bool((rev.get("described_action") or {}).get("setting"))
+                        rev["_chained_source"] = "classifier"
+                    else:
+                        # Surface the degradation: the director's own flag is the ~50/50 one — the
+                        # operator should see WHICH signal decided chaining on this revision.
+                        rev["_chained_source"] = ("director-flag" if rev.get("chained") is not None
+                                                  else "structural-fallback")
+                        if rev.get("chained") is None:
+                            rev["chained"] = bool((rev.get("described_action") or {}).get("setting"))
                 else:
                     rev["chained"] = False
                 if attempt:
