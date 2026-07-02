@@ -100,12 +100,15 @@ HARD RULES:
   folders, the error code) lives in the keyframe; the generator only adds MOTION.
 - Motion = the narration verb: state the subject's one concrete action + a
   motivated camera move.
-- SHOT LIST: FIRST decompose the narration into action_sequence = EVERY distinct
-  physical movement, ONE entry per motion verb. Break compound clauses apart —
-  e.g. "Cox is getting off the table when it hits him, and he pounds on the door"
-  is THREE actions: ["tries to rise from the table", "the second dose strikes him
-  mid-rise", "staggers to the door and pounds on it"]. Do NOT compress several
-  movements into one vague summary like "receives radiation" or "gets treatment".
+- SHOT LIST: FIRST decompose the narration into action_sequence = the distinct
+  physical BEATS, in order. Split genuinely SEPARATE actions, but KEEP ONE
+  CONTINUOUS MOTION AS A SINGLE BEAT — a rise interrupted by a strike is ONE beat,
+  not two (splitting it makes the figure read as "already standing" in one shot and
+  "struck out of nowhere" in the next). e.g. "Cox is getting off the table when it
+  hits him, and he pounds on the door" is TWO beats: ["struck mid-rise as he tries
+  to get off the table", "staggers to the sealed door and pounds on it"]. Do NOT
+  compress unrelated movements into one vague summary ("receives radiation"), and do
+  NOT split one continuous movement into micro-beats.
   THEN, when action_sequence has MULTIPLE actions, emit ONE beat per action in
   narration order (a shot list) and seed "beats" one-to-one from action_sequence —
   never merge sequential actions into a single beat. The "prefer a single lane"
@@ -284,18 +287,19 @@ _SHOTLIST_REASK = ("\n\nIMPORTANT: your described_action.action_sequence lists M
                    "\"beats\" ONE-TO-ONE with action_sequence — exactly one beat per action, in "
                    "order, each with its own \"motion\". Do not merge or drop any action.")
 
-_DECOMPOSE = """You are a documentary shot-list assistant. Read the narration and list EVERY \
-distinct on-screen PHYSICAL action or movement, in order, as a shot list — ONE entry per movement \
-verb. Break compound clauses apart. Include ONLY things a camera can SHOW a subject DOING; OMIT \
-narration-only facts (dates, statistics, dose numbers, names with no action). Return ONLY JSON: \
+_DECOMPOSE = """You are a documentary shot-list assistant. Read the narration and list the distinct \
+on-screen PHYSICAL BEATS, in order — one entry per beat a camera can SHOW a subject DOING. Split \
+genuinely SEPARATE actions, but KEEP ONE CONTINUOUS MOTION AS A SINGLE BEAT: a rise interrupted by a \
+strike is ONE beat (not "starts to rise" + "is struck"); a stagger that ends in a pound is ONE beat. \
+OMIT narration-only facts (dates, statistics, dose numbers, names with no action). Return ONLY JSON: \
 {"actions": ["..", ".."]}.
 
 EXAMPLE
 Narration: "The operator presses P. The machine fires a second time. Cox is getting off the table \
 when it hits him. He pounds on the treatment room door. Simulations put the dose at 25,000 rads."
-{"actions": ["the operator presses the P key", "the machine beam fires", "Cox starts to rise off \
-the table", "the second dose strikes him mid-rise", "Cox staggers to the sealed door and pounds on it"]}
-(The 25,000-rads simulation is narration-only, no action -> omitted.)
+{"actions": ["the operator presses the P key", "the machine beam fires", "Cox is struck mid-rise as \
+he tries to get off the table", "Cox staggers to the sealed door and pounds on it"]}
+(Rise+strike are ONE continuous motion -> one beat. The 25,000-rads simulation is narration-only -> omitted.)
 
 NARRATION: "__NARR__"
 """

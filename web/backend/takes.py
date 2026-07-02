@@ -530,8 +530,11 @@ def _gen_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration:
 
 
 def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration: str,
-                      bible, anchor_asset, mood, prev_keyframe, gold_ref=None):
+                      bible, anchor_asset, mood, prev_keyframe, gold_ref=None, keyframe=None, video=True):
     """Chained-keyframe Grok beat (the cohesion path for a multi-beat ACTION sequence).
+
+    ``keyframe`` reuses an operator-approved pre-authored still (skips authoring). ``video=False``
+    authors the keyframe and returns it WITHOUT the paid video — the keyframe-preview step.
 
     Authors THIS beat's keyframe as a Nano edit grounded on the PRIOR beat's keyframe (+ the segment
     canonical + the machine reference sheet) so the figure + room identity carry across the whole
@@ -559,12 +562,24 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
         if not anchor:
             _log.warning("chained beat %s: no anchor (bible/canonical missing) — this beat degrades "
                          "to non-chained and the action sequence loses cohesion here", beat_id)
-        # Grounding refs, in priority order: the LOCKED GOLD frame (the identity 'plate') so the figure
-        # + machine match the approved standard; then the canonical (room) + the machine model sheet.
-        extra = [u for u in (([gold_ref] if gold_ref else [])
+        # Figure identity: inject any bible SUBJECT whose name appears in the narration (e.g. Cox) as an
+        # extra reference sheet + name it in the prompt, so the recurring character stays on-model. The
+        # machine had a sheet; the figure had NONE and drifted every beat — this is the missing anchor.
+        fig_urls, fig_tokens = [], []
+        _nl = (narration or "").lower()
+        for _a in (getattr(bible, "assets", None) or []):
+            _subj = getattr(_a, "subject", "") or ""
+            if getattr(_a, "type", "") == "subject" and _subj and _subj.split()[-1].lower() in _nl:
+                _u = getattr(_a, "reference_sheet_url", "") or ""
+                if _u:
+                    fig_urls.append(_u)
+                fig_tokens += [t for t in (getattr(_a, "identity_tokens", None) or []) if t]
+        # Grounding refs, priority: LOCKED GOLD frame (identity 'plate'); character sheet(s); the
+        # canonical (room); the machine model sheet.
+        extra = [u for u in (([gold_ref] if gold_ref else []) + fig_urls
                              + ([canon] if (prev_keyframe and canon) else [])
                              + ([sheet_url] if sheet_url else [])) if u]
-        # NAME the Therac-25 in the prompt so it can't drift to a C-arm/donut regardless of the
+        # NAME the Therac-25 + the character in the prompt so they can't drift, regardless of the
         # (advisory) fidelity gate; and bind the gold frame so identity is copied, not reinvented.
         tokens = "; ".join([t for t in ((getattr(anchor_asset, "identity_tokens", None) or [])
                                          + (getattr(anchor_asset, "locked_attributes", None) or []))
@@ -572,16 +587,18 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
         gold_clause = (" || GOLD REFERENCE: the FIRST reference image is this scene's locked gold frame "
                        "— render the SAME person (same face, build, gown) and the SAME machine and room "
                        "design as it, exactly." if gold_ref else "")
+        figure_clause = (f" || The person MUST match the character reference sheet exactly (same face, "
+                         f"build, hair, gown): {'; '.join(fig_tokens)}." if fig_tokens else "")
         machine_clause = (f" || The machine is the AECL Therac-25 and MUST match this design: {tokens}."
                           if tokens else "")
         # Guard the recurring Nano failure modes: the "comic-page" diptych and ghosted/fading figures.
-        kf_prompt = channel_style.apply_to_prompt(prompt) + gold_clause + machine_clause + (
+        kf_prompt = channel_style.apply_to_prompt(prompt) + gold_clause + figure_clause + machine_clause + (
             " || COMPOSITION: ONE single continuous full-bleed illustration that fills the whole frame "
             "— NOT a multi-panel comic page, no split panels, no panel borders, gutters, or side-by-side "
             "frames. Every figure is solid and fully rendered, never faint, ghosted, or dissolving.")
         kf_path = Path(scratch) / "keyframe.png"
-        kf = None
-        if anchor and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0":
+        kf = keyframe or None    # reuse an operator-approved pre-authored keyframe (skip authoring)
+        if kf is None and anchor and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0":
             kf = vr._populated_keyframe(
                 kf_prompt, anchor, kf_path,
                 description=(beat.get("label") or prompt), narration=narration,
@@ -595,6 +612,8 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
                 _log.warning("chained beat %s: keyframe gate exhausted — using the authored chained "
                              "keyframe anyway (operator eyeballs)", beat_id)
                 kf = str(kf_path)
+        if not video:   # keyframe-preview mode: return the authored still, no paid video
+            return None, (str(kf) if kf else (str(prev_keyframe) if prev_keyframe else None))
         spec = SimpleNamespace(
             description=prompt, effective_prompt=prompt, ai_prompt=prompt,
             ai_motion=beat.get("motion") or None,
@@ -672,6 +691,7 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
     use_chain = chained and sum(
         1 for _b in plan if _b["dispatchable"] and not (_b.get("lane") or "").startswith("flf")) > 1
     gold_ref = _scene_gold_ref(pid, sid) if use_chain else None  # the locked 'plate' every beat grounds on
+    preauth = _load_preauthored_keyframes(pid, sid, rid) if use_chain else {}  # operator-previewed stills to reuse
     prev_kf = None  # chained-keyframe carry: beat N's keyframe grounds beat N+1's
     for b in plan:
         i = b["idx"]
@@ -685,7 +705,8 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
                 # carry across the action sequence; thread the keyframe forward. (FLF beats keep the
                 # normal state-morph path — they don't carry figure identity.)
                 clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bout), bdir, narration,
-                                             bible, anchor_asset, mood, prev_kf, gold_ref=gold_ref)
+                                             bible, anchor_asset, mood, prev_kf, gold_ref=gold_ref,
+                                             keyframe=preauth.get(i))
                 if kf:
                     prev_kf = kf
             else:
@@ -1090,3 +1111,92 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
     finally:
         with _LOCK:
             _ACTIVE.discard((pid, sid))
+
+
+# ---- keyframe preview (gate on the cheap $0.04 still before paying for the $0.10+ video) ------
+
+def _keyframe_review_dir(pid: str, sid: str, rid: str) -> Path:
+    return PROJECTS_DIR / pid / "assets" / "ai_segments" / "_keyframe_review" / f"{sid}__{rid}"
+
+
+def _load_preauthored_keyframes(pid: str, sid: str, rid: str) -> dict:
+    """{beat_idx: keyframe_url_or_path} of operator-previewed keyframes for this revision, if any."""
+    f = _keyframe_review_dir(pid, sid, rid) / "keyframes.json"
+    if not f.exists():
+        return {}
+    try:
+        out = {}
+        for k in json.loads(f.read_text(encoding="utf-8")):
+            if k.get("idx") is None:
+                continue
+            ref = k.get("url") or (str(PROJECTS_DIR / pid / k["path"]) if k.get("path") else None)
+            if ref:
+                out[int(k["idx"])] = ref
+        return out
+    except Exception:
+        return {}
+
+
+def author_scene_keyframes(pid: str, sid: str, rid: str) -> dict:
+    """Keyframe-preview: author the CHAINED keyframe SET for a revision's beats (cheap Nano, NO video)
+    so the operator eyeballs/approves the STILLS before paying to animate them — the kneeling-Cox /
+    off-model-machine / diptych errors are born in the $0.04 keyframe, not the $0.10+ clip. The
+    dispatch then REUSES whatever is here (no re-authoring). Returns the keyframes (paths + URLs)."""
+    try:
+        from lib.env_loader import load_env
+        load_env()
+    except Exception:
+        pass
+    data = scenes_mod.load_scenes(pid)
+    scene = next((s for s in data["scenes"] if s["id"] == sid), None)
+    if scene is None:
+        raise KeyError(sid)
+    revision = _find_revision(pid, sid, rid)
+    if revision is None:
+        return {"status": "blocked", "error": "revision not found in log"}
+    slot_s = float(scene.get("slot_s") or 0)
+    narration = scene.get("narration", "")
+    plan = _beat_plan(revision, slot_s, narration)
+    if not (plan and bool(revision.get("chained"))):
+        return {"status": "not_applicable", "error": "keyframe preview applies to a chained multi-beat scene"}
+    if not os.environ.get("KIE_API_KEY"):
+        return {"status": "blocked", "error": "KIE_API_KEY not set — keyframe authoring disabled"}
+
+    review = _keyframe_review_dir(pid, sid, rid)
+    review.mkdir(parents=True, exist_ok=True)
+    bible, anchor_asset = _load_bible_asset(pid, sid)
+    gold_ref = _scene_gold_ref(pid, sid)
+    from lib.image_host import upload_image
+    prev_kf = None
+    frames = []
+    for b in plan:
+        if not (b["dispatchable"] and not (b.get("lane") or "").startswith("flf")):
+            continue
+        i = b["idx"]
+        bdir = review / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
+        _clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bdir / "out.mp4"), bdir, narration,
+                                      bible, anchor_asset, None, prev_kf, gold_ref=gold_ref, video=False)
+        if not kf:
+            frames.append({"idx": i, "label": b["label"], "path": None, "url": None, "status": "failed"})
+            continue
+        prev_kf = kf
+        local = bdir / "keyframe.png"
+        url = None
+        if str(kf).startswith(("http://", "https://")):
+            url = str(kf)
+            try:
+                import requests
+                local.write_bytes(requests.get(str(kf), timeout=90).content)
+            except Exception:
+                pass
+        elif Path(str(kf)).exists():
+            if Path(str(kf)) != local:
+                local.write_bytes(Path(str(kf)).read_bytes())
+            url = upload_image(str(local))
+        rel = f"projects/{pid}/assets/ai_segments/_keyframe_review/{sid}__{rid}/b{i}/keyframe.png"
+        frames.append({"idx": i, "label": b["label"], "path": rel, "url": url, "status": "authored"})
+    (review / "keyframes.json").write_text(json.dumps(frames, indent=2), encoding="utf-8")
+    fb.append_event(pid, actor="system", type="keyframes_authored", scene_id=sid,
+                    payload={"revision_id": rid, "keyframes": frames})
+    return {"status": "authored", "revision_id": rid, "keyframes": frames,
+            "note": "review these stills; approve-and-dispatch reuses them for video (no re-authoring)"}

@@ -194,6 +194,16 @@ def post_approve_and_dispatch(pid: str, sid: str, rid: str):
         raise HTTPException(404, f"scene {sid} not found")
 
 
+@app.post(API + "/projects/{pid}/scenes/{sid}/revision/{rid}/author-keyframes")
+def post_author_keyframes(pid: str, sid: str, rid: str):
+    """Author the chained keyframe SET for a revision (cheap Nano, NO video) so the operator can
+    eyeball/approve the stills before paying to animate them; approve-and-dispatch reuses them."""
+    try:
+        return takes_mod.author_scene_keyframes(pid, sid, rid)
+    except KeyError:
+        raise HTTPException(404, f"scene {sid} not found")
+
+
 @app.get(API + "/projects/{pid}/jobs/{job_id}")
 def get_job(pid: str, job_id: str):
     j = takes_mod.get_job(job_id)
