@@ -1138,10 +1138,10 @@ def _load_preauthored_keyframes(pid: str, sid: str, rid: str) -> dict:
 
 
 def author_scene_keyframes(pid: str, sid: str, rid: str) -> dict:
-    """Keyframe-preview: author the CHAINED keyframe SET for a revision's beats (cheap Nano, NO video)
-    so the operator eyeballs/approves the STILLS before paying to animate them — the kneeling-Cox /
-    off-model-machine / diptych errors are born in the $0.04 keyframe, not the $0.10+ clip. The
-    dispatch then REUSES whatever is here (no re-authoring). Returns the keyframes (paths + URLs)."""
+    """Enqueue KEYFRAME-PREVIEW: author the chained keyframe SET (cheap Nano, NO video) as a background
+    job so the operator can eyeball/approve the $0.04 stills before paying for the $0.10+ clips; the
+    dispatch then REUSES the approved keyframes. Returns a queued job (poll GET /jobs/{id} for the
+    stills). Runs as a job — a synchronous authoring call blocks the request for minutes."""
     try:
         from lib.env_loader import load_env
         load_env()
@@ -1154,49 +1154,91 @@ def author_scene_keyframes(pid: str, sid: str, rid: str) -> dict:
     revision = _find_revision(pid, sid, rid)
     if revision is None:
         return {"status": "blocked", "error": "revision not found in log"}
-    slot_s = float(scene.get("slot_s") or 0)
-    narration = scene.get("narration", "")
-    plan = _beat_plan(revision, slot_s, narration)
+    plan = _beat_plan(revision, float(scene.get("slot_s") or 0), scene.get("narration", ""))
     if not (plan and bool(revision.get("chained"))):
         return {"status": "not_applicable", "error": "keyframe preview applies to a chained multi-beat scene"}
     if not os.environ.get("KIE_API_KEY"):
         return {"status": "blocked", "error": "KIE_API_KEY not set — keyframe authoring disabled"}
+    n = sum(1 for b in plan if b["dispatchable"] and not (b.get("lane") or "").startswith("flf"))
+    est = round(max(1, n) * 0.04, 2)  # keyframes only, no video
+    with _LOCK:
+        if (pid, sid) in _ACTIVE:
+            busy = next((jid for jid, j in _JOBS.items()
+                         if j.get("project_id") == pid and j.get("scene_id") == sid
+                         and j.get("status") in ("queued", "running")), None)
+            return {"status": "busy", "job_id": busy, "error": "a job is already running for this scene"}
+        _ACTIVE.add((pid, sid))
+        job_id = uuid.uuid4().hex[:12]
+        _JOBS[job_id] = {
+            "job_id": job_id, "project_id": pid, "scene_id": sid, "revision_id": rid,
+            "status": "queued", "est_usd": est, "kind": "keyframes", "keyframes": None,
+            "created_ts": _now(), "started_ts": None, "ended_ts": None, "error": None,
+        }
+    _POOL.submit(_run_author_keyframes_job, pid, sid, rid, job_id)
+    return {"job_id": job_id, "status": "queued", "est_usd": est, "kind": "keyframes"}
 
-    review = _keyframe_review_dir(pid, sid, rid)
-    review.mkdir(parents=True, exist_ok=True)
-    bible, anchor_asset = _load_bible_asset(pid, sid)
-    gold_ref = _scene_gold_ref(pid, sid)
-    from lib.image_host import upload_image
-    prev_kf = None
-    frames = []
-    for b in plan:
-        if not (b["dispatchable"] and not (b.get("lane") or "").startswith("flf")):
-            continue
-        i = b["idx"]
-        bdir = review / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
-        _clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bdir / "out.mp4"), bdir, narration,
-                                      bible, anchor_asset, None, prev_kf, gold_ref=gold_ref, video=False)
-        if not kf:
-            frames.append({"idx": i, "label": b["label"], "path": None, "url": None, "status": "failed"})
-            continue
-        prev_kf = kf
-        local = bdir / "keyframe.png"
-        url = None
-        if str(kf).startswith(("http://", "https://")):
-            url = str(kf)
-            try:
-                import requests
-                local.write_bytes(requests.get(str(kf), timeout=90).content)
-            except Exception:
-                pass
-        elif Path(str(kf)).exists():
-            if Path(str(kf)) != local:
-                local.write_bytes(Path(str(kf)).read_bytes())
-            url = upload_image(str(local))
-        rel = f"projects/{pid}/assets/ai_segments/_keyframe_review/{sid}__{rid}/b{i}/keyframe.png"
-        frames.append({"idx": i, "label": b["label"], "path": rel, "url": url, "status": "authored"})
-    (review / "keyframes.json").write_text(json.dumps(frames, indent=2), encoding="utf-8")
-    fb.append_event(pid, actor="system", type="keyframes_authored", scene_id=sid,
-                    payload={"revision_id": rid, "keyframes": frames})
-    return {"status": "authored", "revision_id": rid, "keyframes": frames,
-            "note": "review these stills; approve-and-dispatch reuses them for video (no re-authoring)"}
+
+def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None:
+    """Worker: author the chained keyframe SET (no video) and store the stills on the job for review."""
+    job = _JOBS[job_id]
+    try:
+        try:
+            from lib.env_loader import load_env
+            load_env()
+        except Exception:
+            pass
+        if not os.environ.get("KIE_API_KEY"):
+            job.update(status="blocked", error="KIE_API_KEY not set", ended_ts=_now()); return
+        job.update(status="running", started_ts=_now())
+        data = scenes_mod.load_scenes(pid)
+        scene = next((s for s in data["scenes"] if s["id"] == sid), None)
+        revision = _find_revision(pid, sid, rid)
+        if scene is None or revision is None:
+            job.update(status="failed", error="scene or revision vanished", ended_ts=_now()); return
+        narration = scene.get("narration", "")
+        plan = _beat_plan(revision, float(scene.get("slot_s") or 0), narration)
+        review = _keyframe_review_dir(pid, sid, rid)
+        review.mkdir(parents=True, exist_ok=True)
+        bible, anchor_asset = _load_bible_asset(pid, sid)
+        gold_ref = _scene_gold_ref(pid, sid)
+        from lib.image_host import upload_image
+        prev_kf = None
+        frames = []
+        for b in plan:
+            if not (b["dispatchable"] and not (b.get("lane") or "").startswith("flf")):
+                continue
+            i = b["idx"]
+            bdir = review / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
+            _clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bdir / "out.mp4"), bdir, narration,
+                                          bible, anchor_asset, None, prev_kf, gold_ref=gold_ref, video=False)
+            media = f"assets/ai_segments/_keyframe_review/{sid}__{rid}/b{i}/keyframe.png"
+            rel = f"projects/{pid}/{media}"
+            if not kf:
+                frames.append({"idx": i, "label": b["label"], "path": rel, "media": media, "url": None, "status": "failed"})
+                continue
+            prev_kf = kf
+            local = bdir / "keyframe.png"
+            url = None
+            if str(kf).startswith(("http://", "https://")):
+                url = str(kf)
+                try:
+                    import requests
+                    local.write_bytes(requests.get(str(kf), timeout=90).content)
+                except Exception:
+                    pass
+            elif Path(str(kf)).exists():
+                if Path(str(kf)) != local:
+                    local.write_bytes(Path(str(kf)).read_bytes())
+                url = upload_image(str(local))
+            frames.append({"idx": i, "label": b["label"], "path": rel, "media": media, "url": url, "status": "authored"})
+        (review / "keyframes.json").write_text(json.dumps(frames, indent=2), encoding="utf-8")
+        fb.append_event(pid, actor="system", type="keyframes_authored", scene_id=sid,
+                        payload={"revision_id": rid, "keyframes": frames})
+        job.update(status="succeeded", keyframes=frames, ended_ts=_now())
+    except Exception as e:
+        name = type(e).__name__
+        job.update(status=("blocked" if name == "GenerationHardStop" else "failed"),
+                   error=f"{name}: {e}", ended_ts=_now())
+    finally:
+        with _LOCK:
+            _ACTIVE.discard((pid, sid))

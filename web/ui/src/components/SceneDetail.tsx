@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { API, jget, jpost, jdel } from '../api'
-import type { Beat, ClipCandidate, DraftRevision, Job, Scene, Take, Verdict } from '../api'
+import type { Beat, ClipCandidate, DraftRevision, Job, KeyframePreview, Scene, Take, Verdict } from '../api'
 import RevisionCard from './RevisionCard'
 import BeatFixer from './BeatFixer'
 
@@ -64,6 +64,26 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
       setDraft(null); setJob(r); await reload()
       if (r.status === 'queued' && r.job_id) void pollJob(r.job_id)
     } catch (e) { setBusy(false); alert('Fix failed: ' + (e as Error).message) }
+  }
+
+  // Preview the chained keyframe SET (cheap Nano, NO video) so you can approve the $0.04 stills
+  // before paying to animate them; approving reuses them (no re-authoring).
+  const previewKeyframes = async () => {
+    if (working) return
+    setBusy(true); setJob(null)
+    try {
+      const d = await jpost<DraftRevision>(`${base}/director-pass`, {})
+      setDraft(d)
+      if (!(d.revision.lane === 'mixed' && d.revision.chained && (d.revision.beats?.length ?? 0) > 1)) {
+        setBusy(false)
+        alert(`Keyframe preview is for chained multi-beat action scenes.\nThis scene: lane=${d.revision.lane}, chained=${d.revision.chained}.`)
+        return
+      }
+      const r = await jpost<Job>(`${base}/revision/${d.revision_id}/author-keyframes`, {})
+      setBusy(false); setJob(r)
+      if (r.status === 'queued' && r.job_id) void pollJob(r.job_id)
+      else if (r.error) alert('Keyframe preview: ' + r.error)
+    } catch (e) { setBusy(false); alert('Keyframe preview failed: ' + (e as Error).message) }
   }
 
   // Verdict click. "Needs work" + a note auto-kicks the fix (generate a new take).
@@ -296,10 +316,17 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
         {busy ? <><span className="spinner" />Planning the fix…</> : `↻ Fix scene ${scene.number} in the pipeline`}
       </button>
       <div className="hint">Needs a note. The director re-plans from your notes (rules applied), you confirm the cost, then a new take is generated and shows up here to review. (Server needs KIE_API_KEY + network.)</div>
+      <button className="act" disabled={working} onClick={previewKeyframes} title="Author the chained keyframe stills (cheap Nano, no video) so you can approve them before paying to animate">
+        🖼 Preview keyframes (no video)
+      </button>
 
       <div>
         {busy && !job && <div className="jobbanner running"><span className="spinner" />Planning the fix…</div>}
         {job && <JobBanner job={job} />}
+        {job?.kind === 'keyframes' && job.keyframes && (
+          <KeyframeStills project={project} frames={job.keyframes} rid={draft?.revision_id}
+                          onApprove={approveAndDispatch} working={working} />
+        )}
         {draft && <RevisionCard scene={scene} rid={draft.revision_id} rev={draft.revision} status="drafted" onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />}
         {fb.revisions.filter((r) => !draft || r.id !== draft.revision_id).slice().reverse().map((r) => (
           <RevisionCard key={r.id} scene={scene} rid={r.id} rev={r.revision} status={r.status} onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />
@@ -313,6 +340,27 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
         </details>
       )}
     </section>
+  )
+}
+
+function KeyframeStills({ project, frames, rid, onApprove, working }: {
+  project: string; frames: KeyframePreview[]; rid?: string; onApprove: (rid: string) => void; working: boolean
+}) {
+  return (
+    <div className="kfpreview">
+      <div className="hint">Keyframe stills — no video yet. Eyeball figure + machine consistency; if good, approve to animate (dispatch reuses these exact stills, no re-authoring).</div>
+      <div className="kfgrid" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        {frames.map((f) => (
+          <div key={f.idx} className={`kfcell ${f.status}`} style={{ width: 220 }}>
+            {f.media && f.status === 'authored'
+              ? <img src={`${API}/projects/${project}/media/${f.media}`} alt={f.label} loading="lazy" style={{ width: '100%', borderRadius: 4, display: 'block' }} />
+              : <div className="nobadge">beat {f.idx} failed to author</div>}
+            <div className="kflabel" style={{ fontSize: 12, opacity: 0.8 }}>b{f.idx} · {f.label}</div>
+          </div>
+        ))}
+      </div>
+      {rid && <button className="act use" disabled={working} onClick={() => onApprove(rid)}>✓ approve keyframes → animate</button>}
+    </div>
   )
 }
 

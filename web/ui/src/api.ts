@@ -76,8 +76,18 @@ export interface Revision {
   described_action?: DescribedAction
   gate_precheck?: { narration_alignment?: string; subject_named?: boolean }
   beats?: Beat[] | null
+  chained?: boolean | null
   _source?: string
   _error?: string
+}
+
+export interface KeyframePreview {
+  idx: number
+  label: string
+  path: string | null
+  media: string | null
+  url: string | null
+  status: string
 }
 
 // Per-beat service label + cost — mirror of web.backend.takes._beat_cost.
@@ -142,6 +152,8 @@ export interface Job {
   error?: string
   reason?: string
   take?: Take | null
+  kind?: string
+  keyframes?: KeyframePreview[] | null
 }
 
 export interface DraftRevision { revision_id: string; revision: Revision }
