@@ -727,6 +727,13 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
                           if bindings else "")
             figure_clause = (f" || The person MUST match the character reference sheet exactly (same face, "
                              f"build, hair, gown): {'; '.join(fig_tokens)}." if fig_tokens else "")
+            if not machine_grounding and not fig_tokens:
+                # Console/terminal beat: the figure is the hospital OPERATOR, not a patient — without
+                # this Nano dressed the operator in a patient's gown and staged a bunker-hatch wall.
+                figure_clause = (" || The figure at the console is the hospital radiation OPERATOR — "
+                                 "a technician in plain 1980s work clothes (shirt/scrubs), NEVER a "
+                                 "patient, NO hospital gown. Plain clinical control-room wall behind "
+                                 "them — no hatches, no wheels, no vault doors.")
             machine_clause = (f" || The machine is the AECL Therac-25 and MUST match this design: {tokens}."
                               if tokens else "")
             # Guard the recurring Nano failure modes: the "comic-page" diptych and ghosted/fading figures.
