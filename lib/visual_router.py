@@ -44,7 +44,17 @@ HERO_VIDEO_PROVIDER = "grok-kie"     # same model for the hero preview (matches 
 _PROVIDER_MAX_SHOT = {
     "grok-kie": float(os.environ.get("GROK_KIE_MAX_SECONDS", "30")),
     "kling": 10.0, "kie": 10.0, "wan": 8.0, "ltx": 8.0, "veo": 8.0,
+    "veo-ref-kie": 8.0,
 }
+
+# The HARD-SHOT identity lane: Veo 3.1 REFERENCE_2_VIDEO on Kie (tools/video/veo_ref_kie_video.py).
+# For the few shots/episode where a recurring character AND the machine must both stay on-model —
+# the refs (beat keyframe + model sheets) pin identity BY CONSTRUCTION, which single-keyframe i2v
+# cannot (the Therac-25 kept drifting to a C-arm under Nano+Grok). Routing is OFF by default:
+# a shot goes to Veo only via an explicit visual_spec.hard_shot flag, or — when AI_VEO_HARD_SHOTS=1
+# — a detector score >= AI_VEO_SCORE_MIN, capped at AI_VEO_MAX_SHOTS per run (~$0.30-0.40/clip).
+VEO_REF_PROVIDER = "veo-ref-kie"
+_VEO_SHOTS_USED = 0  # per-process cap counter (reset with each pipeline run)
 MAX_SHOT_SECONDS = _PROVIDER_MAX_SHOT.get(DEFAULT_VIDEO_PROVIDER, 10.0)
 
 # Uniform output frame rate for the whole timeline. Sources differ (Grok i2v = 24fps,
@@ -221,6 +231,79 @@ def _derive_default_motion(visual_spec: Any, editorial_intent: str = "",
         editorial_intent=intent, directors_move=move, pacing=pace, content=content)
 
 
+def _veo_reference_urls(bible: Any, asset: Any, narration: str) -> list[str]:
+    """Fresh-hosted identity refs for the Veo hard-shot lane: the segment asset's model sheet
+    (the machine/room) + any bible SUBJECT named in the narration (the recurring character).
+    ALWAYS re-hosts from the LOCAL sheet file — stored sheet URLs live on expiring temp hosts
+    (tmpfiles/provider CDNs) and can be dead within hours of being written."""
+    def _host(a: Any) -> str | None:
+        local = getattr(a, "reference_sheet", "") or ""
+        if local and Path(local).exists():
+            try:
+                from lib.image_host import upload_image
+                u = upload_image(local)
+                if u:
+                    return u
+            except Exception:  # noqa: BLE001
+                pass
+            _log.warning("veo-ref: could not re-host sheet %s — falling back to the stored URL "
+                         "(may be expired)", local)
+        return getattr(a, "reference_sheet_url", "") or None
+
+    urls: list[str] = []
+    if asset is not None:
+        u = _host(asset)
+        if u:
+            urls.append(u)
+    nl = (narration or "").lower()
+    for a in (getattr(bible, "assets", None) or []):
+        subj = getattr(a, "subject", "") or ""
+        nm = subj.split()[-1].lower() if subj else ""
+        if (getattr(a, "type", "") == "subject" and nm
+                and re.search(rf"\b{re.escape(nm)}\b", nl)):
+            u = _host(a)
+            if u and u not in urls:
+                urls.append(u)
+    return urls[:2]  # the beat keyframe takes ref slot 1 at dispatch; Veo takes 3 refs max
+
+
+def _hard_shot_score(text: str, subject_names: list[str]) -> int:
+    """Deterministic hard-shot signals (mirrors the design in the consistency toolkit):
+    recurring named subject +2, machine visibly in play +2, whole-body action +2,
+    cross-room/door movement +2. Route at >= AI_VEO_SCORE_MIN (default 4)."""
+    t = (text or "").lower()
+    score = 0
+    if any(n and re.search(rf"\b{re.escape(n)}\b", t) for n in subject_names):
+        score += 2
+    if any(k in t for k in ("therac", "the machine", "beam", "gantry", "turntable", "treatment head")):
+        score += 2
+    if any(k in t for k in ("rise", "rises", "rising", "stands", "getting off", "gets off",
+                            "staggers", "walks", "pounds", "collapses", "crawls", "climbs")):
+        score += 2
+    if any(k in t for k in ("door", "across the room", "hallway", "crosses to")):
+        score += 2
+    return score
+
+
+def _route_hard_shot(visual_spec: Any, shot_prompt: str, narration: str, bible: Any) -> str | None:
+    """Should THIS shot take the Veo reference lane? Returns 'manual' (explicit spec flag —
+    the operator asked and confirms cost, so no cap), 'scored' (the AI_VEO_HARD_SHOTS=1
+    detector — subject to the AI_VEO_MAX_SHOTS runaway cap, enforced by the caller when the
+    shot ACTUALLY routes), or None. This function has no side effects."""
+    if bool(getattr(visual_spec, "hard_shot", False)):
+        return "manual"
+    if os.environ.get("AI_VEO_HARD_SHOTS", "0") == "1":
+        names = [
+            (getattr(a, "subject", "") or "").split()[-1].lower()
+            for a in (getattr(bible, "assets", None) or [])
+            if getattr(a, "type", "") == "subject" and getattr(a, "subject", "")
+        ]
+        threshold = int(os.environ.get("AI_VEO_SCORE_MIN", "4"))
+        if _hard_shot_score(f"{shot_prompt} {narration}", names) >= threshold:
+            return "scored"
+    return None
+
+
 def plan_ai_video(
     segment_id: str,
     visual_spec: Any,
@@ -349,6 +432,7 @@ def plan_ai_video(
     base_seed = abs(hash(segment_id)) % 1_000_000
 
     jobs: list[dict[str, Any]] = []
+    veo_refs: list[str] | None = None  # hosted identity refs, built once per segment on first use
     for i, shot in enumerate(_plan_shots(visual_spec, target_duration_s,
                                          narration=narration,
                                          leg_boundaries=leg_boundaries,
@@ -358,6 +442,27 @@ def plan_ai_video(
         shot_motion = shot["ai_motion"] or seg_motion
         chain_from = shot.get("chain_from", "")
         provider = HERO_VIDEO_PROVIDER if shot["hero"] else DEFAULT_VIDEO_PROVIDER
+        # HARD-SHOT identity lane: identity refs (keyframe + model sheets) pin the machine and
+        # the recurring character by construction. Off unless explicitly flagged / env-enabled.
+        # The runaway cap applies only to the SCORED detector (an explicit hard_shot flag is an
+        # operator decision), and a slot is consumed only when the shot ACTUALLY routes to Veo.
+        hard = _route_hard_shot(visual_spec, shot_prompt, narration, bible)
+        if hard:
+            global _VEO_SHOTS_USED
+            cap = int(os.environ.get("AI_VEO_MAX_SHOTS", "5"))
+            if hard == "scored" and _VEO_SHOTS_USED >= cap:
+                _log.warning("veo-ref: %s/%s scored hard-shot but cap reached "
+                             "(AI_VEO_MAX_SHOTS=%d) — keeping %s", segment_id, shot_id, cap, provider)
+            else:
+                if veo_refs is None:
+                    veo_refs = _veo_reference_urls(bible, asset, narration)
+                if veo_refs:
+                    provider = VEO_REF_PROVIDER
+                    if hard == "scored":
+                        _VEO_SHOTS_USED += 1
+                else:
+                    _log.warning("ai_video: %s/%s hard shot but no hostable reference sheets — "
+                                 "keeping %s", segment_id, shot_id, provider)
 
         # Keyframe (i2v anchor) locked to the canonical look + channel style (medium).
         # Chained legs keep the canonical only as a FALLBACK — their real anchor is
@@ -448,7 +553,8 @@ def plan_ai_video(
             "segment_id": segment_id,
             "shot_id": shot_id,
             "provider": provider,
-            "operation": "image_to_video" if keyframe else "text_to_video",
+            "operation": ("reference_to_video" if provider == VEO_REF_PROVIDER
+                          else "image_to_video" if keyframe else "text_to_video"),
             "video_prompt": video_prompt,
             "duration_s": round(shot["seconds"], 3),
             "seed": base_seed + i * 1000,
@@ -458,6 +564,7 @@ def plan_ai_video(
             "chain_from": chain_from,
             "description": shot_prompt,
             "narration": narration,
+            "veo_refs": list(veo_refs or []) if provider == VEO_REF_PROVIDER else [],
         })
     return jobs
 
@@ -474,6 +581,7 @@ def generate_shot(
     max_attempts: int = 3,
     description: str = "",
     narration: str = "",
+    ref_urls: list[str] | None = None,
 ) -> Path | None:
     """Phase B (execution): generate one shot clip with the quality-gate retry
     loop. Returns the clip Path, or None if all attempts fail. ``max_attempts``
@@ -517,7 +625,7 @@ def generate_shot(
                 f"of them: {feedback}. Keep all architecture and objects rigid, "
                 "dimensionally constant, and physically consistent throughout."
             )
-        return _gen_shot_clip(prompt, kf, dur, provider, seed + attempt, out)
+        return _gen_shot_clip(prompt, kf, dur, provider, seed + attempt, out, ref_urls=ref_urls)
 
     clip, _report = generate_with_quality_gate(
         gen_fn, visual_spec, duration_s, str(out),
@@ -627,12 +735,21 @@ def generate_ai_video(
                 job["video_prompt"], anchor, job["duration_s"],
                 job["provider"], job["seed"], out, visual_spec, enable_gemini,
                 description=job.get("description", ""), narration=job.get("narration", ""),
+                ref_urls=job.get("veo_refs") or None,
             )
         except GenerationHardStop as exc:
             # Out of credits / daily limit / host down — stop AI for this segment and
             # let the caller fall back to stock instead of burning more attempts.
             _log.error("ai_video: hard stop for %s, falling back: %s", segment_id, exc)
             return None
+        if clip is not None and job["provider"] == VEO_REF_PROVIDER:
+            # Veo clips come in fixed 4/6/8s snapped UP from the planned leg — conform this leg
+            # back to its slot NOW, or an interior over-length leg pushes every later leg out of
+            # sync with the narration and the segment-level trim truncates the ending instead.
+            fit = _trim_to_duration(str(clip), output_dir / f"{segment_id}_{job['shot_id']}_fit.mp4",
+                                    job["duration_s"])
+            if fit is not None:
+                clip = fit
         if clip is not None:
             done_clips[job["shot_id"]] = str(clip)
         if clip is None:
@@ -1045,7 +1162,8 @@ def _nano_image(prompt: str, output_path: Path, image_urls: list[str] | None = N
 
 
 def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
-                   provider: str, seed: int, output_path: Path) -> Path:
+                   provider: str, seed: int, output_path: Path,
+                   ref_urls: list[str] | None = None) -> Path:
     """Generate one shot via the video selector. Raises on failure so the gate retries."""
     from tools.video.video_selector import VideoSelector
     sel = VideoSelector()
@@ -1057,7 +1175,34 @@ def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
         "seed": seed,
         "output_path": str(output_path),
     }
-    if keyframe:
+    if provider == VEO_REF_PROVIDER:
+        # HARD-SHOT lane: identity references instead of a single i2v anchor. The beat keyframe
+        # (style/pose/room) rides as ref 1; the machine/character model sheets follow. A local
+        # keyframe is re-hosted fresh — never trust a stored URL (expiring temp hosts).
+        refs: list[str] = []
+        if keyframe:
+            kf = str(keyframe)
+            if kf.startswith(("http://", "https://")):
+                refs.append(kf)
+            else:
+                try:
+                    from lib.image_host import upload_image
+                    u = upload_image(kf)
+                    if u:
+                        refs.append(u)
+                except Exception:  # noqa: BLE001
+                    _log.warning("veo-ref: failed to host keyframe %s — proceeding on sheets only", kf)
+        refs += [u for u in (ref_urls or []) if u and u not in refs]
+        if not refs:
+            # "failed to host" matches quality_gate._HARD_STOP_PATTERNS: this failure is
+            # deterministic (no refs will appear on a retry), so abort instead of re-rolling.
+            raise RuntimeError("veo-ref shot failed to host any reference image "
+                               "(keyframe unhostable and no sheets)")
+        inputs["operation"] = "reference_to_video"
+        inputs["reference_image_urls"] = refs[:3]
+        # Veo clips come in fixed 4/6/8s — snap UP so the conform trim has material.
+        inputs["duration"] = str(min((d for d in (4, 6, 8) if d >= duration_s), default=8))
+    elif keyframe:
         inputs["operation"] = "image_to_video"
         kf = str(keyframe)
         if kf.startswith("http://") or kf.startswith("https://"):

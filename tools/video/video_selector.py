@@ -325,6 +325,14 @@ class VideoSelector(BaseTool):
                     filtered.append(tool)
                 continue
 
+            if operation == "text_to_video":
+                # Reference-only providers (e.g. veo-ref-kie) REQUIRE reference images and fail
+                # plain t2v instantly — keep them out of the pool. Default True preserves every
+                # existing tool's behavior; only an explicit text_to_video=False opts out.
+                if supports.get("text_to_video", True):
+                    filtered.append(tool)
+                continue
+
             filtered.append(tool)
 
         return filtered or candidates

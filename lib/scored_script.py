@@ -129,6 +129,11 @@ class VisualSpec:
     # segment through the FLF lane (lib.flf) and it is excluded from the paid i2v manifest.
     flf: "FLFSpec | None" = None
 
+    # HARD-SHOT identity lane (visual_router VEO_REF_PROVIDER): route this segment's shots to
+    # Veo reference-to-video with the model sheets as identity refs (~$0.32/8s clip vs Grok's
+    # ~$0.10) — for the few shots where the machine/character must read on-model. Manual opt-in.
+    hard_shot: bool = False
+
     # Styled caption burned over this segment's footage ("text over footage").
     text_overlay: list[str] = field(default_factory=list)
     text_emphasis: int = -1  # index of the amber/large line (-1 = all equal)
@@ -189,6 +194,7 @@ class VisualSpec:
             shots=shots,
             support_asset_refs=d.get("support_asset_refs", []),
             flf=FLFSpec.from_dict(d["flf"]) if d.get("flf") else None,
+            hard_shot=bool(d.get("hard_shot", False)),
             text_overlay=d.get("text_overlay", []),
             text_emphasis=d.get("text_emphasis", -1),
         )

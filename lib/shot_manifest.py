@@ -46,6 +46,10 @@ class ShotJob:
     # video_prompt alone is style-decorated; these carry the undecorated intent.
     description: str = ""    # the shot's content prompt (pre style suffix)
     narration: str = ""      # the segment narration this shot plays under
+    # HARD-SHOT identity lane: hosted reference-image URLs (beat keyframe + model sheets) for
+    # provider "veo-ref-kie" (reference_to_video). Empty for every other provider. Old manifests
+    # without this key load fine (default) — do not reorder fields above it.
+    veo_refs: list[str] = field(default_factory=list)
 
     @property
     def key(self) -> str:
