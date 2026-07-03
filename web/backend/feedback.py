@@ -128,6 +128,14 @@ def scene_states(project_id: str) -> dict[str, dict]:
             for r in st["revisions"]:
                 if r["id"] == rid:
                     r["status"] = new_status
+        elif t == "keyframes_authored":
+            # Attach the previewed stills to their revision so the UI can SHOW an already-paid
+            # keyframe set (before this, the grid lived only in the authoring browser session
+            # and the operator couldn't find the stills again without paying to re-author).
+            rid = p.get("revision_id")
+            for r in st["revisions"]:
+                if r["id"] == rid:
+                    r["keyframes"] = p.get("keyframes") or []
         elif t == "take_generated":
             st["takes"].append(p)
         elif t == "take_deleted":

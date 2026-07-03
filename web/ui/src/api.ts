@@ -100,7 +100,7 @@ export function beatCostUsd(lane: string, durS: number): number {
   return 0  // manim/other = free placeholder
 }
 
-export interface RevisionEntry { id: string; revision: Revision; status: string; ts?: string }
+export interface RevisionEntry { id: string; revision: Revision; status: string; ts?: string; keyframes?: KeyframePreview[] }
 
 export interface Feedback {
   verdict: Verdict | null

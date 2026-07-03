@@ -1200,6 +1200,13 @@ def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
                                "(keyframe unhostable and no sheets)")
         inputs["operation"] = "reference_to_video"
         inputs["reference_image_urls"] = refs[:3]
+        # Veo generates dialogue + lip-sync by default. This is a NARRATED documentary — the clip's
+        # audio is stripped at conform, but moving lips under the narrator reads as a glitch, so
+        # forbid speech at generation (proven on the first validation shot: Cox sat up and talked).
+        inputs["prompt"] = (video_prompt +
+                            " || NARRATED documentary footage: absolutely NO dialogue and NO speech "
+                            "— nobody talks, no moving lips, no mouthed words, no captions; ambient "
+                            "and mechanical sound only.")
         # Veo clips come in fixed 4/6/8s — snap UP so the conform trim has material.
         inputs["duration"] = str(min((d for d in (4, 6, 8) if d >= duration_s), default=8))
     elif keyframe:

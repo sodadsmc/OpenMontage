@@ -66,15 +66,26 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
     } catch (e) { setBusy(false); alert('Fix failed: ' + (e as Error).message) }
   }
 
+  // Beat-weighted dispatch cost for a revision (mirror of RevisionCard's math).
+  const revEstUsd = (rev?: Revision | null) => {
+    const beats = rev?.beats || []
+    const totW = beats.reduce((s, b) => s + (Number(b.weight) || 0), 0) || 1
+    const t = beats.reduce((s, b) => s + beatCostUsd(b.lane, (scene.slot_s || 0) * (Number(b.weight) || 0) / totW), 0)
+    return Math.round(t * 100) / 100
+  }
+
   // Preview the chained keyframe SET (cheap Nano, NO video) so you can approve the $0.04 stills
   // before paying to animate them; approving reuses them (no re-authoring).
   const previewKeyframes = async () => {
     if (working) return
     setBusy(true); setJob(null)
     try {
-      // Reuse the draft the operator is LOOKING at — a fresh director-pass here would silently
-      // discard the reviewed plan and re-plan nondeterministically (and orphan any prior stills).
-      const d = draft ?? await jpost<DraftRevision>(`${base}/director-pass`, {})
+      // Reuse the plan the operator can SEE: the current draft, else the newest DRAFTED chained
+      // revision from the log (its stills come back FREE — authoring is idempotent per revision).
+      // Only mint a fresh director-pass when the scene has no reusable drafted plan at all.
+      const logged = fb.revisions.slice().reverse().find((r) =>
+        r.status === 'drafted' && r.revision?.lane === 'mixed' && r.revision?.chained && (r.revision?.beats?.length ?? 0) > 1)
+      const d = draft ?? (logged ? { revision_id: logged.id, revision: logged.revision } : await jpost<DraftRevision>(`${base}/director-pass`, {}))
       setDraft(d)
       if (!(d.revision.lane === 'mixed' && d.revision.chained && (d.revision.beats?.length ?? 0) > 1)) {
         setBusy(false)
@@ -328,16 +339,17 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
         {job?.kind === 'keyframes' && job.keyframes && (
           <KeyframeStills project={project} frames={job.keyframes} rid={draft?.revision_id}
                           onApprove={approveAndDispatch} working={working}
-                          estUsd={(() => {
-                            const beats = draft?.revision.beats || []
-                            const totW = beats.reduce((s, b) => s + (Number(b.weight) || 0), 0) || 1
-                            const t = beats.reduce((s, b) => s + beatCostUsd(b.lane, (scene.slot_s || 0) * (Number(b.weight) || 0) / totW), 0)
-                            return Math.round(t * 100) / 100
-                          })()} />
+                          estUsd={revEstUsd(draft?.revision)} />
         )}
         {draft && <RevisionCard scene={scene} rid={draft.revision_id} rev={draft.revision} status="drafted" onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />}
         {fb.revisions.filter((r) => !draft || r.id !== draft.revision_id).slice().reverse().map((r) => (
-          <RevisionCard key={r.id} scene={scene} rid={r.id} rev={r.revision} status={r.status} onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />
+          <div key={r.id}>
+            <RevisionCard scene={scene} rid={r.id} rev={r.revision} status={r.status} onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />
+            {r.status === 'drafted' && (r.keyframes?.length ?? 0) > 0 && (
+              <KeyframeStills project={project} frames={r.keyframes!} rid={r.id}
+                              onApprove={approveAndDispatch} working={working} estUsd={revEstUsd(r.revision)} />
+            )}
+          </div>
         ))}
       </div>
 
