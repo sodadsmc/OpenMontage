@@ -19,6 +19,7 @@ import json
 import logging
 import math
 import os
+import re
 import shutil
 import subprocess
 import threading
@@ -122,19 +123,106 @@ def _refresh_canonical_url(asset) -> None:
         pass
 
 
-def _scene_gold_ref(pid: str, sid: str) -> str | None:
-    """The scene's LOCKED gold reference frame — an approved still (figure + machine + room) that every
-    chained keyframe and every per-beat re-roll grounds on, so identity/design stay pinned to the
-    approved standard (printing press, not slot machine). Convention:
-    ``projects/{pid}/assets/ai_segments/_gold_refs/{sid}.png``. Returns a hosted URL, or None if unset."""
-    p = PROJECTS_DIR / pid / "assets" / "ai_segments" / "_gold_refs" / f"{sid}.png"
-    if not p.exists():
+def _scene_gold_ref(pid: str, sid: str, idx: int | None = None, beat_text: str = "",
+                    n_beats: int | None = None) -> str | None:
+    """A LOCKED gold reference frame — an approved still that a chained keyframe / per-beat re-roll
+    grounds on, so identity/design stay pinned to the approved standard (printing press, not slot
+    machine). Per-BEAT plates are keyed by CONTENT via a sidecar ``_gold_refs/{sid}.beats.json``
+    ([{"file": "...", "match": "<regex over the beat text>"}, ...] — first match wins), because a
+    director re-plan renumbers beats: ordinal ``{sid}_b{idx}.png`` plates are honored only when the
+    plate count equals the plan's chainable-beat count (a 4-plate set under a 5-beat plan would put
+    the door plate under the strike beat). Falls back to the scene plate ``{sid}.png``. Returns a
+    hosted URL, or None if unset."""
+    root = PROJECTS_DIR / pid / "assets" / "ai_segments" / "_gold_refs"
+    p = None
+    side = root / f"{sid}.beats.json"
+    if idx is not None and side.exists():
+        try:
+            for ent in json.loads(side.read_text(encoding="utf-8")):
+                if ent.get("file") and ent.get("match") and re.search(ent["match"], beat_text or "", re.I):
+                    c = root / ent["file"]
+                    if c.exists():
+                        p = c
+                    break
+        except Exception:
+            p = None
+    elif idx is not None:
+        c = root / f"{sid}_b{idx}.png"
+        n_plates = len(list(root.glob(f"{sid}_b*.png")))
+        if c.exists() and (n_beats is None or n_plates == n_beats):
+            p = c
+        elif c.exists():
+            _log.warning("gold plates for %s are ordinal (%d plates) but the plan has %s chainable "
+                         "beats — using the scene plate; add %s.beats.json to key plates by content",
+                         sid, n_plates, n_beats, sid)
+    if p is None:
+        c = root / f"{sid}.png"
+        p = c if c.exists() else None
+    if p is None:
         return None
     try:
         from lib.image_host import upload_image
         return upload_image(str(p)) or None
     except Exception:
         return None
+
+
+# Per-beat LOCATION grounding for chained scenes. A scene's beats can span rooms (seg_019: the
+# operator presses P at the CONSOLE in the adjacent control room; everything else happens in the
+# treatment room). Grounding every beat on one segment-level asset put the terminal room's canonical
+# under treatment-room beats (and vice versa), and let the machine design drift per beat. The beat's
+# OWN text picks its locale; each locale grounds on its own bible asset, and the keyframe chain
+# RESETS at a locale boundary so the console frame never seeds the treatment room.
+_TERMINAL_RX = re.compile(
+    r"\b(press(es|ing)?|key(board)?s?|terminal|console|types?|typing|screen|cursor|prompt|"
+    r"vt-?100|monitor|operator station)\b", re.I)
+
+
+def _beat_locale(beat: dict) -> str:
+    text = f"{beat.get('prompt') or ''} {beat.get('label') or ''}"
+    return "terminal" if _TERMINAL_RX.search(text) else "room"
+
+
+def _locale_asset(bible, scene_asset, locale: str):
+    """The bible asset that carries a locale's identity. 'terminal' -> the terminal/console
+    location asset; 'room' -> the SCENE's own mapped asset when it can ground (it has tokens or a
+    model sheet — the scene's room is the right room), else the machine asset (the location with
+    identity_tokens, whose tokens/sheet pin the Therac-25's design). Falls back to scene_asset."""
+    assets = getattr(bible, "assets", None) or []
+    if locale == "terminal":
+        hit = next((a for a in assets
+                    if "terminal" in (getattr(a, "asset_id", "") or "").lower()
+                    or "console" in (getattr(a, "asset_id", "") or "").lower()), None)
+    elif scene_asset is not None and ((getattr(scene_asset, "identity_tokens", None) or [])
+                                      or (getattr(scene_asset, "reference_sheet", "") or "")):
+        hit = scene_asset
+    else:
+        hit = next((a for a in assets
+                    if getattr(a, "type", "") == "location"
+                    and (getattr(a, "identity_tokens", None) or [])), None)
+    if hit is not None:
+        _refresh_canonical_url(hit)
+    return hit or scene_asset
+
+
+def _real_photo_ref(pid: str, asset) -> str | None:
+    """A freshly-hosted REAL photograph of the machine, resolved from the LOCAL file matching the
+    bible's stored reference_images (those stored URLs live on expiring CDNs and are already dead).
+    The photo rides as an extra ref on machine-visible beats so the design is copied from reality."""
+    try:
+        from lib.image_host import upload_image
+        for url in (getattr(asset, "reference_images", None) or []):
+            name = (url or "").rstrip("/").rsplit("/", 1)[-1]
+            if not name:
+                continue
+            local = next(iter((PROJECTS_DIR / pid).glob(f"assets/**/{name}")), None)
+            if local is not None and local.is_file():
+                u = upload_image(str(local))
+                if u:
+                    return u
+    except Exception:
+        pass
+    return None
 
 
 _POOL = ThreadPoolExecutor(max_workers=1)        # serialize spend
@@ -530,7 +618,8 @@ def _gen_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration:
 
 
 def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration: str,
-                      bible, anchor_asset, mood, prev_keyframe, gold_ref=None, keyframe=None, video=True):
+                      bible, anchor_asset, mood, prev_keyframe, gold_ref=None, keyframe=None, video=True,
+                      real_photo=None, fig_from_narration=True, machine_grounding=True):
     """Chained-keyframe Grok beat (the cohesion path for a multi-beat ACTION sequence).
 
     ``keyframe`` reuses an operator-approved pre-authored still (skips authoring). ``video=False``
@@ -549,85 +638,116 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
     prompt = (beat.get("prompt") or narration or "").strip()
     try:
         dur = float(beat["dur"])
-        canon = (getattr(anchor_asset, "canonical_image_url", "") or "") if anchor_asset else ""
-        sheet_local = (getattr(anchor_asset, "reference_sheet", "") or "") if anchor_asset else ""
-        sheet_url = ""
-        if sheet_local and Path(sheet_local).exists():
-            sheet_url = upload_image(sheet_local) or ""          # re-host (stored sheet URL may be stale)
-        elif anchor_asset is not None:
-            sheet_url = getattr(anchor_asset, "reference_sheet_url", "") or ""
-        # Author the chained keyframe: anchor on the prior beat's keyframe (carries figure+room),
-        # falling back to the canonical for the first beat; canonical+sheet ride as extra refs.
-        anchor = prev_keyframe or canon or None
-        if not anchor:
-            _log.warning("chained beat %s: no anchor (bible/canonical missing) — this beat degrades "
-                         "to non-chained and the action sequence loses cohesion here", beat_id)
-        # Figure identity: inject any bible SUBJECT whose name appears in the narration (e.g. Cox) as an
-        # extra reference sheet + name it in the prompt, so the recurring character stays on-model. The
-        # machine had a sheet; the figure had NONE and drifted every beat — this is the missing anchor.
-        fig_urls, fig_tokens = [], []
-        _nl = (narration or "").lower()
-        for _a in (getattr(bible, "assets", None) or []):
-            _subj = getattr(_a, "subject", "") or ""
-            if getattr(_a, "type", "") == "subject" and _subj and _subj.split()[-1].lower() in _nl:
-                _u = getattr(_a, "reference_sheet_url", "") or ""
-                if _u:
-                    fig_urls.append(_u)
-                fig_tokens += [t for t in (getattr(_a, "identity_tokens", None) or []) if t]
-        # Grounding refs, priority: LOCKED GOLD frame (identity 'plate'); character sheet(s); the
-        # canonical (room); the machine model sheet. Bindings are built IN THE SAME ORDER the edit
-        # model receives the images ([anchor] + extras): a positional mislabel teaches the model to
-        # copy identity from the wrong image (the old text called the ANCHOR the gold frame).
-        extra, bindings = [], []
-        if gold_ref:
-            extra.append(gold_ref)
-            bindings.append("this scene's locked GOLD frame — render the SAME person (same face, "
-                            "build, gown) and the SAME machine and room design as it, exactly")
-        for _u in fig_urls:
-            extra.append(_u)
-            bindings.append("a character REFERENCE SHEET — every depiction of that person must "
-                            "match it exactly (same face, build, hair, gown)")
-        if prev_keyframe and canon:
-            extra.append(canon)
-            bindings.append("the room's canonical scene image (room layout/design reference)")
-        if sheet_url:
-            extra.append(sheet_url)
-            bindings.append("the machine's MODEL REFERENCE SHEET — every depiction of the machine "
-                            "must copy that sheet exactly, never a different design")
-        # NAME the Therac-25 + the character in the prompt so they can't drift, regardless of the
-        # (advisory) fidelity gate; and bind each reference by its actual position in the image list.
-        tokens = "; ".join([t for t in ((getattr(anchor_asset, "identity_tokens", None) or [])
-                                         + (getattr(anchor_asset, "locked_attributes", None) or []))
-                            if t]) if anchor_asset else ""
-        ref_clause = ((" || REFERENCE IMAGES: after the first image (the scene anchor you are "
-                       "editing), the additional reference images are, in order: "
-                       + "; ".join(f"({n}) {b}" for n, b in enumerate(bindings, start=1)) + ".")
-                      if bindings else "")
-        figure_clause = (f" || The person MUST match the character reference sheet exactly (same face, "
-                         f"build, hair, gown): {'; '.join(fig_tokens)}." if fig_tokens else "")
-        machine_clause = (f" || The machine is the AECL Therac-25 and MUST match this design: {tokens}."
-                          if tokens else "")
-        # Guard the recurring Nano failure modes: the "comic-page" diptych and ghosted/fading figures.
-        kf_prompt = channel_style.apply_to_prompt(prompt) + ref_clause + figure_clause + machine_clause + (
-            " || COMPOSITION: ONE single continuous full-bleed illustration that fills the whole frame "
-            "— NOT a multi-panel comic page, no split panels, no panel borders, gutters, or side-by-side "
-            "frames. Every figure is solid and fully rendered, never faint, ghosted, or dissolving.")
         kf_path = Path(scratch) / "keyframe.png"
         kf = keyframe or None    # reuse an operator-approved pre-authored keyframe (skip authoring)
-        if kf is None and anchor and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0":
-            kf = vr._populated_keyframe(
-                kf_prompt, anchor, kf_path,
-                description=(beat.get("label") or prompt), narration=narration,
-                extra_ref_urls=extra or None,
-                fidelity_ref=(sheet_local if (sheet_local and Path(sheet_local).exists()) else (sheet_url or "")),
-            )
-            # The keyframe gate over-rejects here (unreliable Therac fidelity check). If it exhausted,
-            # USE the authored chained keyframe anyway (the last attempt is on disk) instead of dropping
-            # to an ungrounded fallback that breaks cohesion — the operator eyeballs the take.
-            if kf is None and kf_path.exists() and kf_path.stat().st_size > 1024:
-                _log.warning("chained beat %s: keyframe gate exhausted — using the authored chained "
-                             "keyframe anyway (operator eyeballs)", beat_id)
-                kf = str(kf_path)
+        canon = (getattr(anchor_asset, "canonical_image_url", "") or "") if anchor_asset else ""
+        sheet_local = ""
+        if kf is not None:
+            pass                 # reuse path: no grounding assembly, no ref hosting — go animate
+        else:
+            # machine_grounding=False (a console/terminal beat): the machine is NOT on screen — the
+            # model sheet + 'MUST match this design' clause would misground the console close-up
+            # (the terminal asset's reference_sheet points at the MACHINE sheet, so gate it here).
+            sheet_local = ((getattr(anchor_asset, "reference_sheet", "") or "")
+                           if (anchor_asset is not None and machine_grounding) else "")
+            sheet_url = ""
+            if sheet_local and Path(sheet_local).exists():
+                # Re-host from disk; fall back to the stored URL rather than silently dropping the binding.
+                sheet_url = (upload_image(sheet_local)
+                             or getattr(anchor_asset, "reference_sheet_url", "") or "")
+            elif anchor_asset is not None and machine_grounding:
+                sheet_url = getattr(anchor_asset, "reference_sheet_url", "") or ""
+            # Author the chained keyframe: anchor on the prior beat's keyframe (carries figure+room),
+            # falling back to the canonical for the first beat; canonical+sheet ride as extra refs.
+            anchor = prev_keyframe or canon or None
+            if not anchor:
+                _log.warning("chained beat %s: no anchor (bible/canonical missing) — this beat degrades "
+                             "to non-chained and the action sequence loses cohesion here", beat_id)
+            # Figure identity: inject any bible SUBJECT named in THIS BEAT's text (e.g. Cox) as an
+            # extra reference sheet + name it in the prompt, so the recurring character stays
+            # on-model. Matching the whole narration put the Cox sheet (and a "person MUST match
+            # Cox" clause) under the OPERATOR-at-the-console beat; the beat's own text is the truth
+            # of who is on screen. When the beat text names nobody, fall back to the narration only
+            # if the caller says the figure can appear here (fig_from_narration — off for
+            # terminal/console beats).
+            fig_urls, fig_tokens = [], []
+            _bt = f"{beat.get('prompt') or ''} {beat.get('label') or ''}".lower()
+            _nl = (narration or "").lower()
+            for _a in (getattr(bible, "assets", None) or []):
+                _subj = getattr(_a, "subject", "") or ""
+                _nm = _subj.split()[-1].lower() if _subj else ""
+                if getattr(_a, "type", "") != "subject" or not _nm:
+                    continue
+                _hit = (re.search(rf"\b{re.escape(_nm)}\b", _bt)
+                        or (fig_from_narration and re.search(rf"\b{re.escape(_nm)}\b", _nl)))
+                if _hit:
+                    _u = getattr(_a, "reference_sheet_url", "") or ""
+                    _loc = getattr(_a, "reference_sheet", "") or ""
+                    if _loc and Path(_loc).exists():
+                        _u = upload_image(_loc) or _u   # stored sheet URLs expire — re-host from disk
+                    if _u:
+                        fig_urls.append(_u)
+                    fig_tokens += [t for t in (getattr(_a, "identity_tokens", None) or []) if t]
+            # Grounding refs, priority: LOCKED GOLD frame (identity 'plate'); character sheet(s);
+            # the machine model sheet; a REAL photo of the machine; the room canonical. Bindings are
+            # built IN THE SAME ORDER the edit model receives the images ([anchor] + extras): a
+            # positional mislabel teaches the model to copy identity from the wrong image.
+            extra, bindings = [], []
+            if gold_ref:
+                extra.append(gold_ref)
+                bindings.append("this beat's locked GOLD frame — render the SAME person (same face, "
+                                "build, gown) and the SAME machine, door, and room design as it, exactly")
+            for _u in fig_urls:
+                extra.append(_u)
+                bindings.append("a character REFERENCE SHEET — every depiction of that person must "
+                                "match it exactly (same face, build, hair, gown)")
+            if sheet_url:
+                extra.append(sheet_url)
+                bindings.append("the machine's MODEL REFERENCE SHEET — every depiction of the machine "
+                                "must copy that sheet exactly, never a different design")
+            if real_photo:
+                extra.append(real_photo)
+                bindings.append("a REAL PHOTOGRAPH of the actual machine — copy its exact housing "
+                                "design and proportions precisely, rendered in the illustration style")
+            if prev_keyframe and canon:
+                extra.append(canon)
+                bindings.append("the room's canonical scene image (room layout/design reference)")
+            # Keep the edit-model image list bounded: anchor + at most 4 refs, dropped from the tail —
+            # gold/figure/sheet/photo outrank the canonical, which mostly repeats what gold carries.
+            extra, bindings = extra[:4], bindings[:4]
+            # NAME the Therac-25 + the character in the prompt so they can't drift, regardless of the
+            # (advisory) fidelity gate; and bind each reference by its actual position in the image
+            # list. Machine tokens only when the machine is actually on screen (machine_grounding).
+            tokens = "; ".join([t for t in ((getattr(anchor_asset, "identity_tokens", None) or [])
+                                             + (getattr(anchor_asset, "locked_attributes", None) or []))
+                                if t]) if (anchor_asset is not None and machine_grounding) else ""
+            ref_clause = ((" || REFERENCE IMAGES: after the first image (the scene anchor you are "
+                           "editing), the additional reference images are, in order: "
+                           + "; ".join(f"({n}) {b}" for n, b in enumerate(bindings, start=1)) + ".")
+                          if bindings else "")
+            figure_clause = (f" || The person MUST match the character reference sheet exactly (same face, "
+                             f"build, hair, gown): {'; '.join(fig_tokens)}." if fig_tokens else "")
+            machine_clause = (f" || The machine is the AECL Therac-25 and MUST match this design: {tokens}."
+                              if tokens else "")
+            # Guard the recurring Nano failure modes: the "comic-page" diptych and ghosted/fading figures.
+            kf_prompt = channel_style.apply_to_prompt(prompt) + ref_clause + figure_clause + machine_clause + (
+                " || COMPOSITION: ONE single continuous full-bleed illustration that fills the whole frame "
+                "— NOT a multi-panel comic page, no split panels, no panel borders, gutters, or side-by-side "
+                "frames. Every figure is solid and fully rendered, never faint, ghosted, or dissolving.")
+            if anchor and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0":
+                kf = vr._populated_keyframe(
+                    kf_prompt, anchor, kf_path,
+                    description=(beat.get("label") or prompt), narration=narration,
+                    extra_ref_urls=extra or None,
+                    fidelity_ref=(sheet_local if (sheet_local and Path(sheet_local).exists()) else (sheet_url or "")),
+                )
+                # The keyframe gate over-rejects here (unreliable Therac fidelity check). If it exhausted,
+                # USE the authored chained keyframe anyway (the last attempt is on disk) instead of dropping
+                # to an ungrounded fallback that breaks cohesion — the operator eyeballs the take.
+                if kf is None and kf_path.exists() and kf_path.stat().st_size > 1024:
+                    _log.warning("chained beat %s: keyframe gate exhausted — using the authored chained "
+                                 "keyframe anyway (operator eyeballs)", beat_id)
+                    kf = str(kf_path)
         if not video:   # keyframe-preview mode: return the authored still, no paid video
             # Authoring failed -> None, NOT prev_keyframe: the preview must record a FAILED beat,
             # never silently pass off the previous beat's still as this beat's "authored" frame
@@ -709,11 +829,17 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
     beat_meta: list[dict] = []
     # Chained cohesion only has meaning with >1 chainable (non-flf dispatchable) beat — a single
     # such beat behaves like the normal path, so don't engage the chained authoring for it.
-    use_chain = chained and sum(
-        1 for _b in plan if _b["dispatchable"] and not (_b.get("lane") or "").startswith("flf")) > 1
-    gold_ref = _scene_gold_ref(pid, sid) if use_chain else None  # the locked 'plate' every beat grounds on
+    chainable = [b for b in plan if b["dispatchable"] and not (b.get("lane") or "").startswith("flf")]
+    use_chain = chained and len(chainable) > 1
     preauth = _load_preauthored_keyframes(pid, sid, rid) if use_chain else {}  # operator-previewed stills to reuse
     prev_kf = None  # chained-keyframe carry: beat N's keyframe grounds beat N+1's
+    prev_locale = None
+    room_asset = _locale_asset(bible, anchor_asset, "room") if use_chain else None
+    term_asset = _locale_asset(bible, anchor_asset, "terminal") if use_chain else None
+    # Grounding refs are only consumed when a beat actually AUTHORS a keyframe — skip the hosting
+    # spend/latency when every chainable beat reuses an operator-approved still.
+    need_author = use_chain and any(b["idx"] not in preauth for b in chainable)
+    real_photo = _real_photo_ref(pid, room_asset) if need_author else None
     for b in plan:
         i = b["idx"]
         bdir = scratch / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
@@ -723,11 +849,24 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
         if b["dispatchable"]:
             if use_chain and not (b.get("lane") or "").startswith("flf"):
                 # Cohesion path: ground this beat's keyframe on the prior beat's so the figure/room
-                # carry across the action sequence; thread the keyframe forward. (FLF beats keep the
-                # normal state-morph path — they don't carry figure identity.)
+                # carry across the action sequence; thread the keyframe forward. Each beat grounds
+                # on ITS locale's asset + per-beat gold plate, and the chain RESETS at a locale
+                # boundary (the console frame must never seed the treatment room). (FLF beats keep
+                # the normal state-morph path — they don't carry figure identity.)
+                locale = _beat_locale(b)
+                if prev_locale is not None and locale != prev_locale:
+                    prev_kf = None
+                prev_locale = locale
+                pk = preauth.get(i)
+                gold = None if pk else _scene_gold_ref(
+                    pid, sid, i, beat_text=f"{b.get('prompt') or ''} {b.get('label') or ''}",
+                    n_beats=len(chainable))
                 clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bout), bdir, narration,
-                                             bible, anchor_asset, mood, prev_kf, gold_ref=gold_ref,
-                                             keyframe=preauth.get(i))
+                                             bible, (term_asset if locale == "terminal" else room_asset),
+                                             mood, prev_kf, gold_ref=gold, keyframe=pk,
+                                             real_photo=(real_photo if (locale == "room" and not pk) else None),
+                                             fig_from_narration=(locale == "room"),
+                                             machine_grounding=(locale == "room"))
                 if kf:
                     prev_kf = kf
             else:
@@ -1030,11 +1169,14 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
         scratch.mkdir(parents=True, exist_ok=True)
         take_target = seg_dir / f"{sid}__take{take_n}.mp4"
         bible, anchor_asset = _load_bible_asset(pid, sid)
-        # Printing-press re-roll: re-generated beats ground on the scene's locked GOLD frame + the
+        # Printing-press re-roll: re-generated beats ground on their locked GOLD plate + the
         # neighbouring kept beats, so a touch-up matches the approved standard instead of dice-rolling.
         chained = bool(src.get("chained"))
-        gold_ref = _scene_gold_ref(pid, sid) if chained else None
         prev_kf = None
+        prev_locale = None
+        room_asset = _locale_asset(bible, anchor_asset, "room") if chained else None
+        term_asset = _locale_asset(bible, anchor_asset, "terminal") if chained else None
+        real_photo = _real_photo_ref(pid, room_asset) if chained else None
 
         beat_clips = []
         beat_meta = []
@@ -1056,8 +1198,22 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 status = "generated"
                 if lane in DISPATCHABLE_LANES:
                     if chained and not lane.startswith("flf"):
+                        locale = _beat_locale(beat)
+                        if prev_locale is not None and locale != prev_locale:
+                            prev_kf = None   # locale boundary: don't seed the room with the console
+                        prev_locale = locale
+                        _n_chain = sum(1 for x in src_beats
+                                       if (x.get("lane") or "grok") in DISPATCHABLE_LANES
+                                       and not (x.get("lane") or "").startswith("flf"))
                         clip, kf = _gen_chained_beat(f"{sid}_b{i}", beat, str(bout), bdir, narration,
-                                                     bible, anchor_asset, mood, prev_kf, gold_ref=gold_ref)
+                                                     bible, (term_asset if locale == "terminal" else room_asset),
+                                                     mood, prev_kf,
+                                                     gold_ref=_scene_gold_ref(
+                                                         pid, sid, i, beat_text=f"{prompt} {beat.get('label') or ''}",
+                                                         n_beats=_n_chain),
+                                                     real_photo=(real_photo if locale == "room" else None),
+                                                     fig_from_narration=(locale == "room"),
+                                                     machine_grounding=(locale == "room"))
                         if kf:
                             prev_kf = kf
                     else:
@@ -1084,6 +1240,10 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 _kept_kf = seg_dir / "_takes_scratch" / f"{sid}__take{src_take_n}" / f"b{i}" / "keyframe.png"
                 if _kept_kf.exists():
                     prev_kf = str(_kept_kf)
+                # Track the kept beat's locale too — otherwise the boundary reset misfires around it
+                # (a kept console beat would seed a re-rolled room beat, or trigger a bogus reset).
+                if chained and not (sb.get("lane") or "").startswith("flf"):
+                    prev_locale = _beat_locale(sb)
                 beat_meta.append({**{k: sb.get(k) for k in ("idx", "lane", "status", "label", "prompt", "flf", "dur")},
                                   "clip": clip_rel})
             beat_clips.append(clip)
@@ -1253,17 +1413,35 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
                 pass
         review.mkdir(parents=True, exist_ok=True)
         bible, anchor_asset = _load_bible_asset(pid, sid)
-        gold_ref = _scene_gold_ref(pid, sid)
         from lib.image_host import upload_image
         prev_kf = None
+        prev_locale = None
+        room_asset = _locale_asset(bible, anchor_asset, "room")
+        term_asset = _locale_asset(bible, anchor_asset, "terminal")
+        real_photo = _real_photo_ref(pid, room_asset)
         frames = []
         for b in plan:
             if not (b["dispatchable"] and not (b.get("lane") or "").startswith("flf")):
                 continue
             i = b["idx"]
             bdir = review / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
+            locale = _beat_locale(b)
+            if prev_locale is not None and locale != prev_locale:
+                prev_kf = None   # locale boundary: don't seed the room with the console frame
+            prev_locale = locale
+            _n_chain = sum(1 for x in plan
+                           if x["dispatchable"] and not (x.get("lane") or "").startswith("flf"))
             _clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bdir / "out.mp4"), bdir, narration,
-                                          bible, anchor_asset, None, prev_kf, gold_ref=gold_ref, video=False)
+                                          bible, (term_asset if locale == "terminal" else room_asset),
+                                          None, prev_kf,
+                                          gold_ref=_scene_gold_ref(
+                                              pid, sid, i,
+                                              beat_text=f"{b.get('prompt') or ''} {b.get('label') or ''}",
+                                              n_beats=_n_chain),
+                                          video=False,
+                                          real_photo=(real_photo if locale == "room" else None),
+                                          fig_from_narration=(locale == "room"),
+                                          machine_grounding=(locale == "room"))
             media = f"assets/ai_segments/_keyframe_review/{sid}__{rid}/b{i}/keyframe.png"
             rel = f"projects/{pid}/{media}"
             if not kf:
