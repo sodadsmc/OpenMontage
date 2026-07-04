@@ -1634,8 +1634,12 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
                      status="authored" if (ok or url) else "failed")
         kjson.write_text(json.dumps(frames, indent=2), encoding="utf-8")
         try:
+            # The hint is a DRIFT SIGNAL, not just a prompt: when the same fix keeps being
+            # typed ("rounded head", "hospital gown"), that attribute is missing from the
+            # asset's identity tokens — promote it via lib/identity_tokens (see its docstring).
             fb.append_event(pid, actor="system", type="keyframes_authored", scene_id=sid,
-                            payload={"revision_id": rid, "keyframes": frames})
+                            payload={"revision_id": rid, "keyframes": frames,
+                                     "reroll": {"idx": idx, "hint": hint}})
         except Exception:
             _log.exception("keyframes_authored event append failed for %s/%s", sid, rid)
         job.update(status="succeeded", keyframes=frames, ended_ts=_now())

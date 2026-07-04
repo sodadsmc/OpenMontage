@@ -200,8 +200,44 @@ EST COST:
   → beat total ≈ $______   (announce before --yes; log lands in cost_ledger.jsonl)
 ```
 
+## 6. PER-PROJECT CONSISTENCY SETUP (the universal recipe)
+
+The pipeline CODE is project-agnostic; whether a NEW documentary's recurring machine /
+character / room stays on-model is decided by per-project DATA authored to this recipe.
+Everything below was proven on the Therac-25 (the C-arm drift fight) — do it ONCE per
+project, per recurring entity, BEFORE bulk generation:
+
+1. **Real photos on disk.** Curate 2-4 real photographs per key entity under
+   `assets/_reference/` and list them in the bible's `reference_images`. Stored URLs
+   expire (tmpfiles/CDNs die in hours) — the pipeline re-hosts from LOCAL files at use
+   time, so the local file is the truth.
+2. **Identity tokens = a police description, derived from the photos.** Run
+   `python -m lib.identity_tokens <bible.json> <asset_id> [--apply]` — it produces the
+   standard shape: silhouette clause, 2-4 distinctive PARTS with shape adjectives,
+   surface/era, and **"NOT a <confusable>" negatives** (image models drift to the
+   nearest look-alike in their prior; naming it is what stops the drift — "NOT a C-arm,
+   NOT a CT donut"). Curate, don't just accept.
+3. **A model sheet per recurring entity** (multi-view, in the house style) with the
+   LOCAL path in `reference_sheet`. The figure drifts without one exactly like the
+   machine does (Cox drifted until `subj_cox` existed).
+4. **One location asset per real room** with a LOCAL `canonical_reference_image` —
+   including secondary rooms (the control room / terminal). Per-beat locale grounding
+   (`_beat_locale`) routes console beats to the terminal asset automatically, but only
+   if the asset exists.
+5. **Gold plates for hard scenes**: approved stills under
+   `assets/ai_segments/_gold_refs/{sid}_b*.png` + a `{sid}.beats.json` sidecar keying
+   each plate to its beat by CONTENT regex (ordinal keying misgrounds when the director
+   re-plans the beat count).
+6. **Hard shots → the Veo reference lane** (`hard_shot: true` on the visual spec, or
+   `AI_VEO_HARD_SHOTS=1` + the scored detector): identity refs (sheet + photo + beat
+   keyframe) pin the design by construction, ~$0.32/8s clip.
+7. **Keep improving the tokens from operator signals.** Every dashboard still re-roll
+   logs its pose/design hint in the feedback event log (`keyframes_authored` →
+   `reroll.hint`). A hint that keeps repeating ("rounded head", "hospital gown") is an
+   attribute MISSING from the tokens — promote it via `lib/identity_tokens`.
+
 ---
 
-**Key file paths (all absolute):** `D:/OpenMontage2/projects/therac-25-test/script_v5/{build_asset_bible,generate_voice_v6,build_render_package,run_bulk_generation,build_v6,render_v6,build_preview}.py` · `D:/OpenMontage2/lib/{visual_router,flf,duration_map,narration_gate,quality_gate,asset_bible,cost_ledger,channel_style,sketch_diagrams,text_overlay,finishing,word_timing,beat_splitter}.py` · artifacts under `D:/OpenMontage2/projects/therac-25-test/artifacts/`.
+**Key file paths (all absolute):** `D:/OpenMontage2/projects/therac-25-test/script_v5/{build_asset_bible,generate_voice_v6,build_render_package,run_bulk_generation,build_v6,render_v6,build_preview}.py` · `D:/OpenMontage2/lib/{visual_router,flf,duration_map,narration_gate,quality_gate,asset_bible,cost_ledger,channel_style,sketch_diagrams,text_overlay,finishing,word_timing,beat_splitter,identity_tokens}.py` · artifacts under `D:/OpenMontage2/projects/therac-25-test/artifacts/`.
 
 **Note on one verified discrepancy from the subsystem maps:** the maps claim `build_v6.py` instantiates `QualityGate` but never calls `evaluate()` (inert at STAGE 3) and that the narration/identity gates are "not implemented." That is true *for `build_v6.py`* — but the real PRE-spend gating lives in `build_render_package.py` (`narration_gate.validate_script_alignment`/`gate` + `asset_bible.validate_subject_identity`, both present and wired), and the POST quality gate runs inside `run_bulk_generation.py`/`generate_shot` via `generate_with_quality_gate`. Author against the gates where they actually fire (Stages 2A/2B), not Stage 3.
