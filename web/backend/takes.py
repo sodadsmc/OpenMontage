@@ -178,6 +178,15 @@ _TERMINAL_RX = re.compile(
     r"vt-?100|monitor|operator station)\b", re.I)
 
 
+def _machine_in_beat(beat: dict) -> bool:
+    """True when the MACHINE is visibly on screen in this beat regardless of locale — a console
+    beat that shows the treatment room 'through the observation window' still needs the machine
+    sheet/tokens riding (a window-framed Therac drifted to a CT donut when they didn't)."""
+    text = f"{beat.get('prompt') or ''} {beat.get('label') or ''} {beat.get('motion') or ''}"
+    return bool(re.search(r"(therac|machine|beam head|treatment head|gantry|linear accelerator|"
+                          r"through the (observation )?window)", text, re.I))
+
+
 def _beat_locale(beat: dict) -> str:
     text = f"{beat.get('prompt') or ''} {beat.get('label') or ''}"
     return "terminal" if _TERMINAL_RX.search(text) else "room"
@@ -909,7 +918,7 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
                                              mood, prev_kf, gold_ref=gold, keyframe=pk,
                                              real_photo=(real_photo if (locale == "room" and not pk) else None),
                                              fig_from_narration=(locale == "room"),
-                                             machine_grounding=(locale == "room"))
+                                             machine_grounding=(locale == "room" or _machine_in_beat(b)))
                 if kf:
                     prev_kf = kf
             else:
@@ -1268,7 +1277,7 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                                                          n_beats=_n_chain)),
                                                      real_photo=(real_photo if (locale == "room" and not pk) else None),
                                                      fig_from_narration=(locale == "room"),
-                                                     machine_grounding=(locale == "room"))
+                                                     machine_grounding=(locale == "room" or _machine_in_beat(beat)))
                         if kf:
                             prev_kf = kf
                     else:
@@ -1497,7 +1506,7 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
                                           video=False,
                                           real_photo=(real_photo if locale == "room" else None),
                                           fig_from_narration=(locale == "room"),
-                                          machine_grounding=(locale == "room"))
+                                          machine_grounding=(locale == "room" or _machine_in_beat(b)))
             media = f"assets/ai_segments/_keyframe_review/{sid}__{rid}/b{i}/keyframe.png"
             rel = f"projects/{pid}/{media}"
             if not kf:
@@ -1525,7 +1534,7 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
             # media only when the durable local copy really exists (the reuse loader prefers it).
             ok = local.is_file() and local.stat().st_size > 1024
             # Advisory design-fidelity badge (room beats only — the machine refs are the rubric).
-            vet = _vet_keyframe(pid, room_asset, local) if (ok and locale == "room") else None
+            vet = _vet_keyframe(pid, room_asset, local) if (ok and (locale == "room" or _machine_in_beat(b))) else None
             frames.append({"idx": i, "label": b["label"], "path": rel, "media": (media if ok else None),
                            "url": url, "status": "authored" if (ok or url) else "failed", "vet": vet})
         (review / "keyframes.json").write_text(json.dumps(frames, indent=2), encoding="utf-8")
@@ -1650,7 +1659,7 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
                                       bible, beat_asset, None, prev_kf, gold_ref=gold, video=False,
                                       real_photo=real_photo,
                                       fig_from_narration=(locale == "room"),
-                                      machine_grounding=(locale == "room"))
+                                      machine_grounding=(locale == "room" or _machine_in_beat(b)))
         kjson = review / "keyframes.json"
         frames = json.loads(kjson.read_text(encoding="utf-8")) if kjson.exists() else []
         entry = next((f for f in frames if f.get("idx") == idx), None)
@@ -1679,7 +1688,7 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
         if entry is None:
             entry = {"idx": idx, "label": b.get("label") or "", "path": f"projects/{pid}/{media}"}
             frames.append(entry)
-        vet = _vet_keyframe(pid, beat_asset, local) if (ok and locale == "room") else None
+        vet = _vet_keyframe(pid, beat_asset, local) if (ok and (locale == "room" or _machine_in_beat(b))) else None
         entry.update(media=(media if ok else None), url=url,
                      status="authored" if (ok or url) else "failed", vet=vet)
         kjson.write_text(json.dumps(frames, indent=2), encoding="utf-8")
