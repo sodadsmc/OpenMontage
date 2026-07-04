@@ -609,6 +609,10 @@ def _beat_plan(revision: dict, slot_s: float, narration: str = "") -> list[dict]
             "dur": round(max(2.0, slot_s * w / tot), 2),
             "label": (b.get("desc") or b.get("beat") or b.get("prompt") or bl)[:60],
             "dispatchable": bl in DISPATCHABLE_LANES,
+            # Route THIS beat to the Veo reference lane (~2x Grok's rate): ONE generation
+            # renders a complex multi-phase arc without leg-chaining artifacts (repeated
+            # beam fires, seam hitches). Set by the operator/director on the beat.
+            "hard_shot": bool(b.get("hard_shot")),
         })
     return plan
 
@@ -632,7 +636,7 @@ def _gen_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration:
             return flf_mod.flf_segment(spec, dur, str(out_path), keyframe_dir=str(scratch), bible=bible) or None
         spec = SimpleNamespace(
             description=prompt, effective_prompt=prompt, ai_prompt=prompt,
-            ai_motion=beat.get("motion") or None,
+            ai_motion=beat.get("motion") or None, hard_shot=bool(beat.get("hard_shot")),
             type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None, location_id=None,
             editorial_intent="", directors_move="", pacing="", shots=[], support_asset_refs=[], text_overlay=[])
         asset = vr.generate_ai_video(beat_id, spec, scratch, dur, bible=bible, asset=anchor_asset,
@@ -794,7 +798,7 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
             return None, (str(kf) if kf else None)
         spec = SimpleNamespace(
             description=prompt, effective_prompt=prompt, ai_prompt=prompt,
-            ai_motion=beat.get("motion") or None,
+            ai_motion=beat.get("motion") or None, hard_shot=bool(beat.get("hard_shot")),
             type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None, location_id=None,
             editorial_intent="", directors_move="", pacing="", shots=[], support_asset_refs=[], text_overlay=[])
         # enable_gemini=False: the interactive path is operator-eyeballed, and the semantic clip gate
