@@ -204,6 +204,16 @@ def post_author_keyframes(pid: str, sid: str, rid: str):
         raise HTTPException(404, f"scene {sid} not found")
 
 
+@app.post(API + "/projects/{pid}/scenes/{sid}/revision/{rid}/keyframes/{idx}/reroll")
+def post_reroll_keyframe(pid: str, sid: str, rid: str, idx: int, body: dict | None = Body(None)):
+    """Re-roll ONE previewed keyframe (~$0.04) keeping the rest — the printing-press loop for
+    stills. Optional body {"hint": "..."} replaces the beat prompt with exact pose language."""
+    try:
+        return takes_mod.reroll_scene_keyframe(pid, sid, rid, idx, hint=(body or {}).get("hint", ""))
+    except KeyError:
+        raise HTTPException(404, f"scene {sid} not found")
+
+
 @app.get(API + "/projects/{pid}/jobs/{job_id}")
 def get_job(pid: str, job_id: str):
     j = takes_mod.get_job(job_id)

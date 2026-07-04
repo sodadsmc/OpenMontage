@@ -99,6 +99,21 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
     } catch (e) { setBusy(false); alert('Keyframe preview failed: ' + (e as Error).message) }
   }
 
+  // Re-roll ONE previewed still (~$0.04) keeping the rest — the printing-press loop for stills.
+  // The prompt doubles as the cost confirm; non-blank text REPLACES the beat prompt (exact pose).
+  const rerollKeyframe = async (rid: string, idx: number) => {
+    if (working) return
+    const hint = window.prompt(`Re-roll still b${idx} (~$0.04). Optional pose fix — exact body position, one frozen moment (leave blank to reuse the beat prompt):`)
+    if (hint === null) return
+    setBusy(true)
+    try {
+      const r = await jpost<Job>(`${base}/revision/${rid}/keyframes/${idx}/reroll`, { hint: hint.trim() })
+      setBusy(false); setJob(r)
+      if (r.status === 'queued' && r.job_id) void pollJob(r.job_id)
+      else if (r.error) alert('Re-roll: ' + r.error)
+    } catch (e) { setBusy(false); alert('Re-roll failed: ' + (e as Error).message) }
+  }
+
   // Verdict click. "Needs work" + a note auto-kicks the fix (generate a new take).
   const onVerdict = async (v: Verdict) => {
     await capture('verdict', { verdict: v })
@@ -338,7 +353,7 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
         {job && <JobBanner job={job} />}
         {job?.kind === 'keyframes' && job.keyframes && (
           <KeyframeStills project={project} frames={job.keyframes} rid={draft?.revision_id}
-                          onApprove={approveAndDispatch} working={working}
+                          onApprove={approveAndDispatch} onReroll={rerollKeyframe} working={working}
                           estUsd={revEstUsd(draft?.revision)} />
         )}
         {draft && <RevisionCard scene={scene} rid={draft.revision_id} rev={draft.revision} status="drafted" onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />}
@@ -347,7 +362,8 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
             <RevisionCard scene={scene} rid={r.id} rev={r.revision} status={r.status} onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />
             {r.status === 'drafted' && (r.keyframes?.length ?? 0) > 0 && (
               <KeyframeStills project={project} frames={r.keyframes!} rid={r.id}
-                              onApprove={approveAndDispatch} working={working} estUsd={revEstUsd(r.revision)} />
+                              onApprove={approveAndDispatch} onReroll={rerollKeyframe} working={working}
+                              estUsd={revEstUsd(r.revision)} />
             )}
           </div>
         ))}
@@ -363,8 +379,9 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   )
 }
 
-function KeyframeStills({ project, frames, rid, onApprove, working, estUsd }: {
-  project: string; frames: KeyframePreview[]; rid?: string; onApprove: (rid: string) => void; working: boolean; estUsd: number
+function KeyframeStills({ project, frames, rid, onApprove, onReroll, working, estUsd }: {
+  project: string; frames: KeyframePreview[]; rid?: string; onApprove: (rid: string) => void;
+  onReroll?: (rid: string, idx: number) => void; working: boolean; estUsd: number
 }) {
   const authored = frames.filter((f) => f.status === 'authored').length
   const approve = () => {
@@ -375,7 +392,7 @@ function KeyframeStills({ project, frames, rid, onApprove, working, estUsd }: {
   }
   return (
     <div className="kfpreview">
-      <div className="hint">Keyframe stills — no video yet. Eyeball figure + machine consistency; if good, approve to animate (dispatch reuses these exact stills, no re-authoring).</div>
+      <div className="hint">Keyframe stills — no video yet. Eyeball figure + machine consistency; re-roll a weak still (~$0.04, the rest stay locked); if good, approve to animate (dispatch reuses these exact stills, no re-authoring).</div>
       <div className="kfgrid" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
         {frames.map((f) => (
           <div key={f.idx} className={`kfcell ${f.status}`} style={{ width: 220 }}>
@@ -383,6 +400,9 @@ function KeyframeStills({ project, frames, rid, onApprove, working, estUsd }: {
               ? <img src={f.media ? `${API}/projects/${project}/media/${f.media}` : f.url!} alt={f.label} loading="lazy" style={{ width: '100%', borderRadius: 4, display: 'block' }} />
               : <div className="nobadge">beat {f.idx} failed to author</div>}
             <div className="kflabel" style={{ fontSize: 12, opacity: 0.8 }}>b{f.idx} · {f.label}</div>
+            {rid && onReroll && <button className="act" disabled={working} style={{ fontSize: 11 }}
+                                        title="Re-author only this still, grounded on its plate + approved neighbors"
+                                        onClick={() => onReroll(rid, f.idx)}>↻ re-roll this still</button>}
           </div>
         ))}
       </div>

@@ -98,6 +98,12 @@ HARD RULES:
   pattern" -> instead "extreme close-up of the rectangular collimator aperture, hard-edged shadow").
 - Keyframe carries content: the specific stuff (the person on the table, the 3
   folders, the error code) lives in the keyframe; the generator only adds MOTION.
+- BEAT PROMPT = ONE FROZEN MOMENT with the subject's exact body position: state
+  what is lifted, what bears weight, what stays down (e.g. "torso propped on his
+  elbows, legs still flat on the table" — NOT "sitting" vs "rising" ambiguity).
+  NEVER use transition phrasing in a beat prompt ("starts to", "begins to",
+  "from X to Y", "gets up") — a keyframe is a single instant, and transition
+  wording makes the image model render a two-panel before/after page.
 - Motion = the narration verb: state the subject's one concrete action + a
   motivated camera move.
 - SHOT LIST: FIRST decompose the narration into action_sequence = the distinct

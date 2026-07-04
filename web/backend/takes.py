@@ -740,7 +740,9 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
             kf_prompt = channel_style.apply_to_prompt(prompt) + ref_clause + figure_clause + machine_clause + (
                 " || COMPOSITION: ONE single continuous full-bleed illustration that fills the whole frame "
                 "— NOT a multi-panel comic page, no split panels, no panel borders, gutters, or side-by-side "
-                "frames. Every figure is solid and fully rendered, never faint, ghosted, or dissolving.")
+                "frames; exactly ONE moment in time, never a before/after or comparison layout (proven "
+                "failure: transition wording splits the frame into two panels). Every figure is solid "
+                "and fully rendered, never faint, ghosted, or dissolving.")
             if anchor and os.environ.get("AI_POPULATED_KEYFRAMES", "1") != "0":
                 kf = vr._populated_keyframe(
                     kf_prompt, anchor, kf_path,
@@ -1484,6 +1486,157 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
         except Exception:
             # The event log is history, not truth — a logging hiccup must never mark a job whose
             # PAID stills are already safely on disk as failed (it did once: unregistered type).
+            _log.exception("keyframes_authored event append failed for %s/%s", sid, rid)
+        job.update(status="succeeded", keyframes=frames, ended_ts=_now())
+    except Exception as e:
+        name = type(e).__name__
+        job.update(status=("blocked" if name == "GenerationHardStop" else "failed"),
+                   error=f"{name}: {e}", ended_ts=_now())
+    finally:
+        with _LOCK:
+            _ACTIVE.discard((pid, sid))
+
+
+def reroll_scene_keyframe(pid: str, sid: str, rid: str, idx: int, hint: str = "") -> dict:
+    """Enqueue a RE-ROLL of ONE previewed keyframe (~$0.04): re-author just that beat's still —
+    grounded on its per-beat gold plate, its locale asset, and the nearest APPROVED prior still —
+    keeping every other beat untouched. ``hint`` (optional) REPLACES the beat's prompt for this
+    roll, so the operator can pin the exact pose ("torso propped on his elbows, legs flat on the
+    table"). This is the printing-press loop for stills: eyeball -> fix one plate -> eyeball."""
+    try:
+        from lib.env_loader import load_env
+        load_env()
+    except Exception:
+        pass
+    data = scenes_mod.load_scenes(pid)
+    scene = next((s for s in data["scenes"] if s["id"] == sid), None)
+    if scene is None:
+        raise KeyError(sid)
+    revision = _find_revision(pid, sid, rid)
+    if revision is None:
+        return {"status": "blocked", "error": "revision not found in log"}
+    plan = _beat_plan(revision, float(scene.get("slot_s") or 0), scene.get("narration", ""))
+    target = next((b for b in plan if b["idx"] == idx and b["dispatchable"]
+                   and not (b.get("lane") or "").startswith("flf")), None)
+    if target is None:
+        return {"status": "not_applicable", "error": f"beat {idx} is not a chainable beat of this plan"}
+    if not (_keyframe_review_dir(pid, sid, rid) / "keyframes.json").exists():
+        return {"status": "not_applicable", "error": "no previewed keyframe set for this revision — "
+                                                     "run Preview keyframes first"}
+    if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
+        return {"status": "blocked", "error": "dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)"}
+    if not os.environ.get("KIE_API_KEY"):
+        return {"status": "blocked", "error": "KIE_API_KEY not set — keyframe authoring disabled"}
+    with _LOCK:
+        if (pid, sid) in _ACTIVE:
+            busy = next((jid for jid, j in _JOBS.items()
+                         if j.get("project_id") == pid and j.get("scene_id") == sid
+                         and j.get("status") in ("queued", "running")), None)
+            return {"status": "busy", "job_id": busy, "error": "a job is already running for this scene"}
+        _ACTIVE.add((pid, sid))
+        job_id = uuid.uuid4().hex[:12]
+        _JOBS[job_id] = {
+            "job_id": job_id, "project_id": pid, "scene_id": sid, "revision_id": rid,
+            "status": "queued", "est_usd": 0.04, "kind": "keyframes", "keyframes": None,
+            "created_ts": _now(), "started_ts": None, "ended_ts": None, "error": None,
+        }
+    _POOL.submit(_run_reroll_keyframe_job, pid, sid, rid, idx, (hint or "").strip(), job_id)
+    return {"job_id": job_id, "status": "queued", "est_usd": 0.04, "kind": "keyframes"}
+
+
+def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, job_id: str) -> None:
+    """Worker: re-author ONE beat's preview still and refresh keyframes.json + the event log."""
+    job = _JOBS[job_id]
+    try:
+        try:
+            from lib.env_loader import load_env
+            load_env()
+        except Exception:
+            pass
+        if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
+            job.update(status="blocked", error="dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)", ended_ts=_now()); return
+        if not os.environ.get("KIE_API_KEY"):
+            job.update(status="blocked", error="KIE_API_KEY not set", ended_ts=_now()); return
+        job.update(status="running", started_ts=_now())
+        data = scenes_mod.load_scenes(pid)
+        scene = next((s for s in data["scenes"] if s["id"] == sid), None)
+        revision = _find_revision(pid, sid, rid)
+        if scene is None or revision is None:
+            job.update(status="failed", error="scene or revision vanished", ended_ts=_now()); return
+        narration = scene.get("narration", "")
+        plan = _beat_plan(revision, float(scene.get("slot_s") or 0), narration)
+        chain = [b for b in plan if b["dispatchable"] and not (b.get("lane") or "").startswith("flf")]
+        b = next((x for x in chain if x["idx"] == idx), None)
+        if b is None:
+            job.update(status="failed", error=f"beat {idx} vanished from the plan", ended_ts=_now()); return
+        review = _keyframe_review_dir(pid, sid, rid)
+        bdir = review / f"b{idx}"; bdir.mkdir(parents=True, exist_ok=True)
+        bible, scene_asset = _load_bible_asset(pid, sid)
+        locale = _beat_locale(b)
+        beat_asset = _locale_asset(bible, scene_asset, locale)
+        real_photo = _real_photo_ref(pid, beat_asset) if locale == "room" else None
+        # Ground on the nearest APPROVED prior still in the SAME locale (never across the boundary).
+        prev_kf = None
+        for x in reversed([x for x in chain if x["idx"] < idx]):
+            if _beat_locale(x) != locale:
+                break
+            cand = review / f"b{x['idx']}" / "keyframe.png"
+            if cand.is_file() and cand.stat().st_size > 1024:
+                prev_kf = str(cand)
+                break
+        if hint:
+            b = dict(b)
+            b["prompt"] = hint  # the operator's pose language REPLACES the beat prompt for this roll
+        gold = _scene_gold_ref(pid, sid, idx,
+                               beat_text=f"{b.get('prompt') or ''} {b.get('label') or ''}",
+                               n_beats=len(chain))
+        # Back up the current still so a worse roll never destroys an approved frame.
+        local = bdir / "keyframe.png"
+        if local.is_file():
+            n = 1
+            while (bdir / f"keyframe_r{n}.png").exists():
+                n += 1
+            shutil.copy(str(local), str(bdir / f"keyframe_r{n}.png"))
+        _clip, kf = _gen_chained_beat(f"{sid}_b{idx}", b, str(bdir / "out.mp4"), bdir, narration,
+                                      bible, beat_asset, None, prev_kf, gold_ref=gold, video=False,
+                                      real_photo=real_photo,
+                                      fig_from_narration=(locale == "room"),
+                                      machine_grounding=(locale == "room"))
+        kjson = review / "keyframes.json"
+        frames = json.loads(kjson.read_text(encoding="utf-8")) if kjson.exists() else []
+        entry = next((f for f in frames if f.get("idx") == idx), None)
+        if not kf:
+            job.update(status="failed", error=f"beat {idx} re-roll failed to author (prior still kept)",
+                       keyframes=frames, ended_ts=_now())
+            return
+        from lib.image_host import upload_image
+        url = None
+        if str(kf).startswith(("http://", "https://")):
+            url = str(kf)
+            try:
+                import requests
+                r = requests.get(str(kf), timeout=90)
+                r.raise_for_status()
+                if len(r.content) > 1024:
+                    local.write_bytes(r.content)
+            except Exception:
+                _log.warning("keyframe reroll %s b%s: could not mirror %s to disk", sid, idx, kf)
+        else:
+            if Path(str(kf)) != local:
+                local.write_bytes(Path(str(kf)).read_bytes())
+            url = upload_image(str(local))
+        ok = local.is_file() and local.stat().st_size > 1024
+        media = f"assets/ai_segments/_keyframe_review/{sid}__{rid}/b{idx}/keyframe.png"
+        if entry is None:
+            entry = {"idx": idx, "label": b.get("label") or "", "path": f"projects/{pid}/{media}"}
+            frames.append(entry)
+        entry.update(media=(media if ok else None), url=url,
+                     status="authored" if (ok or url) else "failed")
+        kjson.write_text(json.dumps(frames, indent=2), encoding="utf-8")
+        try:
+            fb.append_event(pid, actor="system", type="keyframes_authored", scene_id=sid,
+                            payload={"revision_id": rid, "keyframes": frames})
+        except Exception:
             _log.exception("keyframes_authored event append failed for %s/%s", sid, rid)
         job.update(status="succeeded", keyframes=frames, ended_ts=_now())
     except Exception as e:
