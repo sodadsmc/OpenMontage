@@ -920,7 +920,7 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
         # Record enough to REGENERATE just this beat later (prompt/lane/dur) and to REUSE its clip.
         beat_meta.append({
             "idx": i, "lane": b["lane"], "status": status, "label": b["label"],
-            "prompt": b["prompt"], "flf": b.get("flf"), "dur": b["dur"],
+            "prompt": b["prompt"], "flf": b.get("flf"), "dur": b["dur"], "motion": b.get("motion"),
             "clip": f"projects/{pid}/assets/ai_segments/_takes_scratch/{sid}__take{take_n}/beat{i}.mp4",
         })
 
@@ -1216,6 +1216,10 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
         room_asset = _locale_asset(bible, anchor_asset, "room") if chained else None
         term_asset = _locale_asset(bible, anchor_asset, "terminal") if chained else None
         real_photo = _real_photo_ref(pid, room_asset) if chained else None
+        # Reuse the OPERATOR-APPROVED preview stills of the take's revision: a motion-only
+        # re-roll must not dice-roll the approved keyframe away with it.
+        preauth = (_load_preauthored_keyframes(pid, sid, src.get("revision_id") or "")
+                   if chained else {})
 
         beat_clips = []
         beat_meta = []
@@ -1231,7 +1235,10 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 prompt = (e.get("prompt") or sb.get("prompt") or sb.get("label") or narration or "").strip()
                 dur = float(sb.get("dur") or 0) or max(2.0, slot_s / max(1, len(src_beats)))
                 beat = {"lane": lane, "prompt": prompt, "flf": e.get("flf") or sb.get("flf"), "dur": dur,
-                        "label": (e.get("desc") or prompt[:60] or lane)}
+                        "label": (e.get("desc") or prompt[:60] or lane),
+                        # Motion rides too (an edit can pin e.g. a locked camera); without this a
+                        # re-rolled beat silently lost its camera move to the synthetic default.
+                        "motion": e.get("motion") or sb.get("motion")}
                 bdir = scratch / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
                 clip = None
                 status = "generated"
@@ -1244,13 +1251,15 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                         _n_chain = sum(1 for x in src_beats
                                        if (x.get("lane") or "grok") in DISPATCHABLE_LANES
                                        and not (x.get("lane") or "").startswith("flf"))
+                        pk = None if e.get("prompt") else preauth.get(i)  # a rewritten beat re-authors; a
+                        # motion/lane-only edit KEEPS the approved still
                         clip, kf = _gen_chained_beat(f"{sid}_b{i}", beat, str(bout), bdir, narration,
                                                      bible, (term_asset if locale == "terminal" else room_asset),
-                                                     mood, prev_kf,
-                                                     gold_ref=_scene_gold_ref(
+                                                     mood, prev_kf, keyframe=pk,
+                                                     gold_ref=(None if pk else _scene_gold_ref(
                                                          pid, sid, i, beat_text=f"{prompt} {beat.get('label') or ''}",
-                                                         n_beats=_n_chain),
-                                                     real_photo=(real_photo if locale == "room" else None),
+                                                         n_beats=_n_chain)),
+                                                     real_photo=(real_photo if (locale == "room" and not pk) else None),
                                                      fig_from_narration=(locale == "room"),
                                                      machine_grounding=(locale == "room"))
                         if kf:
@@ -1264,7 +1273,7 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 if clip is None:
                     clip = _placeholder_card(f"BEAT {i}", beat["label"], lane, dur, str(bout))
                 beat_meta.append({"idx": i, "lane": lane, "status": status, "label": beat["label"],
-                                  "prompt": prompt, "flf": beat["flf"], "dur": dur, "clip": clip_rel})
+                                  "prompt": prompt, "flf": beat["flf"], "dur": dur, "motion": beat.get("motion"), "clip": clip_rel})
             else:
                 # reuse the source beat's clip (recorded path, else the take-scratch convention)
                 rel = (sb.get("clip") or "").split(f"projects/{pid}/")[-1]
@@ -1283,7 +1292,7 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 # (a kept console beat would seed a re-rolled room beat, or trigger a bogus reset).
                 if chained and not (sb.get("lane") or "").startswith("flf"):
                     prev_locale = _beat_locale(sb)
-                beat_meta.append({**{k: sb.get(k) for k in ("idx", "lane", "status", "label", "prompt", "flf", "dur")},
+                beat_meta.append({**{k: sb.get(k) for k in ("idx", "lane", "status", "label", "prompt", "flf", "dur", "motion")},
                                   "clip": clip_rel})
             beat_clips.append(clip)
 

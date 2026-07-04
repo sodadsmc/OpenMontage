@@ -762,8 +762,14 @@ def generate_ai_video(
     if not clip_paths:
         return None
 
+    # Chained legs get a micro-crossfade at each seam (leg N+1 starts FROM leg N's final
+    # frame — a hard cut lands on near-identical frames and reads as a hitch). Montage
+    # shots without chaining keep hard cuts. AI_CHAIN_SEAM_BLEND=0 disables.
+    seam = (float(os.environ.get("AI_CHAIN_SEAM_BLEND", "0.12"))
+            if any(j.get("chain_from") for j in jobs) else 0.0)
     combined = _concat_clips(
-        clip_paths, output_dir / f"{segment_id}_aivideo.mp4", target_duration_s
+        clip_paths, output_dir / f"{segment_id}_aivideo.mp4", target_duration_s,
+        seam_blend_s=seam,
     )
     if combined is None:
         return None
@@ -1257,8 +1263,14 @@ def _fallback_shot(segment_id: str, shot_id: str, visual_spec: Any,
 
 
 def _concat_clips(clip_paths: list[str], output_path: Path,
-                  target_duration_s: float) -> Path | None:
-    """Concatenate shot clips into one segment clip of exactly target_duration_s."""
+                  target_duration_s: float, seam_blend_s: float = 0.0) -> Path | None:
+    """Concatenate shot clips into one segment clip of exactly target_duration_s.
+
+    ``seam_blend_s`` > 0 crossfades each junction (chained legs ONLY): leg N+1 is generated
+    FROM leg N's extracted final frame, so a hard concat lands on two nearly-identical frames
+    with a tiny offset — a visible hitch ('almost identical but misses a frame or two', the
+    operator's exact read on seg_019 take 7). A ~4-frame fade absorbs both the duplication
+    and the offset. Keep 0 for montage cuts between DIFFERENT shots — those want hard cuts."""
     output_path = Path(output_path)
     if len(clip_paths) == 1:
         return _trim_to_duration(clip_paths[0], output_path, target_duration_s)
@@ -1282,6 +1294,32 @@ def _concat_clips(clip_paths: list[str], output_path: Path,
             _log.warning("ai_video: shot normalize failed: %s", exc)
             return None
 
+    joined = output_path.parent / f"{output_path.stem}_joined.mp4"
+    if seam_blend_s > 0:
+        durs = [_probe_duration(str(p)) or 0.0 for p in norm_paths]
+        if all(d > seam_blend_s * 2 for d in durs):
+            inputs: list[str] = []
+            for p in norm_paths:
+                inputs += ["-i", str(p)]
+            fc, prev, offset = [], "[0:v]", 0.0
+            for i in range(1, len(norm_paths)):
+                offset += durs[i - 1] - seam_blend_s
+                out_lbl = f"[x{i}]"
+                fc.append(f"{prev}[{i}:v]xfade=transition=fade:"
+                          f"duration={seam_blend_s:.3f}:offset={offset:.3f}{out_lbl}")
+                prev = out_lbl
+            try:
+                subprocess.run(
+                    ["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
+                     "-map", prev, "-c:v", "libx264", "-pix_fmt", "yuv420p", str(joined)],
+                    capture_output=True, timeout=600, check=True,
+                )
+                return _trim_to_duration(str(joined), output_path, target_duration_s)
+            except Exception as exc:  # noqa: BLE001
+                _log.warning("ai_video: seam-blend concat failed (%s) — falling back to hard cuts", exc)
+        else:
+            _log.warning("ai_video: legs too short for a %.2fs seam blend — hard cuts", seam_blend_s)
+
     list_file = output_path.parent / f"{output_path.stem}_concat.txt"
     # ffmpeg's concat demuxer resolves each entry relative to the LIST FILE's own
     # directory. The normalized shots live in that same directory, so reference them
@@ -1289,7 +1327,6 @@ def _concat_clips(clip_paths: list[str], output_path: Path,
     list_file.write_text(
         "".join(f"file '{p.name}'\n" for p in norm_paths), encoding="utf-8"
     )
-    joined = output_path.parent / f"{output_path.stem}_joined.mp4"
     try:
         # Re-encode the join (not -c copy): two separately-encoded libx264 shots can
         # carry incompatible SPS/PPS/GOP that stream-copy concat rejects even at the
