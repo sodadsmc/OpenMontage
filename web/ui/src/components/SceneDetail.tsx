@@ -84,12 +84,12 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
       // revision from the log (its stills come back FREE — authoring is idempotent per revision).
       // Only mint a fresh director-pass when the scene has no reusable drafted plan at all.
       const logged = fb.revisions.slice().reverse().find((r) =>
-        r.status === 'drafted' && r.revision?.lane === 'mixed' && r.revision?.chained && (r.revision?.beats?.length ?? 0) > 1)
+        r.status === 'drafted' && r.revision?.lane === 'mixed' && (r.revision?.beats?.length ?? 0) > 0)
       const d = draft ?? (logged ? { revision_id: logged.id, revision: logged.revision } : await jpost<DraftRevision>(`${base}/director-pass`, {}))
       setDraft(d)
-      if (!(d.revision.lane === 'mixed' && d.revision.chained && (d.revision.beats?.length ?? 0) > 1)) {
+      if (!(d.revision.lane === 'mixed' && (d.revision.beats?.length ?? 0) > 0)) {
         setBusy(false)
-        alert(`Keyframe preview is for chained multi-beat action scenes.\nThis scene: lane=${d.revision.lane}, chained=${d.revision.chained}.`)
+        alert(`Keyframe preview is for mixed multi-beat scenes (chained or montage).\nThis scene: lane=${d.revision.lane}.`)
         return
       }
       const r = await jpost<Job>(`${base}/revision/${d.revision_id}/author-keyframes`, {})

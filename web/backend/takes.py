@@ -662,7 +662,8 @@ def _gen_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration:
 
 def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, narration: str,
                       bible, anchor_asset, mood, prev_keyframe, gold_ref=None, keyframe=None, video=True,
-                      real_photo=None, fig_from_narration=True, machine_grounding=True):
+                      real_photo=None, fig_from_narration=True, machine_grounding=True,
+                      enable_gemini=False, console_clause=False):
     """Chained-keyframe Grok beat (the cohesion path for a multi-beat ACTION sequence).
 
     ``keyframe`` reuses an operator-approved pre-authored still (skips authoring). ``video=False``
@@ -770,9 +771,11 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
                           if bindings else "")
             figure_clause = (f" || The person MUST match the character reference sheet exactly (same face, "
                              f"build, hair, gown): {'; '.join(fig_tokens)}." if fig_tokens else "")
-            if not machine_grounding and not fig_tokens:
+            if console_clause and not fig_tokens:
                 # Console/terminal beat: the figure is the hospital OPERATOR, not a patient — without
                 # this Nano dressed the operator in a patient's gown and staged a bunker-hatch wall.
+                # (Gated on the LOCALE, not on machine_grounding: a montage room beat without machine
+                # words must never be told to draw a console operator — it nearly hit Katie's beat.)
                 figure_clause = (" || The figure at the console is the hospital radiation OPERATOR — "
                                  "a technician in plain 1980s work clothes (shirt/scrubs), NEVER a "
                                  "patient, NO hospital gown. Plain clinical control-room wall behind "
@@ -810,11 +813,12 @@ def _gen_chained_beat(beat_id: str, beat: dict, out_path: str, scratch: Path, na
             ai_motion=beat.get("motion") or None, hard_shot=bool(beat.get("hard_shot")),
             type="ai_video", ai_style=mood, ai_reference_image=None, asset_ref=None, location_id=None,
             editorial_intent="", directors_move="", pacing="", shots=[], support_asset_refs=[], text_overlay=[])
-        # enable_gemini=False: the interactive path is operator-eyeballed, and the semantic clip gate
-        # was FALSE-rejecting good chained clips (beat3) into placeholders. Layer-1 (file/static/dur)
-        # still runs inside generate_shot; the operator is the real bar here.
+        # enable_gemini defaults False on the CHAINED path: the semantic clip gate FALSE-rejected
+        # good chained clips (beat3) into placeholders, and the operator eyeballs those takes.
+        # Montage beats keep it on (parity with the old non-chained path). Layer-1
+        # (file/static/dur) always runs inside generate_shot.
         asset = vr.generate_ai_video(beat_id, spec, scratch, dur, bible=bible, asset=anchor_asset,
-                                     enable_gemini=False, narration=narration,
+                                     enable_gemini=enable_gemini, narration=narration,
                                      ground_keyframe=(str(kf) if kf else None))
         if asset is None or not getattr(asset, "path", None):
             return None, (str(kf) if kf else (str(prev_keyframe) if prev_keyframe else None))
@@ -879,18 +883,22 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
     from lib.quality_gate import QualityGate
     beat_clips: list[str] = []
     beat_meta: list[dict] = []
-    # Chained cohesion only has meaning with >1 chainable (non-flf dispatchable) beat — a single
-    # such beat behaves like the normal path, so don't engage the chained authoring for it.
+    # GROUNDING is for every non-FLF beat (locale asset, content-keyed gold plate, machine
+    # sheet/tokens/photo, preauthored-still reuse); CHAIN-CARRY (beat N's frame seeding N+1) is
+    # only for chained action sequences with >1 chainable beat. A montage beat must never
+    # inherit its neighbor's frame — but it deserves the same identity grounding (seg_022's
+    # ungrounded montage drifted the machine and the door designs).
     chainable = [b for b in plan if b["dispatchable"] and not (b.get("lane") or "").startswith("flf")]
     use_chain = chained and len(chainable) > 1
-    preauth = _load_preauthored_keyframes(pid, sid, rid) if use_chain else {}  # operator-previewed stills to reuse
+    grounded = len(chainable) >= 1
+    preauth = _load_preauthored_keyframes(pid, sid, rid) if grounded else {}  # operator-previewed stills
     prev_kf = None  # chained-keyframe carry: beat N's keyframe grounds beat N+1's
     prev_locale = None
-    room_asset = _locale_asset(bible, anchor_asset, "room") if use_chain else None
-    term_asset = _locale_asset(bible, anchor_asset, "terminal") if use_chain else None
+    room_asset = _locale_asset(bible, anchor_asset, "room") if grounded else None
+    term_asset = _locale_asset(bible, anchor_asset, "terminal") if grounded else None
     # Grounding refs are only consumed when a beat actually AUTHORS a keyframe — skip the hosting
     # spend/latency when every chainable beat reuses an operator-approved still.
-    need_author = use_chain and any(b["idx"] not in preauth for b in chainable)
+    need_author = grounded and any(b["idx"] not in preauth for b in chainable)
     real_photo = _real_photo_ref(pid, room_asset) if need_author else None
     for b in plan:
         i = b["idx"]
@@ -899,27 +907,32 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
         clip = None
         status = "generated"
         if b["dispatchable"]:
-            if use_chain and not (b.get("lane") or "").startswith("flf"):
-                # Cohesion path: ground this beat's keyframe on the prior beat's so the figure/room
-                # carry across the action sequence; thread the keyframe forward. Each beat grounds
-                # on ITS locale's asset + per-beat gold plate, and the chain RESETS at a locale
-                # boundary (the console frame must never seed the treatment room). (FLF beats keep
-                # the normal state-morph path — they don't carry figure identity.)
+            if not (b.get("lane") or "").startswith("flf"):
+                # Grounded beat. Chained: ground on the prior beat's keyframe and thread it
+                # forward, resetting at a locale boundary (the console frame must never seed the
+                # treatment room). Montage: prev anchor stays None — grounding only, no carry.
+                # Machine identity rides room beats when chained (continuity), and any beat whose
+                # own text puts the machine on screen. (FLF beats keep the state-morph path.)
                 locale = _beat_locale(b)
-                if prev_locale is not None and locale != prev_locale:
-                    prev_kf = None
-                prev_locale = locale
+                if use_chain:
+                    if prev_locale is not None and locale != prev_locale:
+                        prev_kf = None
+                    prev_locale = locale
                 pk = preauth.get(i)
+                machine = _machine_in_beat(b) or (use_chain and locale == "room")
                 gold = None if pk else _scene_gold_ref(
                     pid, sid, i, beat_text=f"{b.get('prompt') or ''} {b.get('label') or ''}",
                     n_beats=len(chainable))
                 clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bout), bdir, narration,
                                              bible, (term_asset if locale == "terminal" else room_asset),
-                                             mood, prev_kf, gold_ref=gold, keyframe=pk,
-                                             real_photo=(real_photo if (locale == "room" and not pk) else None),
-                                             fig_from_narration=(locale == "room"),
-                                             machine_grounding=(locale == "room" or _machine_in_beat(b)))
-                if kf:
+                                             mood, (prev_kf if use_chain else None),
+                                             gold_ref=gold, keyframe=pk,
+                                             real_photo=(real_photo if (machine and not pk) else None),
+                                             fig_from_narration=(use_chain and locale == "room"),
+                                             machine_grounding=machine,
+                                             console_clause=(locale == "terminal"),
+                                             enable_gemini=(not use_chain))
+                if use_chain and kf:
                     prev_kf = kf
             else:
                 clip = _gen_beat(f"{sid}_b{i}", b, str(bout), bdir, narration, bible, anchor_asset, mood)
@@ -1227,13 +1240,18 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
         chained = bool(src.get("chained"))
         prev_kf = None
         prev_locale = None
-        room_asset = _locale_asset(bible, anchor_asset, "room") if chained else None
-        term_asset = _locale_asset(bible, anchor_asset, "terminal") if chained else None
-        real_photo = _real_photo_ref(pid, room_asset) if chained else None
+        # GROUNDING for every non-FLF re-roll (chained or montage); CHAIN-CARRY only when chained.
+        # Hoist the (network-hosting) grounding refs only when an edited beat will consume them.
+        _regen_grounds = any(
+            not ((emap[x["idx"]].get("lane") or x.get("lane") or "grok").startswith("flf"))
+            for x in src_beats if x["idx"] in emap)
+        room_asset = _locale_asset(bible, anchor_asset, "room") if _regen_grounds else None
+        term_asset = _locale_asset(bible, anchor_asset, "terminal") if _regen_grounds else None
+        real_photo = _real_photo_ref(pid, room_asset) if _regen_grounds else None
         # Reuse the OPERATOR-APPROVED preview stills of the take's revision: a motion-only
         # re-roll must not dice-roll the approved keyframe away with it.
         preauth = (_load_preauthored_keyframes(pid, sid, src.get("revision_id") or "")
-                   if chained else {})
+                   if _regen_grounds else {})
 
         beat_clips = []
         beat_meta = []
@@ -1259,26 +1277,30 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 clip = None
                 status = "generated"
                 if lane in DISPATCHABLE_LANES:
-                    if chained and not lane.startswith("flf"):
+                    if not lane.startswith("flf"):
                         locale = _beat_locale(beat)
-                        if prev_locale is not None and locale != prev_locale:
-                            prev_kf = None   # locale boundary: don't seed the room with the console
-                        prev_locale = locale
+                        if chained:
+                            if prev_locale is not None and locale != prev_locale:
+                                prev_kf = None   # locale boundary: never seed the room with the console
+                            prev_locale = locale
                         _n_chain = sum(1 for x in src_beats
                                        if (x.get("lane") or "grok") in DISPATCHABLE_LANES
                                        and not (x.get("lane") or "").startswith("flf"))
                         pk = None if e.get("prompt") else preauth.get(i)  # a rewritten beat re-authors; a
                         # motion/lane-only edit KEEPS the approved still
+                        machine = _machine_in_beat(beat) or (chained and locale == "room")
                         clip, kf = _gen_chained_beat(f"{sid}_b{i}", beat, str(bout), bdir, narration,
                                                      bible, (term_asset if locale == "terminal" else room_asset),
-                                                     mood, prev_kf, keyframe=pk,
+                                                     mood, (prev_kf if chained else None), keyframe=pk,
                                                      gold_ref=(None if pk else _scene_gold_ref(
                                                          pid, sid, i, beat_text=f"{prompt} {beat.get('label') or ''}",
                                                          n_beats=_n_chain)),
-                                                     real_photo=(real_photo if (locale == "room" and not pk) else None),
-                                                     fig_from_narration=(locale == "room"),
-                                                     machine_grounding=(locale == "room" or _machine_in_beat(beat)))
-                        if kf:
+                                                     real_photo=(real_photo if (machine and not pk) else None),
+                                                     fig_from_narration=(chained and locale == "room"),
+                                                     machine_grounding=machine,
+                                                     console_clause=(locale == "terminal"),
+                                                     enable_gemini=(not chained))
+                        if chained and kf:
                             prev_kf = kf
                     else:
                         clip = _gen_beat(f"{sid}_b{i}", beat, str(bout), bdir, narration, bible, anchor_asset, mood)
@@ -1408,16 +1430,14 @@ def author_scene_keyframes(pid: str, sid: str, rid: str) -> dict:
     if revision is None:
         return {"status": "blocked", "error": "revision not found in log"}
     plan = _beat_plan(revision, float(scene.get("slot_s") or 0), scene.get("narration", ""))
-    if not (plan and bool(revision.get("chained"))):
-        return {"status": "not_applicable", "error": "keyframe preview applies to a chained multi-beat scene"}
-    # Guard PARITY with dispatch: _store_mixed_take only engages the chained path (and the still
-    # reuse) when there is >1 chainable (non-FLF dispatchable) beat — previewing anything less
-    # would spend on stills that dispatch then silently ignores.
+    if not plan:
+        return {"status": "not_applicable", "error": "keyframe preview applies to a mixed multi-beat scene"}
+    # Guard PARITY with dispatch: _store_mixed_take grounds (and reuses stills for) every non-FLF
+    # dispatchable beat — chained AND montage alike — so preview whenever at least one exists.
     n = sum(1 for b in plan if b["dispatchable"] and not (b.get("lane") or "").startswith("flf"))
-    if n < 2:
+    if n < 1:
         return {"status": "not_applicable",
-                "error": f"dispatch only chains >1 non-FLF beats (this plan has {n}) — previewing "
-                         "would pay for stills the dispatch ignores"}
+                "error": "this plan has no groundable (non-FLF dispatchable) beats to preview"}
     if os.environ.get("OPENMONTAGE_DISABLE_DISPATCH") == "1":
         return {"status": "blocked", "error": "dispatch disabled (OPENMONTAGE_DISABLE_DISPATCH=1)"}
     if not os.environ.get("KIE_API_KEY"):
@@ -1479,6 +1499,11 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
         review.mkdir(parents=True, exist_ok=True)
         bible, anchor_asset = _load_bible_asset(pid, sid)
         from lib.image_host import upload_image
+        _n_chainable = sum(1 for x in plan
+                           if x["dispatchable"] and not (x.get("lane") or "").startswith("flf"))
+        # Match DISPATCH semantics exactly: carry/chained grounding only when >1 chainable beat
+        # (a 1-chainable chained revision dispatches as montage — preview must ground the same way).
+        chained = bool(revision.get("chained")) and _n_chainable > 1
         prev_kf = None
         prev_locale = None
         room_asset = _locale_asset(bible, anchor_asset, "room")
@@ -1491,22 +1516,25 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
             i = b["idx"]
             bdir = review / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
             locale = _beat_locale(b)
-            if prev_locale is not None and locale != prev_locale:
-                prev_kf = None   # locale boundary: don't seed the room with the console frame
-            prev_locale = locale
+            if chained:
+                if prev_locale is not None and locale != prev_locale:
+                    prev_kf = None   # locale boundary: don't seed the room with the console frame
+                prev_locale = locale
             _n_chain = sum(1 for x in plan
                            if x["dispatchable"] and not (x.get("lane") or "").startswith("flf"))
+            machine = _machine_in_beat(b) or (chained and locale == "room")
             _clip, kf = _gen_chained_beat(f"{sid}_b{i}", b, str(bdir / "out.mp4"), bdir, narration,
                                           bible, (term_asset if locale == "terminal" else room_asset),
-                                          None, prev_kf,
+                                          None, (prev_kf if chained else None),
                                           gold_ref=_scene_gold_ref(
                                               pid, sid, i,
                                               beat_text=f"{b.get('prompt') or ''} {b.get('label') or ''}",
                                               n_beats=_n_chain),
                                           video=False,
-                                          real_photo=(real_photo if locale == "room" else None),
-                                          fig_from_narration=(locale == "room"),
-                                          machine_grounding=(locale == "room" or _machine_in_beat(b)))
+                                          real_photo=(real_photo if machine else None),
+                                          fig_from_narration=(chained and locale == "room"),
+                                          machine_grounding=machine,
+                                          console_clause=(locale == "terminal"))
             media = f"assets/ai_segments/_keyframe_review/{sid}__{rid}/b{i}/keyframe.png"
             rel = f"projects/{pid}/{media}"
             if not kf:
@@ -1534,7 +1562,7 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
             # media only when the durable local copy really exists (the reuse loader prefers it).
             ok = local.is_file() and local.stat().st_size > 1024
             # Advisory design-fidelity badge (room beats only — the machine refs are the rubric).
-            vet = _vet_keyframe(pid, room_asset, local) if (ok and (locale == "room" or _machine_in_beat(b))) else None
+            vet = _vet_keyframe(pid, room_asset, local) if (ok and machine) else None
             frames.append({"idx": i, "label": b["label"], "path": rel, "media": (media if ok else None),
                            "url": url, "status": "authored" if (ok or url) else "failed", "vet": vet})
         (review / "keyframes.json").write_text(json.dumps(frames, indent=2), encoding="utf-8")
@@ -1630,18 +1658,22 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
         review = _keyframe_review_dir(pid, sid, rid)
         bdir = review / f"b{idx}"; bdir.mkdir(parents=True, exist_ok=True)
         bible, scene_asset = _load_bible_asset(pid, sid)
+        chained = bool(revision.get("chained")) and len(chain) > 1  # dispatch-effective semantics
         locale = _beat_locale(b)
         beat_asset = _locale_asset(bible, scene_asset, locale)
-        real_photo = _real_photo_ref(pid, beat_asset) if locale == "room" else None
-        # Ground on the nearest APPROVED prior still in the SAME locale (never across the boundary).
+        machine = _machine_in_beat(b) or (chained and locale == "room")
+        real_photo = _real_photo_ref(pid, beat_asset) if machine else None
+        # CHAINED: ground on the nearest APPROVED prior still in the SAME locale (never across
+        # the boundary). MONTAGE: no neighbor carry — the beat stands alone on its own grounding.
         prev_kf = None
-        for x in reversed([x for x in chain if x["idx"] < idx]):
-            if _beat_locale(x) != locale:
-                break
-            cand = review / f"b{x['idx']}" / "keyframe.png"
-            if cand.is_file() and cand.stat().st_size > 1024:
-                prev_kf = str(cand)
-                break
+        if chained:
+            for x in reversed([x for x in chain if x["idx"] < idx]):
+                if _beat_locale(x) != locale:
+                    break
+                cand = review / f"b{x['idx']}" / "keyframe.png"
+                if cand.is_file() and cand.stat().st_size > 1024:
+                    prev_kf = str(cand)
+                    break
         if hint:
             b = dict(b)
             b["prompt"] = hint  # the operator's pose language REPLACES the beat prompt for this roll
@@ -1658,8 +1690,9 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
         _clip, kf = _gen_chained_beat(f"{sid}_b{idx}", b, str(bdir / "out.mp4"), bdir, narration,
                                       bible, beat_asset, None, prev_kf, gold_ref=gold, video=False,
                                       real_photo=real_photo,
-                                      fig_from_narration=(locale == "room"),
-                                      machine_grounding=(locale == "room" or _machine_in_beat(b)))
+                                      fig_from_narration=(chained and locale == "room"),
+                                      machine_grounding=machine,
+                                      console_clause=(locale == "terminal"))
         kjson = review / "keyframes.json"
         frames = json.loads(kjson.read_text(encoding="utf-8")) if kjson.exists() else []
         entry = next((f for f in frames if f.get("idx") == idx), None)
@@ -1688,7 +1721,7 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
         if entry is None:
             entry = {"idx": idx, "label": b.get("label") or "", "path": f"projects/{pid}/{media}"}
             frames.append(entry)
-        vet = _vet_keyframe(pid, beat_asset, local) if (ok and (locale == "room" or _machine_in_beat(b))) else None
+        vet = _vet_keyframe(pid, beat_asset, local) if (ok and machine) else None
         entry.update(media=(media if ok else None), url=url,
                      status="authored" if (ok or url) else "failed", vet=vet)
         kjson.write_text(json.dumps(frames, indent=2), encoding="utf-8")

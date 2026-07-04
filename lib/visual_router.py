@@ -480,6 +480,11 @@ def plan_ai_video(
             # grounded on the prior beat's keyframe, so use it directly as the i2v anchor instead
             # of authoring a fresh populated keyframe that would drift the figure/room identity.
             keyframe: Path | str | None = ground_keyframe
+        elif chain_from and ground_keyframe:
+            # Later leg of a GROUNDED beat: the real anchor resolves at generation time from the
+            # previous leg's final frame; the beat's own grounded still is the FALLBACK — strictly
+            # better (and $0.04 cheaper) than authoring a fresh canonical-populated frame.
+            keyframe = ground_keyframe
         elif chain_from:
             keyframe = canonical_ref
             # A chained PERSON leg must NOT anchor on the empty canonical (it would
