@@ -192,7 +192,23 @@ that sequence, in order (do not merge two actions into one beat, do not drop an 
              "move that stages it (e.g. 'Cox shoves up off the table and swings his legs down; "
              "handheld camera rises with him'). NEVER a generic zoom/push.",
    "weight": 0.5,   # this beat's share of the scene duration; the weights sum to ~1.0
+   "hard_shot": false,  # see the HARD SHOT rule below
    "flf": null}     # the flf object (start_prompt/transition/...) when lane is flf, else null
+HARD SHOT: set a beat's "hard_shot": true when it contains a COUNTED on-screen event ("the
+machine fires EXACTLY twice") or one continuous multi-phase arc whose events must not repeat
+or improvise — such a beat is rendered as ONE premium reference-conditioned generation (~2x
+cost) instead of chained legs, because each chained leg re-reads the prompt and re-stages its
+events (a two-fire beat rendered as three legs showed four firings). Use it sparingly — the
+few hardest beats per episode.
+SETTLE/HOLD: when a beat's action ENDS in a settled state (slumps against the door and stays,
+sinks into a chair, holds at the window), its motion MUST literally say the hold ("...then
+holds there, nearly still — no new events"): the generator uses that wording to keep the
+beat's continuation legs event-free while trailing narration (statistics, reflection) plays.
+NARRATION TIMING: when the user message includes a NARRATION TIMING block (the audio's real
+sentence spans in seconds), each beat's "weight" MUST equal the share of the slot its
+narration span occupies — actions must land on their own lines. Append any trailing
+non-action span (statistics, reflection) to the LAST beat as its settle/hold, not as a new
+beat.
 Also set "primary_shot" to the single most important auto-dispatchable beat (back-compat).
 Set "chained": true when the beats are ONE subject acting continuously in ONE setting (a physical
 action sequence — e.g. a person rises, is struck, crosses to a door, and pounds on it): dispatch then
@@ -245,10 +261,18 @@ def _context_block(scene: dict, notes: list[str], suggestions: list[dict]) -> st
         current = scene["shots"][0].get("prompt", "")
     gate = scene.get("auto_gate") or {}
     sugg_lines = [f"- ({s.get('change_type', 'other')}) {s.get('text', '')}" for s in suggestions]
+    spans = scene.get("sentence_spans") or []
+    timing = ""
+    if spans:
+        timing = ("NARRATION TIMING (real audio sentence spans, seconds):\n"
+                  + "\n".join(f"- [{s['start']:.2f}-{s['end']:.2f}] \"{s['text']}\"" for s in spans)
+                  + f"\n(slot = {scene.get('slot_s')}s — beat weights MUST mirror these spans; a "
+                    "trailing non-action span extends the LAST beat as its settle/hold)\n")
     return (
         f"SCENE {scene.get('number')} ({scene.get('id')}), lane={scene.get('lane')}, "
         f"narration_mode={scene.get('narration_mode')}\n"
         f"NARRATION: \"{scene.get('narration', '')}\"\n"
+        f"{timing}"
         f"CURRENT PROMPT: \"{current}\"\n"
         f"AUTO-GATE: verdict={gate.get('verdict')} score={gate.get('score')} "
         f"missing={gate.get('missing')}\n"

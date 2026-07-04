@@ -235,6 +235,20 @@ project, per recurring entity, BEFORE bulk generation:
    logs its pose/design hint in the feedback event log (`keyframes_authored` →
    `reroll.hint`). A hint that keeps repeating ("rounded head", "hospital gown") is an
    attribute MISSING from the tokens — promote it via `lib/identity_tokens`.
+8. **Beat weights come from the AUDIO, not guesses.** The director-pass automatically
+   receives NARRATION TIMING (real sentence spans from `assets/audio_v6/{sid}.alignment.json`
+   via `scenes.sentence_spans`) and must mirror them — each action lands on its own line;
+   a trailing non-action span (statistics, reflection) extends the LAST beat as a
+   settle/hold. Sanity-check the drafted weights against the spans before approving.
+9. **Counted events are HARD SHOTS.** A beat whose events are counted ("fires EXACTLY
+   twice") or a continuous multi-phase arc must be `"hard_shot": true` (director emits it;
+   operators can set it on a beat edit/regen): it renders as ONE Veo reference generation
+   (KIE: 8s only, conformed by SPEED-FIT — never tail-trim, the climax lives at the end).
+   Grok leg-chaining re-reads the prompt per leg and re-stages the events (2 fires became 4).
+10. **Settle/hold beats end scenes safely.** Phrase the motion literally ("...then holds
+   there, nearly still — no new events"): continuation legs then use a SETTLE clause instead
+   of narration-derived prompts, so a stats tail can't spawn invented action (a second door,
+   once). Chained-leg seams get an automatic ~4-frame crossfade (`AI_CHAIN_SEAM_BLEND`).
 
 ---
 

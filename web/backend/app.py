@@ -146,6 +146,12 @@ def post_director_pass(pid: str, sid: str, body: dict = Body(default={})):
     notes = fb_notes + [n for n in extra if n]
     suggestions = scene["feedback"].get("suggestions", [])
 
+    try:
+        # Real audio sentence spans -> the director grounds beat weights in them, so each
+        # action lands on its own narration line (best-effort; absent for missing audio).
+        scene["sentence_spans"] = scenes_mod.sentence_spans(pid, sid)
+    except Exception:
+        pass
     revision = director_mod.director_pass(scene, notes, suggestions)
     rid = uuid.uuid4().hex[:12]
     fb.append_event(pid, actor="director", type="revision_drafted", scene_id=sid,

@@ -1,137 +1,107 @@
-# Session Handoff — Visual consistency for multi-beat action scenes (the "printing press")
+# Session Handoff — seg_019 SHIPPED (take 12); the consistency pipeline is now generic
 
-**Date:** 2026-07-01 · **Branch:** `v6-baseline` · **Project:** `projects/therac-25-test`
+**Date:** 2026-07-04 · **Branch:** `v6-baseline` (pushed) · **Project:** `projects/therac-25-test`
 
-> Previous handoff (the FLF-cohesion brief that started this session): `git show a4ab53d:SESSION_HANDOFF.md`.
-> Read the auto-loaded memories first — especially `flf-cohesion-action-sequences`,
-> `openmontage-consistency-toolkit`, and `env-inline-comment-poisons-values`.
+> Previous handoff (printing-press/machine-drift): `git show 218cbd1:SESSION_HANDOFF.md`.
+> Read the auto-loaded memories — especially `openmontage-consistency-toolkit`,
+> `temp-host-urls-expire`, `feedback-event-whitelist`.
 
 ## TL;DR
 
-The job was "make multi-beat ACTION scenes visually cohesive" (seg_019: Cox rises → struck → pounds a
-door). We got there and then some: cohesion works, and we built a **reference-driven "printing press"**
-(lock a gold standard, refine only the weak beats) instead of the old **slot machine** (regenerate
-everything, dice-roll each time). **The one unsolved struggle is machine identity drift** — Nano keeps
-rendering the Therac-25 as a C-arm/CT-donut despite the reference sheet + identity tokens + gold plate.
-That is now the strongest argument for the **next task: build the Veo-ref hard-shot lane (#5)** (design
-doc + exact wire location below).
+**seg_019 is done** — take 12 is the keeper (operator: "we finally got it"), pending only the
+Approve verdict click. Machine identity drift is SOLVED (per-beat location grounding + content-keyed
+gold plates + the Veo reference lane). Every fix from four operator review rounds is now GENERIC
+pipeline behavior + documented process (`docs/PRODUCTION_WORKFLOW.md` §6 is the per-project recipe).
+**Next scene: seg_020** — a 7.3s stats hammer ("Twenty-five thousand rads. One second. One
+centimeter."), which is a LEGIBLE-TEXT beat (stat-card/FLF/overlay territory), NOT chained action.
 
-## The through-line struggle (what we kept fighting)
+## What shipped this stretch (all committed + pushed, `6327bce..ad47cf9`)
 
-Every visible defect — C-arm machine, kneeling Cox, leg-clipping, comic-page diptych, fading figures,
-Cox wandering to the wrong door — traces to ONE root cause: **stochastic models (Nano keyframe + Grok
-i2v) reinvent the figure and machine from scratch each beat, anchored only weakly.** So a full
-regeneration is a fresh dice-roll, not a refinement. The operator's exact words: *"it should be a
-printing press, not a slot machine."* Everything below is in service of that.
+1. **Keyframe-preview reuse made real** (`6327bce`, `0151002`): approved stills are reused from
+   durable LOCAL files (stored temp-host URLs die in hours — never trust them); failed beats can't
+   masquerade as authored; authored sets render under their revision card (zero clicks, zero spend);
+   the preview button reuses the displayed draft (re-click of an authored rid is FREE — idempotent).
+2. **Veo reference lane** (`c20eb4a`, `031c327`, `2cff550`): `tools/video/veo_ref_kie_video.py` on
+   KIE's DEDICATED endpoints (`POST /api/v1/veo/generate` → poll `/api/v1/veo/record-info`).
+   **REFERENCE_2_VIDEO is 8s-ONLY** (docs say 4/6/8 — reality 500s anything but 8). Clips conform by
+   **SPEED-FIT, never tail-trim** (Veo paces the arc across all 8s; trimming amputated the climax
+   once). Every veo prompt carries the no-dialogue clause (v1 had Cox SAY "stop please it burns").
+   ~$0.32/clip, 3 refs (beat still + machine sheet + character sheet), all re-hosted from local.
+3. **Per-beat location grounding + content-keyed plates** (`cbd29f2`, `79a2e3f`): each beat
+   classifies terminal-vs-room from its own text and grounds on ITS locale's bible asset; the chain
+   resets at the room boundary; machine sheet/tokens/real-photo ride room beats only; console beats
+   get the operator-identity clause. Gold plates are per-beat, keyed by CONTENT regex
+   (`_gold_refs/{sid}.beats.json`) because re-plans renumber beats.
+4. **Per-still re-roll** (`a8444ea`): "↻ re-roll this still" on every grid cell (~$0.04) — the hint
+   box doubles as cost-confirm AND pose language; hints are logged as drift telemetry
+   (`keyframes_authored → reroll.hint`) for token promotion.
+5. **Universal consistency tooling** (`09f4a99`, `1d2edc8`):
+   - `lib/identity_tokens.py` — derive police-description identity tokens (incl. "NOT a <confusable>")
+     from an asset's REAL photos: `python -m lib.identity_tokens <bible.json> <asset_id> [--apply]`.
+   - `lib/reference_judge.py` — reference-anchored vision review. **gemini-2.5-pro ONLY** (flash
+     ranked the C-arm frame FIRST on the labeled set — that's why the old fidelity gate hallucinated).
+     Ranking → gold-plate nomination (`python -m lib.reference_judge nominate <pid> <sid> --apply`);
+     token-derived checklist → advisory "⚠ mismatch" badges on the stills grid. `selftest` = the
+     labeled regression harness; must PASS before trusting any model/prompt change. Never blocking.
+6. **Motion truth in the pipeline** (`4923600`, `694696f`, `ad47cf9`):
+   - Chained-leg seams crossfade ~4 frames (`AI_CHAIN_SEAM_BLEND=0.12`) — hard cuts on
+     near-identical frames read as a hitch.
+   - **`"hard_shot": true` on a BEAT** routes it through the Veo lane — required for COUNTED events
+     (leg-chaining re-stages events: 2 narrated fires rendered as 4).
+   - Settle/hold beats ("holds there, nearly still — no new events" in the motion) use a SETTLE
+     continuation for legs 2+ — narration-derived leg prompts over a stats tail invented a second door.
+   - Motion-only regens REUSE the approved still + keep the motion field.
+7. **Narration-locked beat weights** (this commit): director-pass automatically receives NARRATION
+   TIMING (real sentence spans via `scenes.sentence_spans` from the ElevenLabs alignment) and must
+   mirror them; trailing stats extend the last beat as its settle/hold.
 
-Secondary reality checks we hit:
-- **The dashboard was showing STALE data.** `duration_map_v6.json` was episode-wide stale — 33/37
-  segments had the wrong narration text AND wrong durations. seg_019's real audio is the **22.1s ACTION
-  narration** (rises→struck→pounds), not the 16.2s factual line the dashboard showed. We **rebuilt the
-  duration map** from the current script + audio. (`build_v6.py` STAGE 2 self-heals it; the dashboard
-  reads the on-disk copy directly, so it had drifted.) Only seg_033 lacked audio → it's genuinely
-  deleted from the script (36 real segments, not 37).
-- **A `.env` bug had broken ALL image generation.** `NANO_BANANA_MODEL=  # comment` made the comment the
-  VALUE → KIE rejected it ("model not supported"). Fixed; model id is `google/nano-banana`. Backup at
-  `.env.bak_cohesionfix`. (memory: `env-inline-comment-poisons-values`.)
+## seg_019 ledger (dashboard)
+- **Take 12 = THE ONE**: locked-camera press-P (0–1.8s) → Veo two-fire arc, each fire on its line
+  (1.8–7.4s) → pound ON the door line, slump + hold through the stats (7.4–22.1s). Needs the
+  operator's Approve verdict.
+- Takes 6–11 = the iteration trail (each fixed one operator note); takes 1–5 = pre-rebuild history.
+- Approved stills: rid `738eba26581b` (b1 console, b2 lying/firing, b3 door) + plates
+  `_gold_refs/seg_019_b1..b4.png` + `seg_019.beats.json` (from take-3 hand frames).
 
-## What we shipped this session (all committed on `v6-baseline`)
+## THE DASHBOARD WORKFLOW (per scene, going forward)
 
-- **`3889ca0`** feat(cohesion): chained-keyframe action sequences + printing-press re-roll
-- **`8202d2c`** feat(consistency): Cox character sheet + keyframe preview + no micro-beat splits
-- **`e30d5c7`** feat(dashboard): keyframe-preview UI + author-keyframes as a background job
+0. **Once per project/entity**: recipe in `docs/PRODUCTION_WORKFLOW.md` §6 (real photos → derived
+   tokens → sheets → location assets incl. secondary rooms → plates+sidecar for hard scenes).
+1. **Open the scene** → read narration + AUTO-GATE. Decide the lane family first: legible
+   text/stats → stat-card/FLF/overlay (see seg_012 splice); physical action → chained grok
+   (+ hard_shot beats); mechanism → manim placeholder.
+2. **Fix in pipeline** (with a note) or bare director-pass → review the drafted beat card:
+   weights should mirror the narration spans (shown to the director automatically), counted-event
+   beats should carry hard_shot, settle beats should SAY the hold. Edit beats if not.
+3. **🖼 Preview keyframes (no video)** (~$0.04/still) → eyeball the grid (judge badges flag design
+   mismatches) → **↻ re-roll** weak stills with a pose hint (~$0.04) until the set is right.
+4. **✓ approve keyframes → animate** (beat-aware cost confirm) → watch the take WITH narration.
+5. Wrong beat? **Per-beat regen** from the take's beat strip — motion-only edits keep the approved
+   still; pass `hard_shot: true` to re-route a beat through Veo. Repeat until the eyeball says done.
+6. **Verdict: Approve.** Then next scene.
 
-Mechanisms + where they live:
-1. **Chained keyframes (cohesion).** `web/backend/takes.py:_gen_chained_beat` authors each beat's keyframe
-   grounded on the PRIOR beat's keyframe + the scene's gold plate + the character sheet + machine tokens,
-   then Grok-animates via `generate_ai_video(ground_keyframe=)` (new param in `lib/visual_router.py`
-   `plan_ai_video`/`generate_ai_video`; default None → bulk path unchanged). Threaded through
-   `_store_mixed_take` and `regen_beats`. Gated by `revision["chained"]`.
-2. **`chained` detection** — `web/backend/director.py:_classify_chained` (a focused prepass, reliable where
-   the combined director flag was ~50/50). A beam firing / light flaring / machine activating routes to
-   GROK, not FLF.
-3. **No over-decomposition** — `_DECOMPOSE` + SHOT-LIST rule keep ONE continuous motion as a single beat
-   (rise-interrupted-by-a-strike = one beat). seg_019 now decomposes to 4 merged beats.
-4. **Gold plate (the "printing plate")** — `_scene_gold_ref` reads `projects/{pid}/assets/ai_segments/
-   _gold_refs/{sid}.png`; every chained keyframe + every per-beat re-roll grounds on it. seg_019's plate
-   is set (its Ka frame). `regen_beats` reuses good beats, re-rolls only weak ones grounded on the plate.
-5. **Cox character reference sheet (#1)** — `subj_cox` in the asset bible (multi-view, built from our best
-   Cox frames). `_gen_chained_beat` injects any bible SUBJECT whose name is in the narration. **This is
-   the biggest figure-consistency win** — the machine had a sheet, the figure had none.
-6. **Advisory fidelity gate** — `lib/quality_gate.py` `reference_fidelity` is advisory (it hallucinated a
-   "C-arm" and false-rejected good frames); interactive chained path uses `enable_gemini=False`
-   (the semantic clip gate was false-rejecting good clips into placeholders). Operator eyeball is the bar.
-7. **Keyframe preview before video (#3)** — dashboard button **"🖼 Preview keyframes (no video)"** on a
-   scene → `POST …/revision/{rid}/author-keyframes` (a background job, `author_scene_keyframes` /
-   `_run_author_keyframes_job`) authors the chained stills; the UI (`web/ui/src/components/SceneDetail.tsx`
-   `KeyframeStills`) shows them in a grid; **approve → animate** dispatches reusing the exact stills.
-   Catches kneeling/off-model/diptych at $0.04 before the $0.10+ clip.
+Timing note: baseline visuals across the episode were conformed to OLD slots (duration map was
+rebuilt) — as each scene is approved at its true slot, the episode re-times a few scenes at a time.
 
-## What's PROVEN vs OPEN (honest status)
+## NEXT: seg_020 (then 18, 21, …)
+- **seg_020**: 7.32s, "Twenty-five thousand rads. One second. One centimeter." — spans
+  [0–1.6][1.6–2.7][2.7–4.3] + 3s tail. NO takes, NO revisions yet. This is a LEGIBLE-TEXT stats
+  beat — the auto-gate already suggests the visual (terminal screen, the three figures appearing).
+  Route: text overlay / stat-card splice (memory: seg_012 technique) or FLF content-morph —
+  NOT chained grok (Grok can't render clean text). Cheap scene: likely $0.10–0.25 total.
+- **seg_018** (Cox/Malfunction-54): the full chained recipe again + a REAL FLF screen-morph beat;
+  curate its plates from its best frames first. **seg_003/others**: build sheets for Katie etc.
 
-| Issue | Status |
-|---|---|
-| Multi-beat cohesion (figure persists, no teleport, door has walls) | ✅ proven (take 3 hand-authored; automated take 5 all-beats) |
-| Cox figure identity across beats | ✅ largely solved by `subj_cox` sheet |
-| Over-decomposition (rise/struck split) | ✅ fixed (4 merged beats) |
-| Diptych / fading figure | ✅ single-panel + solid-figure prompt guard |
-| Gate false-rejecting good work | ✅ fidelity advisory + enable_gemini=False on interactive |
-| **Machine identity (Therac-25 → C-arm/donut)** | ❌ **OPEN** — Nano's prior beats the sheet+tokens+gold. The keyframe-preview surfaces it cheaply. This is the case for #5 (Veo-ref) or #6 (composite). |
-| Cross-room beat (door) grounding on the table frame → loses the door | ⚠️ partial — needs location-aware grounding (door beat should anchor on the room canonical, not the prior table frame) |
-| duration_map episode-wide stale | ✅ rebuilt (seg_019 = 22.1s action); other scenes' baseline visuals still conformed to OLD slots — re-time the episode a few scenes at a time |
-
-## seg_019 takes ledger (in the dashboard)
-- take 1, 2: old 2-beat FACTUAL takes (stale narration). Ignore.
-- **take 3: the GOLD hand-authored take** — the high-water mark. All beats clean.
-- take 4: first automated chained — beat3 placeholder (gate false-reject), beat4 diptych, machine C-arm. Fixed since.
-- take 5: automated after gate fixes — all 5 beats generated, but machine C-arm + beat5 lost the door.
-- Gold plate `_gold_refs/seg_019.png` = the Ka "Cox rising" frame. Hand-authored keyframes/frames live in
-  `projects/therac-25-test/assets/ai_segments/_keyframe_proof/seg_019/`.
-
-## THE NEXT TASK (prioritized)
-
-1. **Try the keyframe-preview button end-to-end** on seg_019 in the dashboard (refresh http://127.0.0.1:8011,
-   scene → "Preview keyframes") — confirm the UI flow (job → grid → approve → animate). It was built +
-   verified (route + bundle) but not yet clicked by the operator.
-2. **Build the Veo-ref hard-shot lane (#5) — the fix for the machine.** Full design was produced this
-   session (route ~5 hard shots/episode to **Veo 3.1 `REFERENCE_2_VIDEO`**, which takes 1–3 reference
-   images = char sheet + machine sheet, on the **Kie Jobs API already in use**). Smallest first move:
-   add `tools/video/veo_ref_kie_video.py` (near-clone of `tools/video/kling_kie_video.py`) + ~15 lines
-   in `lib/visual_router.py`. **KEY FACT: the char+machine sheet URLs are already assembled as
-   `extra_refs` in `lib/visual_router.py:~302` for the Nano keyframe edit but NEVER forwarded to the
-   VIDEO model — that's the single missing wire.** Hard-shot detector = score signals (recurring subject
-   +2, whole-body +2, on-model machine +2, cross-room +2, prior-failure +3) → route at ≥4, cap ~5/episode.
-   The provider-mismatch overspend guard already exists (`_gen_shot_clip` raises GenerationHardStop).
-   (memory `openmontage-consistency-toolkit` has the condensed version.)
-3. **OR #6** — deterministic machine composite (paste the on-model Therac-25 PNG, the seg_012 stat-card
-   splice technique) if you'd rather force the machine than switch models. Fiddlier (machine framed
-   differently per beat) — the Veo lane is likely cleaner.
-4. **Generalize:** set gold plates + build sheets for the other recurring figures/scenes (seg_018
-   Cox/Malfunction-54, seg_003 Katie). seg_018 also exercises a real FLF screen-morph beat.
-5. **Re-time the episode:** the duration_map rebuild changed every slot; existing baseline visuals were
-   conformed to the OLD slots. Walk the episode a few scenes at a time (regenerate/re-conform).
-
-## How to run / test
-- **Dashboard:** `python -m uvicorn web.backend.app:app --port 8011` — run it DETACHED (Start-Process /
-  its own window); **NO auto-reload → restart after any backend .py edit**; use **127.0.0.1** not localhost.
-  It gets reaped when the agent process exits — relaunch it at session start.
-- **System Python** (has all deps): `C:\Users\Soda\AppData\Local\Programs\Python\Python312\python.exe`.
-- **Rebuild the React UI after `web/ui/src` edits:** `npm run build --prefix web/ui` (dist is gitignored,
-  built locally; the server serves `web/ui/dist`).
-- **Drive a regen via API:** POST `…/scenes/{sid}/director-pass` → `…/revision/{rid}/approve-and-dispatch`
-  → poll `…/jobs/{job_id}`. Keyframe preview: `…/revision/{rid}/author-keyframes` → poll the job (it now
-  returns `keyframes`).
-- **Dispatch is LIVE/paid** (KIE + GOOGLE keys in `.env`). **Announce cost before spend.** Ceiling
-  `OPENMONTAGE_REGEN_MAX_USD` (default $1.00). Rates: Grok ≈$0.017/s, Kling FLF ≈$0.084/s, Nano ≈$0.04/img,
-  Veo3.1-fast ≈$0.30/s. Cost ledger: `python -m lib.cost_ledger`.
-- **DON'T** `git gc`/`repack` or `-delete` under `.git/` (near-fatal loss earlier; auto-gc disabled).
-
-## Gotchas that cost us time (don't rediscover)
-- The dashboard reads narration + slot from `duration_map_v6.json` (`scenes.py:144-147`), NOT the scored
-  script — so a stale map silently mis-drives the director. Rebuild the map when audio/script changes.
-- FLF is WRONG for re-posing a figure (needs pixel-matched frames; a Nano re-pose morphs the background).
-  FLF stays for LEGIBLE state-morphs (glyph X→E, error code). Figures = Grok from chained keyframes.
-- The quality gate over-rejects for this channel (hallucinated C-arm, over-flagged leg crops) — it's
-  advisory now; the eyeball is the bar.
-- Grok clips come out ~6s regardless of requested duration → conform to the word-timed slot (trim or
-  `setpts` speed-fit; word timing from `assets/audio_v6/seg_NNN.alignment.json`).
+## How to run / costs / gotchas
+- Dashboard: `python -m uvicorn web.backend.app:app --port 8011` DETACHED (no auto-reload —
+  RESTART after backend edits; 127.0.0.1; rebuild UI after web/ui/src edits:
+  `npm run build --prefix web/ui`). `.claude/launch.json` has the same config for preview tooling.
+- Rates: Grok ≈$0.102/6s leg · Veo-ref $0.32/8s clip (8s ONLY) · Nano $0.04/edit · Kling FLF
+  ≈$0.084/s. Announce cost before ANY generation; `OPENMONTAGE_REGEN_MAX_USD` ceiling ($1) is
+  beat-aware but EXCLUDES Nano authoring (~+$0.04-0.12/authored beat).
+- `projects/` is GITIGNORED — plates, sidecars, bible edits, script_v5 changes live on disk only.
+- Never `git gc`/`-delete` under `.git/` (near-fatal loss once; auto-gc disabled).
+- Event log types are WHITELISTED (`feedback.py _EVENT_TYPES`) — register new types; never let a
+  log append fail a paid job.
+- The reference judge and any vision QC: pro-tier only, reference-anchored, advisory. Run
+  `python -m lib.reference_judge selftest` after any judge change.

@@ -25,6 +25,31 @@ def _read_json(p: Path, default: Any = None) -> Any:
         return default
 
 
+def sentence_spans(pid: str, sid: str) -> list[dict]:
+    """[{start, end, text}] — the scene audio's REAL sentence spans from the ElevenLabs
+    character alignment. The director uses these to set beat weights so each action lands
+    on its own narration line (guessed weights drifted actions off their lines). Empty on
+    any miss — timing is an enhancement, never a blocker."""
+    import re
+    a = (_read_json(PROJECTS_DIR / pid / "assets" / "audio_v6" / f"{sid}.alignment.json") or {}).get("alignment")
+    try:
+        chars = a["characters"]
+        starts = a["character_start_times_seconds"]
+        ends = a["character_end_times_seconds"]
+        text = "".join(chars)
+        spans, s_i = [], 0
+        for m in re.finditer(r"[.!?…]+(?=\s|$)", text):
+            e_i = m.end()
+            seg = text[s_i:e_i].strip()
+            if seg:
+                spans.append({"start": round(starts[s_i], 2),
+                              "end": round(ends[e_i - 1], 2), "text": seg})
+            s_i = e_i
+        return spans
+    except Exception:
+        return []
+
+
 def media_url(project_id: str, rel: str) -> str:
     return f"/api/projects/{project_id}/media/{rel}"
 
