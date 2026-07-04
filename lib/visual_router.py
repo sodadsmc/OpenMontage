@@ -1213,8 +1213,10 @@ def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
                             " || NARRATED documentary footage: absolutely NO dialogue and NO speech "
                             "— nobody talks, no moving lips, no mouthed words, no captions; ambient "
                             "and mechanical sound only.")
-        # Veo clips come in fixed 4/6/8s — snap UP so the conform trim has material.
-        inputs["duration"] = str(min((d for d in (4, 6, 8) if d >= duration_s), default=8))
+        # KIE's REFERENCE_2_VIDEO only accepts 8-second generation (a 6s request 500s:
+        # 'currently only supports 8-second generation'). Always ask for 8; the per-leg
+        # trim in generate_ai_video conforms the clip back to the planned slot.
+        inputs["duration"] = "8"
     elif keyframe:
         inputs["operation"] = "image_to_video"
         kf = str(keyframe)

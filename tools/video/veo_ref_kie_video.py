@@ -42,7 +42,10 @@ DEFAULT_BASE = "https://api.kie.ai"
 VEO_MODEL = os.environ.get("VEO_KIE_MODEL", "veo3_fast")   # veo3 | veo3_fast | veo3_lite
 # Kie prices Veo at ~25% of Google's rate; veo3_fast w/ audio ≈ $0.0375/s -> ~$0.30 per 8s clip.
 _COST_PER_SECOND = {"veo3_fast": 0.04, "veo3": 0.19, "veo3_lite": 0.02}
-_DURATIONS = (4, 6, 8)
+# KIE's docs list 4/6/8s, but REFERENCE_2_VIDEO rejects everything except 8 in practice
+# ("500 Invalid duration. Veo 3.1 reference-to-video currently only supports 8-second
+# generation" — live-hit 2026-07-04). Callers trim the 8s clip down to their slot.
+_DURATIONS = (8,)
 MAX_REFS = 3                     # Veo 3.1 reference mode takes 1-3 images (Kie docs say 1-2 for
                                  # some modes — the adapter sends what it's given, capped at 3)
 _POLL_INITIAL_WAIT = 15

@@ -925,6 +925,7 @@ def _store_mixed_take(job: dict, pid: str, sid: str, rid: str, spawned_by: str, 
         beat_meta.append({
             "idx": i, "lane": b["lane"], "status": status, "label": b["label"],
             "prompt": b["prompt"], "flf": b.get("flf"), "dur": b["dur"], "motion": b.get("motion"),
+            "hard_shot": bool(b.get("hard_shot")),
             "clip": f"projects/{pid}/assets/ai_segments/_takes_scratch/{sid}__take{take_n}/beat{i}.mp4",
         })
 
@@ -1242,7 +1243,9 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                         "label": (e.get("desc") or prompt[:60] or lane),
                         # Motion rides too (an edit can pin e.g. a locked camera); without this a
                         # re-rolled beat silently lost its camera move to the synthetic default.
-                        "motion": e.get("motion") or sb.get("motion")}
+                        "motion": e.get("motion") or sb.get("motion"),
+                        "hard_shot": bool(e.get("hard_shot") if e.get("hard_shot") is not None
+                                          else sb.get("hard_shot"))}
                 bdir = scratch / f"b{i}"; bdir.mkdir(parents=True, exist_ok=True)
                 clip = None
                 status = "generated"
@@ -1277,7 +1280,8 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 if clip is None:
                     clip = _placeholder_card(f"BEAT {i}", beat["label"], lane, dur, str(bout))
                 beat_meta.append({"idx": i, "lane": lane, "status": status, "label": beat["label"],
-                                  "prompt": prompt, "flf": beat["flf"], "dur": dur, "motion": beat.get("motion"), "clip": clip_rel})
+                                  "prompt": prompt, "flf": beat["flf"], "dur": dur, "motion": beat.get("motion"),
+                                  "hard_shot": bool(beat.get("hard_shot")), "clip": clip_rel})
             else:
                 # reuse the source beat's clip (recorded path, else the take-scratch convention)
                 rel = (sb.get("clip") or "").split(f"projects/{pid}/")[-1]
@@ -1296,7 +1300,7 @@ def _run_regen_beats_job(pid, sid, src_take_n, edits, job_id, spawned_by, est) -
                 # (a kept console beat would seed a re-rolled room beat, or trigger a bogus reset).
                 if chained and not (sb.get("lane") or "").startswith("flf"):
                     prev_locale = _beat_locale(sb)
-                beat_meta.append({**{k: sb.get(k) for k in ("idx", "lane", "status", "label", "prompt", "flf", "dur", "motion")},
+                beat_meta.append({**{k: sb.get(k) for k in ("idx", "lane", "status", "label", "prompt", "flf", "dur", "motion", "hard_shot")},
                                   "clip": clip_rel})
             beat_clips.append(clip)
 
