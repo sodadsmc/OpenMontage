@@ -205,24 +205,54 @@ def _locale_asset(bible, scene_asset, locale: str):
     return hit or scene_asset
 
 
+def _real_photo_local(pid: str, asset) -> Path | None:
+    """The LOCAL file behind the bible's stored reference_images (those URLs live on expiring
+    CDNs and are already dead) — resolved by basename under the project's assets tree."""
+    for url in (getattr(asset, "reference_images", None) or []):
+        name = (url or "").rstrip("/").rsplit("/", 1)[-1]
+        if not name:
+            continue
+        local = next(iter((PROJECTS_DIR / pid).glob(f"assets/**/{name}")), None)
+        if local is not None and local.is_file():
+            return local
+    return None
+
+
 def _real_photo_ref(pid: str, asset) -> str | None:
-    """A freshly-hosted REAL photograph of the machine, resolved from the LOCAL file matching the
-    bible's stored reference_images (those stored URLs live on expiring CDNs and are already dead).
-    The photo rides as an extra ref on machine-visible beats so the design is copied from reality."""
+    """A freshly-hosted REAL photograph of the machine (from the local file). The photo rides
+    as an extra ref on machine-visible beats so the design is copied from reality."""
     try:
-        from lib.image_host import upload_image
-        for url in (getattr(asset, "reference_images", None) or []):
-            name = (url or "").rstrip("/").rsplit("/", 1)[-1]
-            if not name:
-                continue
-            local = next(iter((PROJECTS_DIR / pid).glob(f"assets/**/{name}")), None)
-            if local is not None and local.is_file():
-                u = upload_image(str(local))
-                if u:
-                    return u
+        local = _real_photo_local(pid, asset)
+        if local is not None:
+            from lib.image_host import upload_image
+            return upload_image(str(local))
     except Exception:
         pass
     return None
+
+
+def _vet_keyframe(pid: str, asset, frame: Path) -> dict | None:
+    """ADVISORY reference-judge verdict for one authored still ({ok, mismatches} or None).
+    Runs gemini-2.5-pro against the asset's LOCAL sheet + real photo — empirically the only
+    tier that separates the labeled good/bad seg_019 frames (`python -m lib.reference_judge
+    selftest`). Never raises; a None is 'no opinion', and nothing here ever blocks a job —
+    it exists to point the operator's eyeball at the mismatch, not to replace it."""
+    try:
+        refs = []
+        sheet = getattr(asset, "reference_sheet", "") or ""
+        if sheet and Path(sheet).exists():
+            refs.append(Path(sheet))
+        photo = _real_photo_local(pid, asset)
+        if photo is not None:
+            refs.append(photo)
+        if not refs:
+            return None
+        from lib.reference_judge import judge_frame
+        return judge_frame(frame, refs,
+                           getattr(asset, "subject", "") or "the machine",
+                           list(getattr(asset, "identity_tokens", None) or []))
+    except Exception:
+        return None
 
 
 _POOL = ThreadPoolExecutor(max_workers=1)        # serialize spend
@@ -1477,8 +1507,10 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
             # "authored" only when the operator can actually SEE it (local mirror or live URL) —
             # media only when the durable local copy really exists (the reuse loader prefers it).
             ok = local.is_file() and local.stat().st_size > 1024
+            # Advisory design-fidelity badge (room beats only — the machine refs are the rubric).
+            vet = _vet_keyframe(pid, room_asset, local) if (ok and locale == "room") else None
             frames.append({"idx": i, "label": b["label"], "path": rel, "media": (media if ok else None),
-                           "url": url, "status": "authored" if (ok or url) else "failed"})
+                           "url": url, "status": "authored" if (ok or url) else "failed", "vet": vet})
         (review / "keyframes.json").write_text(json.dumps(frames, indent=2), encoding="utf-8")
         try:
             fb.append_event(pid, actor="system", type="keyframes_authored", scene_id=sid,
@@ -1630,8 +1662,9 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
         if entry is None:
             entry = {"idx": idx, "label": b.get("label") or "", "path": f"projects/{pid}/{media}"}
             frames.append(entry)
+        vet = _vet_keyframe(pid, beat_asset, local) if (ok and locale == "room") else None
         entry.update(media=(media if ok else None), url=url,
-                     status="authored" if (ok or url) else "failed")
+                     status="authored" if (ok or url) else "failed", vet=vet)
         kjson.write_text(json.dumps(frames, indent=2), encoding="utf-8")
         try:
             # The hint is a DRIFT SIGNAL, not just a prompt: when the same fix keeps being

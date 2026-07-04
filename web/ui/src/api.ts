@@ -88,6 +88,9 @@ export interface KeyframePreview {
   media: string | null
   url: string | null
   status: string
+  // Advisory reference-judge verdict (gemini-2.5-pro vs the machine sheet + real photo).
+  // Points the eyeball at a design mismatch; never blocks anything.
+  vet?: { ok: boolean; mismatches: string[] } | null
 }
 
 // Per-beat service label + cost — mirror of web.backend.takes._beat_cost.

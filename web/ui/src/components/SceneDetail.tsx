@@ -400,6 +400,11 @@ function KeyframeStills({ project, frames, rid, onApprove, onReroll, working, es
               ? <img src={f.media ? `${API}/projects/${project}/media/${f.media}` : f.url!} alt={f.label} loading="lazy" style={{ width: '100%', borderRadius: 4, display: 'block' }} />
               : <div className="nobadge">beat {f.idx} failed to author</div>}
             <div className="kflabel" style={{ fontSize: 12, opacity: 0.8 }}>b{f.idx} · {f.label}</div>
+            {f.vet && !f.vet.ok && (
+              <div style={{ fontSize: 11, color: '#e8b23f' }} title={f.vet.mismatches.join('\n')}>
+                ⚠ {f.vet.mismatches[0] || 'design mismatch vs the reference'}
+              </div>
+            )}
             {rid && onReroll && <button className="act" disabled={working} style={{ fontSize: 11 }}
                                         title="Re-author only this still, grounded on its plate + approved neighbors"
                                         onClick={() => onReroll(rid, f.idx)}>↻ re-roll this still</button>}
