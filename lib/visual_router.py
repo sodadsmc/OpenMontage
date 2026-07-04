@@ -743,11 +743,15 @@ def generate_ai_video(
             _log.error("ai_video: hard stop for %s, falling back: %s", segment_id, exc)
             return None
         if clip is not None and job["provider"] == VEO_REF_PROVIDER:
-            # Veo clips come in fixed 4/6/8s snapped UP from the planned leg — conform this leg
-            # back to its slot NOW, or an interior over-length leg pushes every later leg out of
-            # sync with the narration and the segment-level trim truncates the ending instead.
-            fit = _trim_to_duration(str(clip), output_dir / f"{segment_id}_{job['shot_id']}_fit.mp4",
-                                    job["duration_s"])
+            # Veo ref clips are a FIXED 8s; the planned leg is usually shorter. Conform by
+            # SPEED-FIT (retime the whole arc into the slot), never tail-trim: Veo paces the
+            # beat's story across the full 8s, so cutting the tail amputates the climax
+            # (seg_019's second strike was generated and then trimmed away).
+            fit = _speedfit_to_duration(str(clip), output_dir / f"{segment_id}_{job['shot_id']}_fit.mp4",
+                                        job["duration_s"])
+            if fit is None:  # retime failed — a trimmed clip still beats a desynced timeline
+                fit = _trim_to_duration(str(clip), output_dir / f"{segment_id}_{job['shot_id']}_fit.mp4",
+                                        job["duration_s"])
             if fit is not None:
                 clip = fit
         if clip is not None:
@@ -1342,6 +1346,30 @@ def _concat_clips(clip_paths: list[str], output_path: Path,
         _log.warning("ai_video: concat failed: %s", exc)
         return None
     return _trim_to_duration(str(joined), output_path, target_duration_s)
+
+
+def _speedfit_to_duration(src: str, output_path: Path, target_duration_s: float) -> Path | None:
+    """Retime a clip to EXACTLY target_duration_s by changing playback speed (no tail-trim).
+
+    For generated clips whose ARC is paced across their full length (Veo ref clips are a fixed
+    8s), trimming the tail amputates the ending — retiming preserves the whole story, just
+    faster/slower. Audio is stripped (narration is a separate track)."""
+    d = _probe_duration(str(src))
+    if not d or d <= 0 or target_duration_s <= 0:
+        return None
+    factor = target_duration_s / d
+    output_path = Path(output_path)
+    try:
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", str(src),
+             "-vf", f"setpts=PTS*{factor:.6f},fps={TARGET_FPS}",
+             "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(output_path)],
+            capture_output=True, timeout=600, check=True,
+        )
+        return output_path if output_path.exists() and output_path.stat().st_size > 1024 else None
+    except Exception as exc:  # noqa: BLE001
+        _log.warning("ai_video: speed-fit failed for %s: %s", src, exc)
+        return None
 
 
 def _trim_to_duration(src: str, output_path: Path, target_duration_s: float) -> Path | None:
