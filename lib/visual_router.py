@@ -803,6 +803,17 @@ def _leg_prompts(narration: str, base_prompt: str, n_legs: int,
     """
     if n_legs <= 1:
         return [base_prompt]
+    # A SETTLE/HOLD beat (e.g. "pounds, then slumps against the door and HOLDS there") must NOT
+    # derive its later legs from the narration: under a hold the narration is usually non-action
+    # (statistics), so the LLM splitter invents new events to fill the legs — on seg_019 it staged
+    # Cox turning 180° to pound a SECOND door. Deterministic continuation keeps the scene settled.
+    if re.search(r"\b(holds?( there)?|holding there|stays?(?: nearly)? still|slump(?:s|ed|ing)?|"
+                 r"no new events)\b", f"{base_prompt} {motion or ''}", re.I):
+        settle = ("Continue the same scene seamlessly from the current frame. The moment SETTLES: "
+                  "the subject stays exactly where and as they are — minimal motion only (breathing, "
+                  "a small shift of weight), NO new actions, NO turning around, nobody enters, "
+                  "nothing new appears, the room and every object stay identical.")
+        return [base_prompt] + [settle] * (n_legs - 1)
     if narration and os.environ.get("AI_BEAT_PROMPTS", "1") != "0":
         try:
             from lib.beat_splitter import derive_leg_prompts
