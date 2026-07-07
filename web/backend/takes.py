@@ -1708,10 +1708,18 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
                 import requests
                 r = requests.get(str(kf), timeout=90)
                 r.raise_for_status()
-                if len(r.content) > 1024:
-                    local.write_bytes(r.content)
-            except Exception:
+                if len(r.content) <= 1024:
+                    raise RuntimeError(f"mirrored body too small ({len(r.content)} bytes)")
+                local.write_bytes(r.content)
+            except Exception as e:
+                # Disk is truth: dispatch reuses the LOCAL still (hosted URLs expire), so a failed
+                # mirror must FAIL the roll — succeeding here leaves the OLD pose on disk and the
+                # operator pays to animate the wrong frame (caught live on seg_024 b2).
                 _log.warning("keyframe reroll %s b%s: could not mirror %s to disk", sid, idx, kf)
+                job.update(status="failed", keyframes=frames, ended_ts=_now(),
+                           error=f"beat {idx} re-rolled but the new frame could not be mirrored to "
+                                 f"disk ({type(e).__name__}) — prior still kept; re-roll again")
+                return
         else:
             if Path(str(kf)) != local:
                 local.write_bytes(Path(str(kf)).read_bytes())
