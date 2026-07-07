@@ -231,7 +231,7 @@ def _gemini(prompt: str) -> str:
         generation_config=genai.types.GenerationConfig(
             # 2.5-flash is a THINKING model — thinking tokens draw down this same budget, so it
             # must be generous or the JSON truncates mid-string (matches lib/narration_gate's 16384).
-            temperature=0.4, max_output_tokens=8192, response_mime_type="application/json"
+            temperature=0.4, max_output_tokens=16384, response_mime_type="application/json"
         ),
     )
     return model.generate_content(prompt).text
