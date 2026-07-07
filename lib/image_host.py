@@ -130,11 +130,18 @@ def _upload_premiumize(path: Path) -> str | None:
         return None
     base = "https://www.premiumize.me/api"
     size = path.stat().st_size
-    # Reuse an already-uploaded file of the same name+size (avoid duplicate uploads).
+    # CONTENT-ADDRESSED remote name. Every authored still is literally called
+    # "keyframe.png": the account accumulated dozens, premiumize renames same-named
+    # uploads ("keyframe (2).png"), and name+size verification then NEVER matches —
+    # refs silently dropped and every Grok task ran unanchored and failed (caught
+    # live on seg_024, both dispatches). A hash-suffixed name is collision-free, so
+    # both the reuse pre-check and the post-upload pick become exact.
+    uniq = f"{path.stem}-{_file_hash(path)[:10]}{path.suffix}"
+    # Reuse an already-uploaded copy of THIS content (unique name = exact match).
     try:
         lst = requests.get(f"{base}/folder/list", params={"apikey": key}, timeout=30).json()
         for it in lst.get("content", []):
-            if (it.get("type") == "file" and it.get("name") == path.name
+            if (it.get("type") == "file" and it.get("name") == uniq
                     and int(it.get("size", -1)) == size and it.get("link")):
                 return it["link"]
     except Exception as exc:  # noqa: BLE001
@@ -146,23 +153,20 @@ def _upload_premiumize(path: Path) -> str | None:
         return None
     with open(path, "rb") as f:
         up = requests.post(info["url"], data={"token": info["token"]},
-                           files={"file": (path.name, f)}, timeout=180)
+                           files={"file": (uniq, f)}, timeout=180)
     up.raise_for_status()
-    # The post-upload pick must match name AND size: a same-named older file
-    # (e.g. a re-grounded canonical) would otherwise be returned and silently
-    # serve the WRONG image. The listing is eventually consistent, so poll.
+    # The listing is eventually consistent, so poll for the (unique) name+size.
     import time as _t
     for _ in range(8):
         _t.sleep(2)
         lst = requests.get(f"{base}/folder/list", params={"apikey": key}, timeout=30).json()
         exact = [it for it in lst.get("content", [])
-                 if (it.get("type") == "file" and it.get("name") == path.name
+                 if (it.get("type") == "file" and it.get("name") == uniq
                      and int(it.get("size", -1)) == size and it.get("link"))]
         if exact:
             return exact[-1]["link"]
-    _log.warning("image_host: premiumize upload of %s not visible in listing "
-                 "(name+size match) — refusing to return a same-named older file",
-                 path.name)
+    _log.warning("image_host: premiumize upload of %s (as %s) not visible in listing",
+                 path.name, uniq)
     return None
 
 
