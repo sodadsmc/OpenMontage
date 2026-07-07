@@ -207,6 +207,18 @@ character / room stays on-model is decided by per-project DATA authored to this 
 Everything below was proven on the Therac-25 (the C-arm drift fight) — do it ONCE per
 project, per recurring entity, BEFORE bulk generation:
 
+0. **Shop the asset library BEFORE generating anything.** Every approved frame/clip is a
+   paid, eyeball-passed artifact — reuse is $0 and on-model BY CONSTRUCTION; regeneration
+   is a paid dice-roll. `python -m lib.asset_library index <pid>` catalogs gold plates,
+   takes + per-beat clips, authored keyframe stills, Veo one-offs, and bible assets into
+   `artifacts/asset_library.json`; `… find <pid> "<regex>" [--approved-only]` searches it.
+   An approved still can be a beat's KEYFRAME directly (copy over
+   `_keyframe_review/{sid}__{rid}/b{idx}/keyframe.png`, back up first) — narrative echoes
+   ("same machine", "same hospital") should reuse the literal approved frame; deterministic
+   derivations (last-frame extraction, `lib.flf.drain_endpoint`, stat cards, PIL composites)
+   come before any paid lane. Works across projects: everything is keyed by project id
+   (`--projects-dir` / `$OPENMONTAGE_PROJECTS_DIR` for other roots).
+
 1. **Real photos on disk.** Curate 2-4 real photographs per key entity under
    `assets/_reference/` and list them in the bible's `reference_images`. Stored URLs
    expire (tmpfiles/CDNs die in hours) — the pipeline re-hosts from LOCAL files at use
