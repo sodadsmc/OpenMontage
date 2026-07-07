@@ -248,60 +248,138 @@ def _bits(val: int):
 
 
 def draw_byte_overflow(ax, t, dur):
-    # Title + subtitle (title keeps a faint navy outline; everything else crisp)
-    text(ax, 5, 9.25, "THE 1-BYTE COUNTER", 48, AMBER, alpha=reveal(t, 0.2, 0.7),
+    """Timed to seg_028's narration (assets/audio_v6/seg_028.alignment.json,
+    slot 30.05s). The bug is TOLD in order — so the diagram builds in order:
+      0.2 second bug / 1.6 arithmetic overflow | 4.3 setup routine (loop)
+      7.5 tracks one safety check | 10.0 counter called Class3 (252 appears)
+      12.8 single byte (bit row) | 14.2 ONE byte (punch) | 16.8 max 255
+      19.0-22.1 every pass +1 (252->253->254) | 22.7 hits 255 (hot)
+      24.8 the next push | 25.9 didn't raise an error | 27.7 carry ripples
+      the byte to zero | 29.1 "zero" lands (hot 0 pops).
+    The false-'safe' consequence is seg_029 (false_safe) — not preempted here."""
+    T_LOOP, T_CHECK, T_CLASS3 = 4.28, 7.51, 9.97
+    T_BYTE, T_ONE, T_MAX = 12.83, 14.15, 16.75
+    TICKS = [20.8, 21.7, 22.9]            # 253, 254, 255 ("pushed it up by one")
+    T_PUSH, T_NOERR, T_ROLL, T_ZERO = 24.76, 25.94, 27.66, 29.13
+
+    # ---- title + subtitle, on "the second bug" / "arithmetic overflow" ----
+    text(ax, 5, 9.25, "THE SECOND BUG", 48, AMBER, alpha=reveal(t, 0.3, 0.6),
          stroke=1.6)
-    text(ax, 5, 8.45, "Class3  —  one byte holds 0 to 255", 26, CREAM,
-         alpha=reveal(t, 0.9, 0.6))
+    text(ax, 5, 8.45, "arithmetic overflow", 26, CREAM,
+         alpha=reveal(t, 1.63, 0.6))
 
-    # Counter value over time
-    if t < 6.0:
-        val, vcol = 252, AMBER
-    elif t < 9.0:
-        val, vcol = 253, AMBER
-    elif t < 12.0:
-        val, vcol = 254, AMBER
-    elif t < 16.0:
-        val, vcol = 255, AMBER_HOT
+    # ---- 4.3 "deep in the setup routine": a loop, running the whole time ----
+    lp = reveal(t, T_LOOP, 0.7)
+    if lp > 0.01:
+        # canvas is 10x10 units on a 16:9 frame — shrink rx so the loop reads
+        # as a CIRCLE on screen, not a squashed C
+        lx, ly, ry = 1.85, 5.05, 0.62
+        rx = ry * 0.5625
+        spin = max((pulse(t, tk - 0.35, 0.7) for tk in TICKS), default=0.0)
+        spin = max(spin, pulse(t, T_PUSH, 0.7))
+        th = np.linspace(0.6, 2 * np.pi - 0.6, 40)
+        ax.plot(lx + rx * np.cos(th), ly + ry * np.sin(th), color=AMBER,
+                lw=3.5 + 2.5 * spin, alpha=lp, zorder=4,
+                solid_capstyle="round")
+        # arrowhead at the arc's end, pointing along the direction of travel
+        ae = 2 * np.pi - 0.6
+        ax.annotate("", xy=(lx + rx * np.cos(ae), ly + ry * np.sin(ae)),
+                    xytext=(lx + rx * np.cos(ae - 0.45), ly + ry * np.sin(ae - 0.45)),
+                    arrowprops=dict(arrowstyle="-|>", color=AMBER, lw=3.5,
+                                    mutation_scale=26, alpha=lp), zorder=4)
+        text(ax, lx, ly + ry + 0.55, "SETUP ROUTINE", 20, CREAM, alpha=lp)
+        # 7.5 "tracked one safety check"
+        chk = reveal(t, T_CHECK, 0.7)
+        text(ax, lx, ly - ry - 0.42, "tracks one", 18, CREAM, alpha=chk * 0.9)
+        text(ax, lx, ly - ry - 0.82, "safety check", 18, CREAM, alpha=chk * 0.9)
+
+    # ---- 10.0 "a counter called Class Three": the big value appears --------
+    # counter value over time: 252 until the narrated +1 passes tick it up
+    if t < TICKS[0]:
+        val = 252
+    elif t < TICKS[1]:
+        val = 253
+    elif t < TICKS[2]:
+        val = 254
+    elif t < T_ROLL + 0.85:
+        val = 255
     else:
-        val, vcol = 0, AMBER_HOT
+        val = 0
+    hot = val in (255, 0) and t >= TICKS[2]
+    vcol = AMBER_HOT if hot else AMBER
 
-    appear = reveal(t, 2.2, 0.6)
-    text(ax, 5, 6.7, "Class3 value", 24, CREAM, alpha=appear * 0.9)
+    appear = reveal(t, T_CLASS3, 0.6)
+    cx, cy = 5.55, 5.05
+    text(ax, cx, cy + 1.72, "a counter called  Class3", 24, CREAM,
+         alpha=appear * 0.9)
+    pop = max((pulse(t, tk, 0.35) for tk in TICKS), default=0.0)
+    pop = max(pop, 1.3 * pulse(t, T_ZERO, 0.6))
+    # crossfade 255 -> 0 across the rollover instead of a hard swap
+    roll_f = reveal(t, T_ROLL + 0.55, 0.45)
+    if 0.01 < roll_f < 0.99:
+        text(ax, cx, cy, "255", 150, AMBER_HOT, alpha=appear * (1 - roll_f),
+             stroke=2.0)
+        text(ax, cx, cy, "0", 150 + 26 * pop, AMBER_HOT, alpha=appear * roll_f,
+             stroke=2.0)
+    else:
+        text(ax, cx, cy, str(val), 150 + 26 * pop, vcol, alpha=appear,
+             stroke=2.0)
 
-    # pop on each change
-    change_times = [6.0, 9.0, 12.0, 16.0]
-    pop = max((pulse(t, ct - 0.0, 0.35) for ct in change_times), default=0.0)
-    cy = 5.05
-    text(ax, 5, cy, str(val), 150 + 26 * pop, vcol, alpha=appear, stroke=2.0)
+    # quiver at the ceiling: 255 is a wall, not a resting value
+    if t >= TICKS[2] + 0.4 and t < T_ROLL and appear > 0.5:
+        qx = 0.03 * np.sin(t * 15.0)
+        text(ax, cx + qx, cy, "255", 150, AMBER_HOT, alpha=0.25, stroke=0.0)
 
-    # overflow flash at 16.0
-    flash(ax, 5, cy, t, 16.0, d=0.7)
+    # "+1" pips: one per narrated pass, and the fatal push that overflows
+    for tk in TICKS:
+        pa = pulse(t, tk, 0.9)
+        if pa > 0.01:
+            text(ax, cx + 1.95, cy + 1.05 + 0.35 * pa, "+1", 26, AMBER,
+                 alpha=pa)
+    fp = reveal(t, T_PUSH, 0.4) * (1.0 - reveal(t, T_ROLL + 0.9, 0.5))
+    if fp > 0.01:
+        text(ax, cx + 1.95, cy + 1.05, "+1", 32 + 6 * pulse(t, T_PUSH, 0.5),
+             AMBER_HOT, alpha=fp, stroke=1.2)
+    # 25.9 "didn't raise an error"
+    noerr = reveal(t, T_NOERR, 0.6) * (1.0 - reveal(t, T_ROLL + 0.9, 0.6))
+    text(ax, cx, cy - 1.55, "no error raised", 22, CREAM, alpha=noerr * 0.95)
 
-    # 8-bit row
-    bits = _bits(val)
+    # rollover flash on "it rolled over"
+    flash(ax, cx, cy, t, T_ROLL + 0.3, r0=1.1, r1=2.3, n=14, d=0.9)
+
+    # ---- 12.8 "a single byte": the 8-bit row --------------------------------
     bw, gap = 0.52, 0.16
     total = 8 * bw + 7 * gap
     x0 = 5 - total / 2 + bw / 2
-    brow = reveal(t, 3.0, 0.6)
+    brow = reveal(t, T_BYTE, 0.6)
     if brow > 0.01:
+        # 14.2 "One byte." — the row itself punches
+        bpop = pulse(t, T_ONE, 0.6)
+        bits = _bits(val)
+        # 27.7 carry ripple: 11111111 + 1 flips every bit to 0, right to left
+        ripple = clamp((t - T_ROLL) / 0.85) if t >= T_ROLL else 0.0
+        nflip = int(ripple * 8 + 0.999) if ripple > 0 else 0
         for i, b in enumerate(bits):
+            if nflip > 0 and i >= 8 - nflip:
+                b = 0
             bx = x0 + i * (bw + gap)
-            box(ax, bx, 2.95, bw, bw, edge=AMBER,
+            flipping = (nflip > 0 and i == 8 - nflip)
+            edge = AMBER_HOT if (flipping or bpop > 0.1) else AMBER
+            box(ax, bx, 2.95, bw + 0.06 * bpop, bw + 0.06 * bpop, edge=edge,
                 fill=AMBER if b else NAVY2,
-                fill_alpha=0.9 if b else 0.4, lw=2.5, alpha=brow)
+                fill_alpha=0.9 if b else 0.4, lw=2.5 + 1.5 * bpop, alpha=brow)
         text(ax, x0 - bw - 0.1, 2.95, "1 byte:", 20, CREAM, alpha=brow * 0.85,
              ha="right")
-
-    # status line
-    bypassed = t >= 16.0
-    scol = AMBER_HOT if bypassed else AMBER
-    stxt = "SAFETY CHECK: BYPASSED" if bypassed else "SAFETY CHECK: PASS"
-    text(ax, 5, 1.7, stxt, 32, scol, alpha=appear, stroke=1.4)
-
-    # explanation after overflow
-    text(ax, 5, 0.95, "0 reads as 'safe to fire'  —  incorrectly", 24, CREAM,
-         alpha=reveal(t, 19.0, 0.8))
+        # 16.8 "a maximum value of 255": ghost-light the ceiling
+        mx = reveal(t, T_MAX, 0.6) * (1.0 - reveal(t, TICKS[2], 0.6))
+        if mx > 0.01:
+            for i in range(8):
+                bx = x0 + i * (bw + gap)
+                box(ax, bx, 2.95, bw + 0.10, bw + 0.10, edge=AMBER_HOT,
+                    fill="none", lw=1.8, alpha=mx * 0.55)
+        text(ax, 5, 1.95, "maximum:  11111111  =  255", 22,
+             AMBER_HOT if t < TICKS[2] else CREAM,
+             alpha=reveal(t, T_MAX, 0.6) * (0.95 if t < TICKS[2] else 0.55))
 
     footer(ax, t)
 
