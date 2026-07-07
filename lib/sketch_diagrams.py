@@ -539,124 +539,139 @@ def synced_linac(C: dict) -> Callable:
 
 
 def draw_race_condition(ax, t, dur):
+    """Timed to the REAL narration (assets/audio_v6/seg_026.alignment.json sentence
+    spans, slot 35.16s) — every visual event lands ON its narration line, and the
+    lanes match the words: the narrator says the SCREEN takes the correction, the
+    TURNTABLE follows it, and only the BEAM SETTING never hears — the old 2-lane
+    version wrongly showed the turntable stuck. Three lanes now.
+      0.0 title | 2.0 ~8s setup | 6.1 operator keeps typing | 10.7 X-RAY by mistake
+      13.1 catch it | 14.1 cursor-up fix to ELECTRON | 19.6 screen corrected
+      22.1 turntable follows | 24.1 beam setting never hears | 27.6 LOCKED X-RAY
+      30.9 100x the current"""
     # ---- title + subtitle -------------------------------------------------
-    text(ax, 5, 9.25, "THE RACE CONDITION", 46, AMBER,
+    text(ax, 5, 9.3, "THE RACE CONDITION", 46, AMBER,
          alpha=reveal(t, 0.2, 0.7), stroke=1.6)
-    text(ax, 5, 8.5, "operator has an ~8s window to change beam mode",
-         24, CREAM, alpha=reveal(t, 1.0, 0.7))
+    text(ax, 5, 8.62, "beam setup takes ~8 seconds - the screen keeps listening",
+         22, CREAM, alpha=reveal(t, 2.2, 0.7))
 
     # ---- lane geometry ----------------------------------------------------
-    lx0, lx1 = 3.2, 8.7          # lane left/right (track span)
-    lbl_x = 1.55                 # x for lane labels (left gutter)
-    sw_y = 6.55                  # SOFTWARE lane y
-    hw_y = 3.55                  # HARDWARE lane y
-    bw, bh = 2.05, 1.0           # state-box size
+    lx0, lx1 = 3.0, 8.8          # lane left/right (track span)
+    lbl_x = 1.45                 # x for lane labels (left gutter)
+    sc_y, tt_y, bm_y = 7.0, 5.2, 3.4   # SCREEN / TURNTABLE / BEAM SETTING lanes
+    bw, bh = 1.95, 0.85          # state-box size
+    bx_a = lx0 + bw / 2          # left state box centre  (the typed mistake)
+    bx_b = lx1 - bw / 2          # right state box centre (the correction)
 
-    sw_app = reveal(t, 1.8, 0.7)
-    hw_app = reveal(t, 2.4, 0.7)
+    # narration times (sentence starts from the alignment)
+    T_TYPING, T_XRAY, T_CATCH, T_FIX = 6.3, 10.9, 13.2, 14.3
+    T_SCREEN, T_TABLE, T_NEVER, T_LOCK, T_100X = 19.8, 22.3, 24.3, 27.8, 31.1
 
-    # lane labels
-    text(ax, lbl_x, sw_y, "SOFTWARE", 26, AMBER, alpha=sw_app, ha="center", stroke=1.2)
-    text(ax, lbl_x, hw_y, "HARDWARE", 26, AMBER, alpha=hw_app, ha="center", stroke=1.2)
-    text(ax, lbl_x, sw_y - 0.55, "(display)", 18, MUTE, alpha=sw_app, ha="center")
-    text(ax, lbl_x, hw_y - 0.55, "(turntable)", 18, MUTE, alpha=hw_app, ha="center")
+    # ---- the 8-second window bracket (2.0 "takes about eight seconds") ----
+    win = reveal(t, 2.4, 0.8)
+    if win > 0.01:
+        wy = 8.05
+        bxl, bxr = bx_a - bw / 2, bx_b + bw / 2
+        ax.plot([bxl, bxr], [wy, wy], color=AMBER, lw=2.5, alpha=win, zorder=4)
+        ax.plot([bxl, bxl], [wy, wy - 0.2], color=AMBER, lw=2.5, alpha=win, zorder=4)
+        ax.plot([bxr, bxr], [wy, wy - 0.2], color=AMBER, lw=2.5, alpha=win, zorder=4)
+        # "all inside those eight seconds" (16-19.6) re-pulses the bracket label
+        wpop = pulse(t, 16.2, 1.2)
+        text(ax, (bxl + bxr) / 2, wy + 0.34, "the 8 second window",
+             20 + 3 * wpop, AMBER, alpha=win)
 
-    # the two lane tracks (left to right)
-    if sw_app > 0.01:
-        ax.plot([lx0 - 0.4, lx1], [sw_y, sw_y], color=AMBER_D, lw=2,
-                alpha=sw_app * 0.55, zorder=1)
-    if hw_app > 0.01:
-        ax.plot([lx0 - 0.4, lx1], [hw_y, hw_y], color=AMBER_D, lw=2,
-                alpha=hw_app * 0.55, zorder=1)
+    # ---- lanes appear as the screen-keeps-listening line lands (6.1) ------
+    lanes = ((sc_y, "SCREEN", "(display)", reveal(t, T_TYPING, 0.7)),
+             (tt_y, "TURNTABLE", "(target)", reveal(t, T_TYPING + 0.5, 0.7)),
+             (bm_y, "BEAM SETTING", "(current)", reveal(t, T_TYPING + 1.0, 0.7)))
+    for ly, name, sub, app in lanes:
+        if app > 0.01:
+            text(ax, lbl_x, ly + 0.16, name, 21, AMBER, alpha=app,
+                 ha="center", stroke=1.1)
+            text(ax, lbl_x, ly - 0.42, sub, 15, MUTE, alpha=app, ha="center")
+            ax.plot([lx0 - 0.35, lx1], [ly, ly], color=AMBER_D, lw=2,
+                    alpha=app * 0.55, zorder=1)
 
-    # ---- phase logic ------------------------------------------------------
-    # PHASE 1 (0-8): both X-RAY, operator types, 8s window bracket
-    # PHASE 2 (8-18): SOFTWARE flips to ELECTRON (display updated)
-    # PHASE 3 (18-26): HARDWARE stays X-RAY, target NOT moved
-    # PHASE 4 (26-31.9): DIVERGENCE highlighted, AMBER_HOT
-    sw_flipped = t >= 8.0
-    diverge = t >= 26.0
+    # operator-typing marker, alive until the correction lands on the screen
+    type_app = reveal(t, T_TYPING + 0.3, 0.7) * (1.0 - reveal(t, T_SCREEN, 1.0))
+    text(ax, (bx_a + bx_b) / 2, sc_y + 0.75, "operator keeps typing...",
+         20, AMBER, alpha=type_app, stroke=0.8)
 
-    # box x centres: phase-1 single state on left, phase-2 second state to right
-    bx_a = lx0 + bw / 2          # left state box centre
-    bx_b = lx1 - bw / 2          # right state box centre (after the window)
+    # ONE state box per lane; the TEXT INSIDE morphs X-RAY -> ELECTRON in place
+    # when the narration corrects that lane (operator note: the boxes themselves
+    # change; the third keeps saying X-RAY because it never updated).
+    bx = (bx_a + bx_b) / 2       # single state box, centred on the track
+    bws = bw + 0.5               # a little wider since it is the only box
 
-    # ---- SOFTWARE lane boxes ---------------------------------------------
-    # initial X-RAY state (both lanes share this at start)
-    text(ax, bx_a, sw_y + bh / 2 + 0.4, "start", 16, MUTE, alpha=sw_app * 0.8)
-    box(ax, bx_a, sw_y, bw, bh, edge=AMBER, alpha=sw_app)
-    text(ax, bx_a, sw_y, "X-RAY", 30, CREAM, alpha=sw_app, stroke=1.0)
+    def state_box(ly, t_appear, t_flip):
+        """X-RAY box that crossfades to ELECTRON at t_flip (None = never)."""
+        app = reveal(t, t_appear, 0.6)
+        if app <= 0.01:
+            return
+        f = reveal(t, t_flip, 0.7) if t_flip is not None else 0.0
+        pop = pulse(t, t_appear + 0.1, 0.5) + (pulse(t, t_flip + 0.1, 0.6)
+                                               if t_flip is not None else 0.0)
+        edge = AMBER_HOT if f > 0.5 else AMBER
+        box(ax, bx, ly, bws, bh, edge=edge, fill=NAVY2,
+            fill_alpha=0.45 + 0.2 * f, lw=3 + 1.2 * pop, alpha=app)
+        # crossfade the state text in place
+        text(ax, bx, ly, "X-RAY", 26 + 3 * pop, CREAM,
+             alpha=app * (1.0 - f), stroke=1.0)
+        text(ax, bx, ly, "ELECTRON", 24 + 4 * pop, AMBER_HOT,
+             alpha=app * f, stroke=1.0)
 
-    # arrow from start to the flipped state
-    flip_in = reveal(t, 8.0, 0.8)
-    if flip_in > 0.01:
-        arrow(ax, bx_a + bw / 2 + 0.05, sw_y, bx_b - bw / 2 - 0.05, sw_y,
-              color=AMBER, lw=3, alpha=flip_in)
-        # the updated display box
-        box(ax, bx_b, sw_y, bw, bh, edge=AMBER_HOT,
-            fill=NAVY2, fill_alpha=0.6, alpha=flip_in)
-        pop = pulse(t, 8.2, 0.5)
-        text(ax, bx_b, sw_y, "ELECTRON", 27 + 4 * pop, AMBER_HOT,
-             alpha=flip_in, stroke=1.0)
-        text(ax, bx_b, sw_y + bh / 2 + 0.4, "display updated", 18, AMBER,
-             alpha=reveal(t, 8.6, 0.7))
+    # ---- 10.7 "Type X-RAY by mistake": all three lanes take the mistake ---
+    state_box(sc_y, T_XRAY, T_SCREEN)        # screen corrects at 19.8
+    state_box(tt_y, T_XRAY + 0.4, T_TABLE)   # turntable follows at 22.3
+    state_box(bm_y, T_XRAY + 0.7, None)      # beam setting NEVER updates
+    # below the box — the cursor-up label takes this exact slot as it fades out
+    text(ax, bx, sc_y - bh / 2 - 0.38, "typed by mistake", 17, MUTE,
+         alpha=reveal(t, T_XRAY + 0.5, 0.7) * (1.0 - reveal(t, T_FIX, 0.6)))
 
-    # ---- HARDWARE lane boxes ---------------------------------------------
-    box(ax, bx_a, hw_y, bw, bh, edge=AMBER, alpha=hw_app)
-    text(ax, bx_a, hw_y, "X-RAY", 30, CREAM, alpha=hw_app, stroke=1.0)
+    # ---- 13.1 "Catch it." — a ring around the typed mistake ---------------
+    flash(ax, bx, sc_y, t, T_CATCH, r0=0.85, r1=1.5, n=12, d=0.9)
 
-    # hardware stays put — a flat "no change" arrow / it never reaches box B
-    stay = reveal(t, 18.0, 0.9)
+    # ---- 14.1 "Cursor up, fix it to electron" -----------------------------
+    fix = reveal(t, T_FIX, 0.7) * (1.0 - reveal(t, T_SCREEN + 0.6, 1.0))
+    if fix > 0.01:
+        text(ax, bx, sc_y - bh / 2 - 0.38,
+             "cursor up - fix it to ELECTRON", 19, AMBER_HOT, alpha=fix)
+
+    # ---- 19.6 / 22.1: the correction lands, lane by lane ------------------
+    text(ax, bx, sc_y + bh / 2 + 0.34, "corrected", 16, AMBER,
+         alpha=reveal(t, T_SCREEN + 0.4, 0.7))
+    text(ax, bx, tt_y + bh / 2 + 0.34, "follows", 16, AMBER,
+         alpha=reveal(t, T_TABLE + 0.4, 0.7))
+
+    # ---- 24.1 "But the beam setting never hears about the change..." ------
+    stay = reveal(t, T_NEVER, 0.9)
     if stay > 0.01:
-        # a dashed/stalled track showing hardware did NOT move to box B
-        ax.plot([bx_a + bw / 2 + 0.05, bx_b - bw / 2 - 0.05], [hw_y, hw_y],
-                color=MUTE, lw=2.5, alpha=stay * 0.7, ls=(0, (4, 4)), zorder=1)
-        # an empty ghost slot where ELECTRON should be (but isn't)
-        box(ax, bx_b, hw_y, bw, bh, edge=MUTE, fill=NAVY2, fill_alpha=0.25,
-            lw=2, alpha=stay * 0.6)
-        text(ax, bx_b, hw_y, "no target", 24, MUTE, alpha=stay)
-        text(ax, bx_b, hw_y - bh / 2 - 0.4, "target NOT moved", 18, MUTE,
-             alpha=reveal(t, 18.6, 0.8))
-        # a small "STAYS X-RAY" callout under the start box
-        text(ax, bx_a, hw_y - bh / 2 - 0.4, "turntable stays", 18, CREAM,
-             alpha=stay * 0.9)
+        text(ax, bx, bm_y - bh / 2 - 0.36, "never hears about the change",
+             18, MUTE, alpha=stay * (1.0 - reveal(t, T_LOCK + 0.2, 1.0)))
 
-    # ---- PHASE 1: operator types + 8s window bracket ---------------------
-    # marker sits between the lanes on the left, fades out once flip happens
-    type_app = reveal(t, 3.0, 0.7) * (1.0 - reveal(t, 8.0, 1.0))
-    if type_app > 0.01:
-        ty = (sw_y + hw_y) / 2
-        text(ax, bx_a, ty + 0.22, "operator types...", 22, AMBER,
-             alpha=type_app, stroke=0.8)
-        # an 8s-window bracket spanning the gap toward box B
-        bxl, bxr = bx_a + bw / 2 + 0.1, bx_b - bw / 2 - 0.1
-        ax.plot([bxl, bxr], [ty - 0.45, ty - 0.45], color=AMBER, lw=2.5,
-                alpha=type_app, zorder=4)
-        ax.plot([bxl, bxl], [ty - 0.45, ty - 0.25], color=AMBER, lw=2.5,
-                alpha=type_app, zorder=4)
-        ax.plot([bxr, bxr], [ty - 0.45, ty - 0.25], color=AMBER, lw=2.5,
-                alpha=type_app, zorder=4)
-        text(ax, (bxl + bxr) / 2, ty - 0.78, "8 second window", 20, AMBER,
-             alpha=type_app)
+    # ---- 27.6 "It stays locked at X-ray strength." ------------------------
+    lock = reveal(t, T_LOCK, 0.7)
+    if lock > 0.01:
+        pop = pulse(t, T_LOCK + 0.15, 0.6)
+        # re-stroke the beam box hot: still X-RAY, now dangerous
+        box(ax, bx, bm_y, bws, bh, edge=AMBER_HOT, fill=NAVY2,
+            fill_alpha=0.0, lw=4 + 1.5 * pop, alpha=lock)
+        text(ax, bx, bm_y - bh / 2 - 0.36, "LOCKED at x-ray strength",
+             18, AMBER_HOT, alpha=reveal(t, T_LOCK + 0.3, 0.7))
+        # divergence connector: the corrected turntable above, the locked beam
+        arrow(ax, bx + bws / 2 + 0.45, tt_y - bh / 2 - 0.05,
+              bx + bws / 2 + 0.45, bm_y + bh / 2 + 0.05,
+              color=AMBER_HOT, lw=4, alpha=lock)
+        flash(ax, bx + bws / 2 + 0.45, (tt_y + bm_y) / 2, t, T_LOCK + 0.4,
+              r0=0.6, r1=1.3, d=0.8)
 
-    # ---- PHASE 4: the DIVERGENCE ----------------------------------------
-    if diverge:
-        dv = reveal(t, 26.0, 0.8)
-        # vertical gap connector between the two right-hand boxes
-        arrow(ax, bx_b, sw_y - bh / 2 - 0.1, bx_b, hw_y + bh / 2 + 0.1,
-              color=AMBER_HOT, lw=4, alpha=dv)
-        # mismatch flash centred in the gap
-        flash(ax, bx_b, (sw_y + hw_y) / 2, t, 26.4, r0=0.7, r1=1.5, d=0.8)
-        text(ax, bx_b + 0.25, (sw_y + hw_y) / 2, "MISMATCH", 24, AMBER_HOT,
-             alpha=dv, ha="left", stroke=1.0)
-
-    # ---- bottom lethal line ---------------------------------------------
-    lethal = reveal(t, 27.5, 0.9)
-    if lethal > 0.01:
-        text(ax, 5, 1.5, "SOFTWARE says ELECTRON  -  HARDWARE still X-RAY",
-             24, AMBER_HOT, alpha=lethal, stroke=1.2)
-        text(ax, 5, 0.92, "mismatch = beam fires with no target in place",
-             22, CREAM, alpha=reveal(t, 28.3, 0.9))
+    # ---- 30.9 "A hundred times the current of an electron treatment." -----
+    x100 = reveal(t, T_100X, 0.8)
+    if x100 > 0.01:
+        pop = pulse(t, T_100X + 0.2, 0.7)
+        text(ax, 5, 1.9, "100x the current of an electron treatment",
+             27 + 4 * pop, AMBER_HOT, alpha=x100, stroke=1.3)
+        text(ax, 5, 1.28, "screen and turntable corrected - the beam never was",
+             20, CREAM, alpha=reveal(t, T_100X + 0.9, 0.8))
 
     footer(ax, t)
 
