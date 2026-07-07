@@ -677,32 +677,35 @@ def draw_race_condition(ax, t, dur):
 
 
 def draw_beam_fires(ax, t, dur):
+    """Timed to seg_027's narration (assets/audio_v6/seg_027.alignment.json,
+    slot 20.3s) — and the second HALF of the narration (the dose chambers that
+    saturate and report almost nothing) is now on screen; the old version ended
+    at the impact and never visualized it.
+      0.0 full-power beam, no target, no filter | 5.7 directly into the patient
+      7.9 chambers can't keep up | 11.7 saturate, report almost nothing
+      15.2 the machine doesn't even know what it's done"""
     # ---- title ----
     text(ax, 5, 9.2, "THE BEAM FIRES", 46, AMBER, alpha=reveal(t, 0.1, 0.5),
          stroke=1.6)
 
-    # ---- PHASE 1: emitter (top) + patient (bottom) ----
+    # ---- 0-5.7: emitter + patient + the two ABSENT safeguards -------------
     em = reveal(t, 0.5, 0.6)          # emitter appears
     box(ax, 5, 8.05, 3.0, 0.95, edge=AMBER, fill=NAVY2, fill_alpha=0.6,
         lw=3.5, alpha=em)
     text(ax, 5, 8.05, "EMITTER", 26, CREAM, alpha=em)
 
-    # patient position (bottom)
     pat = reveal(t, 1.0, 0.6)
     box(ax, 5, 1.55, 3.4, 0.95, edge=AMBER, fill=NAVY2, fill_alpha=0.6,
         lw=3.5, alpha=pat)
     text(ax, 5, 1.55, "PATIENT", 26, CREAM, alpha=pat)
 
-    # ---- the two ABSENT safeguards, in the gap, struck through ----
-    # they scaffold phase 1, then fade out as the beam fires (phase 3 simplifies)
-    lbl = reveal(t, 1.7, 0.6) * (1.0 - reveal(t, 4.4, 0.6))
-    # NO target (left)
+    # struck-through safeguards hold the whole no-target/no-filter line (to 5.7)
+    lbl = reveal(t, 1.9, 0.6) * (1.0 - reveal(t, 5.7, 0.6))
     text(ax, 2.45, 5.85, "TARGET", 24, AMBER_HOT, alpha=lbl)
     if lbl > 0.01:
         ax.plot([1.35, 3.55], [5.85, 5.85], color=AMBER_HOT, lw=3, alpha=lbl,
                 zorder=5, solid_capstyle="round")
     text(ax, 2.45, 5.25, "(absent)", 18, MUTE, alpha=lbl)
-    # NO filter (right)
     text(ax, 7.55, 5.85, "FILTER", 24, AMBER_HOT, alpha=lbl)
     if lbl > 0.01:
         ax.plot([6.45, 8.65], [5.85, 5.85], color=AMBER_HOT, lw=3, alpha=lbl,
@@ -710,55 +713,86 @@ def draw_beam_fires(ax, t, dur):
     text(ax, 7.55, 5.25, "(absent)", 18, MUTE, alpha=lbl)
     text(ax, 5, 6.7, "NO target   -   NO filter", 22, CREAM, alpha=lbl * 0.9)
 
-    # ---- PHASE 2: the full-power beam FIRES straight down ----
-    # beam grows from emitter (y=7.55) to patient (y=2.05) between t=3 and t=4
-    fire = reveal(t, 3.0, 0.9)
+    # ---- 5.7 "Directly into the patient.": the beam FIRES -----------------
+    T_FIRE, T_CHAM, T_SAT, T_KNOW = 5.9, 8.1, 11.9, 15.4
+    fire = reveal(t, T_FIRE, 0.8)
     if fire > 0.01:
-        y_top = 7.55
-        y_bot = 2.05
+        y_top, y_bot = 7.55, 2.05
         y_now = y_top - (y_top - y_bot) * fire
-        # thick, brutal beam — sustained flicker once it has landed
         flick = 0.0
-        if t >= 3.9:
-            flick = 0.5 + 0.5 * np.sin((t - 3.9) * 11.0)
-        lwbeam = 16 + 8 * pulse(t, 3.0, 1.2) + 3 * flick
-        # hot glow underlay (wide, fainter) — drawn first
+        if t >= T_FIRE + 0.8:
+            flick = 0.5 + 0.5 * np.sin((t - T_FIRE - 0.8) * 11.0)
+        lwbeam = 16 + 8 * pulse(t, T_FIRE, 1.2) + 3 * flick
         ax.plot([5, 5], [y_top, y_now], color=AMBER, lw=lwbeam + 16,
                 alpha=fire * 0.22, zorder=3, solid_capstyle="round")
         ax.plot([5, 5], [y_top, y_now], color=AMBER_HOT, lw=lwbeam + 7,
                 alpha=fire * 0.35, zorder=3.5, solid_capstyle="round")
-        # core beam (brightest)
         ax.plot([5, 5], [y_top, y_now], color=AMBER_HOT, lw=lwbeam, alpha=fire,
                 zorder=4, solid_capstyle="round")
-        # white-hot inner thread for the lethal-energy read
         ax.plot([5, 5], [y_top, y_now], color=CREAM, lw=max(2, lwbeam * 0.28),
                 alpha=fire * 0.85, zorder=4.5, solid_capstyle="round")
 
-    # ---- PHASE 3: impact on the patient + hard caption ----
-    # impact zone: a hot persistent glow on the patient that flickers, plus
-    # overlapping radiating bursts so the gut-punch is present at every dwell
-    # frame from t~5 to the end (offset off integer seconds, long decay).
-    imp = reveal(t, 4.9, 0.5)
+    # impact glow + periodic bursts from touchdown to the end of the slot
+    imp = reveal(t, T_FIRE + 0.7, 0.5)
     if imp > 0.01:
         gl = 0.55 + 0.45 * abs(np.sin(t * 9.0))
         ax.scatter([5], [2.05], s=2600 * imp, c=AMBER_HOT, alpha=0.30 * imp * gl,
                    zorder=3, linewidths=0)
         ax.scatter([5], [2.05], s=1300 * imp, c=CREAM, alpha=0.35 * imp * gl,
                    zorder=3.5, linewidths=0)
-    for t0 in (5.1, 5.8, 6.5, 7.2, 7.9):
-        flash(ax, 5, 2.05, t, t0, r0=1.0, r1=2.4, n=14, color=AMBER_HOT, d=1.1)
+    for k in range(15):
+        flash(ax, 5, 2.05, t, T_FIRE + 0.8 + 0.9 * k, r0=1.0, r1=2.4, n=14,
+              color=AMBER_HOT, d=1.1)
 
-    # hard caption: two clean stacks flanking the beam, never sitting on it.
-    # RIGHT = FULL POWER (amber-hot), LEFT = NO TARGET (cream), matched baselines.
+    # hard caption flanking the beam, on the narration line
     yA, yB = 4.55, 3.55
-    cap = reveal(t, 5.2, 0.55)
+    cap = reveal(t, T_FIRE + 0.9, 0.55) * (1.0 - reveal(t, T_CHAM + 0.6, 0.8))
     text(ax, 5.75, yA, "FULL", 44, AMBER_HOT, alpha=cap, ha="left", stroke=1.8)
     text(ax, 5.75, yB, "POWER.", 44, AMBER_HOT, alpha=cap, ha="left", stroke=1.8)
-    cap2 = reveal(t, 5.8, 0.55)
-    text(ax, 4.25, yA, "NO", 44, CREAM, alpha=cap2, ha="right", stroke=1.8)
-    text(ax, 4.25, yB, "TARGET.", 44, CREAM, alpha=cap2, ha="right", stroke=1.8)
+    text(ax, 4.25, yA, "NO", 44, CREAM, alpha=cap, ha="right", stroke=1.8)
+    text(ax, 4.25, yB, "TARGET.", 44, CREAM, alpha=cap, ha="right", stroke=1.8)
 
-    footer(ax, t)
+    # ---- 7.9 "the chambers that measure dose can't keep up" ---------------
+    # a dose-chamber gauge right of the beam: climbs frantically, pegs, then
+    # the READOUT collapses to almost nothing (11.7), because saturation lies.
+    ch = reveal(t, T_CHAM, 0.7)
+    if ch > 0.01:
+        gx, gy, gw, gh = 8.25, 4.9, 1.15, 2.6      # gauge geometry
+        box(ax, gx, gy, gw, gh, edge=AMBER, fill=NAVY2, fill_alpha=0.5,
+            lw=3, alpha=ch)
+        text(ax, gx, gy + gh / 2 + 0.36, "DOSE CHAMBER", 17, CREAM, alpha=ch)
+        # fill level: frantic climb 8.1->10.5, pegged to 11.9, collapse by 13
+        if t < 10.5:
+            lvl = clamp((t - T_CHAM) / 2.2) * (0.85 + 0.1 * np.sin(t * 13.0))
+        elif t < T_SAT:
+            lvl = 0.97 + 0.03 * np.sin(t * 17.0)   # pegged, quivering
+        else:
+            lvl = max(0.04, 0.97 * (1.0 - reveal(t, T_SAT, 1.1)))  # collapse
+        y0 = gy - gh / 2 + 0.08
+        ax.plot([gx, gx], [y0, y0 + (gh - 0.16) * clamp(lvl)],
+                color=(AMBER_HOT if t < T_SAT + 0.4 else MUTE),
+                lw=26, alpha=ch * 0.9, solid_capstyle="butt", zorder=4)
+        text(ax, gx, gy - gh / 2 - 0.34, "can't keep up", 17, AMBER,
+             alpha=ch * (1.0 - reveal(t, T_SAT, 0.8)))
+        # 11.7 "They saturate — and report almost nothing."
+        sat = reveal(t, T_SAT, 0.6)
+        if sat > 0.01:
+            flash(ax, gx, gy, t, T_SAT + 0.1, r0=0.8, r1=1.6, n=12, d=0.9)
+            text(ax, gx, gy - gh / 2 - 0.34, "SATURATED", 18, AMBER_HOT,
+                 alpha=sat * (1.0 - reveal(t, T_SAT + 2.2, 0.7)))
+            text(ax, gx, gy - gh / 2 - 0.34, "reads: almost nothing", 16, MUTE,
+                 alpha=reveal(t, T_SAT + 2.4, 0.7))
+
+    # ---- 15.2 "The machine doesn't even know what it's done." -------------
+    know = reveal(t, T_KNOW, 0.8)
+    if know > 0.01:
+        pop = pulse(t, T_KNOW + 0.2, 0.7)
+        text(ax, 5, 0.72, "the machine doesn't even know what it's done",
+             24 + 3 * pop, CREAM, alpha=know, stroke=1.2)
+
+    # footer yields the bottom strip to the closing line
+    text(ax, 5, 0.34, "Source: Leveson & Turner, IEEE Computer, 1993", 19,
+         CREAM, alpha=reveal(t, 0.8, 0.8) * 0.62 * (1.0 - reveal(t, T_KNOW, 0.8)))
 
 
 def draw_false_safe(ax, t, dur):
