@@ -1,111 +1,106 @@
-# Session Handoff — scenes 19–22 SHIPPED; the consistency pipeline is generic; next: seg_018
+# Session Handoff — scenes 18, 23–26 SHIPPED (27 pending verdict); reuse library live
 
-**Date:** 2026-07-04 · **Branch:** `v6-baseline` (pushed) · **Project:** `projects/therac-25-test`
+**Date:** 2026-07-07 · **Branch:** `v6-baseline` (keep it pushed — origin is the backup) ·
+**Project:** `projects/therac-25-test`
 
-> Read the auto-loaded memories first — especially `openmontage-consistency-toolkit`,
-> `temp-host-urls-expire`, `feedback-event-whitelist`, `amber-graphic-novel-house-style`,
-> `stat-card-diagram-splice-technique`. Prior handoffs: `git show 218cbd1:SESSION_HANDOFF.md`
-> (machine-drift era), `git log --follow SESSION_HANDOFF.md`.
+> Read the auto-loaded memories first — especially `reuse-before-generate`,
+> `openmontage-consistency-toolkit`, `temp-host-urls-expire`, `feedback-event-whitelist`,
+> `amber-graphic-novel-house-style`, `stat-card-diagram-splice-technique`. Prior handoffs:
+> `git log --follow SESSION_HANDOFF.md`.
 
 ## STATE: episode board
 
-- **seg_019 ✅ APPROVED (take 12)** — the template chained scene: locked-camera console beat →
-  Veo two-fire hard shot (each fire on its narration line) → pound + settle-hold through stats.
-- **seg_020 ✅ APPROVED (take 1)** — $0 deterministic stat card ("25,000 RADS / 1 SECOND /
-  1 CENTIMETER"), reveals cut on the word timings (seg_012 splice recipe).
-- **seg_021 ✅ APPROVED (take 2)** — the "Same hospital. Same machine. Same operator." return:
-  4 lanes in one scene (Grok echo beat / Veo Kidd hard shot / Grok Hager / Kling FLF
-  "MALFUNCTION 54" morph). ~$1.43.
-- **seg_022 ✅ APPROVED (take 3)** — the elegy montage: empty room light-death (Kidd), sealed-door
-  light-death (Cox), Katie window hold. ~$1.18. Its drift is what motivated montage grounding.
-- **NEXT: seg_018** (see bottom). Then: re-time remaining old-slot scenes; sheets for Katie
-  (seg_001-003); Hager sheet (his face exists in approved seg_021 b3/take2 — curate a sheet
-  from it via `lib/identity_tokens` + a Nano multi-view edit before seg_024/031/034 reuse him).
+- **seg_018 ✅ APPROVED (take 2, ~$3.50)** — the Malfunction-54 accident scene, 52s, 8 beats:
+  console beats grounded on seg_019/021 stills, X→E FLF morph, beam+jolt Veo hard_shot,
+  M54 FLF, finger-to-P cliffhanger on the seg_019 console still. Ceiling raised to $2.50
+  (operator sign-off) for one dispatch. Lesson: a "failed" Veo poll timeout still charged
+  ($0.32, ledger entry 7 min late) — budget hard shots at ~3× sticker, check the ledger.
+- **seg_023 ✅ APPROVED (take 7, $0.93)** — $0 stat card + Grok beats + $0 deterministic
+  drain (PIL blend toward NAVY from beat 2's last frame) spliced via `use-clip`. Lessons:
+  approved-still-vs-prompt contradictions fail the montage gate (re-roll the still first);
+  settle-clause motion ("then holds there, nearly still — no new events") stops leg-2
+  reinvention; b1 fixed by copying the approved seg_022 still directly as the keyframe.
+- **seg_024 ✅ APPROVED (take 3, $0.68)** — first keyframes-reviewed-before-video scene (now
+  the default: author stills → operator eyeballs → dispatch).
+- **seg_025 ✅ APPROVED (take 2, $1.62)** — Hager sheet debut. `subj_hager` reference sheet
+  built for $0.04 (Nano multi-view edit from approved seg_021 b3 keyframe) →
+  `assets/asset_bible/subj_hager_reference_sheet.png`, registered in `asset_bible_v6.json`
+  (forward-slash paths — backslash escapes get mangled). Split dispatch ($0.70 + $0.52) to
+  stay under ceiling: placeholder-lane the deferred beats, then regen — COPY
+  `_keyframe_review/{sid}__{old_rid}` → new rid first or preauthored stills are lost.
+  Person-leak fix: person-free `seg_025_screen.png` plate inserted FIRST in the sidecar.
+- **seg_026 ✅ APPROVED (take 2, $0)** — `race_condition` sketch diagram rewritten word-timed
+  to narration (character-level times in `assets/audio_v6/{sid}.alignment.json`); in-place
+  X-RAY→ELECTRON crossfade on two boxes, third stays X-RAY ("it didn't update").
+- **seg_027 ⏳ take 1 registered, VERDICT PENDING** — `beam_fires` diagram rewritten the same
+  way ($0): safeguards struck-through to 5.7, beam fires 5.9, dose-chamber gauge (climb →
+  pegged → collapses to near-zero after saturation 11.9), closing line 15.4 (footer fades to
+  yield the bottom strip). Committed `47e7cda`. On approve: log verdict + note, declutter.
+- **NEXT after 27:** seg_028+ (check the board); Katie sheets (seg_001-003); episode re-time
+  of remaining old-slot scenes. Hager returns in seg_031/034 — his sheet now exists.
 
-## THE PIPELINE (all generic, all committed `6327bce..aacabd2`)
+## TODAY'S FIXES (all committed + pushed except where noted)
 
-**Grounding kit (every mixed beat, chained OR montage):** per-beat locale asset (terminal vs
-room, `_beat_locale`), content-keyed gold plates (`_gold_refs/{sid}.beats.json` regex sidecar —
-ordinal plates misground on re-plans), machine sheet+tokens+REAL photo whenever the beat's text
-puts the machine on screen (`_machine_in_beat`), figure sheets by beat text, judge vet badge.
-**Chain-carry (chained scenes only, >1 chainable beat):** beat N's keyframe seeds N+1, locale
-boundaries reset the chain, narration-matched figure sheets, always-on room machine grounding,
-semantic clip gate OFF (operator eyeballs). Montage keeps the gate ON, never inherits frames.
-The console-operator prompt clause fires ONLY on terminal-locale beats.
+- `ea1b049` director.py: `max_output_tokens` 8192→16384 — thinking tokens truncated
+  big-scene JSON (`_source:"fallback"` + `_error:"Unterminated string"` is the tell).
+- `06ae16a` takes.py reroll: failed URL→disk mirror now FAILS the job (was silently
+  succeeding with the stale still).
+- `46ee73c` `lib/asset_library.py` — cross-project reuse catalog. **Shop it BEFORE any
+  generation** (PRODUCTION_WORKFLOW §6 step 0):
+  `python -m lib.asset_library {index,find,list} <pid> [query] [--approved-only]`.
+  Approved stills can be copied straight over `_keyframe_review/.../keyframe.png` (backup
+  first) — dispatch reuses the local file.
+- `73d6748` image_host.py: content-addressed premiumize names — same-named `keyframe.png`
+  uploads got renamed server-side, name+size verify failed, refs silently dropped →
+  unanchored Grok tasks failed twice. Root-caused only because the server now logs to disk.
+- `47e7cda` sketch_diagrams.py: beam_fires rewrite (word-timed + dose-chamber gauge).
+  race_condition rewrite committed earlier in the day.
 
-**Lanes per beat:** Grok (default motion, ~$0.102/6s leg; seams crossfaded
-`AI_CHAIN_SEAM_BLEND=0.12`) · **Veo `hard_shot: true`** (counted events / multi-phase arcs —
-one 8s-ONLY REFERENCE_2_VIDEO generation on Kie, refs = beat still + machine sheet + character
-sheet, conformed by SPEED-FIT never tail-trim, no-dialogue clause automatic, $0.32) · Kling FLF
-(LEGIBLE state morphs — text composited deterministically; ~$0.084/s) · manim (placeholder) ·
-$0 deterministic cards (PIL + ffmpeg + `use-clip`, the seg_020/012 recipe).
+## OPERATING PATTERNS (proven today)
 
-**Director (automatic):** receives NARRATION TIMING (real sentence spans via
-`scenes.sentence_spans`) → beat weights mirror the audio; emits `hard_shot` + settle/hold
-wording ("holds there, nearly still — no new events" → settle continuation legs, so stats
-tails can't spawn invented action); one-frozen-moment beat prompts (transition wording causes
-DIPTYCHS); chained-vs-montage via the focused classifier (`_chained_source` on the revision).
+- **Launch the dashboard with log redirect** (three failures vanished with the console
+  before this): `-RedirectStandardOutput logs/dashboard_8011.out.log -RedirectStandardError
+  logs/dashboard_8011.err.log` on the detached uvicorn launch.
+- **Reuse before generate:** approved stills as direct keyframes; $0 derivations
+  (last-frame extraction, PIL drains, stat cards, PIL patches from CLEAN source regions).
+- **Chained classifier is unreliable both ways** → operator-override by appending a
+  `revision_drafted` event with `chained` flipped.
+- **Ceiling raises:** `OPENMONTAGE_REGEN_MAX_USD` is read from the server process env —
+  relaunch the server with the var set, with operator sign-off.
+- **Diagram lane:** `python -m lib.sketch_diagrams <template> <duration> <out>`; word timing
+  from `scenes.sentence_spans` + the alignment JSON; frame-grid QC at key beats before
+  registering via `use-clip`.
+- Temp-host URLs die in hours — never store-and-reuse; local file is truth, re-host at use.
 
-**Consistency tooling:** `lib/identity_tokens.py` (derive police-description tokens + "NOT a
-<confusable>" from REAL photos; re-roll hints in the event log are the promotion signal) ·
-`lib/reference_judge.py` (**gemini-2.5-pro ONLY** — flash ranked the C-arm frame FIRST; ranking
-= gold-plate nomination CLI, checklist = advisory ⚠ badges; `selftest` must pass before
-trusting changes) · per-project setup recipe in `docs/PRODUCTION_WORKFLOW.md` §6 (+ lessons
-8-10).
+## THE PIPELINE (generic; see docs/PRODUCTION_WORKFLOW.md §6)
 
-## THE DASHBOARD WORKFLOW (proven on 4 scenes)
+**Grounding kit (every mixed beat):** per-beat locale (`_beat_locale`), content-keyed gold
+plates (`_gold_refs/{sid}.beats.json` regex sidecar, FIRST match wins), machine sheet+tokens
+when the beat shows the machine, figure sheets by beat text (montage) / narration (chained).
+**Chain-carry (chained only):** beat N's keyframe seeds N+1, locale boundaries reset, gate
+OFF (operator eyeballs); montage keeps the gate ON, never inherits frames.
 
-1. Scope the scene (narration + spans + gate) → pick the lane family FIRST: legible text/stats
-   → $0 card / FLF morph; action → chained grok + Veo hard shots; montage/elegy → grounded
-   montage beats; mechanism → manim.
-2. Curate plates ($0) when continuity matters: copy approved stills / canonicals into
-   `_gold_refs/{sid}_b*.png` + write `{sid}.beats.json` content regexes. Reuse APPROVED frames
-   from earlier scenes for narrative echoes ("Same machine" grounded on seg_019's stills).
-3. Director-pass with a steering note (beat structure, hard_shot, holds, character looks).
-   Check the draft: weights vs spans, hard_shot flags, settle wording. Edit beats if needed.
-4. 🖼 Preview stills (~$0.04/still; works for chained AND montage now) → eyeball + ⚠ badges →
-   ↻ re-roll weak stills with pose hints (hint REPLACES the beat prompt; priors backed up as
-   keyframe_rN.png; deterministic PIL healing is $0 — e.g. inset panels patched out).
-5. ✓ approve → animate (beat-aware cost confirm) → watch WITH narration.
-6. Per-beat regen for the one wrong beat: motion-only edits KEEP the approved still;
-   `hard_shot: true` on the edit re-routes through Veo; prompts with "no text/plaques/signs"
-   fight the garble trap. Repeat until the eyeball says done.
-7. Verdict: Approve. ~$0.65-1.50/scene total is the observed range.
+**Lanes per beat:** Grok (~$0.102/6s leg) · Veo `hard_shot` (8s-only REFERENCE_2_VIDEO,
+$0.32 sticker — budget 3×, speed-fit conform) · Kling FLF morphs/drains (~$0.084/s, legible
+text composited deterministically) · manim/sketch diagrams ($0) · $0 deterministic cards +
+splices via `use-clip`.
+
+**Dashboard flow:** director-pass (steering note) → check draft (weights vs spans,
+hard_shot, settle wording, beat count — typo micro-actions are ONE beat) → author keyframes
+($0.04/still) → operator reviews stills → re-roll with pose hints (hint REPLACES beat
+prompt) → approve-and-dispatch (ceiling check) → per-beat regen for the one wrong beat →
+verdict. One job per scene at a time.
 
 ## Costs & guards
-Grok $0.102/6s leg · Veo-ref $0.32 (8s only) · Nano $0.04/edit · Kling ~$0.084/s ·
-Gemini/judge pennies. Ceiling `OPENMONTAGE_REGEN_MAX_USD` ($1, beat-aware, EXCLUDES Nano
-authoring ~+$0.04-0.12/beat). Announce before ANY generation. Kill switch honored everywhere
-incl. keyframe authoring. `projects/` is GITIGNORED (plates/sidecars/bible live on disk only).
-Never `git gc`/`-delete` under `.git/`. Event types are whitelisted (`feedback._EVENT_TYPES`).
-
-## NEXT TASK: seg_018 — the Malfunction-54 scene (the big one)
-
-52.48s, NO takes yet, gate=partial. The full accident sequence; sentence spans:
-`[0-3.5] spring/machines still treating · [3.5-10.2] Cox on the table, ninth treatment ·
-[10.2-12.8] operator knows her console · [12.8-14] she's fast · [14-17.4] types X for E ·
-[17.4-20.7] catches it/cursors up/fixes it · [20.7-27.4] BEAM FIRES + Cox jolted ·
-[27.4-29] she can't see him · [29-33.4] monitor dead, intercom broken ·
-[33.4-40.6] screen: Malfunction 54, no manual explains · [40.6-44.7] underdose reading ·
-[44.7-49.6] stops happen all the time · [49.6-52.5] her finger moves to the P key.`
-
-Suggested shape (verify with the director + operator):
-- Terminal beats reuse the seg_019/021 console grounding (plates from approved b1 stills).
-- **X→E typo = the textbook FLF content-morph** (box over the cursor line, start "X" end "E" —
-  or two morphs: X appears, then fixed). LEGIBLE text never via Grok.
-- **Beam fires + jolt = Veo hard_shot** (counted single fire; Cox on the table — reuse the
-  seg_021 Kidd/seg_019 plates + Cox sheet).
-- "Malfunction 54" screen = FLF morph (seg_021 b4 proved it; same terminal grounding).
-- Finger to P key = the cliffhanger INTO approved seg_019 b1 — ground it on seg_019's approved
-  console still for a seamless episode cut.
-- Watch beat COUNT: ~6-8 beats over 52s; the director may over-split the typo micro-actions
-  (catches/cursors/fixes = ONE beat with the morph). Budget: ~$1.5-2.5 → the $1 ceiling will
-  block a single dispatch; either split the work (preview + per-beat regens) or raise
-  `OPENMONTAGE_REGEN_MAX_USD` with the operator's say-so.
+Announce before ANY generation; small batches; the operator's eyeball is the bar (gates
+advisory). `projects/` is GITIGNORED (plates/sidecars/bible/takes live on disk only).
+Never `git gc`/`-delete` under `.git/`. Event types whitelisted (`feedback._EVENT_TYPES`).
+Repo on exFAT D:; push v6-baseline after each work block — origin is the only backup.
 
 ## How to run
-Dashboard: `python -m uvicorn web.backend.app:app --port 8011` DETACHED (no auto-reload —
-restart after backend edits; 127.0.0.1; rebuild UI: `npm run build --prefix web/ui`). System
-python: `C:\Users\Soda\AppData\Local\Programs\Python\Python312\python.exe`. Drive via API:
+Dashboard: `python -m uvicorn web.backend.app:app --port 8011` DETACHED with the log
+redirect above (no auto-reload — restart after backend edits; 127.0.0.1; rebuild UI:
+`npm run build --prefix web/ui`). System python:
+`C:\Users\Soda\AppData\Local\Programs\Python\Python312\python.exe`. Drive via API:
 director-pass → author-keyframes → keyframes/{idx}/reroll → approve-and-dispatch →
-takes/{n}/regen-beats; poll `/jobs/{id}`.
+takes/{n}/regen-beats → use-clip → verdict; poll `/jobs/{id}`.
