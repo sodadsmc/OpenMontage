@@ -874,8 +874,25 @@ def draw_beam_fires(ax, t, dur):
 
 
 def draw_false_safe(ax, t, dur):
+    """Timed to seg_029's narration (assets/audio_v6/seg_029.alignment.json,
+    slot 39.24s). Picks up seg_028's hot 0 and plays the consequence:
+      0.0 "Zero." (the 0 IS the opening frame) | 3.3 nothing needs checking
+      5.5 one pass in every / 6.7 "1 / 256" | 8.6 turntable check box
+      10.3 ...simply VANISHES | 12.9 SET button pressed | 14.0 exact moment
+      16.5 software: no reason to stop | 18.6 SAFE lamp (interlocks satisfied)
+      21.1 BEAM FIRES | 22.3 turntable out of position | 24.3 target out of
+      the path | 28.5 Yakima / 29.7 dead of winter | 31.5 For Glen Dodd.
+      33.5 hardware interlocks | 35.5 nothing left to catch it
+      36.8 AECL had removed them / 38.3 X X X."""
+    T_NOCHK, T_ONEPASS, T_256 = 3.29, 5.53, 6.71
+    T_TTBOX, T_VANISH = 8.57, 10.33
+    T_SET, T_MOMENT, T_NOSTOP, T_SATISF = 12.90, 14.03, 16.50, 18.59
+    T_FIRE, T_TTOUT, T_TGTOUT = 21.13, 22.35, 24.33
+    T_YAK, T_WINTER, T_DODD = 28.50, 29.72, 31.52
+    T_HW, T_CATCH, T_AECL, T_XOUT = 33.47, 35.49, 36.82, 38.28
+
     # ---- Title (persists whole scene) ----
-    text(ax, 5, 9.25, "ZERO MEANS 'SAFE'", 46, AMBER, alpha=reveal(t, 0.2, 0.7),
+    text(ax, 5, 9.25, "ZERO MEANS 'SAFE'", 46, AMBER, alpha=reveal(t, 1.0, 0.7),
          stroke=1.6)
 
     def seg(t_in, t_out, d=0.6):
@@ -883,102 +900,132 @@ def draw_false_safe(ax, t, dur):
         return reveal(t, t_in, d) * (1.0 - reveal(t, t_out - d, d))
 
     # ===================================================================
-    # PHASE 1 (~0-7s): counter rolls down and lands on a big 0
+    # PHASE A [0-4.7] "Zero." — the 0 seg_028 ended on, front and centre
     # ===================================================================
-    p1 = seg(1.2, 7.4, 0.6)
-    if p1 > 0.01:
-        text(ax, 5, 8.35, "Class3 counter", 24, CREAM, alpha=p1 * 0.9)
-        if t < 2.4:   val = 3
-        elif t < 3.0: val = 2
-        elif t < 3.6: val = 1
-        else:         val = 0
-        vcol = AMBER_HOT if val == 0 else AMBER
-        pop = max((pulse(t, ct, 0.3) for ct in [2.4, 3.0, 3.6]), default=0.0)
-        text(ax, 5, 6.1, str(val), 165 + 30 * pop, vcol, alpha=p1, stroke=2.0)
-        land = reveal(t, 3.6, 0.4)
-        text(ax, 5, 3.7, "Class3 = 0  ->  all safety checks pass", 28, CREAM,
-             alpha=p1 * land)
+    pA = seg(0.0, 4.9, 0.35)
+    if pA > 0.01:
+        pop = pulse(t, 0.15, 0.6)
+        text(ax, 5, 5.9, "0", 165 + 26 * pop, AMBER_HOT, alpha=pA, stroke=2.0)
+        text(ax, 5, 3.55, "the value that says:  nothing needs checking", 26,
+             CREAM, alpha=reveal(t, T_NOCHK, 0.6) * pA)
 
     # ===================================================================
-    # PHASE 2 (~7-14s): a SAFE lamp lights (amber) but tagged a LIE; the odds
+    # PHASE B [4.7-11.0] one pass in 256 — the turntable check VANISHES
     # ===================================================================
-    p2 = seg(7.2, 14.0, 0.6)
-    if p2 > 0.01:
-        text(ax, 5, 8.2, "the software lights its indicator", 26, CREAM,
-             alpha=p2 * 0.9)
-        # the SAFE lamp (amber lamp, pulsing glow) -- dark label reads like a lit light
-        glow = 0.30 + 0.22 * (0.5 + 0.5 * np.sin((t - 7.2) * 2.2))
-        box(ax, 3.4, 5.4, 3.0, 1.7, edge=AMBER, fill=AMBER,
-            fill_alpha=glow * p2, lw=4, alpha=p2)
-        text(ax, 3.4, 5.4, "SAFE", 52, NAVY, alpha=p2, stroke=0.0)
-        # the lie tag below the lamp
-        false_a = reveal(t, 8.6, 0.6) * p2
-        text(ax, 3.4, 3.6, "...but it's a LIE", 30, AMBER_HOT, alpha=false_a,
-             stroke=1.4)
-        # the odds, right side
-        odds = reveal(t, 10.0, 0.7) * p2
-        text(ax, 7.2, 6.25, "beam lands here:", 24, CREAM, alpha=odds * 0.9)
-        text(ax, 7.2, 5.1, "1 in 256", 50, AMBER, alpha=odds, stroke=1.6)
-        text(ax, 7.2, 3.9, "per cycle", 22, MUTE, alpha=odds * 0.9)
+    pB = seg(4.9, 11.3, 0.5)
+    if pB > 0.01:
+        text(ax, 5, 7.45, "one pass in every", 24, CREAM,
+             alpha=reveal(t, T_ONEPASS, 0.5) * pB * 0.9)
+        text(ax, 5, 6.35, "1 / 256", 54, AMBER,
+             alpha=reveal(t, T_256, 0.5) * pB, stroke=1.6)
+        # the turntable check appears... then simply is not there any more
+        bx_a = reveal(t, T_TTBOX, 0.6) * pB
+        gone = reveal(t, T_VANISH, 0.7)
+        if bx_a > 0.01:
+            box(ax, 5, 4.35, 4.3, 1.3, edge=AMBER, fill=NAVY2, fill_alpha=0.55,
+                lw=3.5, alpha=bx_a * (1.0 - gone * 0.85))
+            text(ax, 5, 4.35, "TURNTABLE CHECK", 26, CREAM,
+                 alpha=bx_a * (1.0 - gone))
+            text(ax, 5, 2.95, "simply vanished", 24, MUTE,
+                 alpha=reveal(t, T_VANISH + 0.15, 0.6) * pB)
 
     # ===================================================================
-    # PHASE 3 (~14-20s): consequence chain  0 -> interlocks satisfied -> BEAM FIRES
+    # PHASE C [11.0-20.4] the coincidence: SET at that exact moment
     # ===================================================================
-    p3 = seg(14.2, 20.4, 0.6)
-    if p3 > 0.01:
+    pC = seg(11.3, 20.9, 0.5)
+    if pC > 0.01:
         cy = 5.5
-        text(ax, 5, 8.2, "so the software concludes:", 26, CREAM, alpha=p3 * 0.9)
-        # node A: 0
-        text(ax, 1.55, cy, "0", 78, AMBER, alpha=p3, stroke=2.0)
-        a2 = reveal(t, 15.2, 0.5) * p3
-        arrow(ax, 2.35, cy, 3.35, cy, color=AMBER, lw=3, alpha=a2)
-        # node B: interlocks satisfied
-        box(ax, 5.0, cy, 2.9, 1.5, edge=AMBER, fill=NAVY2, fill_alpha=0.55,
-            lw=3, alpha=a2)
-        text(ax, 5.0, cy + 0.33, "interlocks", 24, CREAM, alpha=a2)
-        text(ax, 5.0, cy - 0.35, "satisfied", 24, CREAM, alpha=a2)
-        a3 = reveal(t, 16.6, 0.5) * p3
-        arrow(ax, 6.65, cy, 7.55, cy, color=AMBER_HOT, lw=3, alpha=a3)
-        # node C: BEAM FIRES (lethal beat)
-        fire = reveal(t, 17.4, 0.5) * p3
-        text(ax, 8.7, cy + 0.4, "BEAM", 36, AMBER_HOT, alpha=fire, stroke=1.6)
-        text(ax, 8.7, cy - 0.45, "FIRES", 36, AMBER_HOT, alpha=fire, stroke=1.6)
-        flash(ax, 8.7, cy, t, 17.6, r0=1.05, r1=2.0, d=0.8)
-        text(ax, 5, 2.9, "the interlocks were satisfied -- and the beam fired",
-             26, CREAM, alpha=reveal(t, 18.4, 0.7) * p3)
+        # the operator's SET button — pressed on the word
+        sa = reveal(t, 11.6, 0.5) * pC
+        press = pulse(t, T_SET, 0.55)
+        box(ax, 2.3, cy, 1.9, 1.25, edge=AMBER, fill=AMBER,
+            fill_alpha=0.55 + 0.35 * press, lw=4, alpha=sa)
+        text(ax, 2.3, cy, "SET", 30, NAVY, alpha=sa, stroke=0.0)
+        pulse_glow(ax, 2.3, cy, t, T_SET, rmax=1.3, alpha=pC)
+        text(ax, 2.3, cy - 1.15, "operator", 18, MUTE, alpha=sa * 0.9)
+        # 14.0 "at that exact moment..."
+        text(ax, 5, 2.9, "at that exact moment...", 26, AMBER_HOT,
+             alpha=reveal(t, T_MOMENT, 0.6) * pC, stroke=1.2)
+        # 16.5 "the software saw no reason to stop"
+        a2 = reveal(t, T_NOSTOP - 0.5, 0.5) * pC
+        arrow(ax, 3.45, cy, 4.15, cy, color=AMBER, lw=3, alpha=a2)
+        text(ax, 5.35, cy + 0.33, "software:", 22, CREAM,
+             alpha=reveal(t, T_NOSTOP, 0.5) * pC * 0.9)
+        text(ax, 5.35, cy - 0.35, "no reason to stop", 22, CREAM,
+             alpha=reveal(t, T_NOSTOP, 0.5) * pC)
+        # 18.6 "the interlocks were satisfied" — the lying SAFE lamp
+        a3 = reveal(t, T_SATISF - 0.4, 0.5) * pC
+        arrow(ax, 6.75, cy, 7.35, cy, color=AMBER, lw=3, alpha=a3)
+        la = reveal(t, T_SATISF, 0.5) * pC
+        glow = 0.30 + 0.20 * (0.5 + 0.5 * np.sin((t - T_SATISF) * 2.4))
+        box(ax, 8.45, cy, 1.95, 1.35, edge=AMBER, fill=AMBER,
+            fill_alpha=glow * la, lw=4, alpha=la)
+        text(ax, 8.45, cy, "SAFE", 38, NAVY, alpha=la, stroke=0.0)
+        text(ax, 8.45, cy - 1.15, "interlocks satisfied", 18, MUTE,
+             alpha=la * 0.9)
 
     # ===================================================================
-    # PHASE 4 (~20-28s): hardware interlocks removed -- nothing left to catch it
+    # PHASE D [20.4-26.4] the beam fires — out of position, out of the path
     # ===================================================================
-    p4 = reveal(t, 20.6, 0.6)
-    if p4 > 0.01:
-        text(ax, 5, 8.2, "and the last line of defense?", 26, CREAM, alpha=p4 * 0.9)
-        text(ax, 5, 6.55, "HARDWARE INTERLOCKS", 32, MUTE, alpha=p4 * 0.85)
+    pD = seg(20.9, 26.6, 0.4)
+    if pD > 0.01:
+        fire = reveal(t, T_FIRE, 0.4) * pD
+        fpop = pulse(t, T_FIRE + 0.1, 0.8)
+        text(ax, 5, 5.95, "THE BEAM FIRED", 52 + 6 * fpop, AMBER_HOT,
+             alpha=fire, stroke=1.8)
+        flash(ax, 5, 5.95, t, T_FIRE + 0.1, r0=1.4, r1=2.8, n=16, d=0.9)
+        pulse_glow(ax, 5, 5.95, t, T_FIRE, rmax=2.2, alpha=pD)
+        text(ax, 5, 4.25, "turntable out of position", 27, CREAM,
+             alpha=reveal(t, T_TTOUT, 0.6) * pD)
+        text(ax, 5, 3.35, "target out of the path", 27, CREAM,
+             alpha=reveal(t, T_TGTOUT, 0.6) * pD)
+
+    # ===================================================================
+    # PHASE E [26.4-32.6] Yakima, dead of winter — for Glen Dodd (quiet)
+    # ===================================================================
+    pE = seg(26.6, 32.9, 0.5)
+    if pE > 0.01:
+        text(ax, 5, 6.6, "the bug came back", 24, MUTE,
+             alpha=reveal(t, 27.3, 0.7) * pE * 0.9)
+        text(ax, 5, 5.55, "Yakima, Washington", 36, AMBER,
+             alpha=reveal(t, T_YAK, 0.6) * pE, stroke=1.4)
+        text(ax, 5, 4.6, "in the dead of winter", 24, MUTE,
+             alpha=reveal(t, T_WINTER, 0.6) * pE * 0.95)
+        text(ax, 5, 3.15, "For Glen Dodd.", 32, CREAM,
+             alpha=reveal(t, T_DODD, 0.7) * pE, stroke=1.0)
+
+    # ===================================================================
+    # PHASE F [32.6-end] no hardware interlock left — AECL had removed them
+    # ===================================================================
+    pF = reveal(t, 32.9, 0.5)
+    if pF > 0.01:
+        text(ax, 5, 7.0, "HARDWARE INTERLOCKS", 30, MUTE,
+             alpha=reveal(t, T_HW, 0.6) * pF * 0.9)
         labels = ["MECH STOP", "FUSE", "BACKUP"]
         bw, gap = 2.4, 0.5
         total = 3 * bw + 2 * gap
         x0 = 5 - total / 2 + bw / 2
         for i, lb in enumerate(labels):
             bx = x0 + i * (bw + gap)
-            ba = reveal(t, 21.0 + 0.3 * i, 0.5)
-            box(ax, bx, 4.7, bw, 1.25, edge=MUTE, fill=NAVY2, fill_alpha=0.30,
+            ba = reveal(t, T_HW + 0.25 + 0.3 * i, 0.5) * pF
+            box(ax, bx, 5.15, bw, 1.25, edge=MUTE, fill=NAVY2, fill_alpha=0.30,
                 lw=2.5, alpha=ba * 0.7)
-            # label ABOVE the box (in cream) so the amber X can cross the box out
-            # without obscuring the text — the old centred grey label was illegible.
-            text(ax, bx, 5.72, lb, 22, CREAM, alpha=ba * 0.95)
-            xa = reveal(t, 21.8 + 0.3 * i, 0.45)
+            # label ABOVE the box so the amber X can cross the box out
+            # without obscuring the text
+            text(ax, bx, 6.17, lb, 22, CREAM, alpha=ba * 0.95)
+            xa = reveal(t, T_XOUT + 0.18 * i, 0.35)
             if xa > 0.01:
                 hw, hh = bw / 2 - 0.12, 0.62
-                ax.plot([bx - hw, bx + hw], [4.7 - hh, 4.7 + hh],
+                ax.plot([bx - hw, bx + hw], [5.15 - hh, 5.15 + hh],
                         color=AMBER_HOT, lw=5, alpha=xa, solid_capstyle="round",
                         zorder=6)
-                ax.plot([bx - hw, bx + hw], [4.7 + hh, 4.7 - hh],
+                ax.plot([bx - hw, bx + hw], [5.15 + hh, 5.15 - hh],
                         color=AMBER_HOT, lw=5, alpha=xa, solid_capstyle="round",
                         zorder=6)
-        text(ax, 5, 2.85, "REMOVED", 44, AMBER_HOT, alpha=reveal(t, 23.0, 0.7),
-             stroke=1.6)
-        text(ax, 5, 1.75, "nothing left to catch it", 28, CREAM,
-             alpha=reveal(t, 23.8, 0.8))
+        text(ax, 5, 3.35, "nothing left to catch it", 26, CREAM,
+             alpha=reveal(t, T_CATCH, 0.6) * pF)
+        text(ax, 5, 2.25, "AECL had removed them", 30, AMBER_HOT,
+             alpha=reveal(t, T_AECL, 0.6) * pF, stroke=1.4)
 
     footer(ax, t)
 
