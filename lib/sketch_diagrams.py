@@ -1030,6 +1030,53 @@ def draw_false_safe(ax, t, dur):
     footer(ax, t)
 
 
+def draw_safeguard_restored(ax, t, dur):
+    """seg_032 closing beat (rendered standalone, offset 23.6s into the scene:
+    local word times - 'mattered most' 2.23, 'put back' 3.82, 'safeguard' 4.81).
+    A direct visual callback to draw_false_safe's ending: the same three
+    hardware-interlock boxes stand X-ed out; on 'put back' the X-outs lift
+    and the safeguards re-seat, lit. Resolution, not dread."""
+    T_MATTER, T_BACK, T_SAFE = 2.23, 3.82, 4.81
+
+    text(ax, 5, 9.25, "PUT BACK", 46, AMBER, alpha=reveal(t, T_BACK, 0.7),
+         stroke=1.6)
+
+    text(ax, 5, 7.0, "HARDWARE INTERLOCKS", 30, MUTE,
+         alpha=reveal(t, 0.4, 0.6) * 0.9)
+    labels = ["MECH STOP", "FUSE", "BACKUP"]
+    bw, gap = 2.4, 0.5
+    total = 3 * bw + 2 * gap
+    x0 = 5 - total / 2 + bw / 2
+    # one lift/relight moment per box, staggered after "put back"
+    for i, lb in enumerate(labels):
+        bx = x0 + i * (bw + gap)
+        ba = reveal(t, 0.5 + 0.2 * i, 0.5)
+        lift = reveal(t, T_BACK + 0.25 * i, 0.6)          # X-out fades away
+        lit = reveal(t, T_BACK + 0.35 + 0.25 * i, 0.5)    # box re-seats, lit
+        edge = AMBER if lit > 0.5 else MUTE
+        box(ax, bx, 5.15, bw, 1.25, edge=edge, fill=NAVY2 if lit < 0.5 else AMBER,
+            fill_alpha=0.30 + 0.25 * lit, lw=2.5 + 1.5 * lit, alpha=ba * (0.7 + 0.3 * lit))
+        text(ax, bx, 6.17, lb, 22, CREAM, alpha=ba * 0.95)
+        xa = ba * (1.0 - lift)
+        if xa > 0.01:
+            hw, hh = bw / 2 - 0.12, 0.62
+            ax.plot([bx - hw, bx + hw], [5.15 - hh, 5.15 + hh],
+                    color=AMBER_HOT, lw=5, alpha=xa, solid_capstyle="round",
+                    zorder=6)
+            ax.plot([bx - hw, bx + hw], [5.15 + hh, 5.15 - hh],
+                    color=AMBER_HOT, lw=5, alpha=xa, solid_capstyle="round",
+                    zorder=6)
+        if lit > 0.01:
+            pulse_glow(ax, bx, 5.15, t, T_BACK + 0.35 + 0.25 * i, rmax=1.2,
+                       alpha=0.8)
+    # 4.81 "the very safeguard" — one settled flash across the row
+    flash(ax, 5, 5.15, t, T_SAFE + 0.2, r0=1.6, r1=3.0, n=16, d=0.9)
+    text(ax, 5, 3.3, "the safeguard they'd removed  -  restored", 26, CREAM,
+         alpha=reveal(t, T_SAFE + 0.9, 0.8))
+
+    footer(ax, t)
+
+
 # ---- scene registry --------------------------------------------------------
 SCENES: dict[str, Callable] = {
     "byte_overflow": draw_byte_overflow,
@@ -1037,6 +1084,7 @@ SCENES: dict[str, Callable] = {
     "race_condition": draw_race_condition,
     "beam_fires": draw_beam_fires,
     "false_safe": draw_false_safe,
+    "safeguard_restored": draw_safeguard_restored,
 }
 
 
