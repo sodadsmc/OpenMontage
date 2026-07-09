@@ -207,6 +207,26 @@ character / room stays on-model is decided by per-project DATA authored to this 
 Everything below was proven on the Therac-25 (the C-arm drift fight) — do it ONCE per
 project, per recurring entity, BEFORE bulk generation:
 
+-1. **ENTITY CENSUS — run this before anything else, including the bible.**
+   `python -m lib.entity_census <pid>` reads the scored script, uses Gemini to list every
+   person/place/thing/organization that repeats or carries the story (importance 1-5,
+   mention counts, segments), cross-checks the bible, and flags `** BUILD SHEET **` gaps →
+   `artifacts/entity_census.json`. Every flagged entity gets a reference sheet grounded on
+   REAL research photos and **operator-approved BEFORE segment one is generated**. The
+   census checks sheet EXISTENCE, not fidelity — approval against the real photos is the
+   fidelity gate. Lesson (2026-07-08): the Therac-25 itself — importance 5, on screen in
+   26 of 36 segments — ran the whole episode with a sheet that had drifted from the real
+   photos and a room canonical showing a DIFFERENT machine; eleven shots shipped wrong and
+   were caught only in the episode watch-through. The title character must never be the
+   last entity to get a faithful sheet.
+
+   **Image edit/gen lane for sheets + masters: `lib.gemini_image` (first-party Google,
+   refs as INLINE BYTES).** The KIE nano queue 500s intermittently, and its edit mode
+   fetches refs from hosted URLs — a silent fetch failure degrades the task to unanchored
+   text-to-image that re-imagines the scene. `python -m lib.gemini_image "<prompt>" out.png
+   ref1.png ref2.jpg` (~$0.039/image, ledger-logged); `_nano_image` now auto-falls-back to
+   it when KIE fails (`NANO_FALLBACK_GOOGLE=0` to disable).
+
 0. **Shop the asset library BEFORE generating anything.** Every approved frame/clip is a
    paid, eyeball-passed artifact — reuse is $0 and on-model BY CONSTRUCTION; regeneration
    is a paid dice-roll. `python -m lib.asset_library index <pid>` catalogs gold plates,

@@ -1167,7 +1167,7 @@ def _nano_image(prompt: str, output_path: Path, image_urls: list[str] | None = N
         res = sel.execute(inputs)
     except Exception as exc:  # noqa: BLE001
         _log.warning("ai_video: keyframe generation error: %s", exc)
-        return None
+        return _gemini_image_fallback(prompt, output_path, image_urls)
     if getattr(res, "success", False):
         try:
             from lib.cost_ledger import log as _cost_log
@@ -1184,7 +1184,30 @@ def _nano_image(prompt: str, output_path: Path, image_urls: list[str] | None = N
         out = data.get("output") or (res.artifacts[0] if getattr(res, "artifacts", None) else None)
         return Path(out) if out else None
     _log.warning("ai_video: keyframe generation failed: %s", getattr(res, "error", ""))
-    return None
+    return _gemini_image_fallback(prompt, output_path, image_urls)
+
+
+def _gemini_image_fallback(prompt: str, output_path: Path,
+                           image_urls: list[str] | None) -> Path | None:
+    """First-party fallback for the KIE nano queue (same underlying model).
+
+    KIE intermittently 500s, and its edit mode fetches refs from hosted URLs —
+    a silent fetch failure degrades the task to unanchored text-to-image (proven
+    2026-07-08: an 'edit this keyframe' call returned a different machine in a
+    different palette). The Google API takes refs as inline bytes instead.
+    Disable with NANO_FALLBACK_GOOGLE=0.
+    """
+    if os.environ.get("NANO_FALLBACK_GOOGLE", "1") == "0":
+        return None
+    if not os.environ.get("GOOGLE_API_KEY"):
+        return None
+    try:
+        from lib.gemini_image import gemini_image
+    except Exception:  # noqa: BLE001
+        return None
+    _log.info("ai_video: nano(kie) failed -> retrying first-party via gemini_image")
+    out = gemini_image(prompt, output_path, image_urls=list(image_urls or []))
+    return Path(out) if out else None
 
 
 def _gen_shot_clip(video_prompt: str, keyframe: Path | None, duration_s: float,
