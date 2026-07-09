@@ -57,16 +57,28 @@ What it took (all disk-only except the schema — `projects/` is gitignored):
 - build_v6/render_v6 need `.env` loaded into the process env (the dashboard loads it
   itself; the build scripts don't).
 
-## NEXT
+## NEXT — the watch-through fix queue (operator reviewed the first half)
 
-1. **Operator watch-through of `renders/therac25_v6.mp4`** end-to-end. Known judgment
-   calls: burned `text_overlay` captions (seg_018 "MALFUNCTION 54 / DOSE: UNDERDOSE",
-   seg_030 "FUSE BLOWS → BEAM STOPS", seg_031 "OPERATOR PRESSED P", seg_036
-   '"Overdoses impossible"…') now sit over scenes that carry their own composited text —
-   keep, trim, or drop per scene.
-2. From the watch-through fix-list: episode re-time of old-slot scenes, Katie sheets
-   (seg_001-003) if her early scenes read off-model next to the grounded era.
-3. Music/SFX/mix — narration-only today; assess after picture lock.
+**Overlay call MADE:** all burned `text_overlay` captions REMOVED (operator: "remove those
+and the other ones"). build_v6 now honors `BURN_OVERLAYS=0` — ⚠ SET IT ON EVERY REBUILD
+or the burns come back (flag added 2026-07-08, disk-only). Clean cut re-rendered, sync 3/3.
+
+**Root-caused from the operator's 12 timestamps (first half):**
+1. Burned static captions → FIXED (above).
+2. **seg_016 narration says "Could not have been responsible" twice — it's IN THE SCRIPT**
+   (written rhetorical echo, reads as a stutter). Fix: edit narration, re-TTS seg_016
+   (announce cost), rebuild narration master + duration map → downstream slots shift
+   ~2.5s; bundle with the rework pass so we re-render once.
+3. **Old-slot debt confirmed on camera:** seg_009/012/015 takes are shorter than their
+   re-timed slots (freeze-tails at 3:05/4:10/4:55); seg_014→015 boundary has a hard
+   narration start (4:39).
+4. **Old-era craft:** seg_005/006/010/011 "silly ken burns" + text badness; seg_007
+   linac diagram needs the word-timed retime treatment (like 026-029 got); seg_012 dose
+   card needs retiming to current narration.
+
+**Rework queue (scene-by-scene, reuse-first, mostly $0):** seg_005, 006, 007 (linac
+retime), 009, 010, 011, 012, 015 (+ second-half findings pending operator watch-through
+of the clean cut). Then seg_016 script fix + one final re-render. Then music/SFX/mix.
 
 ## LESSONS THAT CHANGED THE PIPELINE (this session)
 
