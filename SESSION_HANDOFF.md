@@ -1,11 +1,39 @@
-# Session Handoff — EPISODE BOARD COMPLETE (36/36 approved) — next: full conform + assemble
+# Session Handoff — FULL FIX PASS COMPLETE — one item blocked: seg_016 re-TTS (dead ElevenLabs key)
 
-**Date:** 2026-07-08 · **Branch:** `v6-baseline` (pushed — origin is the backup) ·
-**Project:** `projects/therac-25-test`
+**Date:** 2026-07-08 (late) · **Branch:** `v6-baseline` (pushed) · **Project:** `projects/therac-25-test`
 
-> Read the auto-loaded memories first — especially `reuse-before-generate`,
-> `openmontage-consistency-toolkit`, `stat-card-diagram-splice-technique`,
-> `amber-graphic-novel-house-style`. Prior handoffs: `git log --follow SESSION_HANDOFF.md`.
+> Read the auto-loaded memories first — especially `entity-census-first-and-gemini-image-lane`,
+> `reuse-before-generate`, `openmontage-consistency-toolkit`. Prior handoffs:
+> `git log --follow SESSION_HANDOFF.md`.
+
+## THE FIX PASS (operator watch-through notes, all executed 2026-07-08)
+
+**Machine identity (the big one):** the bible's room canonical was an ARCH machine and the
+sheet had drifted from the real research photos (assets/_reference/_candidates/therac_real/).
+Fixed at the root: master frame = Gemini first-party edit of the approved seg_018 b1 keyframe
+(patient removed, operator-approved) → new room canonical (v5) + `_gold_refs/machine_empty_room.png`;
+new 4-view sheet (operator-approved) → `therac25_reference_sheet.png` (old sheet .bak).
+Cascade: 7 descendant shots rebuilt $0 (022 b1, 023 b1, 030 b1+b5, 031 B9, 034 B1+B3);
+identity regens for 002 (Veo orbit, ONE attempt — corrected refs work), 014 (Frances still),
+019 (female operator re-shot), 024 (Cox reuse). subj_katie sheet banked in the bible.
+
+**Scene reworks (word-timed, registered + canonicals promoted):** 003 (wince ON 'machine
+fires', mouths 'you burned me'; NO visible flames — the burn is invisible), 005, 006, 007
+(synced_linac WIRED into build — SYNCED_SCENES registry prefers narration-synced diagrams),
+009, 010 (analysis-with-a-hole), 011 (pages land on 'again/again/hospital/hospital'),
+012 (dose card word-timed + closer cards; NOTE its old canonical was only 23.4s — the 4:10
+freeze), 013 (IMPOSSIBLE stamp on the word), 015 (evergreens + striped-burns + aperture
+match-cut + memo), 024. Overlay burns stay OFF (BURN_OVERLAYS=0 on every build).
+
+**⚠ BLOCKED — seg_016 doubled line:** the scripted echo is already removed from
+scored_script.yaml; ELEVENLABS_API_KEY is DEAD (401 on /v1/user). On a fresh key: delete
+`audio_v6/seg_016.mp3` + `.alignment.json` (backups: `.bak_echo`), run
+`generate_voice_v6.py`, then full build (BURN_OVERLAYS=0) + render. ~20 min total.
+
+**Adapter gotchas learned:** grok-kie IGNORES local `reference_image_path` ("Kie.ai needs
+public URLs") and generates UNANCHORED — always `upload_image()` first and pass the URL as
+the keyframe. Veo hard shots with proper sheet refs landed first-try. gemini-image logs to
+the ledger; direct urllib calls don't (log manually or use lib.gemini_image).
 
 ## STATE: the board
 

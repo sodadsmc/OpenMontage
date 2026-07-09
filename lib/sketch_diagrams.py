@@ -1087,6 +1087,14 @@ SCENES: dict[str, Callable] = {
     "safeguard_restored": draw_safeguard_restored,
 }
 
+# Narration-SYNCED variants: scene -> (factory, cue phrases). When the build has
+# the segment's word alignment it prefers these — every reveal lands on its
+# spoken word instead of a hardcoded guess (draw_linac's fixed phases were built
+# for a ~45s slot; in seg_007's 34.7s slot its danger phase never even aired).
+SYNCED_SCENES: dict[str, tuple[Callable, dict]] = {
+    "linac": (synced_linac, LINAC_SYNC_CUES),
+}
+
 
 def register_scene(name: str, draw: Callable) -> None:
     """Register a draw(ax, t, dur) callback under `name`.
