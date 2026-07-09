@@ -35,15 +35,38 @@
 - **seg_037 ✅ ($0)** — the finale: technology cuts → accelerating human cuts → CRT
   switch-off on "to fail" (collapse → burning line → phosphor dot → black).
 
+## FIRST FULL CUT RENDERED — `renders/therac25_v6.mp4` (827.4s, 351MB, sync 3/3)
+
+What it took (all disk-only except the schema — `projects/` is gitignored):
+- **Take promotion bridge:** build_v6/render_v6 predate the takes system and read canonical
+  `assets/ai_segments/{sid}.mp4`. Promoted every scene's HUMAN-approved take over the stale
+  June canonicals (backups in `_canonical_backup_20260708/`). ⚠ The take index's
+  "accepted" verdict is the AUTO-gate's, not the operator's — promoting latest-accepted
+  blindly ships the wrong takes (019 t10 vs approved t12; 018/024 skipped entirely).
+  Cross-check `feedback/events.jsonl` human notes ("APPROVED take N"). A `promote_takes`
+  step keyed on human verdicts belongs in the backend eventually.
+- **Diagram scenes (007/026-029) NOT promoted** — build re-renders the committed templates
+  raw; the timeline finishing pass is the single grade.
+- **Schema drift fixed** (committed): `flf` + `support_asset_refs` added to visual_spec.
+- **Removed three stale `flf:` blocks** from scored_script.yaml (seg_034/036/037 — YAML
+  backed up as `.bak_preflf_removal_20260708`): they would have routed PAID Kling
+  generation over the approved $0 takes.
+- **render_v6 conform now frame-CEILS each slot** (was flooring via `-t` → 36 segments
+  accumulated a 0.18s shortfall and the sync gate refused to ship). Video now covers the
+  narration by construction.
+- build_v6/render_v6 need `.env` loaded into the process env (the dashboard loads it
+  itself; the build scripts don't).
+
 ## NEXT
 
-1. **Full-episode conform + assemble + grade** (docs/PRODUCTION_WORKFLOW.md): pull every
-   approved take into `assets/conformed_v6`, run the assemble/render pass, watch end-to-end
-   with narration. Expect a fix-list (cross-scene rhythm, grade consistency, the
-   double-grade rule below).
-2. From the watch-through: candidates flagged in old handoffs — episode re-time of
-   old-slot scenes, Katie sheets (seg_001-003) if her early scenes read off-model.
-3. Music/SFX/mix state — not touched this run; assess after the watch-through.
+1. **Operator watch-through of `renders/therac25_v6.mp4`** end-to-end. Known judgment
+   calls: burned `text_overlay` captions (seg_018 "MALFUNCTION 54 / DOSE: UNDERDOSE",
+   seg_030 "FUSE BLOWS → BEAM STOPS", seg_031 "OPERATOR PRESSED P", seg_036
+   '"Overdoses impossible"…') now sit over scenes that carry their own composited text —
+   keep, trim, or drop per scene.
+2. From the watch-through fix-list: episode re-time of old-slot scenes, Katie sheets
+   (seg_001-003) if her early scenes read off-model next to the grounded era.
+3. Music/SFX/mix — narration-only today; assess after picture lock.
 
 ## LESSONS THAT CHANGED THE PIPELINE (this session)
 

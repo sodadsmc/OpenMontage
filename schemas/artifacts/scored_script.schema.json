@@ -4,46 +4,84 @@
   "title": "Scored Script",
   "description": "Structured script format with inline visual-narration bindings. Every segment declares its own visual, creating an unbreakable 1:1 binding. Replaces freeform markdown showrunner scripts.",
   "type": "object",
-  "required": ["version", "metadata", "segments"],
+  "required": [
+    "version",
+    "metadata",
+    "segments"
+  ],
   "properties": {
-    "version": { "type": "string", "const": "2.0" },
+    "version": {
+      "type": "string",
+      "const": "2.0"
+    },
     "metadata": {
       "type": "object",
-      "required": ["title"],
+      "required": [
+        "title"
+      ],
       "properties": {
-        "title": { "type": "string", "minLength": 1 },
-        "total_target_duration_s": { "type": "number", "minimum": 1 },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "total_target_duration_s": {
+          "type": "number",
+          "minimum": 1
+        },
         "acts": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id", "title"],
+            "required": [
+              "id",
+              "title"
+            ],
             "properties": {
-              "id": { "type": "string" },
-              "title": { "type": "string" },
-              "target_pct": { "type": "number", "minimum": 0, "maximum": 100 }
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "target_pct": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
             },
             "additionalProperties": false
           }
         },
-        "source": { "type": "string" },
-        "topic": { "type": "string" },
-        "narrative_arc": { "type": "string" }
+        "source": {
+          "type": "string"
+        },
+        "topic": {
+          "type": "string"
+        },
+        "narrative_arc": {
+          "type": "string"
+        }
       },
       "additionalProperties": true
     },
     "segments": {
       "type": "array",
-      "items": { "$ref": "#/$defs/segment" },
+      "items": {
+        "$ref": "#/$defs/segment"
+      },
       "minItems": 1
     }
   },
   "additionalProperties": false,
-
   "$defs": {
     "segment": {
       "type": "object",
-      "required": ["id", "act", "narration", "visual"],
+      "required": [
+        "id",
+        "act",
+        "narration",
+        "visual"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -59,8 +97,12 @@
           "minLength": 1,
           "description": "Pure narration text. No markers, no brackets. Only speakable words."
         },
-        "visual": { "$ref": "#/$defs/visual_spec" },
-        "music": { "$ref": "#/$defs/music_spec" },
+        "visual": {
+          "$ref": "#/$defs/visual_spec"
+        },
+        "music": {
+          "$ref": "#/$defs/music_spec"
+        },
         "silence_after_s": {
           "type": "number",
           "minimum": 0,
@@ -82,26 +124,48 @@
             "call_to_action",
             "chapter_transition"
           ],
-          "description": "Editorial purpose of this segment — drives pacing and tone"
+          "description": "Editorial purpose of this segment \u2014 drives pacing and tone"
         },
         "pacing": {
           "type": "string",
-          "enum": ["establishing", "escalation", "crisis", "resolution"],
+          "enum": [
+            "establishing",
+            "escalation",
+            "crisis",
+            "resolution"
+          ],
           "description": "Pacing type for cut timing and hold duration"
         },
         "rhythm": {
           "type": "string",
-          "enum": ["fast", "medium", "lingering", "breath"],
+          "enum": [
+            "fast",
+            "medium",
+            "lingering",
+            "breath"
+          ],
           "description": "Scene Library: shot-duration nuance over the pacing type. 'breath' = held near-silent beat after a peak (pair with silence_after_s)."
         },
         "narration_mode": {
           "type": "string",
-          "enum": ["literal", "evocative", "none"],
-          "description": "Scene Library: narration↔visual relationship. literal=visual shows the words; evocative=visual evokes the feeling; none=no narration. Best work ALTERNATES."
+          "enum": [
+            "literal",
+            "evocative",
+            "none"
+          ],
+          "description": "Scene Library: narration\u2194visual relationship. literal=visual shows the words; evocative=visual evokes the feeling; none=no narration. Best work ALTERNATES."
         },
         "audio_transition": {
           "type": "string",
-          "enum": ["hard_cut", "match_cut", "match_on_action", "j_cut", "l_cut", "sound_bridge", "contrast_cut"],
+          "enum": [
+            "hard_cut",
+            "match_cut",
+            "match_on_action",
+            "j_cut",
+            "l_cut",
+            "sound_bridge",
+            "contrast_cut"
+          ],
           "description": "Scene Library: how this segment hands off to the next. j_cut=next audio leads; l_cut=prior audio trails; sound_bridge=shared sound glues."
         },
         "directors_move": {
@@ -123,32 +187,57 @@
         },
         "retention_beat": {
           "type": "string",
-          "enum": ["cold_open", "value_proposition", "commitment_hook", "pattern_interrupt", "re_hook", "cliffhanger", "payoff", "none"],
+          "enum": [
+            "cold_open",
+            "value_proposition",
+            "commitment_hook",
+            "pattern_interrupt",
+            "re_hook",
+            "cliffhanger",
+            "payoff",
+            "none"
+          ],
           "description": "Scene Library: episode-structure role. The first ~15s carries cold_open+value_proposition; long episodes need pattern_interrupt beats and a re_hook past ~7-8min."
         },
         "open_loop": {
           "type": "object",
-          "description": "Scene Library: a planted tease (plant) and where it fires (payoff). Every plant MUST have a payoff somewhere — script_validator blocks unfired loops.",
-          "required": ["action", "id"],
+          "description": "Scene Library: a planted tease (plant) and where it fires (payoff). Every plant MUST have a payoff somewhere \u2014 script_validator blocks unfired loops.",
+          "required": [
+            "action",
+            "id"
+          ],
           "properties": {
-            "action": { "type": "string", "enum": ["plant", "payoff"] },
-            "id": { "type": "string", "description": "Loop key shared by the plant and its payoff (e.g. 'the_missing_byte')" },
-            "note": { "type": "string" }
+            "action": {
+              "type": "string",
+              "enum": [
+                "plant",
+                "payoff"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "description": "Loop key shared by the plant and its payoff (e.g. 'the_missing_byte')"
+            },
+            "note": {
+              "type": "string"
+            }
           },
           "additionalProperties": false
         }
       },
       "additionalProperties": false
     },
-
     "visual_spec": {
       "type": "object",
-      "required": ["description", "type"],
+      "required": [
+        "description",
+        "type"
+      ],
       "properties": {
         "description": {
           "type": "string",
           "minLength": 10,
-          "description": "Rich prose description of what the visual must SHOW/DEPICT — the concrete subject and action the narration describes, not mood alone (e.g. 'a technician reaches for the linac control dial as the screen flickers red', not 'moody medical equipment'). For a deliberate mood/atmospheric beat, set the segment's narration_mode to 'evocative'."
+          "description": "Rich prose description of what the visual must SHOW/DEPICT \u2014 the concrete subject and action the narration describes, not mood alone (e.g. 'a technician reaches for the linac control dial as the screen flickers red', not 'moody medical equipment'). For a deliberate mood/atmospheric beat, set the segment's narration_mode to 'evocative'."
         },
         "type": {
           "type": "string",
@@ -163,7 +252,7 @@
             "diagram",
             "mixed"
           ],
-          "description": "Visual asset type — determines generation routing. 'ai_video' = AI-generated (the PRIMARY, default source: the visual is generated to depict the narration). 'archival_footage'/'stock_footage' = retrieved real footage, a deliberate fallback for genuine historical content. 'atmospheric_footage'/'generated_footage' are LEGACY (pre-migration) aliases — author new segments as 'ai_video' (set narration_mode='evocative' for a mood treatment)."
+          "description": "Visual asset type \u2014 determines generation routing. 'ai_video' = AI-generated (the PRIMARY, default source: the visual is generated to depict the narration). 'archival_footage'/'stock_footage' = retrieved real footage, a deliberate fallback for genuine historical content. 'atmospheric_footage'/'generated_footage' are LEGACY (pre-migration) aliases \u2014 author new segments as 'ai_video' (set narration_mode='evocative' for a mood treatment)."
         },
         "card_type": {
           "type": "string",
@@ -184,18 +273,31 @@
         },
         "must_show": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Required visual elements that must appear in the render"
         },
         "animation_phases": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["phase", "target_duration_pct"],
+            "required": [
+              "phase",
+              "target_duration_pct"
+            ],
             "properties": {
-              "phase": { "type": "string" },
-              "description": { "type": "string" },
-              "target_duration_pct": { "type": "number", "minimum": 0, "maximum": 100 }
+              "phase": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "target_duration_pct": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
             },
             "additionalProperties": false
           },
@@ -203,7 +305,11 @@
         },
         "uniqueness": {
           "type": "string",
-          "enum": ["unique", "unique_per_location", "reusable"],
+          "enum": [
+            "unique",
+            "unique_per_location",
+            "reusable"
+          ],
           "default": "unique",
           "description": "Uniqueness constraint for asset deduplication"
         },
@@ -221,12 +327,16 @@
         },
         "reference_images": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Paths to reference images for accuracy checking"
         },
         "search_queries": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Tiered search queries for footage sourcing"
         },
         "ai_fallback_prompt": {
@@ -258,12 +368,24 @@
           "description": "Optional explicit shot breakdown for long segments. If absent, the video seam auto-splits the segment by max shot length.",
           "items": {
             "type": "object",
-            "required": ["shot_id", "ai_prompt"],
+            "required": [
+              "shot_id",
+              "ai_prompt"
+            ],
             "properties": {
-              "shot_id": { "type": "string", "pattern": "^shot_[0-9]{2}$" },
-              "ai_prompt": { "type": "string" },
-              "ai_motion": { "type": "string" },
-              "asset_ref": { "type": "string" },
+              "shot_id": {
+                "type": "string",
+                "pattern": "^shot_[0-9]{2}$"
+              },
+              "ai_prompt": {
+                "type": "string"
+              },
+              "ai_motion": {
+                "type": "string"
+              },
+              "asset_ref": {
+                "type": "string"
+              },
               "duration_weight": {
                 "type": "number",
                 "minimum": 0,
@@ -297,30 +419,56 @@
         },
         "text_overlay": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Caption lines burned over the playing footage (the 'text over footage' treatment) instead of a separate slate card."
         },
         "text_emphasis": {
           "type": "integer",
           "description": "Index of the emphasis line in text_overlay (amber/large); -1 = all lines equal weight."
+        },
+        "flf": {
+          "type": "object",
+          "description": "FLF (first/last-frame) beat spec: start_prompt, transition, drain, anchor - consumed by lib.flf.generate_flf_segments"
+        },
+        "support_asset_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional bible asset ids that ground this visual beyond asset_ref"
         }
       },
       "additionalProperties": false,
       "if": {
-        "properties": { "type": { "const": "text_card" } }
+        "properties": {
+          "type": {
+            "const": "text_card"
+          }
+        }
       },
       "then": {
-        "required": ["card_type"]
+        "required": [
+          "card_type"
+        ]
       }
     },
-
     "music_spec": {
       "type": "object",
-      "required": ["state"],
+      "required": [
+        "state"
+      ],
       "properties": {
         "state": {
           "type": "string",
-          "enum": ["playing", "continue", "change", "stop", "fade_out"],
+          "enum": [
+            "playing",
+            "continue",
+            "change",
+            "stop",
+            "fade_out"
+          ],
           "description": "Music state transition at this segment"
         },
         "description": {
