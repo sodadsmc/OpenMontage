@@ -34,8 +34,8 @@ import sys
 from pathlib import Path
 
 from lib.frame_hygiene import (
-    double_cuts, flash_frames, freeze_tail, probe_duration, static_runs,
-    video_border_hits,
+    double_cuts, flash_frames, freeze_tail, probe_duration, seam_jumps,
+    static_runs, video_border_hits,
 )
 
 # scenes whose visuals are deliberately static holds don't get freeze findings
@@ -185,6 +185,14 @@ def qc_render(project_id: str, render: str | None = None,
             findings.append({"check": "double-cut", "at": t,
                              "detail": f"two cuts {gap} frames apart (advisory; "
                                        "montage cuts are legit)"})
+    print("[seam] scanning for chain-seam / skip-jump cuts...")
+    for t, c_ in seam_jumps(render_path):
+        near_cut = any(abs(t - c["_timeline_start"]) < 0.25 for c in cuts)
+        if not near_cut:
+            findings.append({"check": "seam-jump", "at": t,
+                             "detail": f"cut between two renderings of the same "
+                                       f"staging (corr {c_}) - chain seam or "
+                                       "mis-anchored splice"})
 
     # -- silences -------------------------------------------------------------
     print("[silence] scanning master audio...")
@@ -232,6 +240,10 @@ def qc_clip(clip: str, slot: float | None = None) -> dict:
     for t, gap in double_cuts(clip):
         findings.append({"check": "double-cut", "at": t,
                          "detail": f"two cuts {gap} frames apart (advisory)"})
+    for t, c_ in seam_jumps(clip):
+        findings.append({"check": "seam-jump", "at": t,
+                         "detail": f"same-staging cut (corr {c_}) - chain seam "
+                                   "or mis-anchored splice"})
     if slot and dur < slot - 0.05:
         findings.append({"check": "duration", "at": dur,
                          "detail": f"short of {slot:.2f}s slot by {slot - dur:.2f}s"})

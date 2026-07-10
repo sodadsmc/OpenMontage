@@ -166,7 +166,7 @@ Four operator watch-throughs kept surfacing the SAME defect classes. Run the mac
 before EVERY operator review, and follow these craft rules when building/fixing scenes:
 
 - **Machine QC before human QC.** After every render: `python -m lib.render_qc <pid>`
-  (borders / freeze tails / mid-scene holds / 1-3-frame stray shots / silence gaps /
+  (borders / freeze tails / mid-scene holds / stray-shot flashes / seam-jumps / silence gaps /
   duration vs manifest, timeline from the assembly manifest). Before promoting any take:
   `python -m lib.render_qc --clip <take.mp4> --slot <slot_s>`. Intentional panel borders
   live in `assets/ai_segments/_gold_refs/qc_keep_borders.json` (SCENE-relative windows).

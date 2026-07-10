@@ -276,6 +276,44 @@ def flash_frames(src: str | Path, start: float = 0.0, dur: float | None = None,
     return hits
 
 
+def _ncorr(a: np.ndarray, b: np.ndarray) -> float:
+    a = a.astype(np.float32).ravel()
+    b = b.astype(np.float32).ravel()
+    a -= a.mean()
+    b -= b.mean()
+    den = np.sqrt((a * a).sum() * (b * b).sum())
+    return float((a * b).sum() / den) if den > 0 else 0.0
+
+
+def seam_jumps(src: str | Path, start: float = 0.0, dur: float | None = None,
+               fps: int = 30, spike: float = 16.0, sharp: float = 2.5,
+               min_corr: float = 0.55) -> list:
+    """Cuts where BOTH sides show the same staging redrawn — chain seams and
+    skip-jumps: [(t_seconds, corr)].
+
+    Metric (ground-truthed on the seg_009 seams): a cut is a SHARP single-frame
+    discontinuity (diff >= spike AND >= sharp x the surrounding median — fast
+    motion elevates diffs across a run, a cut doesn't); across a chain seam the
+    LAYOUT survives, so zero-mean correlation of the frames flanking the cut
+    stays high (0.64 on the real seam) while a legit scene cut lands near zero
+    (0.07-0.17). Absolute pixel difference can NOT separate these — redraws
+    shift shading everywhere (cross-diff 31 on the seam vs 75 on a scene cut).
+    """
+    g = gray_stream(src, start, dur, fps=fps).astype(np.int16)
+    if len(g) < 10:
+        return []
+    d = np.abs(np.diff(g, axis=0)).mean(axis=(1, 2))
+    hits = []
+    for i in range(3, len(d) - 4):
+        lo, hi = max(0, i - 15), min(len(d), i + 16)
+        ctx = float(np.median(np.delete(d[lo:hi], i - lo)))
+        if d[i] >= spike and d[i] >= sharp * max(ctx, 0.5):
+            c = _ncorr(g[i - 2], g[i + 3])
+            if c >= min_corr:
+                hits.append((round(start + (i + 1) / fps, 3), round(c, 2)))
+    return hits
+
+
 def double_cuts(src: str | Path, start: float = 0.0, dur: float | None = None,
                 fps: int = 30, spike: float = 18.0,
                 max_gap_s: float = 0.8) -> list:
