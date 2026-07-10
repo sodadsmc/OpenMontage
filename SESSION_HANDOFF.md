@@ -57,10 +57,15 @@ audit confirmed every other canonical clean.
   phosphor dot 1.20s (with die-flicker) / hold 0.71s (was 1.35s effect total).
 - **Cascade/border rebuilds:** 002, 014, 018, 021, 022, 024, 030, 031, 035, 036 + seg_001.
 
-**State:** all 21 polish files registered as takes (use-clip) AND promoted to canonicals
-(backups: `_canonical_backup_20260709_polish/`). Full build+render kicked off
-(BURN_OVERLAYS=0). Run-split scenes are 1-2 frames short of slot — render_v6's
-frame-ceiling conform freeze-pads them.
+**State: RENDERED + MACHINE-VERIFIED.** All 22 polish files registered as takes AND promoted
+(backups: `_canonical_backup_20260709_polish/`). Final render 825.4s, sync 3/3.
+**16-agent QC on the render: all 12 visual fix-notes PASS, audio gap PASS; border audit
+found 6 residual violations (018/019/021/023 — the old takes' hand-drawn borders WOBBLE
+frame-to-frame and sit inset with dark margin outside, defeating edge detection + min-crop).
+Fixed with a uniform 4.5%/edge overscan crop (polish_v2, promoted), re-rendered, and a dense
+4-agent re-check confirmed 0 violations across 40 frames.** Detector lesson: for wobbling
+inset borders, don't detect — overscan. Run-split scenes are 1-2 frames short of slot;
+render_v6's frame-ceiling conform freeze-pads them.
 
 ## Pipeline lessons (this session)
 - **Borders ride EVERY derivation** — crop the SOURCE STILL before deriving; deborder parts
