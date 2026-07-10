@@ -10,6 +10,22 @@ Echo line verified GONE (phrase appears once, 6.04s vs 8.2s). Master 820.7s, ren
 (it silently shipped an 8s-short master twice). Full story: memory
 `elevenlabs-key-diagnosis`.
 
+## ROUND 5 (2 notes: 2:57 + 3:01, both seg_009 seams) — $0.84
+- **2:57 = chain seam at local 6.03** (two Grok legs re-rendering the same staging → redraw
+  pop). Fix: dissolve a 0.5s FREEZE of the pre-seam frame into the moving post-seam content
+  (timeline preserved). ⚠ An xfade whose 2nd input re-reads the same timeline blends the
+  seam WITH ITSELF — a no-op that LOOKS right on sparse frame checks (shipped once).
+- **3:01 = walkoff skip** (FLF was anchored on the 11.5s frame, spliced at 10.54). Fix:
+  regenerate FLF anchored on the assembled part's LITERAL last frame (`-sseof` extract).
+  ⚠ First attempt re-extracted "the boundary" by timestamp from the spliced canonical and
+  landed INSIDE the old walkoff — reproducing the exact jump ($0.42 burned). Anchor from
+  the part FILE, never by timestamp arithmetic on a spliced canonical.
+- **seam-jump detector added to the QC stage** (this class had no signature before):
+  sharp single-frame diff spike (>=2.5x surrounding median) + HIGH zero-mean correlation
+  across the cut (layout survives a redraw; a real scene cut lands near zero).
+  Ground-truthed: catches the 6.03 seam (corr 0.64), silent on fixed files, slowmo, and
+  match-cut controls. `frame_hygiene.seam_jumps` + wired into render_qc/qc_clip.
+
 ## PIPELINE UPGRADE — machine QC stage (the polish rounds, institutionalized)
 Every defect class the operator's four watch-throughs found is now machine-detectable:
 - **`lib/frame_hygiene.py`** — find_border_box (cream-margin, run-cap so document cards
