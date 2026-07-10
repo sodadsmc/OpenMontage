@@ -1,4 +1,24 @@
-# Session Handoff — POLISH PASS (round 3, 14 notes) EXECUTED — one item blocked: seg_016 re-TTS (dead ElevenLabs key)
+# Session Handoff — POLISH rounds 3+4 EXECUTED — one item blocked: seg_016 re-TTS (dead ElevenLabs key)
+
+## ROUND 4 (operator notes on the round-3 cut, 2026-07-09/10)
+- **seg_001 border FLICKER (00:04/09/17):** the round-3 run-split cropped some runs and not
+  others on a wobbling border → visible zoom/border flashing. Cure: uniform 5.5% overscan of
+  the ORIGINAL (from `_canonical_backup_20260709_polish/`), NOT of the run-split output
+  (that would double-crop the cropped runs → zoom jumps). polish_v2 promoted.
+- **3:34 + 4:17 long pauses:** seg_010 + seg_013 `silence_after_s: 2 → 1` (text-splice,
+  backup `.bak_round4`), silence cache cleared, narration master → **822.8s**. All
+  offsets after 213.54 shift −1s, after 255.92 −2s.
+- **6:11-6:16 seg_019 style run:** the old take's [2.0-4.43] was painterly (not cel-shaded)
+  and at old-7.42 the take cut BACK to him lying under the firing beam after he'd risen
+  (the "flash to the old scene"). Rebuilt [2.0-8.0]: NEW cel-shade restyled lying keyframe
+  (Gemini $0.04) + grok beam-eruption leg ($0.10, fire moment located by brightness scan,
+  windowed so the fire lands ~1s after press-P) + cox leg extended to 3.57s bridging to the
+  door-pound at old-8.0. polish_v3 promoted. QC-verified: coherent, all cel-shaded.
+- **7:57 seg_024 flash:** the old take's tail [9.2-9.71] was a different vintage-style
+  machine room (2-frame flash). Trimmed kept window to 9.15s + extended the 018-beat2 Cox
+  beat (raw-space border crop — beat crops detected on NORMALIZED parts do NOT transfer to
+  raw beats; rescale coordinates). polish_v2 promoted.
+- Round-4 spend: $0.14 (restyle + beam leg, on sticker). Render 822.85s+tail, sync 3/3.
 
 **Date:** 2026-07-09 · **Branch:** `v6-baseline` (push after render verify) · **Project:** `projects/therac-25-test`
 
