@@ -1,0 +1,1311 @@
+version: "2.0"
+
+metadata:
+  title: "The Machine That Couldn't Be Wrong"
+  total_target_duration_s: 690
+  topic: "Therac-25 radiation therapy disaster"
+  narrative_arc: "Victim → Machine → Pattern → Explanation → Reckoning"
+  acts:
+  - id: act_1
+    title: "THE VICTIM"
+    target_pct: 13
+  - id: act_2
+    title: "THE MACHINE"
+    target_pct: 13
+  - id: act_3
+    title: "THE PATTERN"
+    target_pct: 26
+  - id: act_4
+    title: "THE EXPLANATION"
+    target_pct: 22
+  - id: act_5
+    title: "THE RECKONING"
+    target_pct: 13
+
+# -----------------------------------------------------------------------
+# ACT 1: THE VICTIM
+# -----------------------------------------------------------------------
+
+segments:
+- id: seg_001
+  act: act_1
+  narration: >
+    It's a June morning in nineteen eighty-five. Katherine
+    Yarbrough — Katie — arrives for a follow-up radiation
+    treatment. She is sixty-one years old, and she knows
+    the procedure. You lie on the table. The technician positions
+    the machine. You hold still. It takes a few seconds. You don't
+    feel much of anything.
+  visual:
+    description: >
+      A lone woman, seen from behind, walks the long empty 1985 hospital
+      corridor toward the distant treatment-room door - small against the
+      receding hallway, routine and unhurried. The camera follows her in
+      one continuous take.
+    type: ai_video
+    location_id: kennestone_corridor
+    reference_period: "1985"
+    ai_motion: "she walks steadily away from the camera down the corridor, unhurried, routine; the camera follows her at walking pace in one continuous take, the distant treatment-room door slowly growing nearer; fluorescent light pools sliding over her as she passes beneath each fixture; the corridor's geometry stays rigid and constant; OBJECT PERMANENCE: nothing appears, vanishes, or changes anywhere in the corridor - every object stays exactly where it started, and stretches of corridor revealed by the camera are bare walls and floor only"
+    ai_style: "quiet dread beneath total routine - an ordinary morning, a walk she has made before, the door waiting at the end; soft clinical light, oppressive calm"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. A lone anonymous elderly woman in a
+        modest 1980s coat, seen FROM BEHIND, walks away from the camera
+        down a long empty 1985 hospital corridor - her figure small against
+        the receding perspective of pale walls, speckled linoleum, and
+        humming fluorescent fixtures. A single empty wheelchair parked against the left wall near the
+        camera - no other furniture, the walls bare except their handrails,
+        the rest of the corridor empty. At the far end: a closed double treatment-room door,
+        distant. Her posture is unhurried, routine. Face never visible. No
+        other people. Strictly period detail, no modern signage, no legible
+        text anywhere.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A lone woman seen from behind walking a long empty 1985 hospital
+      corridor toward a distant door.
+  music:
+    state: playing
+    description: "Low tension drone, barely audible"
+  editorial_intent: establishing_atmosphere
+  pacing: establishing
+
+- id: seg_002
+  act: act_1
+  narration: >
+    The machine is called the Therac-25. It's the newest of its
+    kind — more compact, more versatile, run entirely by computer.
+    And it is trusted completely. Even when it lies.
+  visual:
+    description: >
+      A treatment room. The Therac-25 machine looming
+      overhead. Oppressive, clinical atmosphere.
+    type: ai_video
+    uniqueness: unique
+    location_id: kennestone_treatment_room
+    reference_period: "1985"
+    ai_motion: "the machine is COMPLETELY STILL - a fixed, rigid object with no moving parts; the camera alone moves, a slow smooth orbital arc around the room with the machine locked dead-center in frame, perspective shifting gently as the camera circles; a single small status light blinks; deep shadows hold their shapes; no zoom, no tilt, the machine never changes form"
+    ai_style: "cold clinical lighting, looming dread, oppressive"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: "interior of a 1980s radiation therapy treatment room, the Therac-25 — a massive beige machine, its smooth rounded-top housing and projecting beam head looming over an empty treatment table, cold fluorescent light"
+      duration_weight: 1.0
+      hero: true
+    search_queries:
+    - "radiation therapy treatment room 1980s"
+    - "linear accelerator patient table medical"
+    ai_fallback_prompt: >
+      Interior of a 1980s radiation therapy treatment room,
+      large medical machine looming over an empty treatment
+      table, clinical lighting, institutional feel
+  music:
+    state: continue
+  editorial_intent: building_trust
+  pacing: establishing
+
+- id: seg_003
+  act: act_1
+  narration: >
+    The technician enters the prescription. The machine fires.
+    Katie Yarbrough feels something she's never felt before.
+    A tremendous force of heat — a red-hot searing across her
+    shoulder. You burned me, she tells the technician. And the
+    technician tells her that is not possible. Something is wrong.
+    She knows it immediately.
+  visual:
+    description: "An illustrated older woman on the treatment table, a sharp flinch of pain - the moment a routine turns wrong."
+    type: ai_video
+    location_id: kennestone_treatment_room
+    reference_period: "1985"
+    ai_motion: >-
+      at frame-left the technician's fingers strike down across the console keyboard entering the prescription; an instant later the Therac-25 beam head fires through the doorway behind him — a hard amber-white shaft snaps down across the patient's shoulder and the air blooms hot; her body wrenches in a sharp flinch and her hand jerks up toward the burn, mouth opening in a cry; the technician's head turns back over his shoulder toward her. A slow tracking drift from console to table links cause to harm in one continuous move.
+    ai_style: "graphic-novel illustration (inked, painterly, period palette) — cold clinical dread tipping into private terror, the instant a routine turns wrong; intimate, airless, helpless. Illustrated character, never photoreal."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, not photoreal — inked, painterly, 1985 period, deep navy and warm amber duotone. Wide two-figure composition inside the Kennestone radiation-therapy treatment room. In the near foreground at frame-left, an illustrated radiation technician stands hunched at the boxy beige Therac-25 control console, both hands on a period mechanical keyboard, fingers mid-press as he enters the prescription; the console face throws a soft amber glow up onto his jaw and forearms — the screen and a curl of printed paper rendered as impressionistic amber light and indistinct glowing shapes, absolutely NO legible numbers, letters, words, symbols, or readouts anywhere. Beyond him, framed through the heavy treatment-room threshold at frame-right, an illustrated older woman with soft grey hair lies on the radiation-therapy table; the beige-painted Therac-25 beam head looms over her and FIRES — a hard, narrow shaft of searing amber-white light striking down across her shoulder, the air around the beam blooming hot, her body wrenching in a sharp flinch, one hand jerking up toward the burn, mouth open mid-cry. The technician's head is just beginning to turn back over his shoulder toward her, caught between the console and the table — the calm hand at the keyboard and the harm it triggers held in one frame. Period 1985 hardware only — machined metal, painted beige enamel, knurled knobs, coiled cables trailing into shadow; no flatscreen, no LED, no digital readout. Low three-quarter angle, shallow depth of field, the background machinery dissolving into navy black. Two illustrated figures only, anonymous, never photoreal, restrained cel-style shading, inked linework, muted period palette. No legible text, no captions baked into the image, no photographic skin texture.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "An illustrated older woman on the treatment table, a sharp flinch of pain - the moment a routine turns wrong."
+  music:
+    state: change
+    description: "Drone deepens"
+  editorial_intent: crisis_moment
+  pacing: escalation
+
+  narration_mode: literal
+- id: seg_004
+  act: act_1
+  narration: >
+    She's just received fifteen to twenty thousand rads of
+    radiation. A typical treatment dose is about two hundred.
+  visual:
+    description: "Analog dose meter needle slamming past the danger arc - a dose that should never read this high."
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: "the black needle jerks off rest and is driven violently across the dial, slamming hard against the end stop and quivering there, pinned, unable to read any higher; the amber pilot lamp flares and pulses as it pegs; a slow, unsettling push in toward the pinned needle, faint dust drifting through the cold highlight, the deep shadows breathing almost imperceptibly"
+    ai_style: "cold clinical horror — an instrument pushed catastrophically past its limit and stuck there, the quiet dread of a measurement that should never read this high; moody, oppressive, duotone-friendly with a single amber glow against encroaching navy dark, clean darker lower third for the caption"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: "A single 1985-era analog radiation dose meter filling most of the frame in a dim equipment room — a boxy beige enameled instrument with a convex glass-covered dial and a slender black needle. The needle is driven hard over to the far right of the arc, pinned against the end stop, far past a faint red danger arc on the dial face. The dial is rendered impressionistically: tick marks and a sweeping scale arc as indistinct shapes and a faint amber glow — absolutely NO legible numbers, letters, words, or symbols anywhere on the dial, the casing, or the room, no markings that resolve as readable text of any kind. A small amber pilot lamp glows beside the dial. The instrument's curved glass catches a thin cold highlight; the rest of the casing and the room behind sink into deep navy shadow, the lower third of the frame falling almost entirely to clean darkness with no objects or clutter, leaving room for a caption. Period 1985 hardware only — machined metal bezel, knurled knob, screw terminals, a coiled cable trailing off into shadow; no flatscreen, no LED, no digital readout. Low three-quarter angle, the pinned needle the focal point, shallow depth of field, background machinery dissolving into black. No people, no hands, no on-screen text or captions baked into the image."
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - "TYPICAL DOSE: 200 RAD"
+    - "DELIVERED:"
+    - "15,000-20,000 RAD"
+    text_emphasis: 2
+    ai_fallback_prompt: "Analog dose meter needle slamming past the danger arc - a dose that should never read this high."
+  silence_after_s: 2
+  editorial_intent: emotional_impact
+  pacing: crisis
+
+- id: seg_005
+  act: act_1
+  narration: >
+    That's up to one hundred times the intended dose. And the
+    machine? It noticed nothing. The console stayed calm. The
+    printer that would have recorded the dose sat disabled.
+    As far as the Therac-25 knew… the treatment had gone
+    exactly to plan.
+  visual:
+    description: >
+      The control terminal serene in the foreground, reporting a normal
+      treatment, while beyond the open doorway behind it the patient on the
+      table flinches under the Therac-25 - the machine's lie and its cost
+      held in one frame.
+    type: ai_video
+    location_id: therac_terminal
+    support_asset_refs:
+    - loc_kennestone_treatment_room
+    reference_period: "1985"
+    ai_motion: "the amber cursor blinks on, steady and serene, a soft pulse of light crossing the placid screen; far beyond the doorway the small figure on the table stiffens and flinches once; a very slow unsettling push past the calm screen toward the doorway"
+    ai_style: "cold clinical serenity that reads as horror, the obscene calm of a machine reporting normal, oppressive quiet"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Deep-focus dramatic-irony composition in the 1985 operator alcove.
+        FOREGROUND right: the boxy beige control terminal large in frame, its
+        convex glass face glowing serene amber - dense blurred indistinct
+        monospace, no legible words, one steady blinking block cursor; calm,
+        orderly, untroubled. BACKGROUND left, seen through the open
+        treatment-room doorway and far smaller: the Therac-25 - its rounded
+        beige housing and beam head over the treatment table - where an
+        anonymous illustrated patient in a hospital gown stiffens mid-flinch,
+        hands gripping the table edge. The bright untroubled screen and the
+        distant suffering held in the same frame, the terminal indifferent.
+        Strictly period hardware, no flatscreen, no LED, no mouse pointer or arrow cursor (block cursor only), no legible text
+        anywhere. Low over-the-desk angle past the terminal toward the
+        doorway, deep depth of field.
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - "THE MACHINE RECORDED"
+    - "NOTHING WRONG"
+    text_emphasis: 1
+    ai_fallback_prompt: >
+      A 1985 control terminal glowing calm amber in the foreground while a
+      small patient flinches on the treatment table through the doorway behind.
+  music:
+    state: stop
+  editorial_intent: institutional_critique
+  pacing: crisis
+
+- id: seg_006
+  act: act_1
+  narration: >
+    No alarm. No error. No indication that anything had gone
+    wrong at all. Over the next two years, this machine will
+    overdose six patients in two countries. At least three of
+    them will die of it. The company that built it will insist,
+    again and again, that an overdose is impossible. And the
+    answer will come down to a single byte of memory. How did
+    this happen?
+  visual:
+    description: "The control terminal glowing calm - no alarm, no error, no indication."
+    type: ai_video
+    location_id: therac_terminal
+    reference_period: "1985"
+    ai_motion: >-
+      The steel gantry and its boxy beam head physically pivot on their mount, swinging through a slow firing arc while the turntable assembly rotates into position with cold mechanical certainty — the apparatus actively going about its work, delivering. Across the convex glass the amber phosphor breathes in a faint steady shimmer and the cursor-glow holds a slow even blink, dust motes drifting through the warm light; the interface itself never reacts — no alarm, no flicker — even as the machine behind it keeps moving. The camera holds a locked low three-quarter framing (no dolly push, no zoom): the motion is the gantry firing and resetting, not the lens drifting toward an inert object.
+    ai_style: "cold clinical serenity that reads as horror — the obscene calm of a machine reporting normal while catastrophe has already happened; oppressive quiet, a dead-still interface, the amber glow confined to the upper frame and a darker lower third swallowing the desk into near-black where the caption sits; period 1985, no legible text"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        A single 1985 radiation-therapy control terminal alone in a darkened equipment room — a boxy beige metal CRT with a convex glass face on a cluttered operator desk. The curved screen glows a calm, even amber phosphor reduced to a soft indistinct smear of light: no character shapes, no readable words, no rows of code, just a blurred warm wash and one steady block of cursor-glow — no warning band, no flashing, no alarm color, the obscene serenity of a machine reporting nothing wrong while, behind it, the accelerator head moves. In the mid-ground the heavy steel treatment gantry and its boxy beam head pivot on their mount, swinging slowly through their firing arc with mechanical certainty, the turntable assembly rotating into position with a cold deliberate motion — the apparatus dutifully going about its lethal work while the console face stays serene. Period 1985 hardware only: beige enamel casing, chunky keyboard, coiled phone cord, a folded fanfold printout, a heavy power toggle; no flatscreen, no LED, no modern UI. No people, no hands. The amber glow pools on the beige casing and rakes across the pivoting gantry in the upper-middle of frame and falls off fast; it never reaches the lower third, where the desk surface and the room sink into deep navy-to-black shadow — the bottom of the frame almost pure black where harm sits unrecorded, kept clear and uncluttered for the caption. Low three-quarter angle, the calm screen and the moving beam head dominating the upper-middle of frame, shallow depth, background machinery dissolving into darkness. Inked linework, restrained cel-style shading, deep navy #0a1428 and amber #e8a44c duotone, muted period palette, painterly graphic-novel rendering, no photographic texture, absolutely no legible text, letters, numbers, or symbols on the screen or any surface.
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - SIX OVERDOSED. TWO COUNTRIES.
+    - AT LEAST THREE WILL DIE.
+    - '"AN OVERDOSE IS IMPOSSIBLE."'
+    - A SINGLE BYTE OF MEMORY.
+    text_emphasis: 2
+    ai_fallback_prompt: "The control terminal glowing calm - no alarm, no error, no indication."
+  silence_after_s: 3
+  editorial_intent: chapter_transition
+  pacing: crisis
+
+  # -----------------------------------------------------------------------
+  # ACT 2: THE MACHINE
+  # -----------------------------------------------------------------------
+
+  narration_mode: literal
+- id: seg_007
+  act: act_2
+  narration: >
+    The Therac-25 had two ways to fire a beam. One of them could
+    kill. In electron mode, a low-power beam treats the patient
+    directly. In X-ray mode, the beam runs about a hundred times
+    stronger. It fires into a metal target, and the target turns
+    that force into X-rays. The target takes the punishment. The
+    patient gets the treatment. Two modes. One machine. And
+    everything depends on the target being exactly where it's
+    supposed to be.
+  visual:
+    description: >
+      Animated diagram of the Therac-25 linear accelerator.
+      Must show the turntable mechanism with both the target
+      and the scanning magnets. NOT a generic linac.
+    type: manim_animation
+    template: radiation_therapy
+    must_show:
+    - electron_gun
+    - turntable_with_target
+    - turntable_with_scanning_magnets
+    - patient_position
+    animation_phases:
+    - phase: build_diagram
+      description: "Components appear one by one as narrated"
+      target_duration_pct: 60
+    - phase: show_two_modes
+      description: "Turntable rotates between electron and X-ray modes"
+      target_duration_pct: 40
+  music:
+    state: playing
+    description: "Neutral, methodical, slight unease underneath"
+  editorial_intent: technical_explanation
+  pacing: establishing
+
+- id: seg_008
+  act: act_2
+  narration: >
+    Previous models — the Therac-6 and the Therac-20 — used
+    hardware safety interlocks. Physical metal. Fuses, switches,
+    mechanical locks that wouldn't let the beam fire unless the
+    target sat in its proper place.
+  visual:
+    description: >
+      Inside an earlier linac chassis: a heavy electromechanical
+      safety interlock — physical metal that made overdose impossible.
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: "the steel cam rotates against the microswitch and the lever snaps, the solenoid plunger drives home and gears turn; a slow macro push to the contact point"
+    ai_style: "grave mechanical reassurance shading into dread, the quiet authority of solid metal, cold and exacting"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Extreme close-up inside the open metal chassis of an earlier-generation
+        medical linear accelerator: a heavy electromechanical safety interlock — a
+        machined-steel cam riding a microswitch lever, a chunky solenoid plunger, a
+        return spring, exposed gear teeth — physically gating a beam-stop arm. A
+        tungsten target disc on a metal turntable in shadow. Period hardware:
+        machined metal, relays, a ribbon wiring harness, screw terminals; purely
+        mechanical, over-engineered, tactile. Tight three-quarter macro, shallow
+        depth, the contacts in crisp focus, the cabinet falling into deep shadow.
+        No screens, no text, no people.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: >
+      Macro of a mechanical safety interlock inside a 1980s linac — steel cam,
+      microswitch, spring, gears; no people, no text.
+  editorial_intent: technical_explanation
+  pacing: establishing
+
+- id: seg_009
+  act: act_2
+  narration: >
+    The Therac-25's manufacturer — a company called AECL —
+    removed them. It was a deliberate decision: the hardware
+    seemed redundant, an expense the software made unnecessary.
+    AECL trusted its code that much. Nearly every safety check
+    now lived in software alone. Software written in PDP-11
+    assembly language. By a single programmer. Over several years.
+  visual:
+    description: >
+      A single 1985 terminal alone in the dark, dense amber code
+      scrolling — every safety check now living only in software.
+    type: ai_video
+    location_id: therac_terminal
+    reference_period: "1985"
+    ai_motion: >-
+      The gloved hands draw the metal interlock block straight up and out of its bracket, the bolt clearing the socket and the loose cable swinging free, revealing the empty bracket and bare bolt-hole as the metal leaves frame; in the background the seated programmer's hand presses across the keyboard and the amber code on the CRT advances a few lines; a slow, steady handheld settle — no push into a still screen.
+    ai_style: "cold clinical isolation, the quiet weight of unwatched machinery, creeping dread — a single fragile light holding back the dark"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        A darkened 1985 medical-equipment bay rendered in inked, painterly amber-and-deep-navy duotone (navy #0a1428, amber #e8a44c), no photographic texture, 1985 period hardware only. In the foreground, a pair of gloved technician hands grips a heavy machined metal safety-interlock block and lifts it free of its mounting bracket on an open beige cabinet panel, leaving a bare bolt-hole socket and a clean rectangular shadow where the metal sat; a loosened bolt and an unplugged thick cable hang loose. Behind, deeper in the bay, a lone programmer sits in silhouette at a single boxy beige PDP-11-era control terminal, one hand resting on the chunky keyboard, the curved-glass CRT throwing an amber phosphor glow of dense indistinct monospace lines — deliberately illegible, impressionistic, no readable words or numbers. The screen glow and a single hard overhead pool of light are the only illumination, carving figure and metal out of the dark; the rest of the cabinet rack recedes into navy shadow. Anonymous illustrated figures, no real-person likeness, no faces emphasized. No flatscreen, no LED.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: >
+      A lone 1985 CRT terminal in the dark, indistinct amber code scrolling,
+      period hardware, no people.
+    text_overlay:
+    - HARDWARE INTERLOCKS REMOVED
+    - PDP-11 ASSEMBLY — ONE PROGRAMMER
+  music:
+    state: change
+    description: "Single low note, sustained"
+  editorial_intent: escalation
+  pacing: escalation
+
+  narration_mode: literal
+- id: seg_010
+  act: act_2
+  narration: >
+    Years before the machine hurt a single patient, AECL ran a
+    safety analysis on the Therac-25. That analysis apparently
+    excluded the software entirely.
+  visual:
+    description: >
+      A thick 1980s safety report under a hard lamp — dense type up
+      top, a conspicuously blank lower band: the analysis never done.
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: "a typewriter hammers dense analysis line by line down the page, each line struck with a small ink-jolt and the carriage nudging then snapping back; the type reaches a bold SOFTWARE heading and STOPS dead — keys freeze, carriage halts mid-travel — and the lower third stays a stark blank band under the lamp; a slow push-in onto the empty field as the typing dies"
+    ai_style: "cold clinical dread, institutional weight, the quiet of a deliberate absence"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Extreme top-down close-up of one open page of a thick ring-bound 1980s
+        institutional engineering safety report on a bare metal desk under a single
+        hard overhead pool of light, the rest in deep shadow. The upper two-thirds is
+        dense, cramped typewriter-style monospace and a faint ruled grid —
+        impressionistic, never sharp enough to read, type fading into grain. The lower
+        third is conspicuously bare: a wide band of clean untouched paper where the
+        rows simply stop. A heavy ring-binder spine crowds the top of frame. Shallow
+        depth, the empty band in sharpest focus. Typewritten/mimeographed look only,
+        no laser type, no screens, no people, no hands.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: >
+      Top-down on a 1980s bound safety report under a desk lamp, dense type above
+      and a blank lower band, no people.
+  silence_after_s: 1
+  editorial_intent: institutional_critique
+  pacing: escalation
+
+  # -----------------------------------------------------------------------
+  # ACT 3: THE PATTERN
+  # -----------------------------------------------------------------------
+
+- id: seg_011
+  act: act_3
+  narration: >
+    What happened to Katie Yarbrough… happened again. And again.
+    In hospital after hospital, for nearly two years.
+  visual:
+    description: "A records room of identical repeating forms - not an isolated incident."
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: "a slow steady push glides forward over the front rows of identical paper while the receding grid of repeating forms seems to multiply deeper into the dark, the hard overhead light drifting almost imperceptibly across the curling edges, faint dust hanging in the beam, and one quiet rhythmic settle of the topmost sheet — dynamic but grounded, the lower third holding still, empty and dark for the caption."
+    ai_style: "cold clinical dread, institutional repetition turning ominous — the quiet horror of the same identical thing reproduced again and again into shadow; oppressive, hushed, restrained and uncluttered, period 1985, with a clean darker lower third; graphic-novel atmosphere, no photographic texture, absolutely no legible text."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: "Tight, slow push down a dim 1985 institutional records room where identical sheets of period paper repeat into the dark — the same treatment-record form and the same fan-fold printout, laid out and overlapping in a receding grid that multiplies toward the shadowed background, sameness and oppressive repetition carrying the whole image. The forms are visually identical, one after another after another, the same shape and the same faint ruled framing on each. CRITICAL: there is NO legible text anywhere in the frame. The typing on every sheet is reduced to an abstract soft grey rhythm of ink — blurred horizontal smudges and faint pale bands suggesting rows of monospace, never resolving into a single readable character, word, number, letterhead, or form label. Treat the writing as texture, not language. A single hard overhead pool of light rakes across only the front rows of paper, catching paper fibre and curling edges; the rows recede and dissolve into deep navy-dark shadow at the back and especially across the lower third of the frame, leaving a clean, empty, darker band beneath where nothing competes. Keep it restrained and uncluttered — a few crisp front sheets, then quiet softening copies, not a busy wall of detail. Strictly period 1985: manual-typewriter, carbon-copy and mimeograph look, off-white and pale-blue carbon paper, NO laser print, NO screens, NO LED, NO barcodes, NO modern paper or fonts. No people, no hands, no faces. Low three-quarter angle looking down the repeating rows, shallow depth, the nearest identical form in crisp focus and the multiplying copies softening into the dark. Moody, oppressive, clinical stillness; the dread of the same thing happening again and again. Graphic-novel illustrated atmosphere, no photographic texture."
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - "NOT AN ISOLATED INCIDENT."
+    - "THE PATTERN"
+    text_emphasis: 1
+    ai_fallback_prompt: "A records room of identical repeating forms - not an isolated incident."
+  music:
+    state: playing
+    description: "Tension begins — slow, rhythmic pulse"
+  editorial_intent: chapter_transition
+  pacing: establishing
+
+- id: seg_012
+  act: act_3
+  narration: >
+    It starts with Katie Yarbrough, the woman on the table in
+    Georgia. Up to twenty thousand rads, against a typical dose
+    of two hundred. Her hospital's physicist — a man named Tim
+    Still — is the first to ask whether the machine could have
+    burned her. He puts the question to AECL. Three days later,
+    the company's engineers call back: not possible. There's no
+    investigation. Just a phone call.
+  visual:
+    description: >
+      The phone call that closed the case — Tim Still's question to AECL,
+      dismissed as 'not possible,' no investigation.
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: "a hand lifts the heavy black rotary receiver, the finger hooks the dial and drags it fully around and it whirs back, the man leans in to ask; then he listens, his shoulders slowly drop, and the receiver is set back into the cradle, the cord swaying then stilling and the dial spinning to rest — the question asked and waved away; a slow push tightening onto the dead phone"
+    ai_style: "cold institutional dismissal — a life-and-death question closed with a single phone call; the quiet weight of a warning ignored, oppressive stillness"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. A dim 1985 hospital physicist's desk: a heavy black
+        ROTARY desk telephone in a pool of warm lamplight, its coiled cord trailing, the
+        handset just being set back into the cradle by an anonymous hand in a plain shirt
+        cuff — no face, partial figure only. Around it a blotter, a closed manila folder, a
+        coffee cup, scattered notes, all rendered impressionistically. The rest of the
+        office falls into deep navy shadow. The phone is the focal point — the moment the
+        call ends and nothing happens. Bold black ink linework, cross-hatch and halftone
+        shading, warm amber on deep navy. Strictly 1985 hardware, no modern phone, no
+        flatscreen, no LED, no legible text anywhere.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "A 1985 rotary desk phone in lamplight, a hand setting the receiver down, the case closed, no legible text."
+  music:
+    state: continue
+  editorial_intent: pattern_recognition
+  pacing: establishing
+
+- id: seg_013
+  act: act_3
+  narration: >
+    AECL states that an overdose is impossible.
+  visual:
+    description: >
+      A typewritten institutional denial letter on a bare desk —
+      the corporate claim that an overdose was impossible.
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: "the page settles onto the desk as raking light sweeps across the embossed seal, a signature strokes across the foot; a slow drift over the letter"
+    ai_style: "cold bureaucratic finality, institutional certainty, dismissive and airless"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        A single sheet of official-looking institutional correspondence on a bare
+        wooden desk, steep overhead angle, the page filling most of the frame. Clearly
+        typewritten on a manual typewriter — uneven character impressions, period 1985
+        stationery — with a generic embossed letterhead crest (no real brand) and
+        dense administrative paragraphs, every line deliberately blurred and
+        unreadable. A heavy embossed seal and an ink signature near the foot, read as
+        shape only, not legible text. Sharp raking light across the paper throws the
+        seal and fibre texture into relief; the desk falls into deep shadow. Empty
+        room, no people, no hands. Static locked-off composition.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: >
+      Overhead on a typewritten 1985 institutional letter, embossed seal, blurred
+      unreadable text, raking light, no people.
+  silence_after_s: 1
+  editorial_intent: institutional_critique
+  pacing: escalation
+
+- id: seg_014
+  act: act_3
+  narration: >
+    Weeks later, the pattern crosses a border. In Ontario, a
+    forty-year-old woman named Frances Hill goes in for treatment.
+    The machine gives her an estimated thirteen to seventeen
+    thousand rads. Before the year is out, she is dead. Her
+    autopsy notes radiation damage.
+  visual:
+    description: >
+      The aftermath — an empty draped gurney and an open autopsy file under a
+      hard lamp, radiation damage noted; Frances Hill is gone.
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: "the open autopsy file's pages riffle and turn until a dark radiation-burn diagram rises into view and the last page settles flat, while the draped gurney's body-hollow slowly sinks and smooths itself empty, dust drifting up the lamp cone; a slow cold push from the gurney across to the file — 'she is gone' as a physical emptying"
+    ai_style: "cold clinical grief — the quiet of an empty room after a death, an autopsy that comes too late; mournful, hushed, institutional"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. A cold, dim 1985 hospital room: in the foreground an
+        empty steel gurney draped with a pale sheet under a hard overhead pool of light,
+        vacant; on a metal table beside it an open manila autopsy/medical file and an X-ray
+        viewer box glowing faintly, the film only an indistinct dark shape. The rest of the
+        room sinks into deep navy shadow. NO body, no people — only the empty draped gurney
+        and the file, the evidence of a death that came too late. Bold black ink linework,
+        cross-hatch and halftone shading, cold amber on deep navy. Strictly 1985 hardware,
+        impressionistic, no legible text on the file or anywhere.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "A cold 1985 hospital room, an empty draped gurney and an open autopsy file under a hard lamp, no body, no legible text."
+  music:
+    state: continue
+  silence_after_s: 3
+  editorial_intent: emotional_impact
+  pacing: escalation
+
+- id: seg_015
+  act: act_3
+  narration: >
+    By winter it's reached the Pacific Northwest — Yakima, a
+    community hospital among the evergreens. A patient develops
+    striped burns across her hip. Stripes that match the slots
+    of the machine's own hardware. Her hospital writes to AECL
+    and asks the question directly.
+  visual:
+    description: >
+      The stripe signature — a parallel burn pattern that matches the slots of
+      the machine's own collimator hardware.
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: >-
+      the clinician's gloved hand lifts the gown's edge at the hip and the parallel striped burns are revealed, cold amber light raking across the raised welts; on the lightbox beside her the collimator vanes catch the same light so wound and hardware read as one shape; in the background a second pair of hands lays the striped wound photos onto hospital letterhead and slides the page into an envelope — a deliberate, cold push that ends on the sealed letter being set down toward the manufacturer
+    ai_style: "cold clinical revelation — the chilling moment the wound and the machine are recognized as the same shape; the quiet horror of a signature left in skin, oppressive"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, 1985 period, deep navy and amber duotone, bold black ink linework with cross-hatch and halftone shading, NO photographic texture. A clinical examination scene rendered in three reading-zones. FOREGROUND: a gowned female patient lies on a 1985 exam table, shown anonymously from the side (face turned away, hair across the pillow, no recognizable likeness); a clinician's gloved hand gently lifts the gown's edge at her HIP to reveal a band of HARD PARALLEL STRIPES seared into the skin — evenly-spaced burn welts, raised and raw, cold light catching their ridges. MIDGROUND: pinned to a lightbox beside the table, the slotted metal vanes and rectangular apertures of a 1985 radiation-machine COLLIMATOR — rows of heavy beige-metal blades and slots whose gaps throw the EXACT same striped spacing as the burns; the wound and the hardware drawn as one shape, the match unmistakable. BACKGROUND: a second clinician's hands at a desk lay a manila folder of striped wound photographs beside a sheet of hospital letterhead and slide it into an addressed envelope — the act of writing to the manufacturer. Cold amber raking light, oppressive navy shadow pooling under the table. Evergreen winter light bleeding cold through a window. The letterhead and envelope are an amber impressionistic glow with NO legible text, the wound photos shown as dark striped shapes only. Anonymous illustrated figures, period-accurate, no flatscreens, no LEDs, no legible text or signage anywhere.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "Extreme close-up of parallel light-and-shadow stripes resolving into the slotted collimator vanes of a 1985 radiation machine, no legible text."
+    text_overlay:
+    - Yakima Valley Memorial Hospital
+    - Could the Therac-25 have done this?
+  music:
+    state: change
+    description: "Resumes — slightly faster"
+  editorial_intent: pattern_recognition
+  pacing: escalation
+
+  narration_mode: literal
+- id: seg_016
+  act: act_3
+  narration: >
+    AECL claims the Therac-25 could not have been responsible
+    for the Yakima injuries.
+  visual:
+    description: "The Yakima hospital, cold and somber - the manufacturer's flat denial."
+    type: ai_video
+    location_id: yakima_washington_2
+    reference_period: "1985"
+    ai_motion: >-
+      the official's hand presses flat on the typed denial letter and firmly slides it forward across the desk toward camera, then his other hand sweeps the closed manila file aside; he settles back, chin lifting, and the amber lamplight steadies on the pushed-forward page as he folds his hands — the denial delivered and dismissed
+    ai_style: "cold institutional denial, somber overcast weight, the quiet of a place whose harm was waved away; graphic-novel duotone, grounded"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        1985 graphic-novel illustration, deep navy and amber duotone, inked and painterly, no photographic texture. A cold corporate office at the Therac-25 manufacturer: a company official in a dark suit seated behind a heavy wooden desk, captured mid-gesture as he firmly slides a single typed formal letter forward across the desk toward the viewer — one hand flat and pressing down on the page, the other resting on a closed manila incident file he is pushing aside. His expression is composed and dismissive, chin slightly raised. The typed letter glows a warm impressionistic amber under a desk lamp, its lines rendered as soft abstract ruled marks and an embossed corporate seal — no legible or readable words, numbers, or signatures anywhere; all paper, the letterhead, and the file tab are blank, blurred, or abstract ruled lines only. Behind him: a tall window of cold grey overcast daylight, gray metal filing cabinets, framed certificates on the wall left unlabeled. Heavy navy shadow pools in the corners, a weak amber cone from the desk lamp on the letter and his hands. Period-accurate 1985 corporate office, rotary phone, venetian-blind slats. Anonymous illustrated figure, face partly in shadow, no real-person likeness. Heavy negative space, grounded and somber.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "The Yakima hospital, cold and somber - the manufacturer's flat denial."
+    text_overlay:
+    - 'AECL: “COULD NOT HAVE BEEN RESPONSIBLE”'
+  silence_after_s: 2
+  editorial_intent: institutional_critique
+  pacing: escalation
+
+  narration_mode: literal
+- id: seg_017
+  act: act_3
+  narration: >
+    Three overdoses. Zero acknowledgment.
+  visual:
+    description: "Three unanswered incident folders in a dark office - three overdoses, zero acknowledgment."
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: "the three sealed folders hold a beat under the lamp, then a bureaucrat's hand sweeps all three off the desk into an open drawer and slams it shut, the pull clacking and the lamplight snuffing to a sliver — then the empty swept-clean desk holds dead still: zero acknowledgment performed on the paperwork"
+    ai_style: "graphic-novel illustration — the cold, airless quiet of institutional indifference: reports filed and forgotten, a room where no one is accountable. Oppressive stillness, a weak amber pool against encroaching navy dark, heavy shadow and negative space, moody and grounded. No baked-in text of any kind — all paper, tabs, labels, and signage remain blank or illegible."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: "1985 graphic-novel illustration of a dim institutional administrative office at night — a manufacturer/regulatory records desk where injury reports go to die. On the desktop, three separate manila incident folders sit fanned out in a shallow pool of cold lamplight, untouched, a fine layer of stillness over them; an empty office chair pushed back, no one present to answer. Beyond the desk the room falls into deep navy shadow — rows of locked filing cabinets and a darkened doorway swallowing the light. A single desk lamp throws a weak amber cone that does not reach the corners. Period-accurate 1985 office: rotary phone, gray metal cabinets, frosted-glass door, venetian-blind slats. Heavy negative space and a darker, near-black lower third where the room sinks into shadow. ABSOLUTELY NO legible or readable text anywhere — folder tabs, labels, and any forms are blank or blurred into abstract ruled lines and empty form-fields only, no letters, no numbers, no words; signage, spines, and the frosted door are unlabeled."
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - "THREE OVERDOSES."
+    - "ZERO ACKNOWLEDGMENT."
+    text_emphasis: 1
+    ai_fallback_prompt: "Three unanswered incident folders in a dark office - three overdoses, zero acknowledgment."
+  silence_after_s: 2
+  music:
+    state: change
+    description: "Drops to near silence"
+  editorial_intent: emotional_impact
+  pacing: crisis
+
+- id: seg_018
+  act: act_3
+  narration: >
+    Spring comes, and the machines are still treating patients.
+    In an East Texas cancer center, Voyne Ray Cox lies on the
+    table for his ninth treatment. The operator knows her console.
+    She's fast. She types an X where she meant an E. Catches it.
+    Cursors up. Fixes it. The beam fires — and in the treatment
+    room, Cox feels a jolt like an electric shock. She can't see
+    him. The video monitor to his room is dead, and the intercom's
+    broken. All she sees is her screen: Malfunction fifty-four.
+    A code no manual explains. And the dose reading shows next
+    to nothing — an underdose. Stops like this happen all the
+    time, and the procedure for them is simple. Her finger moves
+    to the P key.
+  visual:
+    description: >
+      The Tyler control room, sealed off from the treatment room: the
+      operator works fast at her console, a typo caught and corrected, while
+      the video monitor to Cox's room sits dead beside her screen - then the
+      error code and a low dose reading, and her finger moving to the P key.
+    type: ai_video
+    location_id: tyler_texas
+    reference_period: "1985"
+    ai_motion: "her fingers fly across the keys, a quick cursor correction, the amber screen flickering with each entry; the small monitor beside it stays dead black; later the screen flares once - an error block and a low reading - and her hand drifts toward a single key; slow push over her shoulder"
+    ai_style: "graphic-novel illustration - fatal routine: a skilled operator working fast in a sealed room, oppressive isolation, the weary calm of dismissing a warning seen a hundred times; single amber glow against encroaching dark"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. Over-the-shoulder of a lone illustrated
+        woman operator seated at the beige 1985 control console, fingers
+        mid-flight across the chunky keyboard, mid-correction - one hand
+        reaching for the cursor keys. Her amber CRT glows with dense
+        indistinct monospace, no legible words, block cursor mid-line.
+        BESIDE the terminal: a small video monitor, DEAD - blank dark
+        glass, no picture - and a wall intercom panel, silent. The closed
+        door to the treatment room at the frame edge. She is sealed in: no
+        window, no view of the patient. Strictly period hardware, no
+        flatscreen, no LED, no mouse pointer (block cursor only), no
+        legible text anywhere.
+      duration_weight: 0.55
+      hero: false
+    - shot_id: shot_02
+      ai_prompt: >-
+        Graphic-novel illustration. Tighter on the same 1985 console: the
+        amber CRT now shows a single bright indistinct error block over a
+        short low readout line - unreadable, urgent shapes only. The dead
+        video monitor's blank face looms beside it, reflecting a sliver of
+        amber. The operator's hand, calm and unhurried, moves toward one
+        key on the beige keyboard. Her face unseen or in shadow profile.
+        The sealed room dark beyond the console glow. Strictly period
+        hardware, no flatscreen, no LED, no mouse pointer (block cursor
+        only), no legible text anywhere.
+      duration_weight: 0.45
+      hero: false
+    text_overlay:
+    - "MALFUNCTION 54"
+    - "DOSE: UNDERDOSE"
+    text_emphasis: 0
+    ai_fallback_prompt: >
+      A 1985 operator at her console typing fast, a dead video monitor beside
+      her amber screen, sealed control room.
+  music:
+    state: change
+    description: "Tension rebuilds, now more urgent"
+  editorial_intent: escalation
+  pacing: escalation
+
+- id: seg_019
+  act: act_3
+  narration: >
+    The operator presses P… The machine fires a second time.
+    Cox is getting off the table when it hits him. He pounds on
+    the treatment room door. Simulations will later put the doses
+    at sixteen to twenty-five thousand rads. Delivered in under
+    a second. Into an area about one centimeter across.
+  visual:
+    description: >
+      Inside the sealed treatment room — the beam fires a second time
+      and the patient, a lone silhouette, pounds on the unanswered door.
+    type: ai_video
+    location_id: kennestone_treatment_room
+    reference_period: "1985"
+    ai_motion: "the beam head's harsh cold light flares straight down across the empty table and slowly fades to dark; at the heavy sealed door the lone silhouette presses both hands to the unyielding metal and slowly slumps against it, defeated; one slow, helpless push toward the door, the room soundless and still"
+    ai_style: "cold clinical horror — the soundless terror of a sealed room, a man struck unseen and pounding on a door no one answers; oppressive, airless dread"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. Inside a sealed 1985 radiation-therapy treatment
+        room. The Therac-25's massive beige beam head looms over an empty treatment table;
+        a harsh cold shaft of beam-light has just fired straight down across the table, the
+        air alight with it. At a heavy, windowless metal treatment-room door stands a lone
+        patient rendered ONLY as a dark, faceless SILHOUETTE — half-risen and desperate —
+        one fist striking the unyielding door, unheard. The sealed room is soundless, deep
+        navy shadow pooling in the corners, the beam's cold glare the only harsh light, dust
+        adrift. Bold black ink linework, cross-hatch and halftone shading, deep-navy and
+        cold amber. Strictly 1985 hardware — beige enameled gantry, hard console; no
+        flatscreen, no LED, no legible text. The figure stays a shadowed silhouette, no
+        visible face or detailed anatomy.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: >
+      A sealed 1985 treatment room, a cold beam fired over an empty table, a lone shadowed
+      silhouette pounding on the heavy door, no visible face.
+  editorial_intent: crisis_moment
+  pacing: crisis
+
+- id: seg_020
+  act: act_3
+  narration: >
+    Twenty-five thousand rads. One second. One centimeter.
+  visual:
+    description: "The terminal calm as an invisible catastrophe lands - the dose, the second, the centimeter."
+    type: ai_video
+    location_id: therac_terminal
+    reference_period: "1985"
+    ai_motion: "the amber screen holds steady and calm; once, a single contained pulse of brightness swells and fades within the screen's own glass — the beam firing unseen, never spilling into the room or the dark lower third — and the block cursor blinks on, unbothered; a slow, almost imperceptible push toward the placid glowing screen as the navy shadow in the lower third deepens and settles"
+    ai_style: "cold clinical serenity that reads as horror — the obscene calm of a machine reporting nothing while an invisible catastrophe lands in a single instant; oppressive quiet, a clean dark lower third reserved for the caption, amber phosphor the only light against deep navy; period 1985 duotone graphic-novel mood"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: "Tight, nearly static frame on a single 1985 radiation-therapy control terminal alone in a darkened control room — a boxy beige metal CRT with a convex glass face on a cluttered operator desk. The curved screen glows a soft, even amber phosphor: dense, blurred, indistinct monospace texture with NO legible words, letters, or numbers anywhere, just abstract rows of glow and a single steady block cursor. The amber light pools quietly across the beige casing and a scatter of pale fan-fold printouts on the desk, then falls off hard into deep navy shadow that swallows the entire lower third of the frame, which stays clean, dark, and uncluttered to hold a caption. Behind the terminal, the dark looming silhouette of the accelerator gantry, barely lit, no detail. Strictly period 1985 hardware: chunky monospace keyboard, coiled phone cord, no flatscreen, no LED indicators, no modern UI, no readable signage. No people, no hands. Low three-quarter angle, the glowing screen dominating the upper frame, the desk and floor sinking into black below. Inked, painterly graphic-novel rendering, no photographic texture."
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - "16,500-25,000 RAD"
+    - "UNDER ONE SECOND"
+    - "ONE SQUARE CENTIMETER"
+    text_emphasis: 0
+    ai_fallback_prompt: "The terminal calm as an invisible catastrophe lands - the dose, the second, the centimeter."
+  silence_after_s: 1
+  editorial_intent: emotional_impact
+  pacing: crisis
+
+- id: seg_021
+  act: act_3
+  narration: >
+    Three weeks later. Same hospital. Same machine. Same operator.
+    Verdon Kidd is on the table, receiving treatment to his face.
+    Another overdose. This time the hospital physicist, Fritz
+    Hager, begins his own investigation. He will eventually
+    reproduce the error himself.
+  visual:
+    description: "Tyler treatment room again, a new patient - the machine head swinging down over him."
+    type: ai_video
+    location_id: tyler_texas_2
+    reference_period: "1985"
+    ai_motion: "the heavy machine head swings down and locks over the patient's face, the beam aperture glows then flashes once, his chest rises and stills, the physicist turns toward the machine; a slow push up the table to the looming head"
+    ai_style: "graphic-novel illustration — cold clinical dread sharpened by repetition: the obscene sameness of a new body in the same fatal place, quiet, airless, the horror of nothing having changed. Anchored to the Tyler canonical room (re-visit)."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: "Graphic-novel illustration. Same Tyler treatment room, a new body on the table: an anonymous, un-named older illustrated man (a generic patient figure, NOT any specific or identifiable real person) lies on his back beneath the linear accelerator head, which is swung low over his face with the beam aperture aimed down at his cheek and jaw. His eyes are closed, hands flat at his sides, utterly still and trusting. Off to one side an illustrated hospital physicist in a short-sleeved shirt and tie stands half-turned, a clipboard at his hip, beginning to watch the machine more closely than the patient. Low three-quarter angle from the foot of the table, looking up past the patient's body toward the looming beige machine head; the empty operator terminal glows faintly amber in the deep background, indistinct, no readable text. Shallow depth — the patient's face and the machine snout sharp, the room edges sinking into shadow. Period 1985 hardware only: beige metal gantry, chunky mechanical controls, CRT-era terminal, no modern equipment. Reuse the established Tyler (Texas) canonical treatment room, machine, and console — the SAME room as seg_018, returned to with a new patient. Inked linework, restrained cel-style shading, painterly graphic-novel rendering, no photographic texture."
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "Tyler treatment room again, a new patient - the machine head swinging down over him."
+  music:
+    state: change
+    description: "Barely audible drone"
+  editorial_intent: escalation
+  pacing: escalation
+
+- id: seg_022
+  act: act_3
+  narration: >
+    Verdon Kidd is dead within twenty days — what one researcher
+    will later call the first death of its kind. Voyne Ray Cox
+    dies five months after his accident. Katie Yarbrough survives.
+    The radiation takes her breast, and the use of her arm and
+    shoulder. The pain never leaves.
+  visual:
+    description: "A hushed empty hall, cold light and drifting dust - a memorial to the dead."
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: >-
+      left to right the memorial reads as a tableau of the dead and the surviving: the two draped figures lie utterly still on their biers while the cold light over them dims a touch; the seated survivor on the right is the one who moves — she slowly draws her injured arm in tighter against her chest and lets her bowed head sink lower, a small involuntary flinch of lasting pain crossing her frame, her good hand tightening its protective hold on the ruined shoulder. A slow, steady push settles across the three figures, the lower third held in even undisturbed black for the names to rest on.
+    ai_style: "graphic-novel illustration (inked, painterly, 1985 period palette) — funereal stillness and memorial gravity; a hushed, reverent emptiness; the quiet of an empty institutional room holding the weight of the dead; mournful, solemn, airless, the lower third sunk in heavy undisturbed darkness so the equal-weight names rest with dignity and no single line dominates."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, not photoreal, 1985 period. A solemn three-figure memorial composition reading left to right across a deep, near-black institutional void — three separate anonymous illustrated figures, each spotlit in its own soft cold pool of light, no readable text anywhere. LEFT: a draped figure lying still and supine on a low hospital bier, fully covered by a plain sheet, face unseen — the first to be lost; one cold rim of light along the sheet, hands at rest. CENTER: a second draped supine figure on an identical bier a short distance away, the sheet falling in heavy folds, equally still and gone — the two dead held side by side with equal weight and dignity. RIGHT, set slightly apart and the only living presence: a frail seated woman in a hospital gown, alive but maimed — head bowed, her good hand cradling her injured arm protectively against the wounded chest and shoulder, the ruined shoulder hollowed and the gown empty where the breast was taken, her whole posture carrying enduring pain. Figures kept anonymous and illustrated, no real-person likenesses, faces shadowed or turned. A single faint warm amber accent touches only the seated survivor, marking that she alone breathes; the two draped biers rest in colder, bluer light. The lower third of the frame is heavy untouched darkness, quiet negative space deliberately reserved for caption names, no detail intruding into that band. Inked linework, restrained cel-style shading, muted period palette of deep cold navy with one faint warm amber accent, painterly graphic-novel rendering, no photographic texture, no signage, no lettering, no legible text on any surface.
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - VERDON KIDD
+    - DIED MAY 1986
+    - VOYNE RAY COX
+    - DIED 1986
+    - KATIE YARBROUGH
+    - SURVIVED
+    text_emphasis: -1
+    ai_fallback_prompt: "A hushed empty hall, cold light and drifting dust - a memorial to the dead."
+  silence_after_s: 2
+  editorial_intent: emotional_impact
+  pacing: crisis
+
+  narration_mode: literal
+- id: seg_023
+  act: act_3
+  narration: >
+    For months — nothing. Long enough to believe it's over. In
+    the dead of winter, nineteen eighty-seven, it returns to
+    Yakima — the same hospital from before. Sixty-five-year-old
+    Glen Dodd takes eight to ten thousand rads. His prescribed
+    dose was eighty-six. By spring, he, too, is dead.
+  visual:
+    description: "Yakima again, deep winter - a lone mourner; the pattern returning."
+    type: ai_video
+    location_id: yakima_washington_2
+    reference_period: "1985"
+    ai_motion: >-
+      the cold beam-shaft flares down from the gantry head and floods the still faceless patient-silhouette on the table with a far-too-intense glare that swells and burns and then bleeds away to cold dark; thin winter light dims as the navy shadow in the lower third deepens; a slow, deliberate push in onto the overwhelmed body under the beam
+    ai_style: "graphic-novel illustration — cold grief-stricken stillness, the dread of a place the pattern keeps returning to, mournful winter hush and quiet inevitability. Anchored to the Yakima canonical look (re-visit)."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. Inside the Yakima hospital's 1985 radiation-therapy treatment room in deep winter — the same site the pattern keeps returning to. The Therac-25's massive beige enameled gantry beam head looms directly over a treatment table; an anonymous OLDER MALE PATIENT lies supine on the table rendered ONLY as a still, dark, faceless SILHOUETTE, no visible face or detailed anatomy. A harsh, cold shaft of beam-light fires straight down from the gantry head onto the silhouette's torso — a far-too-intense glare flooding the body, the overdose physically landing. Cold blue winter daylight bleeds thin through a high window, pooling with the beam's hard amber glare; deep navy shadow swallows the corners and the lower third, which stays clean and dark to hold a caption. Bold black ink linework, cross-hatch and halftone shading, deep-navy and cold amber duotone. Strictly 1985 hardware — beige enameled gantry, boxy console, hard fixtures; no flatscreen, no LED, no modern equipment, no legible text or signage. The figure stays a shadowed silhouette throughout. Reuse the established Yakima (Washington) canonical site, returned to in deeper winter. Inked, painterly graphic-novel rendering, no photographic texture.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "Yakima again, deep winter - a lone mourner; the pattern returning."
+    text_overlay:
+    - GLEN DODD, 65 — YAKIMA, WINTER 1987
+    - 8,000–10,000 RADS
+    - 'PRESCRIBED: 86'
+    - BY SPRING, DEAD
+  music:
+    state: change
+    description: "Low, grief-stricken tone"
+  silence_after_s: 3
+  editorial_intent: emotional_impact
+  pacing: crisis
+
+  narration_mode: literal
+- id: seg_024
+  act: act_3
+  narration: >
+    Six known accidents. At least three dead. Spanning nearly
+    two years. And the manufacturer called an overdose
+    impossible — until the same machine, in the same room,
+    did it again.
+  visual:
+    description: >
+      The terminal glowing calm amber as identical printouts pile
+      up beside it — harm accumulating, the machine unbothered.
+    type: ai_video
+    location_id: therac_terminal
+    reference_period: "1985"
+    ai_motion: "a fresh printout feeds out and the identical stack grows taller, the amber screen glowing on unbothered, light pulsing; a slow push toward the climbing pile of paper"
+    ai_style: "cold institutional indifference — the serene, unbothered dread of a machine calmly glowing while harm accumulates beside it, unblinking denial"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        The recurring control terminal alone in a darkened 1985 control room — a
+        chunky beige console with a bulky CRT glowing soft amber phosphor. The screen
+        shows only indistinct unreadable monospace and a single steady cursor; the
+        calm even glow, no alarm color, conveys a machine reporting nothing wrong.
+        Beside the keyboard, a growing stack of identical pale fan-fold printout
+        sheets, edges curling, accumulating into a thick pile — sameness and quantity
+        carry the meaning, any markings faint and illegible. Tight low static
+        three-quarter angle, the amber glow the only light pooling on beige casing and
+        pale paper, deep navy shadow swallowing the room. 1985 hardware only, no
+        people.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: >
+      A calm amber 1985 terminal with a thick pile of identical printouts beside
+      it, deep shadow, no people.
+  silence_after_s: 2
+  editorial_intent: institutional_critique
+  pacing: crisis
+
+  # -----------------------------------------------------------------------
+  # ACT 4: THE EXPLANATION
+  # -----------------------------------------------------------------------
+
+- id: seg_025
+  act: act_4
+  narration: >
+    In Tyler, Fritz Hager doesn't let it go. After hours, he sits
+    at the machine with the operator, and she re-types her exact
+    keystrokes. Again. And again. It takes practice — but then it
+    comes: Malfunction fifty-four, on demand. Speed is the
+    trigger. AECL's engineers can't reproduce it… until they're
+    told to type fast. Then they find it, buried in the code.
+    And it isn't alone. The software carries two bugs.
+  visual:
+    description: >
+      After hours in the Tyler control room: the operator re-types her exact
+      keystrokes at the terminal while the hospital physicist watches over
+      her shoulder - hunting the error until Malfunction 54 appears on demand.
+    type: ai_video
+    location_id: therac_terminal
+    reference_period: "1985"
+    ai_motion: "her hands move quickly over the keys, the screen flickering with each entry; the standing figure leans in closer; the amber glow pulses once as the error lands; a slow push past their shoulders toward the glowing screen"
+    ai_style: "late-night procedural intensity - two figures hunting a ghost in the machine, oppressive quiet, cold clinical dread"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Over-the-shoulder two-shot in the dim 1985 control room, after hours.
+        FOREGROUND: the backs of two anonymous illustrated figures at the
+        operator console - a seated woman operator, fingers mid-flight across
+        the beige keyboard, and a standing man in shirtsleeves and tie (the
+        hospital physicist) leaning over her shoulder, intent; faces unseen
+        or lost in shadow. CENTER: the boxy beige CRT terminal, convex glass
+        glowing amber with dense indistinct monospace - no legible words -
+        one block cursor mid-line. Scattered printouts and a coffee cup in
+        the console's pool of light, the room dark beyond it. Focused,
+        repetitive, late-night keystroke hunt. Strictly period hardware, no
+        flatscreen, no LED, no mouse pointer or arrow cursor (block cursor
+        only), no legible text anywhere.
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - "MALFUNCTION 54"
+    - "ON DEMAND"
+    text_emphasis: 1
+    ai_fallback_prompt: >
+      Two anonymous figures at a 1985 terminal after hours - the operator
+      typing fast, a physicist watching over her shoulder, amber screen glow.
+  music:
+    state: playing
+    description: "Suspenseful, methodical — a slow build"
+  editorial_intent: chapter_transition
+  pacing: establishing
+
+- id: seg_026
+  act: act_4
+  narration: >
+    The first was a race condition. Setting up the beam takes
+    the machine about eight seconds. And the screen lets an
+    operator keep typing while it works. Type X-ray by mistake.
+    Catch it. Cursor up, fix it to electron — all inside those
+    eight seconds. The screen takes the correction. The turntable
+    follows it. But the beam setting never hears about the
+    change… It stays locked at X-ray strength. A hundred times
+    the current of an electron treatment.
+  visual:
+    description: >
+      Race condition animation — two parallel timelines:
+      'Software state' and 'Hardware state' diverging.
+      Software shows one mode, hardware stays in another.
+    type: manim_animation
+    template: race_condition
+    must_show:
+    - software_state_timeline
+    - hardware_state_timeline
+    - divergence_moment
+    - operator_typing_trigger
+    animation_phases:
+    - phase: setup
+      description: "Show normal operation — both timelines in sync"
+      target_duration_pct: 25
+    - phase: race
+      description: "Operator types fast — timelines diverge"
+      target_duration_pct: 50
+    - phase: consequence
+      description: "Software shows safe, hardware is wrong"
+      target_duration_pct: 25
+  music:
+    state: change
+    description: "Tension builds slowly"
+  editorial_intent: technical_explanation
+  pacing: escalation
+
+- id: seg_027
+  act: act_4
+  narration: >
+    The machine fires the full-power beam with no target and no
+    flattening filter. Directly into the patient. And the chambers
+    that measure dose can't keep up. They saturate — and report
+    almost nothing. The machine doesn't even know what it's done.
+  visual:
+    description: >
+      Animation shows beam firing unimpeded — the moment of
+      catastrophic failure. Hard visual impact.
+    type: manim_animation
+    template: dose_chart
+    must_show:
+    - unimpeded_beam
+    - dose_magnitude
+  silence_after_s: 2
+  editorial_intent: crisis_moment
+  pacing: crisis
+
+- id: seg_028
+  act: act_4
+  narration: >
+    The second bug was an arithmetic overflow. Deep in the setup
+    routine, the software tracked one safety check with a counter
+    called Class Three. The counter was a single byte. One byte.
+    A maximum value of two hundred and fifty-five. Every pass of
+    the routine pushed it up by one. And at two hundred and
+    fifty-five, the next push didn't raise an error. It rolled
+    over… to zero.
+  visual:
+    description: >
+      Byte overflow animation — a single byte counter
+      incrementing: 253, 254, 255... then rolling to 0.
+      The moment the safety check vanishes.
+    type: manim_animation
+    template: byte_overflow
+    must_show:
+    - counter_incrementing
+    - rollover_to_zero
+    - safety_flag_clearing
+    animation_phases:
+    - phase: counting
+      description: "Counter incrementing normally, slow build"
+      target_duration_pct: 60
+    - phase: overflow
+      description: "255 → 0 — the critical moment"
+      target_duration_pct: 20
+    - phase: consequence
+      description: "Zero = 'all safe' — beam fires"
+      target_duration_pct: 20
+  editorial_intent: technical_explanation
+  pacing: escalation
+
+- id: seg_029
+  act: act_4
+  narration: >
+    Zero. The value that told the software: nothing needs
+    checking. For that one pass in every two hundred and
+    fifty-six, the turntable check simply vanished. If the
+    operator pressed the set button at that exact moment… the
+    software saw no reason to stop. The interlocks were satisfied.
+    The beam fired — turntable out of position, target out of
+    the path. That is the bug that came back for Yakima, in the
+    dead of winter. For Glen Dodd. And there was no hardware
+    interlock left to catch it. AECL had removed them.
+  visual:
+    description: >
+      Counter reads 0. Green 'SAFE' indicator illuminates.
+      Beam fires. The false safety signal.
+    type: manim_animation
+    template: byte_overflow
+    must_show:
+    - zero_value
+    - false_safe_indicator
+    - beam_firing
+    uniqueness: reusable
+    subject_continuity: seg_028
+  music:
+    state: change
+    description: "Sharp sting"
+  editorial_intent: crisis_moment
+  pacing: crisis
+
+- id: seg_030
+  act: act_4
+  narration: >
+    The same race condition lived in the older Therac-20 — for
+    years. At a teaching clinic in Chicago, students' creative
+    edits kept tripping breakers and blowing fuses. A nuisance.
+    It never hurt anyone. The hardware caught what the software
+    missed. The Therac-25 had no fuses left to blow.
+  visual:
+    description: "The machine armed in the dark, one amber lamp lit - every safeguard stripped away."
+    type: ai_video
+    location_id: kennestone_treatment_room
+    reference_period: "1985"
+    ai_motion: >-
+      the fuse in the open panel suddenly ARCS — a hard amber spark bursts at the fuse holder and the breaker lever physically snaps down to OFF, a curl of smoke kicking upward, the flare blooming hot for a beat then collapsing into dark; across the frame the inert Therac-25 never moves, its blank empty fuse plate catching no spark at all — the hardware on the left acting and saving, the machine on the right with nothing left to throw
+    ai_style: "cold clinical dread, the machine stripped of every safeguard yet still live and armed in the dark; oppressive stillness, a darker lower third, the obscene quiet of a lethal system with no defense left to stop it — grounded period realism, no photographic skin texture, no people"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Interior of a 1985 radiation-therapy machine room, amber/navy duotone graphic-novel ink-and-wash, deep navy #0a1428 ground with amber #e8a44c light, no photographic texture, no people. Foreground left: an open electrical fuse / breaker panel on a beige painted-metal cabinet, the kind bolted beside a Therac-20 — a row of stout cartridge fuses and breaker levers in riveted period hardware. One fuse in the panel violently ARCS: a bright amber spark bursts and flares at the fuse holder, a thin filament of light snapping, a curl of smoke kicking up — the breaker lever physically throws itself down to the OFF position. The flare blooms hot, then collapses into darkness — caught, stopped, safe. Background right, in cold deep shadow: the huge rounded beige housing of the Therac-25, beam head extended over an empty table, utterly inert — and the spot on its flank where a fuse panel should be is a blank, empty, riveted plate. No fuses. Nothing to blow. Wide two-thirds angle holding both the sparking panel and the dead machine in one frame, shallow depth, oppressive clinical dread. No signage, no legible text, no numbers, no displays.
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - 'THERAC-20: FUSE BLOWS → BEAM STOPS'
+    - 'THERAC-25: NO FUSES LEFT TO BLOW'
+    text_emphasis: 2
+    ai_fallback_prompt: "The machine armed in the dark, one amber lamp lit - every safeguard stripped away."
+  silence_after_s: 2
+  editorial_intent: institutional_critique
+  pacing: crisis
+
+  narration_mode: literal
+- id: seg_031
+  act: act_4
+  narration: >
+    Both bugs had been there all along. Hiding in the code,
+    waiting — for an operator to type fast enough, for a counter
+    to land on zero. The race condition was older than the
+    Therac-25 itself: carried in, line by line, from machines a
+    decade before. And every time the screen said Malfunction
+    fifty-four, operators pressed P. They proceeded. Because no
+    manual explained it. Because stops like it were everyday
+    noise — one clinic logged forty in a single day. Because the
+    machine itself had trained them to ignore it.
+  visual:
+    description: >
+      MALFUNCTION 54 surfacing again and again — a warning seen so
+      often it has stopped meaning anything.
+    type: ai_video
+    location_id: therac_terminal
+    reference_period: "1985"
+    ai_motion: >-
+      an operator's fingers rattle fast across the keyboard, the amber status band surfaces brighter on the glass, then the index finger presses down hard on the worn P key and holds — the key depressing under the fingertip; a slow handheld settle on the hands as they proceed, not a push on the screen
+    ai_style: "cold clinical dread, weary inevitability — the numb hypnosis of an alarm seen so often it has stopped meaning anything"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Amber graphic-novel illustration, 1985 period, deep navy #0a1428 and amber #e8a44c duotone, inked and painterly, no photographic texture. Tight low three-quarter view over an operator's hands at a single boxy 1985 control terminal in a dim empty room — a curved amber-phosphor CRT on a beige metal console, a chunky monospace keyboard beneath it. The hands are the subject and they are mid-action: fingers blurred and rattling fast across the keys, then the right index finger driving down onto one worn keycap rubbed pale from being pressed over and over, the key visibly depressed under the fingertip. The CRT screen behind is a warm amber glow — dense indistinct monospace crawling upward and a single brighter horizontal status band surfacing across it, rendered as pure phosphor light and impressionistic shapes, never legible words or numbers. Near the screen's foot a lone block cursor glows. Phosphor light rakes across the knuckles and the console; the room sinks into deep navy shadow. Figure anonymous and illustrated — only the hands and forearm in frame, no face, no signage, no readable text anywhere. Restrained inked linework, painterly shading, muted period palette.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: >
+      A 1985 CRT in the dark, indistinct code crawling upward, a pulsing bright
+      band, a worn keycap in foreground, no people.
+    text_overlay:
+    - MALFUNCTION 54
+    - OPERATOR PRESSED P
+  music:
+    state: change
+    description: "Resolves to low, mournful tone"
+  editorial_intent: institutional_critique
+  pacing: resolution
+
+  # -----------------------------------------------------------------------
+  # ACT 5: THE RECKONING
+  # -----------------------------------------------------------------------
+
+  narration_mode: literal
+- id: seg_032
+  act: act_5
+  narration: >
+    One day after Verdon Kidd's death, the FDA declared the
+    Therac-25 defective and demanded a corrective action plan.
+    It took five revisions. AECL took another fourteen months
+    to deliver the final version — more than two years after
+    the machine burned Katie Yarbrough. More than twenty-three
+    changes. And among them, the one that mattered most: they
+    put back the very safeguard they'd removed to build it.
+  visual:
+    description: "An FDA letter, federal seal embossed - the regulatory response landing."
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: >-
+      a hand slides the fanned, signed FDA pages onto the desk and presses them flat; then the same hand lowers a heavy steel interlock cam back down onto its microswitch lever — the solenoid plunger drives home, the return spring re-engages and the beam-stop arm drops into its lock, the safeguard physically seated back into place; the lamp light catches the re-seated metal contacts as the camera holds steady on the act of restoring the safeguard
+    ai_style: "graphic-novel illustration — grave institutional authority finally landing: somber, reflective regulatory weight; the quiet gravity of the state correcting a wrong, not denial; resolution and finality rather than dread."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, inked and painterly, deep navy #0a1428 shadow and warm amber #e8a44c highlight duotone, 1985 period, no photographic texture. A two-act tabletop scene on a bare government-issue metal desk under a single steady desk-lamp pool, the far edges sinking into deep navy shadow. Foreground left: a working hand slides a fanned stack of official U.S. federal regulatory correspondence onto the desk and presses it flat — the top sheet carries a round embossed federal seal read as relief and shadow only (a faint spread-winged eagle silhouette), a blocky letterhead band, and dense administrative paragraphs that are pure amber glow and indistinct, no legible lettering anywhere; a hand-inked signature gesture and date sit at the foot as ink strokes, not words; the multiple revised pages curl and overlap to show the weight of a re-worked plan. Foreground right, in the same lamp pool: the same hand seats a heavy machined-steel interlock cam BACK down onto its microswitch lever inside the open metal chassis of a linear accelerator — a chunky solenoid plunger, a return spring and exposed gear teeth re-engaging, the beam-stop arm dropping into its physical lock, period machined metal, relays, screw terminals and a ribbon wiring harness, over-engineered and tactile, the contacts catching the amber glow in crisp focus. The composition reads as cause and effect across the desk: the signed verdict on the left, the safeguard physically RESTORED on the right. Period 1985 stationery and purely mechanical hardware only — no laser print, no screens, no LEDs, no logos, no legible text. Anonymous illustrated hands, no faces, no real-person likeness. Inked linework, restrained cross-hatch shading, muted period palette, painterly graphic-novel rendering.
+      duration_weight: 1.0
+      hero: false
+    text_overlay:
+    - 'FDA: THERAC-25 DEFECTIVE'
+    - CORRECTIVE ACTION PLAN
+    - FIVE REVISIONS / 23 CHANGES
+    - HARDWARE INTERLOCK RESTORED
+    text_emphasis: 2
+    ai_fallback_prompt: "An FDA letter, federal seal embossed - the regulatory response landing."
+  music:
+    state: playing
+    description: "Somber, reflective — slow resolution"
+  silence_after_s: 2
+  editorial_intent: resolution
+  pacing: resolution
+
+  narration_mode: literal
+- id: seg_034
+  act: act_5
+  narration: >
+    Even before the plan was final, the FDA recommended pulling
+    every Therac-25 out of service. In an internal memo, the
+    agency admitted it could never find every failure mode hiding
+    in the software. Within a few years, AECL was out of the
+    medical machine business entirely.
+  visual:
+    description: >
+      The terminal's glow dims and dies — units removed from
+      service, the screen going dark for good.
+    type: ai_video
+    location_id: therac_terminal
+    reference_period: "1985"
+    ai_motion: "the screen glow dims and collapses toward black, the cursor extinguishing last, dust settling; a slow drift back as the last light drains from the room"
+    ai_style: "cold clinical finality, decommissioned silence — the quiet of a switch turned off for good"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Close static three-quarter shot of a beige mid-1980s radiation-therapy
+        control terminal on a metal desk in an empty dim control room: bulky CRT,
+        chunky keyboard, exposed ribbon cables and a coiled cord, a manila logbook
+        beside it. The screen carries only indistinct dense monospace and a single
+        blinking cursor, all lettering smeared and unreadable. Mid-frame the screen
+        glow dims and collapses toward black, the cursor the last point of light, a
+        thin haze of CRT static fading on cold dead glass. A heavy power toggle
+        catches a faint edge of light. Shallow depth, the room dissolving behind,
+        dust motes in the residual glow. No people, no flatscreens, no LED.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: >
+      A 1985 control terminal in a dim room, its amber screen fading to black,
+      cursor extinguishing last, no people.
+  editorial_intent: resolution
+  pacing: resolution
+
+- id: seg_035
+  act: act_5
+  narration: >
+    Researchers Nancy Leveson and Clark Turner published the
+    definitive investigation of the Therac-25 accidents. It became
+    a standard case study in software engineering — taught to
+    this day. Because the bugs were ordinary. The failures around
+    them were human. Thirty years on, Leveson returned to it with
+    a warning: these accidents were simply the first of many.
+  visual:
+    description: "The Leveson & Turner academic paper under a lamp - a hand studying the document."
+    type: ai_video
+    reference_period: "1985"
+    ai_motion: >-
+      the illustrated hand draws the pencil down a highlighted line, then pinches the page corner and turns to the next leaf; warm lamp light flickers and dust drifts in the beam as the freshly turned page settles flat
+    ai_style: "graphic-novel illustration — warm scholarly reverence, quiet resolution and hard-won understanding, the redemptive hush of a disaster being turned into a lesson; grave but no longer cold. Illustrated hand, never photoreal."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, 1985 period, deep navy and amber duotone, inked and painterly, no photographic texture. Warm overhead three-quarter close-up of a thick stapled academic journal paper lying open on a worn wooden desk under a single pool of warm amber lamp light, the rest of the room sinking into deep navy shadow. Two dense columns of small scholarly type run down the open spread — impressionistic and never legible, the words dissolving into fine amber grain. A title block and journal letterhead sit at the top of the page but read only as an indistinct band of dense typeset shapes and a faint embossed seal, no readable letters. A boxed figure or diagram is blocked out lower on the spread as flat pale geometric shapes, not a human form. Several lines are stroked through with a soft amber highlighter, and a few margin notes sit beside them rendered as abstract loops and dashes of ink — pure gesture, never words. At the lower edge of frame one illustrated hand actively works the page: fingers and a shirt cuff catching the lamp light as the hand draws a pencil along a highlighted line, then pinches the corner of the page to lift and turn it. A pair of folded reading glasses and a warm coffee ring sit at the paper's edge; the amber lamplight flickers and fine dust drifts in the beam. Period 1985: typewritten and typeset journal look, manila and cream paper, no screens, no laser-sharp text, no modern devices. Shallow depth, the highlighted lines and the moving hand in crisp focus, the page edges and desk falling off into warm-dark navy. Inked linework, warm restrained amber shading, painterly graphic-novel rendering, no photographic texture, figure illustrated and anonymous, never photoreal.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "The Leveson & Turner academic paper under a lamp - a hand studying the document."
+    text_overlay:
+    - Nancy Leveson & Clark Turner
+    - An Investigation of the Therac-25 Accidents
+  editorial_intent: resolution
+  pacing: resolution
+
+  narration_mode: literal
+- id: seg_036
+  act: act_5
+  narration: >
+    Overconfidence in software. Removal of redundant safety systems.
+    A manufacturer that called overdoses impossible while patients
+    were dying. Operators trained by the machine itself to ignore
+    its warnings. And a safety analysis that never analyzed the
+    software at all.
+  visual:
+    description: "Empty treatment room, machine powered down, the light fading - the machine at rest."
+    type: ai_video
+    location_id: kennestone_treatment_room
+    reference_period: "1985"
+    ai_motion: >-
+      a slow montage push that hands off between actors: the engineer leans further back and folds his arms tighter, then the gloved hand lifts the interlock plate clear of the beam-head, then the executive's raised palm pushes flatly toward camera while the patient on the table goes still, then the operator's finger jabs the console key as the amber warning lamp pulses and is ignored, and finally the torn safety report's pages settle on the floor; restless drifting amber light across the negligence, never resting on an inert object
+    ai_style: "graphic-novel illustration — cold clinical stillness shading into elegy: the quiet of a machine switched off for good, the room emptied of its harm, mournful and decommissioned, an oppressive silence settling as the light dies."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, 1985 period, deep navy #0a1428 and amber #e8a44c duotone, flat hand-inked linework with halftone shading and no photographic texture. A grim montage of five fragments of negligence sharing one frame, lit by hard amber against deep navy shadow. Foreground left: an anonymous engineer in a short-sleeved 1985 dress shirt leans back confidently in a chair, arms folded, feet up beside a chunky beige minicomputer cabinet whose tape reels glow warm amber — overconfidence in the software. Center: a gloved hand reaching up to a Therac-25 beam-head, unbolting and lifting away a heavy mechanical safety interlock plate, the redundant hardware guard being physically removed and set aside. Upper right: an anonymous executive in a 1985 suit at a desk, palm raised flat in a dismissive 'impossible' gesture, while behind him through a doorway a patient lies still and small on a treatment table under a pale sheet — overdoses called impossible while patients die. Lower right: an operator's hand at a chunky physical console deliberately pressing on through a blinking amber warning lamp, finger jabbing the key, trained to ignore the alarm. Lower foreground: a thick folded fanfold safety-analysis printout lying open on the floor, its software section visibly torn out and missing — a hole in the report. Strictly 1985 hardware: beige metal, hard toggle switches, indicator lamps, fanfold paper; no flatscreen, no LED panel, no modern equipment. All documents, console legends, and reports rendered impressionistically as amber glow and ink texture — no legible text, numbers, codes, or names on any surface. Figures anonymous and illustrated, no recognizable faces. Hard amber key light, deep receding navy shadow, restrained painterly graphic-novel rendering.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "Empty treatment room, machine powered down, the light fading - the machine at rest."
+    text_overlay:
+    - '"Overdoses impossible" — the manufacturer'
+    - 'Safety analysis: SOFTWARE NOT REVIEWED'
+  music:
+    state: fade_out
+  editorial_intent: emotional_impact
+  pacing: resolution
+
+  narration_mode: literal
+- id: seg_037
+  act: act_5
+  narration: >
+    The Therac-25 didn't fail because the technology was too complex.
+    It failed because the people who built it believed it was too
+    reliable to fail.
+  visual:
+    description: "Dark empty room, the machine a dissolving silhouette - final silence."
+    type: ai_video
+    location_id: kennestone_treatment_room
+    reference_period: "1985"
+    ai_motion: >-
+      the ghosted confident engineers fade and dissolve outward into the navy shadow as the last sliver of amber light drains off the machine's edge; both figures and silhouette thin into black together, faint haze drifting, a slow final settle into darkness — locked camera, the dissolving figures and failing light are the only motion
+    ai_style: "graphic-novel illustration — cold clinical finality, mournful silence, the machine abandoned and at rest as darkness closes for good; a held breath releasing into nothing."
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, 1985 period, deep navy #0a1428 and warm amber #e8a44c duotone, flat hand-inked halftone, no photographic texture. Wide, low, near-static shot of an emptying radiation-therapy treatment room sinking into final darkness. At frame center the hulking Therac-25 — rounded beige housing and beam head angled over a bare treatment table — stands as a barely-resolved silhouette, only its top edge and the curve of the gantry head catching the last dying sliver of warm amber light. Around and beside the machine stand three or four anonymous illustrated engineer figures in 1985 lab coats and shirtsleeves, faces unreadable, posed in calm, confident attitudes — arms folded, one hand resting on the console, heads slightly raised — as if certain of the machine they built. These figures are rendered as translucent ghosted outlines, already half-dissolved into the navy shadow, thinning and fading as the amber light drains away. The overhead fixtures are off; a single faint residual glow bleeds in from one side and collapses toward nothing, both the engineers and the machine's outline dissolving together into deep shadow. No lit screens, no glowing indicators, no signage, no readable text, no real-person likenesses, no modern equipment. Period 1985 hardware only — beige enameled console and gantry, no flatscreen, no LED. The room large and emptying, faint ambient haze, everything draining toward black at the edges. Inked linework, deep restrained navy shading, mournful muted palette, painterly graphic-novel rendering.
+      duration_weight: 1.0
+      hero: false
+    ai_fallback_prompt: "Dark empty room, the machine a dissolving silhouette - final silence."
+  music:
+    state: stop
+  silence_after_s: 3
+  editorial_intent: call_to_action
+  pacing: resolution
+  narration_mode: evocative

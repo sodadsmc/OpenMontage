@@ -204,8 +204,26 @@ class GrokKieVideo(BaseTool):
             urls.append(inputs["image_url"])
         if inputs.get("image_urls"):
             urls.extend(inputs["image_urls"])
-        if inputs.get("reference_image_path") or inputs.get("image_path"):
-            _log.warning("grok_kie_video: ignoring local image path — Kie.ai needs public URLs")
+        local = inputs.get("reference_image_path") or inputs.get("image_path")
+        if local:
+            # Kie.ai needs public URLs — auto-host the local keyframe instead of
+            # silently generating UNANCHORED (three paid legs were wasted on
+            # exactly that during the therac-25 fix pass).
+            try:
+                from lib.image_host import upload_image
+                hosted = upload_image(str(local))
+                if hosted:
+                    urls.append(hosted)
+                    _log.info("grok_kie_video: hosted local keyframe -> %s", hosted)
+                else:
+                    _log.warning("grok_kie_video: could not host %s — the clip "
+                                 "would be UNANCHORED; aborting", local)
+                    return ToolResult(success=False,
+                                      error=f"keyframe hosting failed for {local}")
+            except Exception as exc:  # noqa: BLE001
+                _log.warning("grok_kie_video: keyframe hosting error (%s); aborting", exc)
+                return ToolResult(success=False,
+                                  error=f"keyframe hosting failed: {exc}")
 
         op = inputs.get("operation") or ("image_to_video" if urls else "text_to_video")
         model = inputs.get("model") or (I2V_MODEL if op == "image_to_video" else T2V_MODEL)

@@ -22,7 +22,16 @@ pipeline/
 tests/qa/output/
 
 # Project workspaces (generated assets, renders — all regenerable)
-projects/
+# EXCEPT the v6 production drivers + the hand-tuned scored script: they ARE
+# the production system (docs/PRODUCTION_WORKFLOW.md §3) and are not
+# regenerable — losing this disk must not lose the pipeline.
+projects/*
+!projects/therac-25-test/
+projects/therac-25-test/*
+!projects/therac-25-test/script_v5/
+projects/therac-25-test/script_v5/*
+!projects/therac-25-test/script_v5/*.py
+!projects/therac-25-test/script_v5/scored_script.yaml
 
 # Corpus directories (downloaded stock clips, thumbnails, embeddings —
 # regenerable from source APIs via corpus_builder). Explicit rule even

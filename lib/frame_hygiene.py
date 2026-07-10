@@ -60,6 +60,21 @@ def extract_frame(src: str | Path, t: float, out: str | Path | None = None,
 # borders
 # ---------------------------------------------------------------------------
 
+def last_frame(src: str | Path, out: str | Path) -> Path:
+    """The clip's LITERAL final frame — the only correct anchor for a
+    continuation (FLF/i2v leg) of that clip.
+
+    Never re-extract 'the boundary' by timestamp arithmetic on a spliced
+    canonical: seeking near a splice can land on the wrong side of it (a
+    $0.42 FLF was burned on exactly that during the therac-25 polish).
+    """
+    run = subprocess.run(["ffmpeg", "-y", "-sseof", "-0.05", "-i", str(src),
+                          "-frames:v", "1", str(out)], capture_output=True)
+    if run.returncode != 0 or not os.path.exists(out):
+        raise RuntimeError(f"could not extract last frame of {src}")
+    return Path(out)
+
+
 def find_border_box(im: Image.Image):
     """Inner content box past navy padding + a cream comic border, or None.
 
@@ -344,12 +359,20 @@ def double_cuts(src: str | Path, start: float = 0.0, dur: float | None = None,
 
 def _main():
     import argparse
-    ap = argparse.ArgumentParser(description="Frame hygiene checks on one clip")
-    ap.add_argument("clip")
+    ap = argparse.ArgumentParser(description="Frame hygiene checks on one clip "
+                                             "or still image")
+    ap.add_argument("clip", help="video clip OR still image (.png/.jpg)")
     ap.add_argument("--slot", type=float, default=None,
                     help="slot length the clip must fill (freeze check vs this)")
     args = ap.parse_args()
     clip = args.clip
+    if str(clip).lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+        # still-intake hygiene: check BEFORE a still becomes a master/gold ref
+        box = find_border_box(Image.open(clip).convert("RGB"))
+        print(f"{os.path.basename(clip)}: "
+              + (f"BORDER {box} — crop before deriving anything from this "
+                 f"(or overscan_vf)" if box else "clean"))
+        return
     dur = probe_duration(clip)
     print(f"{os.path.basename(clip)}: {dur:.2f}s")
     borders = video_border_hits(clip)

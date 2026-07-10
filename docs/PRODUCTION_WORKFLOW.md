@@ -31,9 +31,20 @@ The pipeline is **TTS-first**: narration audio is generated and measured first, 
  STAGE 4   render_v6.py ───► renders/therac25_v6.mp4
               conform→concat→mux→finish(duotone+grain)
               GATE: post-render sync (HARD: video_dur >= audio_dur)
+                  │
+ STAGE 5   python -m lib.render_qc <pid> ─► machine QC report
+              borders / freeze tails / holds / stray-shot flashes / seam-jumps /
+              double-cuts / silence gaps / duration — run BEFORE every operator
+              watch-through; per-take mode (--clip take.mp4 --slot s) BEFORE
+              every promotion. Advisory by default; --strict to gate.
 
  [Preview lane] build_preview.py --yes --until seg_009  → renders/preview_3min.mp4
                 (scoped ~3-min chunk; generate → review → spend on next chunk)
+
+ [Stage -1]  python -m lib.entity_census <pid>  — BEFORE the bible/any generation:
+             extract the story's recurring people/places/things from the script and
+             build an approved reference sheet per entity (real photos as ground
+             truth). Every identity defect this episode traced back to skipping this.
 ```
 
 ## 2. THE LANE DECISION TREE (decide this FIRST, per beat)
