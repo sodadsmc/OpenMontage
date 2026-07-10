@@ -160,6 +160,50 @@ A FastAPI + React app under `web/` for reviewing the cut scene-by-scene (number-
 - **Duration Map is law.** DON'T hand-edit `visual_assets_v6.json` or change audio without rebuilding the duration map. WHY: every slot reads from it; stale = silent desync caught only at the hard post-render gate.
 - **Chunk before you spend.** DON'T fire the full bulk batch unreviewed. DO `build_preview.py --until …`, review, then proceed; announce cost and check `python -m lib.cost_ledger`.
 
+### Polish-pass rules (codified from the therac-25 rounds 1-4, 2026-07)
+
+Four operator watch-throughs kept surfacing the SAME defect classes. Run the machine QC
+before EVERY operator review, and follow these craft rules when building/fixing scenes:
+
+- **Machine QC before human QC.** After every render: `python -m lib.render_qc <pid>`
+  (borders / freeze tails / mid-scene holds / 1-3-frame stray shots / silence gaps /
+  duration vs manifest, timeline from the assembly manifest). Before promoting any take:
+  `python -m lib.render_qc --clip <take.mp4> --slot <slot_s>`. Intentional panel borders
+  live in `assets/ai_segments/_gold_refs/qc_keep_borders.json` (SCENE-relative windows).
+- **Source-still hygiene.** A border/frame baked into ONE keyframe rides into every
+  derivation (master frame → cascades → Veo keyframes → beat cuts: ~20 scenes on therac).
+  Deborder/inspect a still BEFORE it becomes a gold ref, master, or FLF anchor
+  (`lib/frame_hygiene.find_border_box`).
+- **Wobbling borders: overscan, never run-split.** Hand-drawn borders shift frame to
+  frame; detect-and-crop flickers on playback. Cure = uniform overscan crop of the
+  ORIGINAL (`frame_hygiene.overscan_vf`, 4.5-5.5%/edge) — never overscan an already
+  part-cropped output (double-crop = zoom jumps).
+- **Match cut by construction.** When generating a leg that continues an existing shot,
+  the keyframe MUST be the literal boundary frame of the kept material (extract it, host
+  it, anchor on it). Never prompt "same scene" and hope — that's how the 00:52 jump
+  happened. Style-boundary joins get a ~0.5s xfade.
+- **Replace to cut boundaries.** When restyling/replacing a sub-window of a take, extend
+  the replacement to the take's own CUT points, not to arbitrary times — a mid-shot style
+  or continuity pop reads instantly (the 6:11 painterly-Cox note).
+- **Old takes carry stray frames.** Before reusing any window of an old take, flash-scan
+  it (`frame_hygiene.flash_frames`) — two takes shipped 1-2-frame fragments of other
+  scenes at splice points (male operator @1.8, vintage room @9.2).
+- **No freeze tails.** A take shorter than its slot must get DELIBERATE motion to the
+  slot end: slow the real motion (ffmpeg setpts — note `-t` is OUTPUT duration on slowmo),
+  add a word-timed closer card, or an FLF exit. Never let conform freeze-pad visible body
+  content while narration continues.
+- **Scene-change silences: 1s.** `silence_after_s: 2`+ reads as dead air on playback
+  (three separate operator notes). Default new scripts to 1; reserve 2-3s for act breaks.
+  ⚠ silence files cache POSITIONALLY (`audio_v6/silence/`) — clear them when changing
+  any `silence_after_s`.
+- **TTS keys: probe the production request shape.** A scoped ElevenLabs key 401s on
+  `/v1/user` while TTS works; tier-gating 403s only on the exact
+  endpoint+output_format combo (192kbps needs Creator). Health-check with the real
+  request, read the 403 JSON body. The voice builder now FAILS CLOSED if any segment
+  mp3 is missing at concat time.
+- **Promote by HUMAN approval only.** The takes index's "accepted" is the auto-gate's
+  verdict; promoting latest-accepted ships wrong takes. Cross-check operator notes.
+
 ## 5. PER-BEAT AUTHORING CHECKLIST (fill in before generation)
 
 For each segment, fill this in (in the scored-script comment or a planning note) before any paid call:

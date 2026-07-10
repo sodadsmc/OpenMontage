@@ -1,4 +1,34 @@
-# Session Handoff — POLISH rounds 3+4 EXECUTED — one item blocked: seg_016 re-TTS (dead ElevenLabs key)
+# Session Handoff — POLISH rounds 3+4 EXECUTED + seg_016 FIXED + machine-QC stage SHIPPED
+
+## seg_016 UNBLOCKED (2026-07-10) — the key was never "dead"
+The ElevenLabs key is PERMISSION-SCOPED (401 on /v1/user by design) and the account tier
+dropped below Creator: the production call pins `output_format=mp3_44100_192` which 403s
+(`output_format_not_allowed`). Fix: seg_016 regenerated at mp3_44100_128 (imperceptible for
+one spoken-word segment; switch generate_voice_v6 to 128k wholesale if the tier stays).
+Echo line verified GONE (phrase appears once, 6.04s vs 8.2s). Master 820.7s, render sync
+3/3. generate_voice_v6.py now FAILS CLOSED when any segment mp3 is missing at concat
+(it silently shipped an 8s-short master twice). Full story: memory
+`elevenlabs-key-diagnosis`.
+
+## PIPELINE UPGRADE — machine QC stage (the polish rounds, institutionalized)
+Every defect class the operator's four watch-throughs found is now machine-detectable:
+- **`lib/frame_hygiene.py`** — find_border_box (cream-margin, run-cap so document cards
+  don't false-positive), video_border_hits, freeze_tail, static_runs, flash_frames
+  (A-X-A stray-shot signature via one low-res rawvideo pass), overscan_vf. CLI:
+  `python -m lib.frame_hygiene <clip> [--slot s]`.
+- **`lib/render_qc.py`** — post-render QC against the assembly manifest's timeline:
+  borders (keep-list sidecar `_gold_refs/qc_keep_borders.json`, SCENE-relative windows),
+  freeze tails, advisory mid-scene holds, flash frames, silence gaps (allowance =
+  scripted silence_after + 1.6s), duration. `python -m lib.render_qc <pid> [--strict]`;
+  pre-promotion: `--clip <take> --slot <s>`.
+- **First run on the final master:** 0 borders / 0 flashes / 0 silence gaps / duration
+  exact; 19 static advisories = the designed card holds (correct behavior — a 19-line
+  checklist instead of a 14-minute hunt).
+- **docs/PRODUCTION_WORKFLOW.md §4** gains the codified polish rules: machine-QC before
+  human QC, source-still hygiene, overscan-not-runsplit, match-cut-by-construction,
+  replace-to-cut-boundaries, flash-scan old takes, no freeze tails, 1s scene silences,
+  TTS production-shape probes, human-approval promotion.
+
 
 ## ROUND 4 (operator notes on the round-3 cut, 2026-07-09/10)
 - **seg_001 border FLICKER (00:04/09/17):** the round-3 run-split cropped some runs and not
