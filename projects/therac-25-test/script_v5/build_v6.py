@@ -499,7 +499,9 @@ def stage_3_visuals(script, duration_map, dry_run=False):
                 # scenes carry their own composited text now; static burned captions
                 # stack on top and read as noise).
                 overlay = list(getattr(seg.visual, "text_overlay", []) or [])
-                if os.environ.get("BURN_OVERLAYS", "1") == "0":
+                # Default OFF since 2026-07-10 — the operator's standing call is
+                # no burned captions; export BURN_OVERLAYS=1 to opt back in.
+                if os.environ.get("BURN_OVERLAYS", "0") == "0":
                     overlay = []
                 if overlay:
                     from lib.text_overlay import apply_text_overlay

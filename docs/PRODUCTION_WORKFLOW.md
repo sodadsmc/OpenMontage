@@ -213,7 +213,29 @@ before EVERY operator review, and follow these craft rules when building/fixing 
   request, read the 403 JSON body. The voice builder now FAILS CLOSED if any segment
   mp3 is missing at concat time.
 - **Promote by HUMAN approval only.** The takes index's "accepted" is the auto-gate's
-  verdict; promoting latest-accepted ships wrong takes. Cross-check operator notes.
+  verdict; promoting latest-accepted ships wrong takes (019 t10 vs approved t12). The
+  dashboard's "active clip" pick (web/backend/scenes.py) is ALSO the auto verdict — never
+  promote from it blindly. Cross-check "APPROVED take N" operator notes in
+  `feedback/events.jsonl`. (A human-verdict-keyed promote endpoint is still future work.)
+- **Cut-invention on short close-up beats: deterministic push, not another Grok roll.**
+  Grok invents a mid-clip cut to a phantom scene on extreme-close-up beats ≤~3s (4/4
+  attempts on one beat; the settle clause does NOT cure it). Cure: a deterministic zoompan
+  push-in on the APPROVED keyframe, concat with the paid beats. This is the one sanctioned
+  exception to the Ken Burns ban — the ban forbids a bare drift as a beat's MAIN staging;
+  a push on approved pixels as a cut-invention CURE is craft.
+- **Excerpt diagrams from --raw renders only.** sketch_diagrams renders pre-graded by
+  default; excerpting one into an assembly grades it AGAIN at finishing (visibly dim).
+  `python -m lib.sketch_diagrams <template> <dur> <out> --raw` and cut from the `_raw`
+  file — the timeline finishing pass is the single grade.
+- **Chain-seam repair: dissolve a FREEZE, and never blend a timeline with itself.** To
+  hide a redraw seam, dissolve a 0.5s freeze of the pre-seam frame into the moving
+  post-seam content. An xfade whose second input re-reads the same timeline blends the
+  seam WITH ITSELF — a no-op that looks right on sparse frame checks (shipped once;
+  the seam-jump detector now catches it).
+- **Crop boxes don't transfer between resolutions.** A border box detected on a
+  NORMALIZED 1080p part does NOT apply to the raw beat clip — rescale the coordinates
+  to the raw frame first (a 1080p box on a 1280x720 beat is an ffmpeg 'Invalid
+  argument' at best, a mis-crop at worst).
 
 ## 5. PER-BEAT AUTHORING CHECKLIST (fill in before generation)
 
