@@ -2,7 +2,7 @@
 
 **Workspace:** `D:/OpenMontage2` (branch `v6-baseline`) · **Project:** `projects/therac-25-test/` · **Style:** hand-inked graphic novel, deep navy `#0a1428` + amber (`CHANNEL_STYLE=graphic-novel-disaster`).
 
-This is the prescriptive recipe to produce the narrated documentary reliably. Follow it top to bottom. Every command is run from the workspace root (`D:/OpenMontage2`). Do not improvise lanes, do not skip gates, do not run a Grok clip longer than 6 s. The trial-and-error this episode suffered is encoded below as RULES — obey them.
+This is the prescriptive recipe to produce a narrated documentary reliably, **from a blank topic to the final render**: deep research → vetted brief → scored script → real reference photos → entity sheets → stills + animatics → video → machine QC. Follow it top to bottom. Every command is run from the workspace root (`D:/OpenMontage2`). Do not improvise lanes, do not skip gates, do not run a Grok clip longer than 6 s. The trial-and-error this episode suffered is encoded below as RULES — obey them.
 
 ## 1. Overview + pipeline diagram
 
@@ -45,6 +45,22 @@ The pipeline is **TTS-first**: narration audio is generated and measured first, 
              extract the story's recurring people/places/things from the script and
              build an approved reference sheet per entity (real photos as ground
              truth). Every identity defect this episode traced back to skipping this.
+
+ [Stage -3]  DEEP RESEARCH → research/research_brief.json (Claude-assisted; schema
+             schemas/artifacts/research_brief.schema.json). GATE:
+             python -m lib.research_vetter <brief.json>  (deterministic lint +
+             adversarial Gemini vet + claims map). "If you don't find it and cite
+             it, it won't be in the video."
+
+ [Stage -2]  SCRIPT → script_*/scored_script.yaml (Claude writes narration from the
+             brief + the project's story_formula.md, emitting the Scored Script
+             directly — there is no generator tool). GATES: script_validator
+             (schema) + python -m lib.script_lint <yaml> (craft rules) +
+             python -m lib.script_review <yaml> (fact/style/flow panel vs brief).
+
+ [Stage -2b] REAL REFERENCE PHOTOS → assets/_reference/ via lib/image_search
+             (whole-web search; curated repos are blind to press photos). These
+             are the ground truth the census sheets get vetted AGAINST.
 ```
 
 ## 2. THE LANE DECISION TREE (decide this FIRST, per beat)
@@ -80,6 +96,47 @@ Else (a SUBJECT physically acts + a camera move stages the narration verb):
 - *Examples this episode:* the dose needle "driven violently across the dial and slams the stop"; eyes "snap open"; code "scrolls and races" up a CRT (stage the CRT as a blown-out amber glow — see the Grok screen trap). Find the verb in the narration line and stage it as a SUBJECT physically acting + a camera move.
 
 ## 3. PHASE-BY-PHASE STEPS
+
+### STAGE -3 — Deep research → the research brief
+- **How:** Claude-assisted deep research on the topic, assembled into
+  `projects/{pid}/research/research_brief.json` per `schemas/artifacts/research_brief.schema.json`
+  (sources with citations, claims, timeline, people, the primary source deeply extracted).
+  There is no generator tool — the brief is authored, then GATED.
+- **Gate:** `python -m lib.research_vetter projects/{pid}/research/research_brief.json` —
+  deterministic lint (counts, citations, source diversity, page-cite discipline for primary
+  claims) + adversarial Gemini vet ("what would a deep extraction of the named primary source
+  contain that is ABSENT?") + claims map for downstream fact-vetting.
+- **Failure modes:** the Therac v1 brief shipped hand-assembled with the primary paper never
+  deeply extracted — the gaps surfaced MONTHS later as fact-vetting false positives and missing
+  story beats. Vet the brief at stage -3, where fixing it costs nothing. "If you don't find it
+  and cite it, it won't be in the video."
+
+### STAGE -2 — Script → scored_script.yaml
+- **How:** Claude writes the narration from the vetted brief + the project's
+  `story_formula.md` (the act formula; therac used the 5-act "Technology Disasters" shape),
+  emitting the **Scored Script YAML directly** — narration + per-beat `visual` specs routed by
+  the §2 lane tree + `silence_after_s` (default **1**; 2-3s only at act breaks).
+- **Gates (all three, in order):** `lib.script_validator` (schema/structure) →
+  `python -m lib.script_lint <yaml>` (deterministic craft rules — encodes
+  `docs/research/Tech Disaster Documentary Scriptwriting.md`) →
+  `python -m lib.script_review <yaml> --panel fact,style,flow` (adversarial panel; fact vetting
+  runs AGAINST the research brief; exits 1 on any critical fact issue, fail-closed).
+- **Then the operator reads it.** Narration edits after TTS force re-TTS + timeline shifts
+  (the seg_016 doubled line survived to a watch-through) — catch script problems here.
+
+### STAGE -2b — Real reference photos (ground truth for identity)
+- **How:** `lib/image_search` (Google Programmable Search, whole-web — curated open-license
+  repos are blind to press photos of specific real objects) → curate the real photos of every
+  story-critical entity into `assets/_reference/`. These are what the census sheets get vetted
+  AGAINST on the dashboard's Sheets page.
+- **Failure modes:** skipping this is how the wrong machine shipped into 11 scenes — the sheet
+  drifted because nothing anchored it to reality. Sheets are approved against REAL photos,
+  by a human, before any generation.
+
+### STAGE -1 — Entity census (see §6)
+- `python -m lib.entity_census <pid>` — recurring people/places/THINGS from the scored script,
+  gap-checked against the bible; every `needs_sheet` entity gets a reference sheet built and
+  operator-vetted (dashboard Sheets page) BEFORE the bible or any paid generation.
 
 ### STAGE 0A — Asset Bible (canonical anchors)
 - **Command:** `python projects/therac-25-test/script_v5/build_asset_bible.py` (`--dry-run` plan only; `--force` regen all after a style change; `--only ASSET_ID …` selective).
