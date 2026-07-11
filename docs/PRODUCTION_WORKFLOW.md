@@ -298,9 +298,14 @@ before EVERY operator review, and follow these craft rules when building/fixing 
   mp3 is missing at concat time.
 - **Promote by HUMAN approval only.** The takes index's "accepted" is the auto-gate's
   verdict; promoting latest-accepted ships wrong takes (019 t10 vs approved t12). The
-  dashboard's "active clip" pick (web/backend/scenes.py) is ALSO the auto verdict — never
-  promote from it blindly. Cross-check "APPROVED take N" operator notes in
-  `feedback/events.jsonl`. (A human-verdict-keyed promote endpoint is still future work.)
+  dashboard's "active clip" pick is ALSO the auto verdict — never promote from it blindly.
+  Promote via the dashboard's per-take "Promote to canonical" button
+  (`POST .../takes/{take}/promote` — human-keyed, backs up the old canonical, logs
+  `take_promoted` so the board always shows which take is canonical).
+- **Render + machine QC from the dashboard.** The Render tab runs build → render → QC as a
+  job and renders the findings table — each finding seeks the render player to its
+  timestamp. The full loop (script → sheets → stills → animatic → video → render → QC)
+  needs no terminal beyond TTS.
 - **Cut-invention on short close-up beats: deterministic push, not another Grok roll.**
   Grok invents a mid-clip cut to a phantom scene on extreme-close-up beats ≤~3s (4/4
   attempts on one beat; the settle clause does NOT cure it). Cure: a deterministic zoompan

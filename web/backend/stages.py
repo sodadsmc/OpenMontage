@@ -210,6 +210,102 @@ def scene_animatic_media(pid: str, sid: str) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+# human-keyed take promotion
+# ---------------------------------------------------------------------------
+
+def promote_take(pid: str, sid: str, take: int) -> dict:
+    """Copy ONE explicitly chosen take to the canonical assets/ai_segments/
+    {sid}.mp4 that build_v6 conforms from, with a dated backup.
+
+    HUMAN-keyed by design: the takes index's "accepted" flag is the auto-gate's
+    verdict — promoting latest-accepted shipped wrong takes (019 t10 vs the
+    approved t12). This endpoint promotes exactly the take the operator names,
+    and logs it, so the board can always show which take is canonical.
+    """
+    import shutil
+    import datetime as _dt
+    proj = PROJECTS_DIR / pid
+    idx_path = proj / "artifacts" / "ai_segments_takes.json"
+    if not idx_path.is_file():
+        raise FileNotFoundError("takes index missing")
+    idx = json.loads(idx_path.read_text(encoding="utf-8"))
+    entry = next((t for t in idx.get(sid, []) if int(t.get("take", -1)) == take), None)
+    if entry is None:
+        raise KeyError(f"take {take} not found for {sid}")
+    src = Path(entry["path"])
+    if not src.is_absolute():
+        src = Path(".") / src
+    if not src.is_file():
+        raise FileNotFoundError(f"take file missing: {src}")
+    dst = proj / "assets" / "ai_segments" / f"{sid}.mp4"
+    bak_dir = proj / "assets" / "ai_segments" / \
+        f"_canonical_backup_{_dt.date.today():%Y%m%d}"
+    bak_dir.mkdir(exist_ok=True)
+    if dst.is_file() and not (bak_dir / f"{sid}.mp4").exists():
+        shutil.copy2(dst, bak_dir / f"{sid}.mp4")
+    shutil.copy2(src, dst)
+    fb.append_event(pid, actor="human", type="take_promoted", scene_id=sid,
+                    payload={"take": take, "path": entry["path"]})
+    return {"ok": True, "scene_id": sid, "take": take,
+            "canonical": str(dst), "backup_dir": str(bak_dir)}
+
+
+def reuse_candidates(pid: str, sid: str, limit: int = 12) -> dict:
+    """Approved library assets matching this scene's narration — surface
+    already-paid pixels BEFORE the operator generates new stills
+    (reuse-before-generate as a UI affordance). Advisory: reuse AMPLIFIES a
+    wrong identity seed, so the UI reminds the operator to verify against the
+    entity sheet."""
+    try:
+        from lib.asset_library import _load, _projects_dir
+        records = _load(pid, _projects_dir())
+    except Exception:
+        return {"scene_id": sid, "candidates": [], "note": "library index missing"}
+    data = scenes_mod.load_scenes(pid)
+    scene = next((s for s in data["scenes"] if s["id"] == sid), None)
+    words = {w.strip(".,!?;:'\"").lower()
+             for w in (scene.get("narration", "") if scene else "").split()
+             if len(w) > 4}
+    scored = []
+    for r in records:
+        hay = " ".join(str(r.get(k, "")) for k in
+                       ("label", "prompt", "scene", "asset_id", "path")).lower()
+        score = sum(1 for w in words if w in hay)
+        if r.get("scene") == sid:
+            score += 3
+        if score > 0:
+            scored.append((score, r))
+    scored.sort(key=lambda x: -x[0])
+    cands = []
+    for score, r in scored[:limit]:
+        p = r.get("path")
+        rel = None
+        if p:
+            try:
+                rel = Path(p).resolve().relative_to(
+                    (PROJECTS_DIR / pid).resolve()).as_posix()
+            except (ValueError, OSError):
+                rel = str(p).replace("\\", "/")
+        cands.append({**{k: r.get(k) for k in
+                         ("kind", "scene", "label", "asset_id")},
+                      "media": rel, "score": score})
+    return {"scene_id": sid, "candidates": cands,
+            "note": "verify any reuse against the entity sheet first — "
+                    "reuse amplifies a wrong identity seed"}
+
+
+def promoted_takes(pid: str) -> dict:
+    """scene_id -> take number of the newest promotion event."""
+    out: dict[str, int] = {}
+    for e in _events(pid):
+        if e.get("type") == "take_promoted" and e.get("scene_id"):
+            t = (e.get("payload") or {}).get("take")
+            if t is not None:
+                out[e["scene_id"]] = int(t)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # the stage board
 # ---------------------------------------------------------------------------
 
@@ -243,6 +339,7 @@ def stage_board(pid: str) -> dict:
             in_flow.add(sid)
         elif t == "animatic_built" and (e.get("payload") or {}).get("stills"):
             in_flow.add(sid)
+    promoted = promoted_takes(pid)
     rows = []
     for s in data["scenes"]:
         sid = s["id"]
@@ -255,6 +352,7 @@ def stage_board(pid: str) -> dict:
             "stills_flow": sid in in_flow,
             "animatic": scene_animatic_media(pid, sid),
             "video_verdict": video_verdicts.get(sid),
+            "promoted_take": promoted.get(sid),
         })
     return {
         "project_id": pid,

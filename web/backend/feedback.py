@@ -34,6 +34,7 @@ _EVENT_TYPES = {
     "stills_unapproved",    # actor=human: gate reopened (stills changed after approval)
     "animatic_built",       # actor=system: scene or episode storyboard shot rendered
     "project_imported",     # actor=human: scored_script registered + validated for a new video
+    "take_promoted",        # actor=human: THIS take copied to the canonical the build reads
 }
 
 

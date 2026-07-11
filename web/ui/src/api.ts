@@ -169,6 +169,7 @@ export interface StageRow {
   stills_approved: boolean
   animatic: string | null // media-relative path, or null if not built
   video_verdict?: string | null
+  promoted_take?: number | null // which take is the canonical the build reads
 }
 
 export interface StagesPayload {
@@ -210,6 +211,53 @@ export interface StillsState {
 }
 
 export interface AnimaticBuilt { media: string; path?: string }
+
+// ---- take promotion / reuse-first / render + QC (dashboard v3) ----
+
+export interface PromoteResult {
+  ok: boolean
+  scene_id: string
+  take: number
+  canonical: string
+  backup_dir: string
+}
+
+export interface ReuseCandidate {
+  kind: string
+  scene: string
+  label: string
+  asset_id: string | null
+  media: string | null // project-relative; serve via /media
+  score: number
+}
+
+export interface ReuseCandidates { scene_id?: string; candidates: ReuseCandidate[]; note?: string }
+
+export type RenderStage = 'build' | 'render' | 'qc'
+
+export interface RenderJob {
+  job_id: string
+  status: 'queued' | 'running' | 'done' | 'failed'
+  stage: RenderStage | null
+  error: string | null
+  qc_findings: number | null
+  created_ts: number
+  ended_ts: number | null
+}
+
+export interface RenderStatus { project_id?: string; job: RenderJob | null }
+export interface RenderStart { status: 'queued' | 'busy' | 'blocked'; job_id?: string; error?: string }
+
+export interface QcFinding { check: string; at: number; scene?: string | null; detail: string }
+
+export interface QcReport {
+  render: string
+  render_media: string | null // project-relative for the video player
+  duration_s: number
+  findings: QcFinding[]
+}
+
+export interface QcPayload { project_id?: string; report: QcReport | null }
 
 export interface ClipCandidate {
   name: string

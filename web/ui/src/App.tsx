@@ -3,11 +3,13 @@ import { API, jget, jpost } from './api'
 import type { AnimaticBuilt, Cost, Health, Project, Scene, ScenesPayload, StageRow, StagesPayload } from './api'
 import SceneDetail from './components/SceneDetail'
 import SheetsPage from './components/SheetsPage'
+import RenderPage from './components/RenderPage'
 
 const statusOf = (sc: Scene) => sc.feedback?.verdict || 'pending'
 const scoreClass = (n: number) => (n >= 8 ? 'score-good' : n >= 5 ? 'score-mid' : 'score-bad')
 
 export default function App() {
+  const [projects, setProjects] = useState<Project[]>([])
   const [project, setProject] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [scenes, setScenes] = useState<Scene[]>([])
@@ -15,7 +17,7 @@ export default function App() {
   const [health, setHealth] = useState<Health | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<'scenes' | 'sheets'>('scenes')
+  const [tab, setTab] = useState<'scenes' | 'sheets' | 'render'>('scenes')
   const [stages, setStages] = useState<StagesPayload | null>(null)
   const [animBusy, setAnimBusy] = useState(false)
   const [episodeAnim, setEpisodeAnim] = useState<string | null>(null)
@@ -32,15 +34,24 @@ export default function App() {
 
   useEffect(() => {
     void (async () => {
-      let projects: Project[] = []
-      try { projects = await jget<Project[]>(`${API}/projects`) } catch (e) { setError((e as Error).message); return }
-      const pick = projects.find((p) => p.id === 'therac-25-test') || projects[0]
+      let all: Project[] = []
+      try { all = await jget<Project[]>(`${API}/projects`) } catch (e) { setError((e as Error).message); return }
+      setProjects(all)
+      const pick = all.find((p) => p.id === 'therac-25-test') || all[0]
       if (!pick) { setError('No projects found under projects/.'); return }
       setProject(pick.id)
       try { setHealth(await jget<Health>(`${API}/health`)) } catch { setHealth(null) }
       await reload(pick.id)
     })()
   }, [reload])
+
+  // Topbar dropdown: switching projects reloads everything for that pid.
+  const switchProject = async (pid: string) => {
+    if (pid === project) return
+    setProject(pid)
+    setSelected(null); setScenes([]); setTitle(''); setStages(null); setCost(null); setEpisodeAnim(null)
+    await reload(pid)
+  }
 
   // Arrow keys cycle scenes (ignored while typing in a field).
   useEffect(() => {
@@ -93,10 +104,15 @@ export default function App() {
           <nav className="tabs">
             <button className={`tab${tab === 'scenes' ? ' active' : ''}`} onClick={() => setTab('scenes')}>Scenes</button>
             <button className={`tab${tab === 'sheets' ? ' active' : ''}`} onClick={() => setTab('sheets')}>Sheets</button>
+            <button className={`tab${tab === 'render' ? ' active' : ''}`} onClick={() => setTab('render')}>Render</button>
           </nav>
         </div>
         <div className="summary">
-          <span className="chip">{title} · {scenes.length} scenes</span>
+          <select className="projsel" value={project ?? ''} title="switch project"
+                  onChange={(e) => void switchProject(e.target.value)}>
+            {projects.map((p) => <option key={p.id} value={p.id}>{p.title || p.id}</option>)}
+          </select>
+          <span className="chip">{scenes.length} scenes</span>
           <span className="chip"><span className="dot approve" />{counts.approve}</span>
           <span className="chip"><span className="dot needs_work" />{counts.needs_work}</span>
           <span className="chip"><span className="dot reject" />{counts.reject}</span>
@@ -108,6 +124,7 @@ export default function App() {
 
       <main className="app">
         {tab === 'sheets' && project && <SheetsPage project={project} onChanged={() => reload(project)} />}
+        {tab === 'render' && project && <RenderPage key={project} project={project} />}
 
         {tab === 'scenes' && <>
         {stages && (

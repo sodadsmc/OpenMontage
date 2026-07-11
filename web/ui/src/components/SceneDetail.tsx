@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { API, beatCostUsd, jget, jpost, jdel } from '../api'
 import type {
   AnimaticBuilt, Beat, ClipCandidate, DraftRevision, Job, KeyframePreview,
-  Revision, Scene, StageRow, StillNote, StillsState, Take, Verdict,
+  PromoteResult, ReuseCandidates, Revision, Scene, StageRow, StillNote, StillsState, Take, Verdict,
 } from '../api'
 import RevisionCard from './RevisionCard'
 import BeatFixer from './BeatFixer'
@@ -27,6 +27,11 @@ export default function SceneDetail({ project, scene, stage, reload }: {
   const [candidates, setCandidates] = useState<ClipCandidate[] | null>(null)
   const [clipFilter, setClipFilter] = useState('')
   const [swapOpen, setSwapOpen] = useState(false)
+  // human-keyed take promotion: which take is the canonical the build reads.
+  // stage.promoted_take badges it on load; a successful promote updates locally
+  // (reload() then refreshes the stages payload behind it).
+  const [promotedLocal, setPromotedLocal] = useState<number | null>(null)
+  const canonicalTake = promotedLocal ?? stage?.promoted_take ?? null
   // stills-first gate: animatic + per-still notes + approve toggle
   const [stillsSt, setStillsSt] = useState<StillsState | null>(null)
   const [animMedia, setAnimMedia] = useState<string | null>(null) // built this session (cache-busted)
@@ -228,6 +233,17 @@ export default function SceneDetail({ project, scene, stage, reload }: {
     catch (e) { alert('Reset failed: ' + (e as Error).message) }
   }
 
+  // Promote THIS take to the canonical clip the build reads (human-keyed;
+  // the auto-gate's "accepted" flag is never trusted for promotion).
+  const promoteTake = async (t: Take) => {
+    if (!confirm(`Promote take ${t.take} of ${scene.id}?\nReplace the canonical clip the build reads? The old one is backed up.`)) return
+    try {
+      const r = await jpost<PromoteResult>(`${base}/takes/${t.take}/promote`)
+      setPromotedLocal(r.take)
+      await reload()
+    } catch (e) { alert('Promote failed: ' + (e as Error).message) }
+  }
+
   const deleteTake = async (t: Take) => {
     if (!confirm(`Delete take ${t.take}? It's removed from this list (the .mp4 stays on disk and can be re-added via swap).`)) return
     try {
@@ -293,6 +309,10 @@ export default function SceneDetail({ project, scene, stage, reload }: {
               <button className={`take-chip ${t.verdict}${viewUrl === t.url ? ' active' : ''}`} onClick={() => setViewUrl(t.url)}>
                 take {t.take} ({t.verdict}{t.score != null ? ` · ${Math.round(t.score * 100)}%` : ''}){t.partial ? ' ⚠' : ''}
               </button>
+              {canonicalTake === t.take
+                ? <span className="canon-badge" title="this take is the canonical clip the build reads">canonical</span>
+                : <button className="take-promote" disabled={working} onClick={() => promoteTake(t)}
+                          title="make this take the canonical clip the build reads (old one backed up)">Promote to canonical</button>}
               <button className="take-del" title="delete this take" disabled={working} onClick={() => deleteTake(t)}>✕</button>
             </span>
           ))}
@@ -361,6 +381,8 @@ export default function SceneDetail({ project, scene, stage, reload }: {
           </div>
         )}
       </div>
+
+      <ReusePanel project={project} sceneId={scene.id} />
 
       <div className="section-label">Storyboard — stills gate</div>
       <div className="storyboard">
@@ -455,6 +477,52 @@ export default function SceneDetail({ project, scene, stage, reload }: {
         </details>
       )}
     </section>
+  )
+}
+
+// Reuse-before-generate as a UI affordance: approved library assets whose
+// labels match this scene's narration, fetched lazily when the scene opens.
+// View-only — the operator references paths manually for now.
+const IMG_RE = /\.(png|jpe?g|webp|gif)$/i
+
+function ReusePanel({ project, sceneId }: { project: string; sceneId: string }) {
+  const [data, setData] = useState<ReuseCandidates | null>(null)
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    let live = true
+    jget<ReuseCandidates>(`${API}/projects/${project}/scenes/${sceneId}/reuse-candidates`)
+      .then((d) => { if (live) setData(d) })
+      .catch(() => { if (live) setData(null) })
+    return () => { live = false }
+  }, [project, sceneId])
+  if (!data) return null
+  const n = data.candidates.length
+  return (
+    <div className="reusepanel">
+      <button className="reusehead" onClick={() => setOpen((o) => !o)}>
+        {open ? '▾' : '▸'} Reuse first — {n} approved asset{n === 1 ? '' : 's'} match{n === 1 ? 'es' : ''} this scene
+      </button>
+      {open && (
+        <div className="reusebody">
+          {data.note && <div className="reusenote">⚠ {data.note}</div>}
+          {n === 0
+            ? <div className="muted" style={{ fontSize: 13 }}>no approved library assets match this scene's narration</div>
+            : (
+              <div className="reusestrip">
+                {data.candidates.map((c, i) => (
+                  <div key={`${c.media || c.label}-${i}`} className="reusecell" title={c.media || c.label}>
+                    {c.media && IMG_RE.test(c.media)
+                      ? <img className="reusethumb" src={`${API}/projects/${project}/media/${encodeURI(c.media)}`} alt={c.label} loading="lazy" />
+                      : <div className="reusekindbox"><span className="chip">{c.kind}</span></div>}
+                    <div className="reuselabel">{c.label}</div>
+                    <div className="muted" style={{ fontSize: 11 }}>from {c.scene}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+        </div>
+      )}
+    </div>
   )
 }
 

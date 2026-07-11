@@ -32,6 +32,7 @@ from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 from web.backend import director as director_mod  # noqa: E402
 from web.backend import feedback as fb  # noqa: E402
+from web.backend import renderjob as renderjob_mod  # noqa: E402
 from web.backend import scenes as scenes_mod  # noqa: E402
 from web.backend import stages as stages_mod  # noqa: E402
 from web.backend import takes as takes_mod  # noqa: E402
@@ -375,6 +376,40 @@ def post_scene_animatic(pid: str, sid: str, body: dict | None = Body(None)):
 def post_episode_animatic(pid: str):
     """Build the full-episode animatic ($0 pacing pass before video spend)."""
     return stages_mod.build_episode_animatic(pid)
+
+
+@app.post(API + "/projects/{pid}/scenes/{sid}/takes/{take}/promote")
+def post_promote_take(pid: str, sid: str, take: int):
+    """Promote THIS take to the canonical the build reads (human-keyed — the
+    auto-gate's 'accepted' flag is never trusted for promotion). Backs up the
+    old canonical first."""
+    try:
+        return stages_mod.promote_take(pid, sid, take)
+    except (KeyError, FileNotFoundError) as exc:
+        raise HTTPException(404, str(exc))
+
+
+@app.get(API + "/projects/{pid}/scenes/{sid}/reuse-candidates")
+def get_reuse_candidates(pid: str, sid: str):
+    """Approved library assets matching this scene (reuse-before-generate)."""
+    return stages_mod.reuse_candidates(pid, sid)
+
+
+@app.post(API + "/projects/{pid}/render")
+def post_render(pid: str):
+    """Full build -> render -> machine QC as a background job."""
+    return renderjob_mod.start_render(pid)
+
+
+@app.get(API + "/projects/{pid}/render/status")
+def get_render_status(pid: str):
+    return renderjob_mod.render_status(pid)
+
+
+@app.get(API + "/projects/{pid}/qc")
+def get_qc_report(pid: str):
+    """The latest machine-QC report (findings with timestamps + render path)."""
+    return renderjob_mod.qc_report(pid)
 
 
 @app.get(API + "/projects/{pid}/media/{path:path}")

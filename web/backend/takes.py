@@ -1412,6 +1412,20 @@ def _load_preauthored_keyframes(pid: str, sid: str, rid: str) -> dict:
         return {}
 
 
+def _auto_animatic(pid: str, sid: str, rid: str, frames: list) -> None:
+    """Auto-build the storyboard shot after keyframes land, so it's already
+    playing when the operator opens the scene. Best-effort: an animatic hiccup
+    must never taint a job whose PAID stills are safely on disk."""
+    try:
+        stills = [k["path"] for k in (frames or [])
+                  if k.get("status") == "authored" and k.get("path")]
+        if stills:
+            from web.backend import stages as _stages
+            _stages.build_scene_animatic(pid, sid, stills=stills)
+    except Exception:
+        _log.exception("auto-animatic after keyframes failed for %s/%s", sid, rid)
+
+
 def author_scene_keyframes(pid: str, sid: str, rid: str) -> dict:
     """Enqueue KEYFRAME-PREVIEW: author the chained keyframe SET (cheap Nano, NO video) as a background
     job so the operator can eyeball/approve the $0.04 stills before paying for the $0.10+ clips; the
@@ -1574,6 +1588,7 @@ def _run_author_keyframes_job(pid: str, sid: str, rid: str, job_id: str) -> None
             # PAID stills are already safely on disk as failed (it did once: unregistered type).
             _log.exception("keyframes_authored event append failed for %s/%s", sid, rid)
         job.update(status="succeeded", keyframes=frames, ended_ts=_now())
+        _auto_animatic(pid, sid, rid, frames)
     except Exception as e:
         name = type(e).__name__
         job.update(status=("blocked" if name == "GenerationHardStop" else "failed"),
@@ -1743,6 +1758,7 @@ def _run_reroll_keyframe_job(pid: str, sid: str, rid: str, idx: int, hint: str, 
         except Exception:
             _log.exception("keyframes_authored event append failed for %s/%s", sid, rid)
         job.update(status="succeeded", keyframes=frames, ended_ts=_now())
+        _auto_animatic(pid, sid, rid, frames)
     except Exception as e:
         name = type(e).__name__
         job.update(status=("blocked" if name == "GenerationHardStop" else "failed"),

@@ -255,3 +255,36 @@ details.shots pre { white-space: pre-wrap; font-size: 12px; color: var(--muted);
 .stillnotes { margin-top: 4px; }
 .stillnote { font-size: 11px; color: var(--muted); padding: 1px 0; }
 .stillnotes input { font-size: 11px; padding: 3px 6px; }
+
+/* project dropdown (topbar) */
+.projsel { width: auto; font-size: 12px; padding: 4px 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); cursor: pointer; }
+.projsel:focus { border-color: var(--amber); }
+
+/* take promotion (canonical clip the build reads) */
+.take-promote { font-size: 11px; line-height: 1; padding: 4px 8px; border-radius: 8px; cursor: pointer; background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
+.take-promote:hover { border-color: rgba(224,163,62,.5); color: var(--amber); }
+.take-promote:disabled { opacity: .4; cursor: not-allowed; }
+.canon-badge { font-size: 11px; padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(76,195,138,.5); color: var(--ok); }
+
+/* reuse-first panel (approved library assets matching the scene) */
+.reusepanel { margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--navy); }
+.reusehead { display: block; width: 100%; text-align: left; background: transparent; border: 0; color: var(--muted); font: inherit; font-size: 13px; padding: 9px 12px; cursor: pointer; }
+.reusehead:hover { color: var(--ink); }
+.reusebody { padding: 0 12px 10px; }
+.reusenote { font-size: 12px; color: var(--warn); margin-bottom: 8px; }
+.reusestrip { display: flex; gap: 10px; flex-wrap: wrap; }
+.reusecell { width: 120px; font-size: 11px; }
+.reusethumb { width: 120px; border-radius: 6px; border: 1px solid var(--line); display: block; }
+.reusekindbox { width: 120px; height: 68px; border: 1px dashed var(--line); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.reuselabel { color: var(--ink); margin-top: 4px; line-height: 1.35; max-height: 3.9em; overflow: hidden; }
+
+/* render + QC tab */
+.renderpage { display: grid; gap: 14px; }
+.stagechips { display: inline-flex; gap: 6px; }
+.jobbanner.done { border-color: var(--ok); color: var(--ok); }
+.rendervid { width: 100%; border-radius: 10px; background: #060c18; display: block; margin-bottom: 8px; }
+.qctable { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+.qctable td { padding: 7px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+.qcrow { cursor: pointer; }
+.qcrow:hover { background: var(--navy-2); }
+.qcat { color: var(--amber); white-space: nowrap; font-variant-numeric: tabular-nums; }
