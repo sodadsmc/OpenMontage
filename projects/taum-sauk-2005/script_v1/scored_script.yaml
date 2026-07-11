@@ -1,0 +1,1032 @@
+version: "2.0"
+
+metadata:
+  title: "The Computer Kept Pumping"
+  total_target_duration_s: 690
+  topic: "Taum Sauk Upper Reservoir failure, December 14, 2005"
+  narrative_arc: "Victim → Machine → Pattern → Explanation → Reckoning"
+  acts:
+  - id: act_1
+    title: "THE VICTIM"
+    target_pct: 14
+  - id: act_2
+    title: "THE MACHINE"
+    target_pct: 14
+  - id: act_3
+    title: "THE PATTERN"
+    target_pct: 26
+  - id: act_4
+    title: "THE EXPLANATION"
+    target_pct: 26
+  - id: act_5
+    title: "THE RECKONING"
+    target_pct: 14
+
+# -----------------------------------------------------------------------
+# ACT 1: THE VICTIM
+# -----------------------------------------------------------------------
+
+segments:
+- id: seg_001
+  act: act_1
+  narration: >
+    It's four in the morning, December fourteenth, two thousand five.
+    In the Ozark mountains of Missouri, a park superintendent's house
+    sits at the foot of Proffit Mountain. Jerry Toops is asleep. His
+    wife Lisa is awake with the baby. Three children. A quiet house.
+    The kind of night where nothing happens.
+  visual:
+    description: >
+      A small house in a dark wooded valley at the foot of a mountain,
+      one warm window lit against the winter dark. Slow push toward
+      the window.
+    type: ai_video
+    location_id: toops_house
+    reference_period: "2005"
+    ai_motion: "slow steady push toward the lit window of the house through bare winter trees; nothing moves except a faint drift of night mist; OBJECT PERMANENCE: nothing appears or vanishes"
+    ai_style: "quiet dread beneath total stillness; cold December night, one warm window"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. A modest single-story ranger's house
+        in a dark Ozark valley at night, December, bare trees, a single
+        warm lit window; behind it the black mass of a mountain rises
+        against a cold starry sky. No people visible. No modern signage,
+        no legible text anywhere.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A small house with one lit window in a dark winter valley below a mountain.
+  music:
+    state: playing
+    description: "Low drone, near silence, night sounds"
+  editorial_intent: establishing_atmosphere
+  pacing: establishing
+  rhythm: lingering
+  open_loop:
+    action: plant
+    id: house_at_the_foot
+    note: "the house at the foot of the mountain — pays off in act 4"
+  silence_after_s: 1
+
+- id: seg_002
+  act: act_1
+  narration: >
+    A quarter of a mile above their roof, on the flattened top of the
+    mountain, sits a lake. A man-made ring of rock and concrete holding
+    one and a half billion gallons of water. And all through the night,
+    a computer ninety miles away has been pumping more water in.
+  visual:
+    description: >
+      Aerial reveal: from the dark house, the camera rises up the wooded
+      mountainside to reveal the glowing rim of a vast mountaintop
+      reservoir, water black and still.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2005"
+    ai_motion: "slow aerial rise up the dark mountainside, revealing the immense oval rim of the mountaintop reservoir; the water surface flat and black; one continuous ascending move"
+    ai_style: "the scale should feel wrong — a lake where no lake should be; cold moonlight"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, aerial view at night. A colossal
+        man-made reservoir crowning a flattened mountaintop — an oval
+        ring of rockfill with a pale concrete parapet wall, black water
+        filling it nearly to the brim. Below, dark forested slopes fall
+        away toward a tiny valley. Moonlit, cold, monumental. No people.
+        No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A huge mountaintop reservoir at night, full of black water.
+  music:
+    state: playing
+    description: "Drone deepens; something is wrong with this picture"
+  editorial_intent: escalation
+  pacing: establishing
+  rhythm: lingering
+  silence_after_s: 1
+
+- id: seg_003
+  act: act_1
+  narration: >
+    At five fifteen, Lisa hears it. A roar, like jet engines and freight
+    trains at once. The mountain has opened. The house fills with black
+    winter water in seconds. The walls come apart. And the whole family —
+    Jerry, Lisa, a five-year-old, a three-year-old, a seven-month-old
+    baby — is swept into the dark.
+  visual:
+    description: >
+      Inside the dark house: the roar arrives as trembling water-light
+      through the windows, then water bursts through — cut to the house
+      torn from its foundation in the flood, seen from outside.
+    type: ai_video
+    location_id: toops_house
+    reference_period: "2005"
+    ai_motion: "the lit window trembles, then a wall of black water and debris tears through the frame; the house breaks apart and is carried; violent, fast, then the shot holds on churning water in the dark"
+    ai_style: "terror in darkness; almost nothing clearly visible — water, debris, fragments of a home"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, night. A torrent of black floodwater
+        laden with debris smashing through a small house, walls splintering,
+        the structure lifting off its foundation — violent motion, spray
+        and fragments, in cold darkness. No faces visible. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A house torn apart by a massive flood wave at night.
+  music:
+    state: stop
+    description: "Music cuts dead with the impact"
+  editorial_intent: crisis_moment
+  pacing: crisis
+  rhythm: fast
+  retention_beat: cold_open
+  silence_after_s: 2
+
+- id: seg_004
+  act: act_1
+  narration: >
+    One and a half billion gallons emptied through the valley in
+    twenty-five minutes. Nobody at the plant pressed a wrong button.
+    Nobody fell asleep at a control panel. There was no control panel.
+    There was a computer, reading sensors that had been wrong for months —
+    and everyone knew.
+  visual:
+    description: >
+      The flood path from above: a scoured channel of mud and stripped
+      rock running from the breached reservoir down through the forest.
+      Then black. Title beat.
+    type: ai_video
+    location_id: valley_scour
+    reference_period: "2005"
+    ai_motion: "slow aerial drift along the scoured flood path at dawn, a pale scar through dark forest, down toward the valley; steady, funereal"
+    ai_style: "aftermath stillness; the landscape itself is the wound"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, aerial dawn view. A vast pale scar of
+        scoured rock and mud cutting straight down a forested mountainside
+        from a breached mountaintop reservoir, trees flattened at its edges,
+        mist in the valley below. No people. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      An aerial view of a huge flood scar down a forested mountain.
+  music:
+    state: playing
+    description: "A single low note returns under the question"
+  editorial_intent: chapter_transition
+  pacing: establishing
+  rhythm: breath
+  retention_beat: commitment_hook
+  silence_after_s: 2
+
+# -----------------------------------------------------------------------
+# ACT 2: THE MACHINE
+# -----------------------------------------------------------------------
+
+- id: seg_005
+  act: act_2
+  narration: >
+    Taum Sauk was a battery. Not a chemical one — a battery made of
+    water and gravity. At night, when electricity is cheap, giant pumps
+    push water from a river up the mountain into the reservoir. In the
+    day, when demand peaks, the water falls back down through turbines
+    and becomes electricity again.
+  visual:
+    description: >
+      Animated diagram: the pumped-storage cycle — lower reservoir,
+      penstock up the mountain, upper reservoir; arrows reverse between
+      night-pumping and day-generating.
+    type: manim_animation
+    template: pumped_storage_cycle
+    must_show:
+    - lower_reservoir_river
+    - penstock_shaft
+    - upper_reservoir_ring
+    - pump_generate_arrows
+    animation_phases:
+    - phase: build_diagram
+      description: "Mountain profile, two reservoirs, penstock appear as narrated"
+      target_duration_pct: 60
+    - phase: cycle_arrows
+      description: "Arrows animate up (night) then down (day)"
+      target_duration_pct: 40
+  music:
+    state: playing
+    description: "Neutral, informative"
+  editorial_intent: technical_explanation
+  pacing: establishing
+  silence_after_s: 1
+
+- id: seg_006
+  act: act_2
+  narration: >
+    The upper reservoir was a ring of rockfill crowning the mountain,
+    topped with a concrete wall. It held four thousand three hundred
+    fifty acre-feet of water. And it had one unusual feature: no
+    spillway. No overflow drain. If the water ever rose too high, there
+    was nowhere for it to go — except over the wall, and through it.
+  visual:
+    description: >
+      The reservoir rim in daylight: the parapet wall running along the
+      rockfill dike, water near the top; emphasis on the absence of any
+      outlet.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2005"
+    ai_motion: "slow tracking move along the top of the parapet wall, water on one side near the brim, the rockfill slope falling away on the other; steady and clinical"
+    ai_style: "engineering scale, latent menace; bright cold daylight"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. Along the crest of a mountaintop
+        reservoir: a weathered concrete parapet wall atop a rockfill
+        embankment, dark water lapping close to the top on one side, a
+        long rocky slope descending into forest on the other. Clean cold
+        daylight. No people. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A concrete wall on top of a rockfill dam with water near the brim.
+  music:
+    state: playing
+    description: "Informative with an uneasy edge"
+  editorial_intent: technical_explanation
+  pacing: establishing
+  silence_after_s: 1
+
+- id: seg_007
+  act: act_2
+  narration: >
+    Nobody worked on the mountain. The plant ran by remote control from
+    Saint Louis, ninety miles away. The computer's eyes were four pressure
+    sensors under the water, riding in plastic pipes on the reservoir
+    floor. In two thousand four, those pipes had been replaced — and the
+    new ones were never anchored down.
+  visual:
+    description: >
+      The empty control landscape: an unmanned equipment room at the
+      reservoir, then conceptually the sensor conduits lying on the
+      sloped liner under dark water.
+    type: ai_video
+    location_id: control_system
+    reference_period: "2005"
+    ai_motion: "slow push through a small unmanned equipment room — racks, indicator lights, a CRT interface glowing to itself; then drift down as if underwater along a plastic conduit lying unanchored on a concrete slope"
+    ai_style: "machines talking to machines; nobody home"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. A cramped unmanned control equipment
+        room: steel racks, small indicator lamps, an amber CRT interface
+        glowing with no one to read it, cables in conduit. Fluorescent
+        light, dead quiet. No people. No legible text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      An empty industrial control room with a glowing amber screen.
+  music:
+    state: playing
+    description: "Sparse, mechanical pulse"
+  editorial_intent: technical_explanation
+  pacing: establishing
+  silence_after_s: 1
+
+- id: seg_008
+  act: act_2
+  narration: >
+    As backup, five simple probes hung near the top of the wall — bare
+    metal switches that close when water touches them. The very top one and
+    the very bottom one were wired to kill the pumps. The ones between
+    were wired to nothing.
+    If water reached them, no alarm would sound. The computer wouldn't
+    even write it down.
+  visual:
+    description: >
+      Diagram: the wall cross-section with five probe points at rising
+      heights; the top two glow wired-red, the middle ones fade to grey
+      with a struck-out alarm bell.
+    type: manim_animation
+    template: sensor_gap
+    must_show:
+    - parapet_wall_section
+    - five_probe_points
+    - wired_vs_silent_probes
+    animation_phases:
+    - phase: build_diagram
+      description: "Wall section and five probes appear as narrated"
+      target_duration_pct: 55
+    - phase: silent_probes
+      description: "Middle probes grey out; alarm icon struck through; 'no log' stamp"
+      target_duration_pct: 45
+  music:
+    state: playing
+    description: "The uneasy edge sharpens"
+  editorial_intent: technical_explanation
+  pacing: establishing
+  open_loop:
+    action: plant
+    id: silent_probes
+    note: "the probes that don't alarm or log — pays off in act 4"
+  silence_after_s: 2
+
+# -----------------------------------------------------------------------
+# ACT 3: THE PATTERN
+# -----------------------------------------------------------------------
+
+- id: seg_009
+  act: act_3
+  narration: >
+    The wall had been sinking since the day it was built. Rockfill
+    settles. By two thousand five, parts of the parapet had dropped a
+    full foot. And here is the first quiet lie: the depth gauge the
+    staff read was bolted to that same wall. The wall sank. The gauge
+    sank with it. The numbers looked perfect.
+  visual:
+    description: >
+      The parapet wall with a staff gauge bolted to it; a slow visual
+      settle — wall and gauge sinking together while the painted number
+      stays level with the water.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2005"
+    ai_motion: "locked close shot of a measurement gauge bolted to the concrete parapet at the waterline; almost imperceptibly the whole frame's wall and gauge settle downward together while the water line stays; a hairline crack creeps in the concrete"
+    ai_style: "a lie told in inches; forensic patience"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, close view. A vertical staff gauge
+        with depth markings bolted to a weathered concrete parapet wall
+        at the waterline of a reservoir, water calm against it, fine
+        cracks in the concrete. Cold overcast light. No people. The gauge
+        markings are simple unreadable tick marks, no legible numerals.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A depth gauge bolted to a cracked concrete wall at the waterline.
+  music:
+    state: playing
+    description: "Pattern motif enters, quiet"
+  editorial_intent: pattern_recognition
+  pacing: escalation
+  silence_after_s: 1
+
+- id: seg_010
+  act: act_3
+  narration: >
+    September twenty-fifth, two thousand five. Eighty days before the
+    breach. After the rains of Hurricane Rita, workers on the mountain
+    watch water pouring over the northwest corner of the wall. One of
+    them will describe it as Niagara Falls. They save the dam by hand —
+    slamming the plant into generate to drain the reservoir down.
+  visual:
+    description: >
+      Water sheeting over the parapet wall corner in grey storm light,
+      workers small against it; the spillover thins and stops.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2005"
+    ai_motion: "water sheets over the top of the parapet wall corner like a waterfall, spray blowing; the overflow gradually thins to a trickle and stops; two small distant figures watch from along the crest"
+    ai_style: "a warning shot in grey daylight; awe and wrongness"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. Water pouring over the corner of a
+        long concrete parapet wall atop a rockfill dam like a curtain
+        waterfall, mist and spray, grey stormy sky after heavy rain; two
+        tiny distant worker figures on the crest watching. No faces. No
+        text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      Water overflowing the top of a dam wall like a waterfall.
+  music:
+    state: playing
+    description: "First swell of the pattern motif"
+  editorial_intent: pattern_recognition
+  pacing: escalation
+  rhythm: medium
+  silence_after_s: 1
+
+- id: seg_011
+  act: act_3
+  narration: >
+    Two days later, an engineer writes it down in an email: overflowing
+    this reservoir is, quote, an absolute no-no. The water will erode
+    the dam, and the dam will fail. They knew. It is in writing. It is dated
+    September twenty-seventh — eleven weeks before it happened.
+  visual:
+    description: >
+      A printed internal email on a desk, the key phrase area highlighted
+      by a slow push; office lamp light.
+    type: ai_video
+    location_id: office_paper
+    reference_period: "2005"
+    ai_motion: "slow push onto a printed email lying in a pool of desk-lamp light, a highlighter line drawing itself across one line of the text; the rest stays soft"
+    ai_style: "the paper trail; quiet damning stillness"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. A printed corporate email page lying
+        on a dark desk in a pool of warm lamplight, a few lines of
+        unreadable greeked text with one line struck in highlighter, a
+        coffee ring on the desk. No legible words. No people.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A printed email on a desk under lamplight with one line highlighted.
+  music:
+    state: playing
+    description: "Motif tightens"
+  editorial_intent: pattern_recognition
+  pacing: escalation
+  silence_after_s: 1
+
+- id: seg_012
+  act: act_3
+  narration: >
+    And the sensors? The plant knew the pipes had moved. The readings
+    disagreed with what people could see with their own eyes. So on
+    September twenty-seventh, someone fixed it — in software. They typed
+    a correction into the computer: add point four feet. Don't re-anchor
+    the pipes. Don't drain and repair. Just… adjust the number.
+  visual:
+    description: >
+      The amber CRT: a cursor edits a configuration value; a hand on a
+      keyboard in lamplight; the reservoir unchanged behind/above.
+    type: ai_video
+    location_id: control_system
+    reference_period: "2005"
+    ai_motion: "close on an amber CRT terminal as a cursor blinks and a short value on screen changes; a hand types unhurried; the screen glow flickers on the operator's sleeve; no face"
+    ai_style: "the fatal keystroke played as routine office work"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. Close over-the-shoulder view of hands
+        at a beige 2000s keyboard before an amber CRT terminal showing a
+        short block of unreadable configuration text with a blinking
+        cursor, desk lamp light, engineering office at night. Face not
+        visible. No legible characters.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      Hands typing at an amber CRT terminal in a dark office.
+  music:
+    state: playing
+    description: "A cold, small motif — the patch"
+  editorial_intent: pattern_recognition
+  pacing: escalation
+  retention_beat: pattern_interrupt
+  silence_after_s: 2
+
+- id: seg_013
+  act: act_3
+  narration: >
+    October seventh. Another email. Someone has done the arithmetic: the
+    emergency probes sit seven inches, and four inches, from the top of
+    the wall. During the September spill, the water must have reached
+    them. They should have tripped. They didn't. The email even offers:
+    we can lower the probes if you want. The reply history shows what
+    happened next. Nothing.
+  visual:
+    description: >
+      Second email beat: measurements sketched in a margin — 7", 4" from
+      a wall line; then the page set down on a stack.
+    type: ai_video
+    location_id: office_paper
+    reference_period: "2005"
+    ai_motion: "a hand sets a printed email onto a stack of papers; a margin sketch of a wall section with two tick marks is briefly centered; the lamp clicks off at the end, leaving the stack in darkness"
+    ai_style: "deferral as an act; the lamp going off is the decision"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. A printed page with a small hand-drawn
+        margin sketch — a wall cross-section with two tick marks near its
+        top — being placed onto a stack of similar pages on a desk at
+        night, lamplight. No legible text, no faces.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A printed page with a small margin sketch placed on a stack of papers.
+  music:
+    state: playing
+    description: "Motif suspended, unresolved"
+  editorial_intent: pattern_recognition
+  pacing: escalation
+  silence_after_s: 1
+
+- id: seg_014
+  act: act_3
+  narration: >
+    Early December. The plant superintendent walks the wall on a routine
+    morning and sees wet spots on the outside of the parapet — at its
+    lowest point. Spray, probably. Waves. It was explainable. Everything
+    is explainable, right up until it isn't. The pumps kept their
+    schedule.
+  visual:
+    description: >
+      A figure walking the crest in winter coat inspects dark stains on
+      the outer face of the wall; wind, cold; he moves on.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2005"
+    ai_motion: "a lone figure in a winter work coat walks slowly along the reservoir crest, pauses at dark damp stains low on the outside of the concrete wall, crouches briefly, then walks on; wind moves his coat"
+    ai_style: "the last human look; ambiguity in cold light"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. A man in a winter work jacket and cap,
+        seen from behind, crouched on a rockfill dam crest examining dark
+        wet stains on the downstream face of a concrete parapet wall;
+        bare winter forest far below, overcast. Face not visible. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A worker examining wet stains on a concrete dam wall in winter.
+  music:
+    state: playing
+    description: "Almost gone; wind"
+  editorial_intent: pattern_recognition
+  pacing: escalation
+  rhythm: lingering
+  silence_after_s: 2
+
+# -----------------------------------------------------------------------
+# ACT 4: THE EXPLANATION
+# -----------------------------------------------------------------------
+
+- id: seg_015
+  act: act_4
+  narration: >
+    So here is the machine's picture of the world on the last night.
+    The sensors, riding in their loose pipes, are reading four point two
+    feet low. The computer in Saint Louis believes the water is six feet
+    below the top. The probes that would catch the lie are set above the
+    lowest point of the sinking wall — and the middle ones wouldn't say
+    anything anyway.
+  visual:
+    description: >
+      The master diagram: wall cross-section with TRUE water level vs
+      SENSED water level; the gap labeled; probe heights vs the settled
+      wall low point.
+    type: manim_animation
+    template: sensor_gap
+    must_show:
+    - true_vs_indicated_level
+    - four_point_two_gap
+    - probe_above_wall_lowpoint
+    animation_phases:
+    - phase: two_levels
+      description: "True level and indicated level draw in; the 4.2 ft gap opens between them"
+      target_duration_pct: 55
+    - phase: probe_vs_wall
+      description: "Probe line vs settled wall low point — probe sits ABOVE the wall"
+      target_duration_pct: 45
+  music:
+    state: playing
+    description: "Methodical, building"
+  editorial_intent: technical_explanation
+  pacing: escalation
+  silence_after_s: 1
+
+- id: seg_016
+  act: act_4
+  narration: >
+    Read that again. The emergency stop — the last line of defense — was
+    set seven tenths of a foot above the lowest point of the wall.
+    Water would be pouring over the dam before the machine was allowed
+    to notice. The fail-safe could not fire until the disaster was
+    already happening.
+  visual:
+    description: >
+      The diagram freezes on the damning geometry: probe line above wall
+      line; a red measure between them; then water rises past the wall
+      line first.
+    type: manim_animation
+    template: sensor_gap
+    must_show:
+    - probe_above_wall_lowpoint
+    - water_over_wall_first
+    animation_phases:
+    - phase: hold_geometry
+      description: "The probe-above-wall relationship isolated, measured in red"
+      target_duration_pct: 50
+    - phase: water_first
+      description: "Rising water crosses the wall line before the probe line; wall line flashes"
+      target_duration_pct: 50
+  music:
+    state: playing
+    description: "One held low note"
+  editorial_intent: crisis_moment
+  pacing: escalation
+  retention_beat: re_hook
+  open_loop:
+    action: payoff
+    id: silent_probes
+  silence_after_s: 2
+
+- id: seg_017
+  act: act_4
+  narration: >
+    December fourteenth, four thirty-nine in the morning. Pump two shuts
+    itself down — its gauge reads over six feet of room to spare. Pump
+    one keeps going. On the mountain, in the dark, water is already
+    finding the top of the wall at its lowest panel. Panel seventy-two.
+    Right where the wet spots were.
+  visual:
+    description: >
+      Night on the reservoir: black water absolutely at the brim,
+      trembling at the wall top in the dark; a first silver thread
+      slips over the concrete.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2005"
+    ai_motion: "black water surface at night exactly level with the top of the concrete wall, surface tension trembling; a first thin sheet of water slips over the edge and runs down the outer face; slow, inevitable"
+    ai_style: "the quietest possible apocalypse; moonless dark, faint starlight"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, night. Extreme close view along the
+        top edge of a concrete parapet wall: black reservoir water dead
+        level with the concrete, beginning to spill over in a thin
+        silver sheet down the outer face. Almost abstract darkness. No
+        people. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      Water beginning to spill over the top edge of a concrete wall at night.
+  music:
+    state: playing
+    description: "Near silence; a high thin tone"
+  editorial_intent: escalation
+  pacing: escalation
+  rhythm: lingering
+  silence_after_s: 1
+
+- id: seg_018
+  act: act_4
+  narration: >
+    Water over rockfill is a saw. It found the loose rock behind the
+    wall and began to carve. At five fifteen, a human being finally
+    stopped the last pump — an operator at a different dam, following
+    a phone instruction from Saint Louis. At that same minute, the wall
+    at panel seventy-two let go.
+  visual:
+    description: >
+      The overtopping sheet grows; rockfill sloughs away beneath the
+      wall; a section of parapet tilts and collapses into the growing
+      torrent.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2005"
+    ai_motion: "the thin overflow becomes a heavy curtain; rocks tumble out of the embankment face; a slab of the concrete wall tilts outward and falls as the gap tears wider; escalating violence in darkness"
+    ai_style: "erosion as horror; darkness lit only by white water"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, night. A section of concrete parapet
+        wall collapsing outward off a rockfill dam as white water tears
+        through the widening gap, boulders tumbling, spray luminous
+        against darkness. No people. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A dam wall section collapsing as water tears through at night.
+  music:
+    state: playing
+    description: "The breach — percussion enters like rockfall"
+  editorial_intent: crisis_moment
+  pacing: crisis
+  rhythm: fast
+  silence_after_s: 1
+
+- id: seg_019
+  act: act_4
+  narration: >
+    The gap tore itself six hundred fifty feet wide. Four thousand three
+    hundred fifty acre-feet — a lake — left the mountain in twenty-five
+    minutes. A wall of water, rock, and shredded forest went down
+    Proffit Mountain at the valley below. At the house at the foot of it.
+  visual:
+    description: >
+      The full breach from a distance: the reservoir emptying through
+      the gap like a burst artery, the flood front carving down the
+      mountainside through forest.
+    type: ai_video
+    location_id: valley_scour
+    reference_period: "2005"
+    ai_motion: "wide night view: the mountaintop reservoir voiding itself through the breach, a pale torrent plunging down the dark mountainside, trees vanishing into it; the flood front races toward the lower valley"
+    ai_style: "biblical scale in darkness"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, wide night view. A mountaintop
+        reservoir emptying through a huge breach in its rim, a luminous
+        white torrent plunging down a dark forested mountainside toward
+        a small valley, trees swallowed at its edges. No people. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A huge torrent pouring down a dark mountainside from a breached reservoir.
+  music:
+    state: playing
+    description: "Full force, then thinning as it descends"
+  editorial_intent: crisis_moment
+  pacing: crisis
+  rhythm: fast
+  open_loop:
+    action: payoff
+    id: house_at_the_foot
+  silence_after_s: 1
+
+- id: seg_020
+  act: act_4
+  narration: >
+    The wave that reached the Toops house was carrying their world away
+    within seconds. Lisa held the baby. The five-year-old's bedroom
+    filled before he could stand. The water carried them a quarter of a mile — through trees, in
+    the dark, in December.
+  visual:
+    description: >
+      Fragments in the torrent: a child's bed frame, a door, tree limbs,
+      all racing in black water; intimate and terrible without gore.
+    type: ai_video
+    location_id: valley_scour
+    reference_period: "2005"
+    ai_motion: "close on churning black floodwater in the dark carrying fragments of a home — a bed frame, a screen door, clothing, branches — racing through flooded trees; nothing graphic, everything implied"
+    ai_style: "personal apocalypse told in objects"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, night. Churning dark floodwater
+        rushing between bare winter trees, carrying fragments of a home —
+        a child's bed frame, a screen door, scattered clothing. Cold
+        spray, moonless dark. No people visible. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      Debris from a home carried through flooded trees at night.
+  music:
+    state: stop
+    description: "Silence under the family beat"
+  editorial_intent: emotional_impact
+  pacing: resolution
+  rhythm: lingering
+  silence_after_s: 2
+
+- id: seg_021
+  act: act_4
+  narration: >
+    They lived. All five of them. Rescuers found them scattered in the
+    shallows — freezing, stripped by the water, alive. The five-year-old, Tanner,
+    came closest. Two hours of resuscitation. So cold that warming
+    him left burns needing skin grafts. A seven-month-old
+    baby survived a quarter-mile ride through a flood that moved boulders.
+  visual:
+    description: >
+      First light: rescuers wading shallow braided water among debris,
+      wrapped small figures carried to safety; restrained, hopeful.
+    type: ai_video
+    location_id: valley_scour
+    reference_period: "2005"
+    ai_motion: "dawn light over a flooded valley floor; rescuers in waders move through shallow water among debris toward the camera carrying blanket-wrapped figures; steady, careful movement; hopeful"
+    ai_style: "grey dawn relief; survival as quiet miracle"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, dawn. Rescue workers in waders
+        carrying small blanket-wrapped figures through shallow braided
+        floodwater strewn with debris and downed trees, breath fogging in
+        cold air, first pale light. Faces not visible. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      Rescuers carrying wrapped figures through shallow floodwater at dawn.
+  music:
+    state: playing
+    description: "The first warm chord of the film"
+  editorial_intent: emotional_impact
+  pacing: resolution
+  rhythm: breath
+  silence_after_s: 2
+
+- id: seg_022
+  act: act_4
+  narration: >
+    One more detail from that morning. The plant had an emergency call
+    list, and Jerry Toops — the park superintendent — was on it. At six
+    thirty, they worked down the list and called his house. The phone
+    rang and rang. There was no house.
+  visual:
+    description: >
+      An office phone beat: a hand dials from a printed list; cut to
+      bare foundations in floodwater at dawn, a phone line trailing into
+      water. Cold stop.
+    type: ai_video
+    location_id: office_paper
+    reference_period: "2005"
+    ai_motion: "close on a hand dialing a desk phone beside a printed call list, one line at a time being checked off; cut to a swept bare house foundation in shallow water at dawn, a snapped utility pole and sagging line trailing into the flood; hold"
+    ai_style: "procedure meeting reality; the coldest beat in the film"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, dawn. A bare concrete house foundation
+        standing in shallow muddy floodwater strewn with debris, a snapped
+        utility pole with its line sagging into the water, winter trees
+        stripped of bark. No people. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A bare house foundation in floodwater at dawn with a downed phone line.
+  music:
+    state: stop
+    description: "Dead silence for the phone beat"
+  editorial_intent: emotional_impact
+  pacing: resolution
+  rhythm: breath
+  retention_beat: payoff
+  silence_after_s: 3
+
+# -----------------------------------------------------------------------
+# ACT 5: THE RECKONING
+# -----------------------------------------------------------------------
+
+- id: seg_023
+  act: act_5
+  narration: >
+    The investigation took a year, and it did not find a villain in the
+    control room. It found the villain in the design of trust. Sensors
+    nobody re-anchored. A software offset instead of a repair. Warning
+    probes wired to stay silent. A fail-safe set above the top of a
+    sinking wall. Someone had hollowed out every layer of protection,
+    one reasonable decision at a time. And the paperwork knew.
+  visual:
+    description: >
+      The forensic documents: report covers, tabbed pages, the margin
+      sketch again, spread under cold light; a slow indicting pan.
+    type: ai_video
+    location_id: office_paper
+    reference_period: "2006"
+    ai_motion: "slow pan across an array of thick technical reports, tabbed and flagged, an engineering cross-section drawing and photographs of a breached dam among them, under cold fluorescent light"
+    ai_style: "the reckoning as paperwork; forensic and final"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration. Thick bound technical reports with
+        colored page tabs spread on a table with engineering drawings and
+        aerial photographs of a breached mountaintop reservoir, cold
+        fluorescent office light. All text unreadable greek. No people.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      Technical reports and drawings spread on a table under office light.
+  music:
+    state: playing
+    description: "Measured, judicial"
+  editorial_intent: institutional_critique
+  pacing: resolution
+  silence_after_s: 1
+
+- id: seg_024
+  act: act_5
+  narration: >
+    Ameren paid fifteen million dollars to federal regulators — a
+    record for dam safety. It paid roughly one hundred eighty million
+    more to the state of Missouri. They rebuilt the reservoir in solid concrete. The new instruments
+    cross-check each other. The new rim gives water somewhere to go. It went back online in twenty ten.
+  visual:
+    description: >
+      The rebuilt reservoir: clean modern RCC rim in daylight, engineered
+      and over-instrumented; then the restored park below, water running
+      clear through the shut-ins.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2010"
+    ai_motion: "aerial arc over a rebuilt mountaintop reservoir with a clean stepped concrete rim in bright daylight; then a gentle descent toward the green valley below where a rocky river runs clear between smoothed boulders"
+    ai_style: "restitution in concrete and water; bright, slightly antiseptic"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, aerial daylight. A rebuilt mountaintop
+        reservoir with a massive clean stepped roller-compacted-concrete
+        rim, full of blue water; forested slopes below leading to a rocky
+        clear river winding between smooth boulders. No people. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A rebuilt concrete mountaintop reservoir above a green valley.
+  music:
+    state: playing
+    description: "Resolution without absolution"
+  editorial_intent: institutional_critique
+  pacing: resolution
+  silence_after_s: 1
+
+- id: seg_025
+  act: act_5
+  narration: >
+    The Toops family moved away from the park. The children grew up.
+    The shut-ins filled with swimmers again. And the story settled into
+    a strange shape. A disaster with no dead. That is why you have
+    probably never heard of it. It is also how every part of it got
+    permission to happen.
+  visual:
+    description: >
+      The restored park in summer: families small in the distance at the
+      shut-ins, water bright; life continuing over the healed scar.
+    type: ai_video
+    location_id: park_shutins
+    reference_period: "2010"
+    ai_motion: "high peaceful view of a rocky river gorge with smoothed pink-granite boulders and clear pools, tiny distant figures swimming and sunning; slow drift; summer light"
+    ai_style: "memory healing over; warmth with an undertow"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, summer daylight. A beautiful rocky
+        river gorge of smooth pink granite boulders and clear turquoise
+        pools, tiny distant swimmers, lush green Ozark forest walls. No
+        recognizable faces. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A rocky river gorge with clear pools and distant swimmers in summer.
+  music:
+    state: playing
+    description: "Warm, elegiac"
+  editorial_intent: resolution
+  pacing: resolution
+  rhythm: lingering
+  silence_after_s: 1
+
+- id: seg_026
+  act: act_5
+  narration: >
+    Because here is the lesson, and it is not about dams. The computer
+    did exactly what it was told. The sensors reported faithfully from where they
+    lay — pipes that had drifted out of place. Every part told its own small truth, and the whole
+    system lied. Somebody saw Niagara Falls and typed point four feet
+    into a config file. The gap between those two things is where
+    disasters live.
+  visual:
+    description: >
+      Return to the master diagram, simplified to its essence: the gap
+      between TRUE and BELIEVED, held; then the amber CRT alone in the
+      dark.
+    type: manim_animation
+    template: sensor_gap
+    must_show:
+    - true_vs_indicated_level
+    - the_gap_held
+    animation_phases:
+    - phase: essence
+      description: "Everything fades but the two level lines and the gap between them"
+      target_duration_pct: 60
+    - phase: gap_holds
+      description: "The gap pulses once on 'where disasters live'"
+      target_duration_pct: 40
+  music:
+    state: playing
+    description: "The thesis, stated plainly"
+  editorial_intent: institutional_critique
+  pacing: resolution
+  retention_beat: payoff
+  silence_after_s: 1
+
+- id: seg_027
+  act: act_5
+  narration: >
+    We are building more of these plants now. Giant water batteries
+    for a renewable grid. Run by remote. Watched by sensors. The technology
+    is good. The lesson is standing. Trust is a design decision. And
+    somewhere on a quiet mountain tonight, a computer believes a number.
+  visual:
+    description: >
+      Final image: a modern reservoir at night, one small red indicator
+      light blinking on an instrument mast above still black water; hold;
+      cut to black.
+    type: ai_video
+    location_id: proffit_reservoir
+    reference_period: "2010"
+    ai_motion: "night stillness over a full mountaintop reservoir; a single small red indicator light blinks steadily on an instrument mast above the black water; the camera holds; slow fade to black on the final line"
+    ai_style: "calm that refuses to be comfort; the blinking light is the whole film"
+    shots:
+    - shot_id: shot_01
+      ai_prompt: >-
+        Graphic-novel illustration, night. A modern mountaintop reservoir
+        of still black water under stars, a slim instrument mast rising
+        from the water with a single small red indicator lamp glowing.
+        Vast, quiet, cold. No people. No text.
+      duration_weight: 1.0
+      hero: true
+    ai_fallback_prompt: >
+      A dark reservoir at night with one small blinking red light on a mast.
+  music:
+    state: playing
+    description: "Single sustained note, then out with the cut to black"
+  editorial_intent: resolution
+  pacing: resolution
+  rhythm: breath
+  retention_beat: payoff
+  silence_after_s: 3
