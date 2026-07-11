@@ -264,6 +264,9 @@ details.shots pre { white-space: pre-wrap; font-size: 12px; color: var(--muted);
 .take-promote { font-size: 11px; line-height: 1; padding: 4px 8px; border-radius: 8px; cursor: pointer; background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
 .take-promote:hover { border-color: rgba(224,163,62,.5); color: var(--amber); }
 .take-promote:disabled { opacity: .4; cursor: not-allowed; }
+/* omni edit — the expensive lane gets the amber/warning accent so it reads as "this bills" */
+.take-omni { border-color: rgba(224,163,62,.35); color: var(--warn); }
+.take-omni:hover { border-color: var(--warn); background: rgba(224,163,62,.1); color: var(--warn); }
 .canon-badge { font-size: 11px; padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(76,195,138,.5); color: var(--ok); }
 
 /* reuse-first panel (approved library assets matching the scene) */

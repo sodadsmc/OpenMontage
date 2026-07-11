@@ -92,6 +92,24 @@ Else (a SUBJECT physically acts + a camera move stages the narration verb):
 **Lane C — FLF DRAIN** — *rare "going cold/dark" punctuation.* End frame = start blended toward navy `#0a1428` (`lib.flf.drain_endpoint`, `drain≈0.8`). **This reads as a fade (Ken Burns).** Use it once in a great while, never as a default, never on two consecutive quiet beats.
 - *Examples this episode:* the seg_009 "removed safety fuse goes cold" (uniform drain); the final powered-down room settling to dead navy. If you find yourself reaching for it twice in a row, one of those beats wants Lane B or D instead.
 
+**Lane E — OMNI FLASH (explicit only, $0.10/s)** — *counted events / precise multi-phase
+choreography, and surgical EDITS of a near-approved clip.* First-party Google Interactions
+API (`tools/video/omni_flash_video.py`, provider `omni-flash`); ≤10s clips, 720p, native
+synced audio. Evaluated 2026-07-10: "fires EXACTLY TWICE" landed FIRST TRY (brightness-curve
+verified) after Grok failed the same counted beat 4/4 and Veo 3× — judge this lane on
+**$/LANDED-take**, not $/attempt. Sequential edits revise the prior clip surgically
+(region-diff verified: only the named element changed) — the dashboard's **omni edit**
+button on a take. RULES, all paid-for:
+- **⚠ NO DRY RUNS — every call generates a FULL video and bills it.** A throwaway probe
+  prompt produced a default-length 10s clip ($1.00). ALWAYS state a duration in the prompt.
+- **⚠ Safety gate: no human reactions.** "He convulses" — blocked; even "flinches at each
+  activation" — blocked. Keep people passive in Omni prompts; stage the reaction in
+  another lane.
+- **Timing drift on edits:** a burst moved 0.6s in eval — re-verify word-timed beats
+  after any edit (the normal take QC applies).
+- **Never auto-routed.** `supports` flags are all False; reachable only by explicit
+  provider or the omni edit button.
+
 **Lane D — GROK i2v** — *gross / ambient motion that stages the narration verb.* Grok renders gross subject + camera motion well (walking, slamming, sweeping, a crane-back reveal, atmospheric drift). This is the workhorse — the kept seg_001–seg_009 are 100% Grok.
 - *Examples this episode:* the dose needle "driven violently across the dial and slams the stop"; eyes "snap open"; code "scrolls and races" up a CRT (stage the CRT as a blown-out amber glow — see the Grok screen trap). Find the verb in the narration line and stage it as a SUBJECT physically acting + a camera move.
 

@@ -17,6 +17,26 @@ export async function jpost<T>(u: string, body?: unknown): Promise<T> {
   return r.json() as Promise<T>
 }
 
+// POST that surfaces the backend's JSON error `detail` (FastAPI-style) instead of just the
+// status code — for lanes where the failure text matters (e.g. omni edit 422/502).
+export async function jpostDetail<T>(u: string, body?: unknown): Promise<T> {
+  const r = await fetch(u, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body ?? {}),
+  })
+  if (!r.ok) {
+    let msg = `${u} -> ${r.status}`
+    try {
+      const d = ((await r.json()) as { detail?: unknown })?.detail
+      if (typeof d === 'string' && d) msg = d
+      else if (d != null) msg = JSON.stringify(d)
+    } catch { /* non-JSON error body — keep the status line */ }
+    throw new Error(msg)
+  }
+  return r.json() as Promise<T>
+}
+
 export async function jdel<T>(u: string): Promise<T> {
   const r = await fetch(u, { method: 'DELETE' })
   if (!r.ok) throw new Error(`${u} -> ${r.status}`)
@@ -220,6 +240,17 @@ export interface PromoteResult {
   take: number
   canonical: string
   backup_dir: string
+}
+
+// omni edit — the expensive full-clip edit lane (~$0.10/s, bills immediately).
+export interface OmniEditResult {
+  ok: boolean
+  scene_id: string
+  source_take: number
+  new_take: number
+  cost_usd: number
+  seconds: number
+  interaction_id: string
 }
 
 export interface ReuseCandidate {

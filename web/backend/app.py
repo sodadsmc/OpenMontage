@@ -378,6 +378,21 @@ def post_episode_animatic(pid: str):
     return stages_mod.build_episode_animatic(pid)
 
 
+@app.post(API + "/projects/{pid}/scenes/{sid}/takes/{take}/omni-edit")
+def post_omni_edit(pid: str, sid: str, take: int, body: dict = Body(...)):
+    """Surgical Omni Flash revision of a take ('change X, keep everything
+    else') -> registers as a NEW take. EXPENSIVE ($0.10/s, no dry runs) —
+    explicit user action only. body: {"hint": "..."}"""
+    try:
+        return stages_mod.omni_edit_take(pid, sid, take, (body or {}).get("hint", ""))
+    except (KeyError, FileNotFoundError) as exc:
+        raise HTTPException(404, str(exc))
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    except RuntimeError as exc:
+        raise HTTPException(502, str(exc))
+
+
 @app.post(API + "/projects/{pid}/scenes/{sid}/takes/{take}/promote")
 def post_promote_take(pid: str, sid: str, take: int):
     """Promote THIS take to the canonical the build reads (human-keyed — the

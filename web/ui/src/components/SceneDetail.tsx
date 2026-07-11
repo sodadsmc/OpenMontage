@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { API, beatCostUsd, jget, jpost, jdel } from '../api'
+import { API, beatCostUsd, jget, jpost, jpostDetail, jdel } from '../api'
 import type {
-  AnimaticBuilt, Beat, ClipCandidate, DraftRevision, Job, KeyframePreview,
+  AnimaticBuilt, Beat, ClipCandidate, DraftRevision, Job, KeyframePreview, OmniEditResult,
   PromoteResult, ReuseCandidates, Revision, Scene, StageRow, StillNote, StillsState, Take, Verdict,
 } from '../api'
 import RevisionCard from './RevisionCard'
@@ -32,6 +32,8 @@ export default function SceneDetail({ project, scene, stage, reload }: {
   // (reload() then refreshes the stages payload behind it).
   const [promotedLocal, setPromotedLocal] = useState<number | null>(null)
   const canonicalTake = promotedLocal ?? stage?.promoted_take ?? null
+  // omni edit in flight: which take is being edited (the call is synchronous, ~1-2 min)
+  const [omniTake, setOmniTake] = useState<number | null>(null)
   // stills-first gate: animatic + per-still notes + approve toggle
   const [stillsSt, setStillsSt] = useState<StillsState | null>(null)
   const [animMedia, setAnimMedia] = useState<string | null>(null) // built this session (cache-busted)
@@ -244,6 +246,21 @@ export default function SceneDetail({ project, scene, stage, reload }: {
     } catch (e) { alert('Promote failed: ' + (e as Error).message) }
   }
 
+  // omni edit — the expensive full-clip edit lane (~$0.10/s, bills immediately).
+  // Synchronous on the server (~1-2 min); the button shows "omni…" while it runs.
+  const omniEdit = async (t: Take) => {
+    const hint = window.prompt('What should change? Everything else stays identical.')
+    if (!hint || !hint.trim()) return
+    if (!confirm('omni edit: ~$0.10/second of clip (a 6s take ≈ $0.60). No dry runs — this bills immediately. Proceed?')) return
+    setOmniTake(t.take)
+    try {
+      const r = await jpostDetail<OmniEditResult>(`${base}/takes/${t.take}/omni-edit`, { hint: hint.trim() })
+      alert(`omni edit done → new take ${r.new_take} ($${r.cost_usd})`)
+      await reload()
+    } catch (e) { alert('omni edit failed: ' + (e as Error).message) }
+    setOmniTake(null)
+  }
+
   const deleteTake = async (t: Take) => {
     if (!confirm(`Delete take ${t.take}? It's removed from this list (the .mp4 stays on disk and can be re-added via swap).`)) return
     try {
@@ -313,6 +330,10 @@ export default function SceneDetail({ project, scene, stage, reload }: {
                 ? <span className="canon-badge" title="this take is the canonical clip the build reads">canonical</span>
                 : <button className="take-promote" disabled={working} onClick={() => promoteTake(t)}
                           title="make this take the canonical clip the build reads (old one backed up)">Promote to canonical</button>}
+              <button className="take-promote take-omni" disabled={working || omniTake != null} onClick={() => omniEdit(t)}
+                      title="omni edit: regenerate this take with one change (~$0.10/second of clip — bills immediately, clips ≤10s only)">
+                {omniTake === t.take ? 'omni…' : 'omni edit'}
+              </button>
               <button className="take-del" title="delete this take" disabled={working} onClick={() => deleteTake(t)}>✕</button>
             </span>
           ))}

@@ -210,6 +210,61 @@ def scene_animatic_media(pid: str, sid: str) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+# omni edit — surgical revision of a take ($0.10/s, explicit only)
+# ---------------------------------------------------------------------------
+
+def omni_edit_take(pid: str, sid: str, take: int, hint: str) -> dict:
+    """Revise ONE take with Gemini Omni Flash ('change X, keep everything
+    else') and register the result as a NEW take in the normal review flow.
+
+    Synchronous (~1-2 min for short clips). Only for takes <=10.5s (the model
+    outputs <=10s). Cost = clip seconds x $0.10, ledger-logged by the adapter.
+    Timing drift is possible — the new take goes through the usual verdict/QC.
+    """
+    import subprocess
+    if not hint.strip():
+        raise ValueError("an edit note is required")
+    proj = PROJECTS_DIR / pid
+    idx_path = proj / "artifacts" / "ai_segments_takes.json"
+    idx = json.loads(idx_path.read_text(encoding="utf-8"))
+    entry = next((t for t in idx.get(sid, []) if int(t.get("take", -1)) == take), None)
+    if entry is None:
+        raise KeyError(f"take {take} not found for {sid}")
+    src = Path(entry["path"])
+    if not src.is_file():
+        raise FileNotFoundError(f"take file missing: {src}")
+    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
+                        "format=duration", "-of", "csv=p=0", str(src)],
+                       capture_output=True, text=True)
+    dur = float(r.stdout.strip() or 0)
+    if dur > 10.5:
+        raise ValueError(f"take is {dur:.1f}s — omni edits clips of 10s or less")
+
+    from tools.video.omni_flash_video import OmniFlashVideo
+    out = proj / "assets" / "ai_segments" / f"{sid}__omni_edit_t{take}_{int(time.time())}.mp4"
+    prompt = (f"Keep this exact clip - same shot, same composition, same timing, "
+              f"same sound - but change ONE thing only: {hint.strip()} "
+              f"Everything else identical. {dur:.0f} seconds.")
+    res = OmniFlashVideo().execute({"prompt": prompt, "video_path": str(src),
+                                    "output_path": str(out)})
+    if not res.success:
+        raise RuntimeError(res.error)
+    # register through the normal take flow so verdict/promotion apply
+    from web.backend import takes as takes_mod
+    rel = out.as_posix()
+    try:
+        rel = out.resolve().relative_to(Path(".").resolve()).as_posix()
+    except ValueError:
+        pass
+    reg = takes_mod.assign_clip(pid, sid, rel,
+                                f"omni edit of take {take}: {hint.strip()[:80]}")
+    return {"ok": True, "scene_id": sid, "source_take": take,
+            "new_take": reg.get("take"), "cost_usd": res.cost_usd,
+            "seconds": (res.data or {}).get("seconds"),
+            "interaction_id": (res.data or {}).get("interaction_id")}
+
+
+# ---------------------------------------------------------------------------
 # human-keyed take promotion
 # ---------------------------------------------------------------------------
 

@@ -27,9 +27,12 @@ from pathlib import Path
 
 _log = logging.getLogger(__name__)
 
-MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image")
-# Gemini 2.5 Flash Image bills ~1290 output tokens per image ≈ $0.039.
-COST_PER_IMAGE_USD = 0.039
+# Default: Nano Banana 2 Lite (gemini-3.1-flash-lite-image) — A/B'd 2026-07-10
+# against 2.5-flash-image on a production restyle + a grounded edit: parity-or-
+# better quality, ~2x faster, $0.034 vs $0.039. Set GEMINI_IMAGE_MODEL to
+# "gemini-2.5-flash-image" to revert.
+MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-3.1-flash-lite-image")
+COST_PER_IMAGE_USD = 0.034
 
 _MIME = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
          ".webp": "image/webp"}
