@@ -26,6 +26,14 @@ _EVENT_TYPES = {
     "take_deleted",         # actor=human: a take dropped from the review list (file kept on disk)
     "scene_reset",          # actor=human: start the scene fresh — clears the folded UI state below
     "keyframes_authored",   # actor=system: the chained keyframe SET for a revision was previewed
+    # --- stills-first workflow (dashboard v2, 2026-07-10) ---
+    "sheet_approved",       # actor=human: an entity's reference sheet vetted vs real photos
+    "sheet_rejected",       # actor=human: sheet sent back for a re-roll (payload.hint)
+    "still_note",           # actor=human: a note on ONE authored still (payload.idx, .note)
+    "stills_approved",      # actor=human: the scene's still set + animatic signed off (GATE)
+    "stills_unapproved",    # actor=human: gate reopened (stills changed after approval)
+    "animatic_built",       # actor=system: scene or episode storyboard shot rendered
+    "project_imported",     # actor=human: scored_script registered + validated for a new video
 }
 
 

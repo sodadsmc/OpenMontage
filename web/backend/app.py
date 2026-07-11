@@ -33,6 +33,7 @@ from fastapi.staticfiles import StaticFiles  # noqa: E402
 from web.backend import director as director_mod  # noqa: E402
 from web.backend import feedback as fb  # noqa: E402
 from web.backend import scenes as scenes_mod  # noqa: E402
+from web.backend import stages as stages_mod  # noqa: E402
 from web.backend import takes as takes_mod  # noqa: E402
 
 app = FastAPI(title="OpenMontage Scene Review")
@@ -192,6 +193,17 @@ def post_approve_and_dispatch(pid: str, sid: str, rid: str):
     Logs the approval (audit), then enqueues a take job. The job fetches the prompt
     from the logged revision server-side and hard-blocks if generation is unavailable.
     """
+    # Stills-first gate: video spend is locked until the scene's stills +
+    # storyboard animatic are signed off ("once these are all vetted we move
+    # onto video"). Legacy scenes with no stills flow yet pass via override.
+    if not stages_mod.stills_gate_open(pid, sid):
+        board = stages_mod.stage_board(pid)
+        row = next((r for r in board["scenes"] if r["scene_id"] == sid), {})
+        if row.get("stills_flow") or row.get("stills_approved") is False:
+            raise HTTPException(
+                409, f"stills gate closed for {sid}: approve the scene's "
+                     "stills + animatic first (POST .../stills/approve), or "
+                     "this scene has been explicitly unapproved")
     ev = fb.append_event(pid, actor="human", type="revision_approved",
                          scene_id=sid, payload={"revision_id": rid})
     try:
@@ -280,6 +292,90 @@ def post_regen_beats(pid: str, sid: str, take: int, body: dict = Body(...)):
 
 
 # ---- media (range-served so video seeks) ----------------------------------
+
+# ---- stills-first workflow (dashboard v2) ---------------------------------
+
+@app.get(API + "/projects/{pid}/stages")
+def get_stage_board(pid: str):
+    """Per-scene stage strip (narration/stills/video) + the sheets gate."""
+    return stages_mod.stage_board(pid)
+
+
+@app.get(API + "/projects/{pid}/entities")
+def get_entities(pid: str):
+    """Census entities with sheet paths, real reference photos, verdicts."""
+    return stages_mod.list_entities(pid)
+
+
+@app.post(API + "/projects/{pid}/entities/census")
+def post_run_census(pid: str):
+    """(Re)run the entity census over the scored script (LLM extraction)."""
+    return stages_mod.run_census(pid)
+
+
+@app.post(API + "/projects/{pid}/entities/{name}/verdict")
+def post_sheet_verdict(pid: str, name: str, body: dict = Body(...)):
+    """Approve or reject an entity's reference sheet (vs real photos).
+    body: {"verdict": "approve"|"reject", "hint": "..."}"""
+    v = (body or {}).get("verdict")
+    if v not in ("approve", "reject"):
+        raise HTTPException(422, "verdict must be approve|reject")
+    ev = fb.append_event(
+        pid, actor="human",
+        type="sheet_approved" if v == "approve" else "sheet_rejected",
+        payload={"entity": name, "hint": (body or {}).get("hint", ""),
+                 # explicit binding: which sheet file was actually vetted —
+                 # beats fuzzy filename matching in list_entities forever
+                 "sheet_path": (body or {}).get("sheet_path", "")})
+    return {"ok": True, "event_id": ev["event_id"]}
+
+
+@app.get(API + "/projects/{pid}/scenes/{sid}/stills/state")
+def get_stills_state(pid: str, sid: str):
+    return stages_mod.stills_state(pid, sid)
+
+
+@app.post(API + "/projects/{pid}/scenes/{sid}/stills/note")
+def post_still_note(pid: str, sid: str, body: dict = Body(...)):
+    """Note on ONE authored still. body: {"idx": 2, "note": "..."}"""
+    ev = fb.append_event(pid, actor="human", type="still_note", scene_id=sid,
+                         payload={"idx": (body or {}).get("idx"),
+                                  "note": (body or {}).get("note", "")})
+    return {"ok": True, "event_id": ev["event_id"]}
+
+
+@app.post(API + "/projects/{pid}/scenes/{sid}/stills/approve")
+def post_stills_approve(pid: str, sid: str):
+    """Sign off the scene's still set + animatic — OPENS the video gate."""
+    ev = fb.append_event(pid, actor="human", type="stills_approved",
+                         scene_id=sid, payload={})
+    return {"ok": True, "event_id": ev["event_id"]}
+
+
+@app.post(API + "/projects/{pid}/scenes/{sid}/stills/unapprove")
+def post_stills_unapprove(pid: str, sid: str):
+    """Reopen the gate (stills changed after approval)."""
+    ev = fb.append_event(pid, actor="human", type="stills_unapproved",
+                         scene_id=sid, payload={})
+    return {"ok": True, "event_id": ev["event_id"]}
+
+
+@app.post(API + "/projects/{pid}/scenes/{sid}/animatic")
+def post_scene_animatic(pid: str, sid: str, body: dict | None = Body(None)):
+    """Build the scene's storyboard shot (narration + stills on word timing).
+    body: {"stills": ["path1.png", ...]} — omit to use a placeholder card."""
+    try:
+        return stages_mod.build_scene_animatic(
+            pid, sid, stills=(body or {}).get("stills"))
+    except FileNotFoundError as exc:
+        raise HTTPException(409, str(exc))
+
+
+@app.post(API + "/projects/{pid}/animatic")
+def post_episode_animatic(pid: str):
+    """Build the full-episode animatic ($0 pacing pass before video spend)."""
+    return stages_mod.build_episode_animatic(pid)
+
 
 @app.get(API + "/projects/{pid}/media/{path:path}")
 def media(pid: str, path: str):

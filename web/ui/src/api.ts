@@ -161,6 +161,56 @@ export interface Job {
 
 export interface DraftRevision { revision_id: string; revision: Revision }
 
+// ---- stills-first workflow (dashboard v2) ----
+
+export interface StageRow {
+  scene_id: string
+  narration_ready: boolean
+  stills_approved: boolean
+  animatic: string | null // media-relative path, or null if not built
+  video_verdict?: string | null
+}
+
+export interface StagesPayload {
+  project_id: string
+  sheets_gate_open: boolean
+  census_missing: boolean
+  scenes: StageRow[]
+}
+
+export interface CensusEntity {
+  name: string
+  type?: string
+  segments?: string[]
+  mentions?: number
+  importance?: number
+  needs_sheet?: boolean
+  why?: string
+  sheet_path: string | null // media-relative
+  reference_photos: string[] // media-relative
+  verdict: 'sheet_approved' | 'sheet_rejected' | null
+  verdict_ts?: string | null
+  verdict_hint?: string | null
+}
+
+export interface EntitiesPayload {
+  project_id?: string
+  entities: CensusEntity[]
+  sheets_gate_open: boolean
+  census_missing: boolean
+}
+
+export interface StillNote { idx: number | null; note: string; ts?: string }
+
+export interface StillsState {
+  scene_id?: string
+  stills_approved: boolean
+  approved_ts?: string | null
+  notes: StillNote[]
+}
+
+export interface AnimaticBuilt { media: string; path?: string }
+
 export interface ClipCandidate {
   name: string
   dir: string

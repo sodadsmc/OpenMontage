@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { API, beatCostUsd, jget, jpost, jdel } from '../api'
-import type { Beat, ClipCandidate, DraftRevision, Job, KeyframePreview, Scene, Take, Verdict } from '../api'
+import type {
+  AnimaticBuilt, Beat, ClipCandidate, DraftRevision, Job, KeyframePreview,
+  Revision, Scene, StageRow, StillNote, StillsState, Take, Verdict,
+} from '../api'
 import RevisionCard from './RevisionCard'
 import BeatFixer from './BeatFixer'
 
@@ -10,7 +13,9 @@ const scoreClass = (n: number) => (n >= 8 ? 'score-good' : n >= 5 ? 'score-mid' 
 const estUsd = (slot: number) => Math.max(0.10, 0.017 * Math.round(slot || 0)).toFixed(2)
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
-export default function SceneDetail({ project, scene, reload }: { project: string; scene: Scene; reload: () => Promise<void> }) {
+export default function SceneDetail({ project, scene, stage, reload }: {
+  project: string; scene: Scene; stage?: StageRow | null; reload: () => Promise<void>
+}) {
   const base = `${API}/projects/${project}/scenes/${scene.id}`
   const [note, setNote] = useState('')
   const [sugg, setSugg] = useState('')
@@ -22,8 +27,18 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   const [candidates, setCandidates] = useState<ClipCandidate[] | null>(null)
   const [clipFilter, setClipFilter] = useState('')
   const [swapOpen, setSwapOpen] = useState(false)
+  // stills-first gate: animatic + per-still notes + approve toggle
+  const [stillsSt, setStillsSt] = useState<StillsState | null>(null)
+  const [animMedia, setAnimMedia] = useState<string | null>(null) // built this session (cache-busted)
+  const [animBusy, setAnimBusy] = useState(false)
+  const [gateBusy, setGateBusy] = useState(false)
   const alive = useRef(true)
   useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
+
+  const loadStills = useCallback(async () => {
+    try { setStillsSt(await jget<StillsState>(`${base}/stills/state`)) } catch { setStillsSt(null) }
+  }, [base])
+  useEffect(() => { void loadStills() }, [loadStills])
 
   const fb = scene.feedback
   const g = scene.auto_gate
@@ -222,6 +237,49 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
     } catch (e) { alert('Delete failed: ' + (e as Error).message) }
   }
 
+  // ---- storyboard (stills gate) ----
+  // The newest keyframe SET currently shown: the live preview job's frames, else the
+  // newest logged revision that has authored frames (same source KeyframeStills renders).
+  const loggedFrames = fb.revisions.slice().reverse().find((r) => (r.keyframes?.length ?? 0) > 0)?.keyframes ?? null
+  const newestFrames: KeyframePreview[] | null =
+    (job?.kind === 'keyframes' && (job.keyframes?.length ?? 0) > 0) ? job.keyframes! : loggedFrames
+  const animSrc = animMedia
+    || (stage?.animatic ? `${API}/projects/${project}/media/${stage.animatic}` : null)
+
+  const buildAnimatic = async () => {
+    // Pass the ORIGINAL repo-relative paths the API returned for the stills — the backend
+    // resolves them against the repo root (media URLs would not be files on disk).
+    const stills = (newestFrames || []).filter((f) => f.status === 'authored' && f.path).map((f) => f.path!)
+    const what = stills.length
+      ? `the ${stills.length} authored still(s) of the newest keyframe set`
+      : 'a placeholder card (no authored stills yet)'
+    if (!confirm(`Build the storyboard animatic for ${scene.id} from ${what}? ($0 — narration + stills cut on sentence timing)`)) return
+    setAnimBusy(true)
+    try {
+      const r = await jpost<AnimaticBuilt>(`${base}/animatic`, { stills })
+      setAnimMedia(`${API}/projects/${project}/media/${r.media}?t=${Date.now()}`) // bust the cache: same file path every build
+      await reload()
+    } catch (e) { alert('Animatic build failed: ' + (e as Error).message) }
+    setAnimBusy(false)
+  }
+
+  // Sign-off toggle: approving OPENS the video-spend gate server-side.
+  const toggleStillsGate = async () => {
+    const approved = !!stillsSt?.stills_approved
+    if (approved && !confirm(`Unapprove the stills for ${scene.id}? This re-closes the video gate.`)) return
+    setGateBusy(true)
+    try {
+      await jpost(`${base}/stills/${approved ? 'unapprove' : 'approve'}`, {})
+      await loadStills(); await reload()
+    } catch (e) { alert('Failed: ' + (e as Error).message) }
+    setGateBusy(false)
+  }
+
+  const addStillNote = async (idx: number, text: string) => {
+    try { await jpost(`${base}/stills/note`, { idx, note: text }); await loadStills() }
+    catch (e) { alert('Note failed: ' + (e as Error).message) }
+  }
+
   return (
     <section className="detail">
       <Player scene={scene} srcUrl={srcUrl} />
@@ -304,6 +362,27 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
         )}
       </div>
 
+      <div className="section-label">Storyboard — stills gate</div>
+      <div className="storyboard">
+        {animSrc
+          ? <video className="animvid" src={animSrc} controls preload="metadata" />
+          : <div className="muted" style={{ fontSize: 13 }}>no animatic yet — build the $0 storyboard shot (narration + stills cut on sentence timing)</div>}
+        <div className="row" style={{ marginTop: 8 }}>
+          <button className="act" disabled={animBusy} onClick={buildAnimatic}
+                  title="narration + the newest keyframe stills, cut on sentence starts — $0">
+            {animBusy ? <><span className="spinner" />Building animatic…</> : animSrc ? '↻ Rebuild animatic' : '▶ Build animatic'}
+          </button>
+          <button className={`act${stillsSt?.stills_approved ? ' use' : ''}`} disabled={gateBusy} onClick={toggleStillsGate}
+                  title="approving the stills + animatic opens the video-spend gate for this scene">
+            {gateBusy ? <span className="spinner" />
+              : stillsSt?.stills_approved ? '✓ Stills approved — unapprove' : 'Approve stills → open video gate'}
+          </button>
+          {newestFrames && <span className="muted" style={{ fontSize: 12 }}>
+            {newestFrames.filter((f) => f.status === 'authored').length}/{newestFrames.length} stills authored
+          </span>}
+        </div>
+      </div>
+
       <p className="narr">{scene.narration}</p>
 
       <div className="row mb">
@@ -354,7 +433,7 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
         {job?.kind === 'keyframes' && job.keyframes && (
           <KeyframeStills project={project} frames={job.keyframes} rid={draft?.revision_id}
                           onApprove={approveAndDispatch} onReroll={rerollKeyframe} working={working}
-                          estUsd={revEstUsd(draft?.revision)} />
+                          estUsd={revEstUsd(draft?.revision)} notes={stillsSt?.notes ?? []} onNote={addStillNote} />
         )}
         {draft && <RevisionCard scene={scene} rid={draft.revision_id} rev={draft.revision} status="drafted" onApprove={approveAndDispatch} onReject={reject} onApproveEdited={approveEdited} />}
         {fb.revisions.filter((r) => !draft || r.id !== draft.revision_id).slice().reverse().map((r) => (
@@ -363,7 +442,7 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
             {r.status === 'drafted' && (r.keyframes?.length ?? 0) > 0 && (
               <KeyframeStills project={project} frames={r.keyframes!} rid={r.id}
                               onApprove={approveAndDispatch} onReroll={rerollKeyframe} working={working}
-                              estUsd={revEstUsd(r.revision)} />
+                              estUsd={revEstUsd(r.revision)} notes={stillsSt?.notes ?? []} onNote={addStillNote} />
             )}
           </div>
         ))}
@@ -379,9 +458,10 @@ export default function SceneDetail({ project, scene, reload }: { project: strin
   )
 }
 
-function KeyframeStills({ project, frames, rid, onApprove, onReroll, working, estUsd }: {
+function KeyframeStills({ project, frames, rid, onApprove, onReroll, working, estUsd, notes, onNote }: {
   project: string; frames: KeyframePreview[]; rid?: string; onApprove: (rid: string) => void;
-  onReroll?: (rid: string, idx: number) => void; working: boolean; estUsd: number
+  onReroll?: (rid: string, idx: number) => void; working: boolean; estUsd: number;
+  notes?: StillNote[]; onNote?: (idx: number, note: string) => void
 }) {
   const authored = frames.filter((f) => f.status === 'authored').length
   const approve = () => {
@@ -408,10 +488,31 @@ function KeyframeStills({ project, frames, rid, onApprove, onReroll, working, es
             {rid && onReroll && <button className="act" disabled={working} style={{ fontSize: 11 }}
                                         title="Re-author only this still, grounded on its plate + approved neighbors"
                                         onClick={() => onReroll(rid, f.idx)}>↻ re-roll this still</button>}
+            {onNote && f.status === 'authored' && (
+              <StillNoteBox idx={f.idx} notes={(notes ?? []).filter((n) => n.idx === f.idx)} onNote={onNote} />
+            )}
           </div>
         ))}
       </div>
       {rid && <button className="act use" disabled={working} onClick={approve}>✓ approve keyframes → animate</button>}
+    </div>
+  )
+}
+
+// Per-still notebox: existing notes from /stills/state + a small input (still_note events).
+function StillNoteBox({ idx, notes, onNote }: {
+  idx: number; notes: StillNote[]; onNote: (idx: number, note: string) => void
+}) {
+  const [txt, setTxt] = useState('')
+  const send = () => { if (txt.trim()) { onNote(idx, txt.trim()); setTxt('') } }
+  return (
+    <div className="stillnotes">
+      {notes.map((n, i) => <div key={i} className="stillnote">• {n.note}</div>)}
+      <div className="inline" style={{ gap: 4 }}>
+        <input placeholder="note on this still…" value={txt} onChange={(e) => setTxt(e.target.value)}
+               onKeyDown={(e) => { if (e.key === 'Enter') send() }} />
+        <button className="act" style={{ fontSize: 11, padding: '4px 8px', flex: '0 0 auto' }} onClick={send}>+ note</button>
+      </div>
     </div>
   )
 }

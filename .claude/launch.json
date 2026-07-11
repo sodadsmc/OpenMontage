@@ -7,6 +7,12 @@
       "runtimeArgs": ["-m", "uvicorn", "web.backend.app:app", "--port", "8011", "--log-level", "warning"],
       "port": 8011,
       "autoPort": false
+    },
+    {
+      "name": "ui-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "web/ui"],
+      "port": 5173
     }
   ]
 }

@@ -213,3 +213,45 @@ details.shots pre { white-space: pre-wrap; font-size: 12px; color: var(--muted);
 .jobbanner.succeeded, .jobbanner.idempotent { border-color: var(--ok); color: var(--ok); }
 .jobbanner.failed, .jobbanner.blocked { border-color: var(--bad); color: var(--bad); }
 .jobbanner.not_yet_auto_dispatched { border-color: var(--line); color: var(--muted); }
+
+/* tabs (Scenes / Sheets) */
+.brand { display: flex; align-items: center; gap: 14px; }
+.tabs { display: inline-flex; gap: 6px; }
+.tab { font-size: 12px; padding: 5px 12px; border-radius: 8px; cursor: pointer; background: transparent; border: 1px solid var(--line); color: var(--muted); font: inherit; }
+.tab:hover { background: var(--navy-2); }
+.tab.active { border-color: var(--amber); color: var(--amber); }
+
+/* per-scene stage strip: narration / stills / video */
+.stagestrip { display: flex; gap: 5px; margin-top: 6px; }
+.sdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #4a5a78; }
+.sdot.ok { background: var(--ok); }
+.sdot.mid { background: var(--warn); }
+.sdot.bad { background: var(--bad); }
+
+/* sheets-gate banner */
+.gatebar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; }
+.gatebar .spacer { flex: 1; }
+.chip.warn-chip { color: var(--warn); border-color: rgba(224,163,62,.4); }
+
+/* sheets page (entity reference-sheet review) */
+.sheets { display: grid; gap: 14px; }
+.sheetrow { display: grid; grid-template-columns: minmax(240px, 1fr) auto; gap: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.sheetrow.approved { border-color: rgba(76,195,138,.45); }
+.sheetrow.rejected { border-color: rgba(226,85,74,.45); }
+.sheetrow .vbtn { flex: 0 0 auto; height: 32px; padding: 0 14px; font-size: 12px; }
+.sheetmedia { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+.sheetimg { width: 360px; max-width: 100%; border-radius: 8px; border: 1px solid var(--line); display: block; }
+.nosheet { width: 360px; max-width: 100%; padding: 24px 12px; text-align: center; font-size: 13px; border: 1px dashed var(--line); border-radius: 8px; }
+.refstrip { display: flex; gap: 6px; flex-wrap: wrap; align-content: flex-start; max-width: 300px; }
+.refthumb { width: 90px; border-radius: 6px; border: 1px solid var(--line); display: block; }
+@media (max-width: 900px) { .sheetrow { grid-template-columns: 1fr; } }
+
+/* storyboard (stills gate) section in scene detail */
+.storyboard { background: var(--navy); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+.animvid { width: 100%; border-radius: 8px; background: #060c18; display: block; }
+.storyboard .act.use { border-color: var(--ok); color: var(--ok); } /* approved-state toggle only */
+
+/* per-still notes under the keyframe cells */
+.stillnotes { margin-top: 4px; }
+.stillnote { font-size: 11px; color: var(--muted); padding: 1px 0; }
+.stillnotes input { font-size: 11px; padding: 3px 6px; }

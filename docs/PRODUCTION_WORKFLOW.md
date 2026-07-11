@@ -158,6 +158,33 @@ A FastAPI + React app under `web/` for reviewing the cut scene-by-scene (number-
 - **Optional env:** `GOOGLE_API_KEY` enables the real director pass; `KIE_API_KEY` enables paid regenerate/dispatch; `OPENMONTAGE_DISABLE_DISPATCH=1` is a hard kill-switch for paid regeneration. `GET /api/health` reports what's wired.
 - **RUN IT YOURSELF in a terminal.** DON'T rely on an editor/agent-managed preview server — those get reaped between turns and the dashboard vanishes. If the port is busy, use `--port 8012`.
 
+### Stills-first workflow (dashboard v2, 2026-07-10)
+
+The dashboard drives a NEW video in this order — each step is a gate before spend:
+
+1. **Import**: the research→script flow (Claude-assisted: `research_brief.json` vetted by
+   `lib/research_vetter`, narration per `story_formula.md`, QC via `script_lint`/
+   `script_review`) delivers `scored_script.yaml` into `projects/{pid}/script_*/`. TTS runs
+   via `generate_voice_v6.py` (CLI).
+2. **Sheets page**: run the census (`POST /entities/census`), then vet every `needs_sheet`
+   entity — its generated sheet renders SIDE BY SIDE with the real reference photos;
+   approve (binds the exact sheet file to the entity) or reject with a hint. People,
+   places, AND things — the machine was the identity that burned us, not a character.
+3. **Stills per scene**: author keyframes (existing flow, ~$0.04/still), note/re-roll each,
+   then build the **storyboard shot** (`POST /scenes/{sid}/animatic`) — narration + the
+   planned stills cut on sentence starts from the word alignment ($0, `lib/animatic.py`).
+   Watch it in the scene page, then **Approve stills** — this OPENS the video gate for
+   that scene (`approve-and-dispatch` 409s while a scene with an animatic is unapproved;
+   legacy scenes that never entered the stills flow pass through).
+4. **Episode animatic** (`POST /projects/{pid}/animatic`): the whole story as narrated
+   stills — the cheapest point to catch pacing/story problems. Watch before the first
+   paid clip.
+5. **Video**: the existing dispatch → takes → verdict flow, per scene, unchanged.
+
+Stage state is derived from the append-only feedback log (event types
+`sheet_approved/rejected`, `still_note`, `stills_approved/unapproved`, `animatic_built`) —
+`GET /projects/{pid}/stages` renders the per-scene strip.
+
 ## 4. RULES & ANTI-PATTERNS (one-line DO/DON'T)
 
 - **Follow the narration verb.** DO find the verb in each line and stage it as a subject physically acting + a camera move. DON'T leave nothing in frame acting — that beat gets rejected.
