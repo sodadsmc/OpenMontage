@@ -1,0 +1,373 @@
+{
+  "project": "taum-sauk-2005",
+  "source": "llm",
+  "segments": 27,
+  "entities": [
+    {
+      "name": "Concrete Parapet Wall",
+      "type": "thing",
+      "segments": [
+        "seg_006",
+        "seg_008",
+        "seg_009",
+        "seg_010",
+        "seg_011",
+        "seg_013",
+        "seg_014",
+        "seg_015",
+        "seg_016",
+        "seg_017",
+        "seg_018",
+        "seg_023"
+      ],
+      "mentions": 14,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "This specific structure failed, acting as the physical representation of all the design and maintenance flaws.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Taum Sauk Upper Reservoir",
+      "type": "place",
+      "segments": [
+        "seg_002",
+        "seg_005",
+        "seg_006",
+        "seg_007",
+        "seg_010",
+        "seg_011",
+        "seg_012",
+        "seg_017",
+        "seg_019",
+        "seg_024"
+      ],
+      "mentions": 11,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "This man-made lake is the source of the flood and the central point of failure.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Proffit Mountain",
+      "type": "place",
+      "segments": [
+        "seg_001",
+        "seg_002",
+        "seg_003",
+        "seg_005",
+        "seg_006",
+        "seg_007",
+        "seg_010",
+        "seg_017",
+        "seg_019"
+      ],
+      "mentions": 10,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "It is the primary geographic setting for the entire disaster and its consequences.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Control Computer",
+      "type": "thing",
+      "segments": [
+        "seg_002",
+        "seg_004",
+        "seg_007",
+        "seg_008",
+        "seg_012",
+        "seg_015",
+        "seg_026",
+        "seg_027"
+      ],
+      "mentions": 9,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "It is the automated system that made flawed decisions based on faulty inputs, central to the story's theme.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Taum Sauk Pumped-Storage Plant",
+      "type": "organization",
+      "segments": [
+        "seg_004",
+        "seg_005",
+        "seg_007",
+        "seg_010",
+        "seg_012",
+        "seg_014",
+        "seg_018",
+        "seg_022"
+      ],
+      "mentions": 8,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "It is the core engineered system that failed, causing the disaster.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Toops House",
+      "type": "place",
+      "segments": [
+        "seg_001",
+        "seg_002",
+        "seg_003",
+        "seg_019",
+        "seg_020",
+        "seg_022"
+      ],
+      "mentions": 7,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "It is the direct target of the flood, representing the immediate human impact of the disaster.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Software Offset",
+      "type": "thing",
+      "segments": [
+        "seg_012",
+        "seg_023",
+        "seg_026"
+      ],
+      "mentions": 3,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "This action represents a deliberate decision to cover up a physical problem with a software fix, directly contributing to the disaster.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Pressure Sensors",
+      "type": "thing",
+      "segments": [
+        "seg_004",
+        "seg_007",
+        "seg_012",
+        "seg_015",
+        "seg_023",
+        "seg_026",
+        "seg_027"
+      ],
+      "mentions": 7,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "Their incorrect readings, due to unanchored pipes, were the initial flaw in the system.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Jerry Toops",
+      "type": "person",
+      "segments": [
+        "seg_001",
+        "seg_003",
+        "seg_022"
+      ],
+      "mentions": 4,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "He is a central victim and his family's survival is key to the story's outcome.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Emergency Probes",
+      "type": "thing",
+      "segments": [
+        "seg_008",
+        "seg_013",
+        "seg_015",
+        "seg_023"
+      ],
+      "mentions": 4,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "These safety devices were misconfigured or placed incorrectly, rendering them useless as a fail-safe.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Lisa Toops",
+      "type": "person",
+      "segments": [
+        "seg_001",
+        "seg_003",
+        "seg_020"
+      ],
+      "mentions": 3,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "She is a central victim and her family's survival is key to the story's outcome.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Emails",
+      "type": "thing",
+      "segments": [
+        "seg_011",
+        "seg_013"
+      ],
+      "mentions": 2,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "These documents provide irrefutable evidence that key personnel were aware of the risks before the failure.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Ameren",
+      "type": "organization",
+      "segments": [
+        "seg_024"
+      ],
+      "mentions": 1,
+      "importance": 4,
+      "needs_sheet": false,
+      "why": "It is the company legally and financially responsible for the disaster and its aftermath.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": false
+    },
+    {
+      "name": "Pumps",
+      "type": "thing",
+      "segments": [
+        "seg_002",
+        "seg_005",
+        "seg_008",
+        "seg_014",
+        "seg_017",
+        "seg_018"
+      ],
+      "mentions": 7,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "These components are central to the plant's operation and their continued function, despite warnings, led to the overflow.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Toops baby (seven-month-old)",
+      "type": "person",
+      "segments": [
+        "seg_001",
+        "seg_003",
+        "seg_020",
+        "seg_021"
+      ],
+      "mentions": 4,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "The baby's survival through extreme conditions emphasizes the miraculous nature of the family's escape.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Plastic Sensor Pipes",
+      "type": "thing",
+      "segments": [
+        "seg_007",
+        "seg_012",
+        "seg_015",
+        "seg_026"
+      ],
+      "mentions": 4,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "Their unanchored state caused the pressure sensors to report incorrect water levels.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Tanner Toops (five-year-old)",
+      "type": "person",
+      "segments": [
+        "seg_003",
+        "seg_020",
+        "seg_021"
+      ],
+      "mentions": 3,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "His specific injuries and survival are highlighted in the story's aftermath.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Saint Louis",
+      "type": "place",
+      "segments": [
+        "seg_007",
+        "seg_015",
+        "seg_018"
+      ],
+      "mentions": 3,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "It represents the remote control center, emphasizing the distance and disconnect from the physical plant.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Depth Gauge",
+      "type": "thing",
+      "segments": [
+        "seg_009"
+      ],
+      "mentions": 1,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "Its sinking with the wall disguised the true water level, representing a systemic oversight.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "State of Missouri",
+      "type": "place",
+      "segments": [
+        "seg_001",
+        "seg_024"
+      ],
+      "mentions": 2,
+      "importance": 2,
+      "needs_sheet": false,
+      "why": "It is the governmental entity affected by and involved in the aftermath of the disaster.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": false
+    },
+    {
+      "name": "Shut-ins",
+      "type": "place",
+      "segments": [
+        "seg_024",
+        "seg_025"
+      ],
+      "mentions": 2,
+      "importance": 2,
+      "needs_sheet": true,
+      "why": "It is a natural feature downstream, affected by the flood and later restored, showing the environmental impact and recovery.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": true
+    },
+    {
+      "name": "Ozark Mountains",
+      "type": "place",
+      "segments": [
+        "seg_001"
+      ],
+      "mentions": 1,
+      "importance": 1,
+      "needs_sheet": false,
+      "why": "It provides the broader geographical context for the story's setting.",
+      "bible_coverage": "NO_BIBLE",
+      "action_needed": false
+    }
+  ]
+}
