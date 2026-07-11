@@ -1,0 +1,122 @@
+[
+ {
+  "claim": "Within two weeks of the breach, AmerenUE officials publicly attributed the failure to the plant's automated instruments overpumping the reservoir and to a backup instrument set that failed to catch the problem — an early corporate admission of the sensor/control-system failure chain.",
+  "source": ""
+ },
+ {
+  "claim": "The Toops family consisted of five people — Jerry Toops, 42 (Johnson's Shut-Ins State Park superintendent), Lisa Toops, 38, Tanner (5), Tara (3), and Tucker (7 months) — all of whom survived the December 14, 2005 flood with hypothermia; Tanner arrived at the hospital in near cardiac arrest and required skin grafts on his legs for burns sustained during the rewarming process, while Tara and Tucker were released from the hospital on December 18.",
+  "source": ""
+ },
+ {
+  "claim": "The flood wave filled the Toops house nearly instantly in the pre-dawn dark: Lisa Toops had fallen asleep feeding the baby around 4 a.m., woke to a roar Jerry compared to 'a group of F-14 jets if combined with a fleet of trains,' and said the water filled Tanner's bedroom in about 10 seconds; Jerry was hit 'like a head-on collision' in his bedroom, swam to the roof, was swept off, and clung to trees and debris until rescuers arrived.",
+  "source": ""
+ },
+ {
+  "claim": "This early (Dec 26, 2005) AP report put the released water volume at approximately one billion gallons — lower than the ~1.3 and ~1.5 billion gallon figures cited in later official accounts, which matters for the research brief's number-reconciliation task (early press underestimated the release).",
+  "source": ""
+ },
+ {
+  "claim": "The Toops residence inside Johnson's Shut-Ins State Park was the only house destroyed by the flood, and state regulators noted the collapsed section of the reservoir wall was made 'entirely of soil and rock, instead of granite.'",
+  "source": ""
+ },
+ {
+  "claim": "A section of the Taum Sauk upper reservoir dam wall collapsed on December 14, 2005, releasing 1.3 billion gallons of water down Proffit Mountain in southeastern Missouri — this source uses the 1.3 billion figure (relevant to reconciling 1.3 vs 1.5 billion).",
+  "source": ""
+ },
+ {
+  "claim": "Park superintendent Jerry Toops, his wife, and their three children lived in Johnson's Shut-Ins State Park's only residence; the flood swept them away and all five survived with only minor injuries (this source does not give the quarter-mile distance).",
+  "source": ""
+ },
+ {
+  "claim": "Ameren Missouri was fined $15 million by the federal government over the breach and later agreed to a $180 million settlement with public entities including the state park — corroborating both aftermath dollar figures in the research question.",
+  "source": ""
+ },
+ {
+  "claim": "The rebuilt hydroelectric plant and reservoir went online in 2010 at a cost of $490 million, with the new dam wall containing 3.2 million cubic yards of concrete (a figure to reconcile against the commonly cited ~2.9 million cubic yards for the RCC dam).",
+  "source": ""
+ },
+ {
+  "claim": "Rebuilding Johnson's Shut-Ins State Park took four years, with the state allowing some sections of the park to reopen intermittently starting in 2007.",
+  "source": ""
+ },
+ {
+  "claim": "The Taum Sauk upper reservoir dam failed just after 5:00 a.m. on December 14, 2005, sending water downhill onto the Toops family house at the base of the reservoir near Lesterville, Missouri.",
+  "source": ""
+ },
+ {
+  "claim": "All five members of the Toops family — park superintendent Jerry Toops, wife Lisa, and children Tanner (5), Tara (3), and Tucker (7 months) — were swept out of their house by the floodwave, carried across the highway, and found alive by rescue crews in shallow water.",
+  "source": ""
+ },
+ {
+  "claim": "Five-year-old Tanner Toops nearly died of hypothermia: hospital staff worked two hours to resuscitate him, and heated IV bags used to warm his body caused burns that later required skin grafts (children were treated at Cardinal Glennon in St. Louis after initial care near Centerville).",
+  "source": ""
+ },
+ {
+  "claim": "The breach released millions of gallons through a roughly 600-foot hole in the dam, ripped the back off the Toops house as Jerry grabbed the roof, and gouged a 30-foot crater behind the house. (Note: the 600-foot breach width is roughly consistent with, but slightly lower than, the ~656–700 ft figures in official forensic accounts — reconcile against the FERC panel report.)",
+  "source": ""
+ },
+ {
+  "claim": "In the aftermath, the Toops family left the park and relocated in May 2006 to northeast Missouri, where Jerry had grown up. The article makes no mention of Ameren, the sensor failures, or any lawsuit/settlement, and does not state the often-cited 'swept a quarter mile' distance — only that they were carried past the highway.",
+  "source": ""
+ },
+ {
+  "claim": "The backup Warrick Hi-Hi probe was set at Elevation 1597.7 while the parapet wall was nominally 1598.0, but 33 wall panels had tops lower than the probe setpoint — the lowest (Panel 72) at Elevation 1597.0 — so overtopping would begin before the backup could trip, and it did not trip on December 14, 2005.",
+  "source": ""
+ },
+ {
+  "claim": "The primary water-level pressure transducers were housed in HDPE pipe that was not positively anchored to the concrete face; the instruments read as much as 4.2 feet too low, with erratic behavior in water-level plots from August 2005 increasing until the December 14 failure.",
+  "source": ""
+ },
+ {
+  "claim": "AmerenUE employees had observed movement of the HDPE pipes housing the pressure transducers by October 7, 2005, workers witnessed overtopping between September 25 and November 23, 2005 (with the gauge piping support system reported failed and bent), and management responded by lowering the pump shutdown setpoints to Elevations 1592 and 1594 rather than fixing the instruments — a diver to install a new tie-down was not expected until year end.",
+  "source": ""
+ },
+ {
+  "claim": "On December 14, 2005, Pump Unit #2 shut down automatically at 4:39 a.m. at an indicated Elevation of 1591.6, and Pump Unit #1 was shut down manually at 5:15 a.m. with the transducer reading Elevation 1593.7 — both readings wrong because the actual water level was at/over the parapet; the breach released 1.5 billion gallons down Proffit Mountain.",
+  "source": ""
+ },
+ {
+  "claim": "The panel's root-cause analysis (as summarized here) found five contributing factors — inaccurate level readings, an inadequately configured emergency backup, an operating protocol demanding unrealistic accuracy near the parapet, lack of visual ground-proofing, and, as the 'most important root cause,' the omission of a spillway from the original design — with the marginally stable, sand-heavy rockfill (up to 45 percent sand, not free-draining) as a secondary factor in the breach mechanics.",
+  "source": ""
+ },
+ {
+  "claim": "Overtopping of the Taum Sauk upper reservoir dike began at 5:09 A.M. on December 14, 2005, at the northwest section of the dike, near the end of the morning pumping cycle.",
+  "source": ""
+ },
+ {
+  "claim": "The breach released the reservoir's 4,300 acre-feet of stored water (≈1.4 billion gallons) through a 656-foot-wide breach in 25 minutes, with a peak discharge of 273,000 cfs down Proffit Mountain toward the Black River.",
+  "source": ""
+ },
+ {
+  "claim": "The 'fail safe' Warrick backup probes did not trip the pumps because they had been installed at a higher elevation than the low point of the parapet wall — meaning water overtopped the dam before the emergency shutdown level was ever reached — compounded by system programming that required both probes to trip the pumps off-line.",
+  "source": ""
+ },
+ {
+  "claim": "Before the failure (around September 25, 2005), the HDPE conduits housing the pressure transducers were found to have detached from their intended anchored positions on the liner, causing the transducers to report water levels lower than actually existed; the 'fix' was a software offset plus adding the Warrick probes rather than a physical repair.",
+  "source": ""
+ },
+ {
+  "claim": "Ameren had direct advance warning: on September 25, 2005, plant representatives witnessed a near-miss overtopping in which water poured over the dike edge 'like Niagara Falls' (operators manually disabled the pumps to avert disaster), and a September 27, 2005 email warned that overflowing the upper reservoir was 'an absolute NO-NO' that would severely erode the dam and cause eventual failure.",
+  "source": ""
+ },
+ {
+  "claim": "All five members of the Toops family were caught in approximately one billion gallons of water that swept away their home when a reservoir at AmerenUE's Taum Sauk hydroelectric plant broke in southeast Missouri on Dec. 14 (2005). Note: this AP figure of 'about a billion gallons' is lower than the 1.3-1.5 billion gallon figures cited elsewhere and should be reconciled against the FERC/Independent Panel numbers.",
+  "source": ""
+ },
+ {
+  "claim": "Jerry Toops, the park superintendent at Johnson's Shut-Ins State Park, was awakened by his wife's screams and a roar he compared to a cavalcade of F-14 jets combined with a fleet of trains as the floodwave hit the family home.",
+  "source": ""
+ },
+ {
+  "claim": "Emergency responders reached the family roughly 90 minutes after the floodwater first struck; Jerry Toops was suffering hypothermia and being treated in an ambulance when rescuers returned with the rest of his family alive.",
+  "source": ""
+ },
+ {
+  "claim": "During the flood, Lisa Toops grabbed the baby and rushed to son Tanner's bedroom, reaching only the end of the bed before the frigid water arrived; the house was swept away with the family inside.",
+  "source": ""
+ },
+ {
+  "claim": "All three Toops children were hospitalized (in St. Louis, per the article, with hypothermia): 5-year-old Tanner was still hospitalized at the time of writing, while the other two children were released Dec. 19, 2005. Caution: this article gives Tara's age as 8 and Tucker's as 6 months, which conflicts with other contemporaneous coverage commonly listing Tara as about 3 years old — the ages need cross-verification.",
+  "source": ""
+ }
+]

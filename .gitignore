@@ -48,6 +48,18 @@ projects/therac-25-test/artifacts/*
 !projects/therac-25-test/research/
 projects/therac-25-test/research/*
 !projects/therac-25-test/research/*.json
+# taum-sauk-2005: same carve-outs (drivers/script arrive at stage -2)
+!projects/taum-sauk-2005/
+projects/taum-sauk-2005/*
+!projects/taum-sauk-2005/research/
+projects/taum-sauk-2005/research/*
+!projects/taum-sauk-2005/research/*.json
+!projects/taum-sauk-2005/research/*.txt
+!projects/taum-sauk-2005/research/*.pdf
+!projects/taum-sauk-2005/artifacts/
+projects/taum-sauk-2005/artifacts/*
+!projects/taum-sauk-2005/artifacts/*.json
+!projects/taum-sauk-2005/artifacts/*.jsonl
 
 # Corpus directories (downloaded stock clips, thumbnails, embeddings —
 # regenerable from source APIs via corpus_builder). Explicit rule even

@@ -1,0 +1,3042 @@
+
+===PAGE 1===
+
+===PAGE 2===
+ 
+ 
+Alfred J. Hendron, Jr. Joseph L. Ehasz Kermit Paul 
+No. 4 College Park Court 11485 Upper Meadow Drive 15 Boies Ct. 
+Savoy, IL  61874 Gold River, CA   95670 Pleasant Hill, CA 
+94523 
+ 
+ 
+ 
+ 
+ 
+ 
+Taum Sauk Upper Dam Breach 
+FERC No. P-2277 
+ 
+ 
+Technical Reasons for the Breach 
+ 
+of December 14, 2005 
+ 
+ 
+by 
+ 
+ 
+ FERC Independent Panel of Consultants (IPOC) 
+ 
+ 
+ Taum Sauk Pumped Storage Project 
+ 
+ 
+ 
+ 
+ 
+May 24, 2006
+===PAGE 3===
+3 
+Taum Sauk Upper Dam Breach 
+ 
+Technical Reasons for the Breach 
+of December 14, 2005 
+ 
+ 
+Table of Contents 
+ 
+ 
+1. Introduction 
+ 
+ 
+1.1 General  
+ 
+1.2 Appointment of Independent Panel of Consultants 
+  
+ 1.3 Scope of Investigations 
+ 
+2. Project Description 
+ 
+3. Design, Construction History and Performance 
+ 
+ 
+3.1 Design and Construction History 
+  
+ 3.2 Panel Comments on Design 
+ 
+ 3.3 Embankment performance 
+ 
+4. Standard Operating Procedure 
+ 
+5. Overpumping Protective Systems 
+ 
+5.1 Upper Reservoir Water Level Monitoring and Control System As                      
+      Installed 
+ 
+5.2 Emergency Water Level Protection Backup System As Installed 
+ 
+5.3 Over Pumping Protection Response on December 14, 2005 
+ 
+ 5.3.1 Response of Water Level Monitoring and Control System 
+ 
+ 5.3.2 Response of Water Lev el Protection Backup System 
+===PAGE 4===
+4 
+ 
+6. December 14, 2005 Breach 
+ 
+6.1 General Descriptions and Observations 
+ 
+6.2 Estimate of Peak Reservoir Elevation 
+ 
+7. Technical Causes of Breach 
+ 
+ 7.1 Response of Overpumping Protec tive Systems on December 14, 2005 
+ 
+7.2 Upper Reservoir Water Level Monitoring and Control System as                    
+      Found 
+ 
+ 7.3 Emergency Water Level Protection Back-Up System as Found 
+ 
+ 7.4 Overtopping of Embankment Dam 
+   
+  7.4.1 Sensitivity of Taum Sauk Du mped Rockfill Dam to           
+                              Overtopping 
+ 
+  7.4.2 Effect of Stor ing Water on Parapet Wall 
+ 
+  7.4.3 Foundation of Rockfill Dam 
+  
+ 7.5 Possible Failure Modes 
+ 
+  7.5.1 General 
+  7.5.2 Discussion of Specific Modes of Failure 
+  7.5.3 Comments 
+ 
+ 
+8. Conclusions 
+ 
+Appendix A   IPOC Information Request Letter 
+ 
+Appendix B   Event Chronology 
+ 
+Appendix C   Early Project Correspondence 
+ 
+ 
+===PAGE 5===
+5 
+ 
+1. Introduction 
+  
+1.1  General 
+   
+The upper reservoir of the Taum Sauk Pumped Storage Project (shown full in 
+Figure 1-1) was overtopped during the final pumping cycle the morning of 
+December 14, 2005.  Overt opping of the 10 ft high pa rapet wall and subsequent 
+failure of the rockfill embankment formed a breach about 720 feet wide at the top 
+of the rockfill dam and 430 feet  at the base of the dam, as  shown in Figure 1-2.  
+Reservoir data indicate that pumping stopped at 5:15 AM December 14, 2005 
+with the initial breach formi ng at approximately the same  time. Breach widening 
+formed quickly, and complete evacuation of the 4,350 acre-ft upper reservoir 
+occurred within about 25 minutes.  The breac h flow passed into the East Fork of 
+the Black River (the river upstream of  the lower Taum Sauk Dam) through a 
+State park and campground area and into t he lower reservoir. Upon leaving the 
+Lower Taum Sauk Dam Spil lway area, the high flow s proceeded downstream of 
+the Black River to the town of Leste rville, MO, located about 3.5 miles 
+downstream from the Lower Dam, see Figure 1-3. The incremental rise in the 
+river level was about 2 feet which remained within the banks of the river. 
+ 
+1.2  Appointment of Independent Panel of Consultants 
+ 
+This Panel was convened by the FERC Director of Dam Safety to establish an 
+independent assessment of th e technical causes of the release of the Upper 
+Reservoir at Taum Sauk.  It is anticipated that the conclusions of this report will 
+be applied in the review of other pum ped storage projects , which are without 
+spillways on the upper reservoirs and which are within the jurisdiction of the 
+FERC. 
+ 
+Following the breach of the upper reservoir at the Ta um Sauk pumped storage 
+project, the Federal Ener gy Regulatory Commission (FERC) established an 
+Independent Panel of Consulta nts (IPOC).  The individual s on this Panel were 
+contacted by the Director of Dam Safety , Mr. Constantine Tjoumas, during the 
+week of December 26, 2005. 
+ 
+The members of the Independent Panel of Consultants are: 
+ 
+  Dr. Alfred J. Hendron, Jr., Geotechnical Engineer 
+  Joseph L. Ehasz, Geotechnical Engineer 
+  Kermit Paul, Mechanical & Electrical Engineer 
+ 
+The Panel members accepted the assign ment of investigating the technical 
+causes of this breach; the contract ual arrangements were made by the FERC 
+Dam Safety office in Washington D.C. 
+ 
+===PAGE 6===
+6 
+  
+1.3  Scope of Investigations 
+ 
+In the contractual scope of work for each Review Panel member it was specified 
+that the Panel should: 
+ 
+ 
+o Review the operational characteri stics of the project including 
+the overpumping protective systems leading up to the breach of 
+the upper reservoir 
+ 
+o Perform a forensic evaluatio n of the breach of the upper 
+reservoir dam to determine the specific failure mode 
+ 
+ 
+o Submit a final report documenting the results of their forensic 
+findings on the cause of the breach of the upper reservoir 
+ 
+ 
+o Continue as a panel of experts to assist the FERC staff in 
+reviewing the analysis, design and construction of the remedial 
+measures needed to re-establish the upper reservoir 
+ 
+ 
+ 
+In this report, the first three bullet ed items above are addressed in detail.  
+Reviews of the design and construction of re-establishment of the upper reservoir 
+will be treated in subsequent Panel Reports. 
+ 
+Panel Member Hendron was requested by FERC to visit the Taum Sauk Project 
+on December 14, 2005, before this Panel  was appointed.  The breach area and 
+the remaining embankment was ins pected by Panel Member Hendron on 
+December 15 with FERC staff from the Washington office and from the Chicago 
+Regional Office.  Panel Members Ehasz and Paul visited the Taum Sauk site on 
+December 28, 2005.  The P anel assembled an initial in formation request list of 
+24 items on January 3, 2006 which was nec essary to further the Panel’s 
+investigation.  This list was sent to  Mr. Tjoumas on January 6, 2006.  This 
+correspondence is given in Appendix A.  The Panel received various items of 
+information for review during January and  Panel Members Paul and Hendron 
+visited the Taum Sauk Project again on January 30 as part of the First meeting of 
+the AmerenUE Board of Consultants at the site and in St. Louis between January 
+30 and February 1. 
+ 
+As part of this investigation the Panel held interviews of AmerenUE staff and 
+AmerenUE subcontractors at the project site and in St. Louis on February 8, 9, 
+and 10.  Similar interviews of FERC Chic ago and Washington D.C. staff and the 
+===PAGE 7===
+7 
+authors of the 2003 Part 12 Report were al so held in the Chicago Regional office 
+on February 17th,   2006. 
+ 
+The Panel participated in the AmerenUE Board of Consultants Second meeting 
+in St. Louis on March 23 and 24.  On March 24, the Panel also received 
+presentations concerning t he Taum Sauk site and breach from the Missouri 
+DNR, Division of Dam Safety, and the Geological Survey.  The Rizzo forensic 
+report for AmerenUE was received on  April 10, 2006 and the Finding 
+Investigation conducted by FERC staff was received on April 25, 2006. 
+ 
+In the remainder of this report, the Panel has described t he conditions which 
+existed at the Upper Taum Sauk Reservoir prior to the reservoir release and we 
+have given our conclusions on the most pr obable causes of the reservoir release 
+at the breach location. 
+ 
+2. Project Description 
+ 
+The Taum Sauk Project is located in Reynolds County, Missouri, on the East 
+Fork of the Black River approximately 90 m iles southwest of St. Louis, Missouri.  
+The project is a reversible pumped storage project used to supplement the 
+generation and transmission facilities of Am erenUE, and consists basically of a 
+mountain ridge top upper reservoir, a shaf t and tunnel conduit, a 450-MW, two-
+unit pump-turbine, generator-motor plant and a lower reservoir.  It was the first of 
+the large capacity pumped-st orage stations to begin operation in the United 
+States.  The Project was completed in  1962 and the first f illing of the Upper 
+Reservoir began in July 1963.  The plant  went into commercial operation on 
+December 20, 1963.  The operating head between the Upper and Lower 
+Reservoir ranges from 776 ft to 860 ft. 
+ 
+New pump/turbine runners were installe d in 1999 resulting in a maximum 
+pumping flow of 3,000 cfs per unit compared to a design flow of 2,450 cfs per unit 
+for the original runners. The upper reserv oir has a capacity of 4,350 acre-ft.  
+There is no upper reservoir spillway.  
+ 
+The Upper Dam is a continuous hillt op dike 6,562-ft long forming a kidney-
+shaped reservoir as shown in Figure 1-1.  The dike is a concrete-faced dumped 
+rockfill dam (CFRD) from the foundation level to elevation 1570.0 ft and a rolled 
+rockfill between Elevations 1570 and 15 89.  The upstream  slope is 1.3:1 
+(horizontal:vertical) and the downstream slope is at the natural angle of repose of 
+the material, approximately 1.3:1, as show n in Figure 2-1. The crest is 12- feet 
+wide.  A 10-feet high, 1-foot thick reinfo rced concrete parapet wall atop the fill 
+extended the crest to elevation 1,599 feet, as originally constructed.  Since 1963, 
+the settlements of the rockfill embankment at various points have varied between 
+1 to 2 feet; the low point at the top of the parapet wall, as surveyed by AmerenUE 
+on November 6, 2004 was elevation 1596.99 feet at Panel 72. 
+   
+===PAGE 8===
+8 
+ 
+Figure 2-1 Cross section from original design drawings 
+ 
+ 
+The pneumatically placed upstream reinforced concrete face slab has a design 
+thickness of 10 inches, and had joints (with copper waterstops) located at the 
+junctures with the parapet wall, the f oundation cutoff-slab and with adjacent face 
+panels.  The face slab was placed in p anels, 60 feet wide at their widest 
+dimension.   
+ 
+The project license was issued on August  26, 1965.  The licensee is AmerenUE 
+with headquarters in St. Louis, MO.  Ta um Sauk is the only pumped storage 
+facility in the AmerenUE syst em.  It is dispatched fr om the St. Louis control 
+center based on economics and the need to meet requi rements of the Mid-West 
+Independent System Operator  (MISO) and the Northeast Electric Reliability 
+Council (NERC).   
+ 
+AmerenUE’s St. Louis control center st aff provide generate mode and pump 
+mode start, stop and generating Megawatt (MW) instru ctions to operators at 
+Osage control center (Bagnell Dam).  In the pumping mode, input MW and pump 
+cfs (cubic feet per second) discharge d epend on the head (elevation difference 
+between the upper and lower reservoirs) and are not adjustabl e.  The Osage 
+operators remotely start, stop and load t he Taum Sauk units as instructed.  
+Protection circuits are provided at Taum  Sauk to prevent operating the units or 
+reservoirs beyond established limits.   
+ 
+Over-pumping protection of the upper re servoir consists of two separate 
+systems, the water level monitoring and control system and the emergency level 
+protection backup system.  These ove r-pumping protection systems were 
+initiated into operation in November of 2004 in conjunction with the installation of 
+a geomembrane liner to reduce reservoir l eakage.  As part of this “project 
+improvement” the old reservoir contro l systems which were anchored to the 
+concrete face prior to 2004 were replac ed by the new system in November of 
+2004.  The new system was not anchored to the concrete face because it was 
+
+===PAGE 9===
+9 
+decided that the new geomembrane liner  should not be penetrated by anchor 
+bolt holes.  The HDPE pipe housing the pressure instruments was not positively 
+anchored to the concrete face slab. 
+ 
+3. Design, Construction History and Performance 
+ 
+3.1 Design and Construction History 
+ 
+The top of Proffit Mountain was level ed and the excavated rock was used to 
+construct the dike that forms the upper reservoir.  The bedrock and thus the 
+rockfill is predominantly a rhyolite porphyr y.  Little information is available 
+concerning the as-built gr adation of materials used in  the construction.  As 
+described in available engineering reports , the overburden was stripped for the 
+upstream-most 70 feet, as shown in Figur e 2-1, and placed downstream to form 
+the bed of the perimeter r oad.  All weathered material  was to be stripped from 
+this area to sound rock.  Overburden varied  from a few feet to as much as 65-
+feet thick.  Clay seams were also remo ved by excavating during construction.  
+Excavated rock was end-dumped from trucks  and sluiced with 30-psi water, to 
+form the ring dike.  A filter zone and se veral layers of compacted rock were 
+placed over questionable areas where piping into the foundation might be 
+possible.  Outside of t he 70-foot stripped zone, the weathered rock was left in-
+place.  Low areas in the natural topogr aphy were also filled with compacted rock.  
+It was reported in the 7
+th Part 12D report that excavat ed fines were used to level 
+the reservoir floor.   
+ 
+The upstream slope is 1.3:1 (horizontal: vertical) and the downstream slope is at 
+the natural angle of repose of the material, approximately 1.3:1. The 
+pneumatically placed upstream concrete fa ce slab has a design thickness of 10 
+inches, and is reinforced with No. 7 bars at 12 inches both ways.  In actual 
+placement, the slab thickness averaged nearly 18 inches due to the unevenness 
+of the rockfill.  The upstr eam concrete face had joints (with copper waterstops) 
+located at the junctures with the parapet wall, the fo undation cutoff-slab and with 
+adjacent face panels.  The face slab was placed in panels, 60 feet wide at their 
+widest dimension.  Expansion joints  between the slabs to accommodate 
+movement, caused by settlement of the rockfill, used ¾-in asphaltic expansion 
+joint material and U-shaped copper water stops.  
+ 
+A reinforced concrete plinth was provided at the toe of the concrete face.  Where 
+the natural rock surface was substantially higher than the reservoir floor, the rock 
+was excavated on a near vertical slope a nd the plinth was at  the top of the 
+excavated rock.  In these areas, the ro ck cut between the reservoir floor and the 
+plinth was sealed with a 4-inch layer of  wire mesh-reinforc ed shotcrete.  The 
+entire reservoir bottom was sealed with tw o-2-inch layers of hot-mix asphalt 
+concrete placed over leveled and com pacted quarry muck.  Around the edge of 
+the asphaltic concrete, a single line grou t curtain was constructed to limit 
+seepage under the dam. 
+===PAGE 10===
+10 
+ 
+ 
+The ring dike forming the Upper Reserv oir was closed near panel 50, which is 
+also an area of reportedly finer materials.  The dike is topped with a 12-foot layer 
+of horizontally compacted rock placed in 4-foot lifts and compacted with a 
+vibratory roller.  The parapet wall was cast -in-place on top of this top layer.  
+Based on observation, it appears the crus hed rock varies from 1000 lb stone to 
+predominately less than 20 lb stone.  T he stone is predominat ely angular.  The 
+outer shell of the dike contains clean rock fill material with more sandy and 
+pebble sized materials in the closure se ction. Settlement of the rockfill varied 
+between 1 and 2 ft. with the lowest area at  Panel 72, where the top of the 
+parapet wall was 1596.99 ft as dete rmined by an AmerenUE survey dated 
+November 6, 2004. 
+ 
+3.2 Panel Comments on Design 
+ 
+The design and construction of the CFRD for the Taum Sauk Upper Reservoir 
+Dam followed the pattern of older CFRD’ s constructed in California such as 
+Strawberry Dam and Salt Springs Dams.  These dams were dumped rockfill 
+CFRD’s with slopes ranging from 1.3:1 to  1.4:1.  Each of these dams have 
+parapet walls for reflecting waves at no rmal maximum water storage level; but 
+the maximum water storage levels are al ways about 1 to 2 ft below the crest of 
+the rockfill.  But water levels could pos sibly encroach on the parapet walls in 
+times of floods.  The design decision m ade for Taum Sauk Upper Reservoir Dam 
+to routinely store water 6 to 8 ft hi gh on a 10 ft high parapet wall during daily 
+operations made the Taum Sauk dumpe d rockfill CFRD “Unprecedented” as 
+compared to the previous CFRD’s, as summarized by Cooke, 1988 (Figure 3-1).  
+ 
+It is noted from Figure 3-1 that nearly 100% of the CFRD’s prior to 1963 were 
+dumped and many had cracked face slabs and high leakage.  Because of this 
+behavior there were no CFRD’s built be tween 1940 and 1950.  As shown on 
+Figure 3-1 Taum Sauk was the last ne wly constructed dum ped rockfill CFRD in 
+the USA; it is also shown in Figure 3- 1 that Cabin Creek CFRD was designed at 
+about the same time, but was designed as a compacted ro ckfill CFRD.  Cabin 
+Creek was compacted in 2 ft thick lifts to a height of 70 m (230 ft.) and was an 
+Upper Reservoir Dam for a pumped storage project in Colorado.  The maximum 
+section of Cabin Creek Dam is shown in Figure 3-2 which shows an upstream 
+slope of 1.3:1 and a downstrea m compacted slope of 1.75: 1.  It is especially 
+important to note that the maximum operating level is 6 ft below the rockfill crest 
+of the dam, and 9 ft below the top of a 3 ft high parapet wall on the crest of the 
+dam.  The differences in the Taum Sauk and Cabin Creek CFRD designs 
+represent differences in risk toleranc es for different engineering firms and 
+individual consultants during the same time frame taking into account the state of 
+the art for CFRD design in the middle 1960’s.  It should also be noted that Cabin 
+Creek Dam was overtopped by pumping, but did not fail. 
+ 
+===PAGE 11===
+11 
+3.3 Embankment Performance  
+ 
+As described above in Secti on 3.1, the embankment is a rockfill structure with a 
+parapet wall and has experienced cons iderable deformation and settlement 
+beginning with the first filli ng of the reservoir.  Fo r example, there were 
+settlements in excess of one foot within t he first two years of  operation (1963 – 
+1965).  These settlements continued, alth ough at a lower rate, until 1976, when 
+they leveled somewhat, to as much as  1.6 feet of settlement along the NW 
+sections of the embankment. See Figure 3-3 for the movements of settlement 
+points 1 through 23.  The plan location of these points are shown on Fi gure 3-4.  
+The last survey data shown from J anuary 2004 indicates that the settlements 
+have not increased since 198 7, and any changes over t he past 20 years appear 
+to be within the accuracy of the surveys. 
+                    
+In late 1963, only several months after fi rst filling, major repairs were necessary 
+along the interior of the NW section of  embankment, upstream of Panels 91 and 
+92. These repairs consisted of excavation,  grouting, developing a concrete cut-
+off, and joint repairs.  Throughout the foll owing several years additional repairs 
+were continued to control leakage a nd distress to the embankment and 
+foundation as well as the face slabs and parapet walls.  As can be seen on the 
+plot of crest settlement,  Figure 3-3, as well as variations in the top of the parapet 
+wall shown on  Figure 3-5, “Crest Su rvey Data”, surveyed along the dam and 
+parapet wall after the breach, there were significant  elevation differences along 
+the crest of the parapet wall.   There we re areas such as t hose at parapet Panel 
+No. 72 with elevations as low as El  1597 and several other panel areas ranging 
+in elevations from EL 1597 to 1598.  Also  shown on Figure 3-5 are elevations of 
+the top of the parapet wall for Panels 69 through 75, as surveyed by AmerenUE 
+on November 6, 2004.  
+ 
+The leakage from the Upper Reserv oir has been a continuing problem and 
+concern beginning in Sept ember 1963.   As an exampl e, during that time a 
+sudden increase in seepage  to 103 cfs was experienced and emergency 
+measures were taken to repair with concrete  plugging in two holes in the floor at 
+panels 91 and 92. Three days later, another episode of increased leakage 
+caused another shut-down and  repair.  The repair consisted of excavating a 230 
+ft. long by 4 ft. wide trench, excavated to  “rock” and backfilled with concrete at 
+Panels 90 to 93 and 95. A number of  repairs were made throughout subsequent 
+years focusing more on leakage through the horizontal and vertical joints in the 
+concrete facing.  Particular emphasis was on the joints between the concrete 
+facing and bedrock, the joint at the toe of the parapet section, and the joint 
+between the concrete facing and plinth.  Higher rates of leakage (40 to100 cfs) 
+began in 1999 following an exte nded outage.  It is shown in Figure 3-6 that the 
+leakage increased significantly afte r 1999 as the plant was used more 
+extensively after replacing the runner and  increasing the Plant efficiency. Thus, 
+the project suffered from several episode s of seepage concer ns throughout its 
+history.  The effects of all of the l eakage on the embankment cannot be exactly 
+===PAGE 12===
+12 
+determined; however, it surely  had an effect on increas ing the settlement up to 
+1987 and potential movement of mate rials.  A geomembrane liner was 
+subsequently installed in 2004, which si gnificantly reduced the leakage to about 
+5 cfs for the 12 months prior to the br each.  Figure 3-6 s hows the history of 
+leakage and the periods of repairs.  A chronology of events dating from submittal 
+of the geomembrane liner design in January 2002 thr ough the breach event of 
+December 14, 2005 is given in Appendix B, which is taken from the FERC Report 
+of Findings on the Taum Sauk Upper Dam Failure.  
+  
+Thus, the Upper Reservoir Embankment has had a long history of settlement and 
+high underseepage.  Its performance as an e ffective water barrier was difficult to 
+gage, since it has, in-fact, performed over  the past 42 years.  Although there 
+were many periods of concern and needed  repair to keep the water within the 
+reservoir, the embankment and parapet wall did function as the containment for 
+the Upper Reservoir.  The rockfill embank ment, as discussed in Section 3.1, was 
+a steep dumped rockfill and t he storage of water on t he high parapet wall was 
+unprecedented.  There was most likely no margin for additional loading or 
+overtopping, as was the case with the breach on December 14 th.  The holes 
+which developed on the upstream side of  Panels 90-95 is the 1963-1964 time 
+frame suggested that the plin th was not extended to rock in that area, as should 
+have been done, for a normal CFRD constr ucted in the middle 1960’s.  As 
+discussed in Section 6, Figures  6-5, 6-6, and 6-7 indicate  that the actual plinth 
+was not extended down to rock.  Early project correspondence by J.B. Cooke, 
+M.W. Fleer, Raymond Weldy and an unknown Union Electric employee are given 
+in Appendix C, which refer to early behavior of the Upper Reservoir and the 
+possible resistance to erosion in the event of overpour over the parapet wall. 
+ 
+Horizontal misalignment of joints in t he parapet wall in the area of the breach 
+were noted in the 1967 Sa fety Report and in the 2003 Safety Report as given 
+below. 
+ 
+In the August 19, 1967 Report on Safety , Mr. Cooke cites offsets in March 1966 
+on the order of 1/4 inch with several joints near Panel 88 at 1 to 1.5 inches.  
+ 
+In the 2003 Part 12D Report, the consultant states horizontal movement included 
+rotation and translation of the wall joints. The report states:  
+ 
+“The maximum horizontal movement observed was at joint 89/90 and 
+106/107, with about 4-5 inches of transla tion and rotational movement.      
+--- panel 90 having moved downstream relative to panel 89.  The copper 
+waterstop was visible in the joint.  Th is magnitude of move ment is likely 
+sufficient to tear the waterstop, but probably does not affect the wall 
+stability.” 
+ 
+ 
+ 
+===PAGE 13===
+13 
+4. Standard Operating Procedure 
+ 
+The Taum Sauk project is a peaking a nd emergency reserve facility.  A typical 
+daily cycle in the summer is to generate in the morning by releasing water from 
+the upper reservoir through the pump/turbines  to the lower reservoir, pump from 
+the lower reservoir to the upper reserv oir in the afternoon, generate in the 
+evening and pump from the lower reservoi r to the upper reservoir in the early 
+morning.  Generation and pump-start and duration is determined by system 
+needs and controlled from AmerenUE’s Osage Plant.  In the fall, winter, and 
+spring, the number of cycles is typically  less, usually pumping at night and 
+generating during the day.  At times, during periods of lo w demand, the facility is 
+not operated. 
+ 
+The project is controlled through a micr owave system from the Osage Plant at 
+the Lake of the Ozarks, under the direction of the load di spatcher in St. Louis.  
+Both units can be put on full load in a few minutes. 
+ 
+Normal automatic settings before the installation of the membrane liner were:
+ 
+ 
+UPPER RESERVOIR  LOWER RESERVOIR 
+     ELEVATIONS         ELEVATIONS 
+ 
+Summer Winter  All seasons 
+    [feet]  [feet]   [feet] 
+ 
+1
+st pump OFF  1595  1588   739 
+ 
+2
+nd pump OFF  1596  1589   736.2 
+ 
+All pumps OFF  1597  1590   736 
+ 
+  
+After the installation of the liner and new reservoir level measuring instruments in 
+2004, but before Oc tober 2005, the 1 st pump off and 2 nd pump off were Elev. 
+1594 and 1596, respectively.  After October  2005, the first pump was to be shut 
+down at the indicated Elev. of 1592 and automatic shutdown of the 2 nd pump at 
+Elev. 1594.  At Elev. 1594.2, automatic shutdown for both pumps was to be 
+initiated if they were not shutdown alr eady.  The 2 ft. lowering  of the shutdown 
+elevations for the pumps in October, 2005  was initiated by AmerenUE because 
+movements of the protective pipes ho using the pressure transducers in the 
+reservoir was noticed as early as October 7, 2005.  This is discussed in more 
+detail in Section 7.2 
+ 
+ 
+ 
+===PAGE 14===
+14 
+5. Overpumping Protective Systems  
+ 
+5.1 Upper Reservoir Water Level Monitoring and Control System As Installed 
+  
+Originally, the upper reservoir water le vel monitoring and cont rol system used a 
+floating “skate” for water level monito ring and float operated switches for 
+emergency backup pump shutdown and ala rm.  In 2000, the original skate 
+system, encoder, and chart recorder were replaced with a differential pressure 
+level transmitter, Programmable Logic Co ntroller (PLC), and a digital level 
+indicator at the upper reservoir.   As par t of the upper reservoir liner project in 
+2004, all of the earlier systems were r eplaced with pressure transducers for 
+water level monitoring and control and conductivity probes for emergency backup 
+pump shut down and alarm.   
+ 
+The 2005 water level monitoring and co ntrol system uses three 0-100 psi 
+pressure transducers lowered into the re servoir to approximately Elev. 1500 and 
+enclosed in a protective HDPE pipe.  These transducers produce an electrical 
+signal proportional to pressure.  The thr ee electrical signals are converted to 
+pressure (feet of water) and then into upper  reservoir water surface level.  All 
+three signals are sent to Taum Sauk power plant, Bagnell Dam control center 
+and St. Louis control center where their av erage value is displayed as reservoir 
+water level and is also used to calculate volume display values.  Individual level 
+signals from the transducers can also be displayed at these locations.  
+ 
+A programmable logic controller (PLC) auto matically initiates shut down of the 
+first pump at an indicated water level of  Elev. 1592 and automatic shut down of 
+the second pump at Elev. 1594.  At Elev. 1594.2, automatic shut down is initiated 
+for both pumps if they have not shut dow n already.  Prior to October 2005, the 
+pump shutdown levels were Elev. 1594 and Elev. 1596 respectively.  The reason 
+for these level changes is discussed in Section 7. 
+ 
+There is also a penstock pressure gauge (t ransducer) located in the power plant 
+which can be used to provide an indicati on of upper reservoir water level during 
+static conditions.  This instrument is not used for this purpose during operation of 
+the pump/turbines since a correction w ould be needed to account for velocity 
+head and head loss in the water conduit to t he upper reservoir.  In addition, the 
+pressure range of the penstock gauge (tr ansducer) is about 900 feet compared 
+to about 235 feet for the upper reserv oir pressure transducers.  Since the 
+accuracy of pressure gauges and transducers is typically given as a percent of 
+full scale reading, the penstock pressure gauge (transducer) is not as accurate 
+as the upper reservoir pressure transducers for determining water level.   
+ 
+An upward adjustment of 0.4 ft. to the pressure transducer readings was made in 
+the PLC code on September 27, 2005 in response to visual observation of 
+reservoir level at Panel 72 compared to tr ansducer indications.  In addition, on 
+October 7, 2005, lateral di splacement of the transduc ers protective pipe was 
+===PAGE 15===
+15 
+observed.  AmerenUE staff recognized t hat the transducer displacement was 
+producing reservoir level indications lower than actual levels.  In response, the 
+pump automatic shutdown level was lowe red from Elev. 1596 to Elev. 1594 “___ 
+so that we won’t pump over the rese rvoir walls.” (a quote from internal 
+correspondence). 
+ 
+5.2 Emergency Water Level Protection Backup System As Installed 
+  
+This system, commissioned in the fall of 2004, uses five Warrick conductivity 
+probes with associated relays.  Figure  5-1 is a diagram of the system as 
+designed (11/01/2004).  One of the probes is placed near the bottom of the upper 
+reservoir and serves as the reference pr obe for the other four  probes.  The Hi 
+and the Hi-Hi probes were pl aced at Elevations 1596.0 and 1596.2 respectively 
+in November 2004.   The top of the parapet at the probe location is Elev. 1598.   
+ 
+When water reaches the Hi probe, a circui t is completed through the water to the 
+reference probe or other grounded metal obj ects to operate the associated Hi 
+relay.  A similar circuit is completed w hen the water reaches the Hi-Hi probe to 
+operate the associated Hi-Hi relay.    T he remaining two conductivity probes, Lo 
+and Lo-Lo, are located near the reservoir bottom and are used for backup 
+shutdown in the generating mode of operat ion to prevent vortex formation at the 
+intake or draining of the reservoir.   
+ 
+As shown in Figure 5-1, operation of ei ther the Hi relay or the Hi-Hi relay 
+provides a signal to the plant to stop the pumps and activate an alarm. 
+AmerenUE reported that t he Hi and Hi-Hi probes were  tested at commissioning 
+in the fall of 2004 as follows: 
+ 
+“First, the probes were circuit-checked to  ensure that they would activate the 
+pump shutoff signal and the alarm.  Sec ond, the probes were placed in water to 
+simulate their operation in the upper reservoir.  The pump shutoff signal at the 
+plant was concurrently monitored to verify  that the probes properly activated the 
+pump shutoff signal and alarm when the probes  were placed in water.  Third, 
+once the upper reservoir was filled, t he Hi and Hi-Hi probes were immersed in 
+the reservoir to confirm that the probes properly activated the pump shutoff signal 
+and alarm.” 
+ 
+In December 2004, the PLC logic was ch anged so that both relays had to be 
+energized for sixty seconds to provide a signal to stop the pumps and activate an 
+alarm.  In addition, both the Hi and Hi- Hi probes were reportedly raised to 
+Elevations 1596.7 and 1596.9 respective ly as shown on Fi gure 5-2. These 
+changes were documented in comments withi n the PLC code and as revision 15 
+to drawing 8303-P-26648.   
+ 
+During the post-breach interview process,  AmerenUE’s Vice President of Power 
+Operations expressed the opinion that  the Hi and Hi-Hi probes may never have 
+===PAGE 16===
+16 
+been set at Elevations 1596.7 and  1596. 9 as recorded on electrical drawing 
+8303-P-26648 Rev. 15 and as noted in comments in the associated PLC 
+program.  He noted that t he probe cables had only tw o tape bands on each one 
+and that they were separated by 18 inch es, the distance between the original 
+probe elevations and the final as found elevations.   
+ 
+The tape bands were apparently used to reference the probe elevation with 
+respect to the top of the protective pipe .  There were no marks on the cables to 
+indicate that the probes were ever set at intermediate elevations.  The question 
+of when and why the Hi and Hi-Hi probes were raised to the post-breach as 
+found elevations is an interesting one, but  it does not affect the analysis of the 
+cause for the reservoir breach.      
+ 
+The alarm output is initiated by the Hi- Hi- probe and not the Hi probe.  This is 
+contrary to normal alarm and trip practice which gives an alarm first followed by a 
+trip if the parameter being measured contin ues changing in an unsafe direction.  
+Vibration, pressure, level, and tem perature are parameter s that are often 
+monitored by two sensors; one to prov ide an alarm function and the second to 
+provide the trip or shutdown function. 
+ 
+Figure 5-3 (02/15/2005) shows a logic chan ge requiring both, rather than either, 
+the Hi and the Hi-Hi pr obe to be wet for sixty seconds in order to initiate a pump 
+shutdown.   
+5.3 Overpumping Protection Response on December 14, 2005 
+ 
+5.3.1 Response of Water Level Monitoring and Control System 
+ 
+As noted above, both units were in the pumping mode in the early morning of 
+December 14, 2005.  At 04:39, Unit #2 was shut down autom atically at an 
+indicated upper reservoir water level of Elev. 1591. 6.  At 05:15, Un it #1 was shut 
+down manually by the Bagnell Dam control center operat or in accordance with 
+instructions from St. Louis control center  to shutdown just shy of where it would 
+shut down automatically (Elev. 1594).  At that time, the reservoir level reading 
+was Elev. 1593.7.   The automatic shut  down of the first pump and the non-
+automatic shut down of the second pump is consistent with level information from 
+the pressure transducers and the automat ic shut down elevations described 
+above.   
+ 
+Since the reservoir overtopped and the top of  the parapet wall at its lowest point 
+is at Elev. 1597, it, it is clear that t he actual water level exceeded the indicated 
+Elev. 1593.7 and that the pressure transducer signals were in error.   
+ 
+===PAGE 17===
+17 
+ 
+ 
+5.3.2 Response of Water Level Protection Backup System 
+ 
+No shutdown or alarm was produced from  the conductivity probe backup system 
+on December 14, 2005.   
+ 
+6. December 14, 2005 Breach 
+ 
+6.1 General Descriptions and Observations 
+ 
+On December 14, 2005, an uncontrolled release of  water from the upper 
+reservoir occurred at the Taum Sauk Pu mped Storage Project resulting in the 
+damage shown in Figures 6-1 and 6-2.  The time history of the reservoir 
+transducers and the penstock transducer just before, during, and after the breach 
+is shown in Figure 6-3.  It  is shown on Figure 6-3 t hat the full breach developed 
+within about 25 minutes from the initial dropping of the reservoir level. 
+ 
+The upper reservoir of t he Taum Sauk Pumped Storag e Project was overtopped 
+during the final pumping cycle the morning of December 14, 200 5.  Overtopping 
+of the 10 ft high parapet wall and subse quent breach of the rockfill embankment 
+formed a breach about 720 feet wide at the top of the rockfill dam and 430 feet at 
+the base of the dam.  Reservoir data indi cate that pumping st opped at 5:15 AM 
+December 14, 2005 with the initial breac h forming at approximately the same 
+time. Breach widening form ed quickly, and complete evacuation of the 4,350 
+acre-ft upper reservoir occurred withi n about 25 minutes.  The breach flow 
+passed into the East Fork of the Bla ck River (the river upstream of the lower 
+Taum Sauk Dam) through a State park and campground area and into the lower 
+reservoir as shown Figure 1-3.  Upon  leaving the Lower Taum Sauk Dam 
+Spillway area, the flows proceeded downstream of the Black River to the town of 
+Lesterville, MO, located about 3.5 miles downstream from th e Lower Dam. The 
+incremental rise in the river level was about 2 feet which remained within the 
+banks of the river. 
+ 
+During IPOC inspections at the site, a good cross-section of the embankment 
+could be observed on the north side of t he breach as shown in Figure 6-4.  In 
+Figure 6-4 the dumped rockfill can be obs erved below the upper 20 ft of 
+compacted rockfill.  The rockf ill exposed in this section is dirtier than a normal 
+rockfill and as such would be more erodi ble and would be less free draining than 
+a normal rockfill.  In fact Dr. Frank Nickell  (one of the original consultants during 
+design) mentioned in one of his reports that the rockf ill with the most fines could 
+be used in the upper 20 ft of compacted ro ckfill for the roadway on the outside of 
+the parapet wall. 
+ 
+A residual soil zone of weat hered rhyolite could also be observed in the breach 
+area; and one location is shown in Figure 6-4.  The re sidual soil was observed to 
+===PAGE 18===
+18 
+be clayey and it was judged to have an effective shear strength almost dictated 
+by the clay portion of the soil.  Exposed  rhyolite bedrock is  also observed in 
+Figure 6-4 as well as the remnants of the lower face slab and plinth. 
+ 
+A closer view of the exposed rhyolite bedrock and residual soil is shown in Figure 
+6-5.  This photo is taken looking east and t he rather flat looking joint surface in 
+the rhyolite dips toward the camera in a westerly direction.  This discontinuity 
+was observed in the field to dip nearly west at a dip of about 10
+o.  This 
+discontinuity is described as Fracture Set 8 (FS-8) in the Rizzo Report and is 
+reported to have a dip of 8 o and a dip azimuth of 270 o.  As a result of the 
+observation of the residual soil, the IPOC requested that  samples of the residual 
+soil be taken for direct shear testing.   
+ 
+The general geology of the breach area is given in t he FERC Report and in the 
+Rizzo Report on the Taum Sauk failure.  The general geology is not repeated 
+here but it is important to reiterate the most im portant engineering geology 
+feature associated with the f oundation of the Upper Dam.   The low dipping joint 
+surface shown in Figure 6-5 is important in that it serves to give a foundation 
+discontinuity which daylights to the west side of the embankment and gives a 
+foundation that in general di ps downhill at about 8-10
+o in the direction of the 
+applied water forces.  In addition some of these joint surfaces appear to have 
+clay coatings.  The residua l soil from weathering of t he rhyolite also presents a 
+zone of weakness as the relic  rock structure present yiel ds zones of preferential 
+weakness along the orientati on of the flat joint set de scribed above.  This can 
+yield a situation where the residual soil  left in the foundation of the dam would 
+control the stability of t he embankment rather than the shear strength of the 
+rockfill. 
+ 
+Figures 6-6, 6-7, and 6-8 show three views of the area under the base of the 
+bottom of the face slab and plinth.  The most glaring issue revealed by Figure 6-6 
+for example is that it appear s that the plinth was not taken down to the rhyolite 
+bedrock shown at the bottom of  the photo.  This is not  considered good practice 
+today and it was not good practice in 1963 .  Figures 6-7 and 6-8 show similar 
+construction along the plinth area.  This  observation makes it consistent to 
+rationalize the blow outs and holes that ha d to be repaired upstream of Panels 
+90-95 in 1963 and 1964.  It definitely app ears from these inspections that the 
+plinth was not extended to bedrock for this dam, at least in the breach area. 
+ 
+6.2 Estimate of Peak Reservoir Elevation 
+ 
+A post breach survey by KdG is shown in  Figure 3-5 and in Fi gure 6-9.  These 
+figures show the breach area includi ng Panels 88 through 99.  The survey 
+indicates that there are 4 areas where there is evid ence of overflow.  These 
+areas include:  
+ 
+ 
+===PAGE 19===
+19 
+  Panels 10, 11, 12 
+  Panels 88 to 103 
+  Panels 43 to 56 
+  Panels 69 to 74 
+ 
+Taking into account the elevations of t he end panels in each overflow group from 
+Figure 3-5 it appears as if the maximum reservoir level could range between 
+Elev. 1597.7 and 1597.9.   
+ 
+Another independent estimate of the maximum reservoir elevation reached can 
+be obtained from a comparison of the reservoir levels m easured by the pressure 
+transducers in the reservoir and by the penstock reservoir transducer on 
+December 13 and 14, 2005.  It was shown fo r the months of January, February, 
+and March of 2005 that both the reservoi r and penstock readings in these winter 
+months were very close to each other  and read very clos e to 1596 when the 
+reservoir was full.  The following r eadings were indicated on December 13
+th and 
+14th. 
+ 
+Date Time  
+ 
+Level Reservoir 
+Transducer 
+Level Penstock 
+Transducer 
+12/13/05 5:50 1591.68 1595.88 
+12/13/05 7:20 1581.52 1585.71 
+12/14/05 5:15 1593.70 ------ 
+ 
+ 
+It is noted the readings at 5:50 AM on December 13
+th show the penstock 
+readings to be 4.2 ft. higher than the levels  from the reservoir transducers just 
+after the reservoir had been pumped full.  At 7:20 AM on December 13, 2005 the 
+penstock readings were also 4.2 ft. higher than the reservoir readings after the 
+reservoir was drawn down about 10 ft. and held.  On December 14 th at 5:15 AM 
+the maximum reservoir level indicated by the reservoir transducers was 1593.7 
+and at that time the last pump had just shut off and the penstock reading was still 
+affected by transients.  But if on the basis  of past readings, if it is assumed that 
+during the winter months that the pensto ck reading is near correct and that on 
+the 13
+th and 14th of December that t he reading of the reserv oir transducers were 
+about 4.2 ft too low, as established on the December 13 th readings, then the 
+maximum reservoir level could have been 1593.7 + 4.2 = 1597.90 ft. 
+ 
+ 
+Since the Hi-Hi Warrick Probe is set at El ev.1597.70 and did not shut the units 
+down, it is most likely that the highest reservoir elevation did not rise greater than 
+1597.70. 
+ 
+If it is noted that the original survey pins 18 and 19 (Figure 3-4) correspond to 
+Panels 90 and 95 within the breach area and it  is shown on Figure 3-3 that the 
+2004 elevation of Pin 18 and Pin 19 are 1587.5 and 1587.4, respectively.  Then 
+===PAGE 20===
+20 
+the top of the wall at Panels 90 and 95 were 1597. 5 and 1597.4, respectively, 
+which would give overtopping of  0.2 ft and 0.3 ft respectively at these locations.   
+The overtopping depth of Panel 72 would have been 1597.7 minus 1597.0, or 0.7 
+ft for a maximum reservoir level of 1597.7 ft. 
+ 
+Thus it is indicated that the depth of flow over the wall at Panel 72 was about 2 to 
+3 times the depth of flow over Panels 90 and 95 in the breach area.  The fact that 
+the breach occurred between Panels 88 and 99 could be d ue to variations in 
+rockfill.  It is interesting to note a letter fr om Mr. M. W. Dille on May 23, 1970.  In 
+this letter he summarizes some recent er osion due to rains, by saying that: 
+“There were several small washes noted in the fine fill ar ea between Panels 88 
+through 110.”  He also analyzed weir gage  readings and noted that: “The gage 
+readings are generally down wh ile the leakage is up.  The “fish pond” area, say 
+between Panels 90 and 102 is up in leakage.” 
+  
+These comments, in general, indicate an  awareness that this area was more 
+sensitive than other areas of  the embankment.  The comm ents also indicate that 
+the rockfill could be finer between Panels 88 and 110 than for other areas of the 
+embankment. 
+ 
+7. Technical Causes of Breach 
+ 
+7.1 Response of Overpumping Protective Systems on December 14, 2005 
+ 
+As noted above, both units were in the pumping mode in the early morning of 
+December 14, 2005.  At 04:39, Unit #2 was shut down autom atically at an 
+indicated upper reservoir water level of Elev. 1591. 6.  At 05:15, Un it #1 was shut 
+down manually by the Bagnell Dam control center operat or in accordance with 
+instructions from St. Louis control center  to shutdown just shy of where it would 
+shut down automatically (Elev. 1594).  At that time, the reservoir level reading 
+was Elev. 1593.7.   The automatic shut  down of the first pump and the non-
+automatic shut down of the second pump is consistent with level information from 
+the pressure transducers and the automat ic shut down elevations described 
+above.   
+ 
+Since the reservoir overtopped and the top of  the parapet wall at its lowest point 
+is at Elev. 1597, it is clear  that the actual water level exceeded the indicated 
+Elev. 1593.7 and that the pressure tran sducer signals were in error.  No 
+shutdown or alarm was produced from the conductivity probe backup system on 
+December 14, 2005. 
+ 
+7.2 Upper Reservoir Water Level Monitoring and Control System as Found 
+ 
+Following the reservoir failure, the pressure transducers were removed from their 
+protective pipe and re-ca librated.  The pressure transducers in service on 
+December 13-14, 2005 are identified as TX2 and TX3.  TX1 had been removed 
+===PAGE 21===
+21 
+from service earlier.  The complete ca libration test report by Siemens is 
+contained in Appendix A of the Rizzo Report.   
+ 
+Figure 7-1 shows plots of ma output vers us PSIG for TX2 and TX3 compared to 
+a reference (ideal) transducer.  Both TX2 and TX3 have linear response to 
+pressure but TX2’s ma output represents about a 7.86 feet higher indication than 
+the reference curve while TX3’s ma out put represents about  0.85 feet higher 
+indication than the reference curve.  Fi gure 6 on page 20 of 76 in Appendix A of 
+the Rizzo report shows that the as found PL C logic includes a subtraction of 9.38 
+feet from the TX2 pressure  indication and a subtraction of 2.4 feet from the TX3 
+pressure indication.  The basis for t hese adjustment values  is not stated in 
+Appendix A of the Rizzo report. 
+ 
+If the pressure transducers were locat ed at the design elevation of 1500, these 
+PLC subtractions in the pressure indicati ons would be greater than they should 
+have been based on the post-breach transducer calib rations and would have 
+resulted in level readings about 1.5 f eet lower than they should have been.  
+However, if the pressure transducers we re located above elevation 1500, the 
+PLC subtraction values may have been sele cted to adjust the level readings to 
+match the actual reservoir level.  As such, the subtraction values would have 
+adjusted the level readings for both the transducer offsets as well as actual 
+elevation of the transducers.  
+ 
+Figure 7-2 shows plots of ma output ve rsus temperature for TX2 and TX3 at a 
+constant pressure of 40 PSIG (high upper reservoir level).  While TX3 shows little 
+response to temperature change, TX 2 shows an unusual ma output shift 
+between 5 degrees and 20 degrees.  At temperatures below 5 degrees, TX2 
+indicates the pressure to be about 7.11 f eet higher than that above 20 degrees 
+for an actual constant pressure of 40 PSIG. 
+  
+On December 13-14, 2005 the water temp erature was in the 5 degree range.  
+Since the upper reservoir level was calculated as the average of TX2 and TX3 on 
+this date, the TX2 temperat ure shift output would have resulted in an indicated 
+level of 3.56 feet higher than actual assuming that TX2 h ad been adjusted to 
+match the actual level when the water temperature was above 20 degrees.  By 
+itself, the temperature response of TX2 as the water cooled would have indicated 
+higher water levels and produced pump shutdowns at lower actual upper 
+reservoir elevations for the same setpoint shutdown elevations.   
+ 
+Prior to removal of pressure transduc er TX1 from service on September 27, 
+2005; the influence of temperature shift response in TX2 on the water level 
+indication would have been less since it represented only one of three readings 
+used in the average.  After removal of TX 1 from service, TX2 represented one of 
+two readings used in the averaging proce ss.  Accordingly, the water level 
+indication error due to water temperatur e changes would have been greater after 
+September 27, 2005. 
+===PAGE 22===
+22 
+ 
+In response to FERC Question No. 29d:, AmerenUE responded in part “It 
+appears that TX2 did not exhibit the 0.5 ma  shift until tested at the GE facility 
+under extreme and abrupt te mperature changes.”  In any case, such a 
+temperature shift response in cold water would have resulted in a higher water 
+level indication rather than a lower indication.  
+ 
+A visual examination of the pressure tr ansducer protective pipes, Figures 7-3 
+through 7-5, shows that the protective  pipes had moved from their straight 
+alignment in the lower elevat ion of the reservoir.  Since the transducer cables 
+remained fixed at their instrument box on the parapet wall (Figure 7-6), any 
+movement of the protective pipes from their initial straight alignment would 
+produce an upward movement of the pr essure transducer and a corresponding 
+negative error in the water level reading.   That is, the reported water level would 
+be less than the actual level. 
+ 
+To avoid penetrations of the liner mate rial and the creation of possible leakage 
+paths, the protective pipes were supported on plastic plat es that were connected 
+by eye bolts to two stainless steel guide cables.  The cables were secured only at 
+the bottom and top of the reservoir.  Fi gures 7-7 and 7-8 s how these support 
+systems as found after the breach event. 
+ 
+An internal e-mail from September 27,  2005, written two days after Hurricane 
+Rita, stated “This morning Jeff and I went up to the upper reservoir when the 
+controls indicated we were at 1596 elev .  There were no waves on the surface 
+but we could see a couple of wet areas on the west side of the reservoir parapet 
+walls.  We pulled the vehicle up to these wet areas and climbed on top of the 
+vehicle to see the water level.  We were  surprised to see the level within four 
+inches of the top of the wa ll.  It was above the top ba tten strip holding the vinyl 
+on.  This level is at least six inches higher than what I re member from when we 
+first came back from the controls upgrade last  fall.  Jeff looked at the level xmtrs 
+when we got back to the plant and found one of the three reading a foot higher 
+than the other two.  When he took that one xmtr out of  the average we now read 
+about 1596.2.  I still feel we  are about another .4 feet hi gher than that.  Jeff then 
+added a .4 adjustment to the two rema ining xmtr average making the current 
+level now read 1596.6.   We’ll check on what this does to the actual level the next 
+several mornings.” 
+ 
+Figures 7-9 through 7-11 show upper reserv oir water level readings taken during 
+and prior to the Hurricane Rita event.    
+ 
+Figure 7-12 (09/27/2005) shows the dis abling of one upper reservoir pressure 
+transducer and one lower reservoir pressu re transducer and the addition of the 
+0.4 feet offset in the upper reservoir level indication. 
+ 
+===PAGE 23===
+23 
+Another internal e-mail also indicates that the protective  pipe movement was 
+observed as early as October 7, 2005 and that the pump shutdown set point was 
+lowered from Elev. 1596 to Elev. 1594 “ __so that we won’t pump over the 
+reservoir walls.”   
+ 
+Figure 7-13 shows water level readings from December 2, 2005.  Until the 
+second pump turned on for the second time , the water level fluctuations are 
+relatively small and may be due to surface wave action or small movement of the 
+pressure transducers within the protective pipe.  However, after restart of the 
+second pump, these level reading fluct uations increased dramatically and no 
+longer have a stable periodicity.  
+ 
+Figure 7-14 shows a continuation of wa ter level readings from December 2, 
+2005.  Once the level rose above about  Elev. 1563, the large fluctuations 
+decrease significantly and are very small when the water level was falling during 
+generation later in the day.  This pattern of water level fluctuations is found on 
+most days after December 2, 2005. Th is evidence suggests that the pump 
+discharge pattern created substantial forces acting on the protective pipes and/or 
+the support cables when the wa ter level is lower and that these forces diminish 
+as the flow discharge pattern shifts upwar d at higher water levels.  The evidence 
+also suggests that the generation mode flow pattern into the intake is more stable 
+and produces much less disturbance to the pr otective pipes.  This is consistent 
+with the much higher exit losses associated with discharge into an open reservoir 
+compared to entrance losses for the same geometry.  
+ 
+The actual forces acting on the protecti ve pipes and/or the support cables during 
+pumping may have resulted from the flow ar ound them.  Flow over the protective 
+pipes and cables may also have produced  Von Karman vortex shedding.  Such 
+vortices would produce alternate forces to ward the reservoir wall and away from 
+the reservoir wall.  Forces away from t he reservoir wall would reduce the normal 
+force between the pipe support plates and the reservoir liner.  This reduced 
+normal force might have allowed slipping of the support plate and pipes along the 
+reservoir liner. 
+  
+The graphs of upper reservoir water level for December 1
+st through December 
+13, 2005 show relatively stable indications during generation with one or both 
+units, standstill and pumping with only one uni t.  However, once a second pump 
+starts, the water level indications are gener ally more erratic.  This tends to 
+confirm that the higher flow from two pumps is providing the force moving the 
+pressure transducers protective pipe. 
+ 
+A review of two pump operations durin g 2005 shows that t he upper reservoir 
+water level indications are reasonably st able until early August.  Figures 7-15 
+through 7-22 are examples of these leve ls from the pressure transducers.  
+Beginning in early August, the water le vel plots begin to show the erratic 
+behavior that increased until December 14, 2005. 
+===PAGE 24===
+24 
+ 
+Figure 7-23 shows an interesting pattern of water level readings for December 
+10, 2005 with both units off followed by bot h units generating.  We don’t know if 
+these level fluctuations are due to trans ducer movement or other causes.  The 
+left portion of the plot seems to be damping out until the disturbance around 
+14:24.  The subsequent fluctuations appear  to be building in amplitude until the 
+two generators began operation. 
+ 
+Figure 7-24 shows the water level read ings from the star t of both pumps on 
+December 13, 2005 through the reservoir failure on December 14, 2005.  The –
+222 MW arrow shows the indicated water le vel when pump 2 completed its start 
+sequence.  The water level indication remained level for about 12 minutes rather 
+than immediately beginning the more rapid ra te of rise that it should have.  At 
+that level of Elev. 1550, two pumps were  producing a level rise of about 10 feet 
+per hour or about 2 feet in those 12 minutes.  Wh ile there were smaller 
+subsequent level indication fluctuations, they did not restore the level readings 
+back to the trend line shown.   
+ 
+The most logical explanation is that during those twelve minutes the transducers 
+were moving up at about the same rate as the water level, hence showing no 
+level change during the interval.  The li ne labeled “Level trend without offset” 
+shows where the water level indications should have been without the offset.  It 
+should be noted that the level indication at the beginning of  the plot is not 
+necessarily accurate given the many indi cations of prior transducer movement 
+and erratic readings.  It is  also possible that generat ing mode flows past the 
+transducers may have tended to bring the protective pipes back to near their 
+original positions resulting in some periodic level error corrections.   
+ 
+Figure 7-25 shows indicated upper reservoir water levels  around the time of the 
+breach on December 14, 2005.  A tr end line has been adde d to show the 
+calculated rate of rise for one pump operat ion at the maximum reservoir level.  
+Note that the measured water level rate of rise matches the calculated trend line 
+very closely to within a few minutes of the rapid drop in level.  This suggests that 
+the breach occurred very quickly after shut down of the second pump.   
+ 
+With a 15 minute per foot rate of rise for one pump and a minimum parapet 
+elevation of 1597 at panel 72, more than 15 minutes would have been required to 
+raise the water level from Elev. 1597 to Elev. 1598 since overtopping would have 
+been occurring at panel 72 and other locations.   Figure 7-25 does not show such 
+a long period of reduced rate of rise prior to the breac h.  Therefore, the water 
+level could not have reached as high as Elev. 1598.  
+ 
+Figure 7-26 is an enlargement of Figure 7-25 with two trend lines added.  The left 
+trend line represents rising water level prior to overtopping and the right trend line 
+represents a reduced rate of level rise associated with beginning of overtopping.  
+The lines intersect at about 5:07 AM sugges ting that the actual level was around 
+===PAGE 25===
+25 
+Elev. 1597 at the time.  An adjusted wate r level scale is included on the right of 
+the plot based on an Elevat ion of 1597 at 5:07 AM.  Th is analysis is based on 
+level indications at the s outh end of the reservoir and does not include delay 
+times associated with distance to the overtopping locations.   
+ 
+Figure 7-27 is a plot of maximum daily  water level indica tions for December 
+2005.  The plot shows that level indicati ons as high as that shown for December 
+14, 2005 were achieved on many earlier days.   Since reservoir failure did not 
+occur on those dates, it suggests that the level reading offset described above for 
+December 13, 2005 is pr imarily responsible for the fa ilure to shut down the last 
+pump.  As noted above, that offset resu lted in the actual wa ter level being at 
+least two feet higher than the pressure transducers indicated.  
+ 
+The buildup in level indication variat ions during pumping and the smoother level 
+indications during generation suggest that the protective pipes were displaced 
+due to pumping flows and tended to straighten out from generation flows and 
+perhaps their own weight.   We cannot be certain that the protective pipes always 
+straightened out fully afte r a generation operation, so there may have been a 
+residual level error when the pumps st arted on the evening of December 13, 
+2005 and at other times as well.   
+ 
+During our interview process, we asked operators from Osage and the St. Louis 
+control center to describe the displays av ailable to them showing upper reservoir 
+water level.  All interviewees stated that they have digital information as well as 
+graphical displays of water level versus ti me.  We then asked if they had ever 
+seen any unusual indications on the graphical displays and all but one stated that 
+they had not seen unusual indications.  One interviewee did respond as follows; 
+“I have seen a time or two where we’ve had a level problem, it would freeze up 
+momentarily, and we’ve had them call and reset and it popped right back.  I’ve 
+seen that maybe once or twice.” 
+ 
+We conclude that the failure of the second pump to shutdown automatically 
+based on water level indication was due to level errors resulting from 
+accumulated movement of the pressure transducers within their protective pipes 
+including the twelve minutes of two unit s pumping on December 13, 2005 during 
+which no level increase was indicated by the pressure transducers.  Since the 
+water temperature was in the 5 degree ran ge on this evening, any influence of 
+the TX2 temperature res ponse would have been in the opposite direction to 
+physical raising of the pressure transducers.  
+ 
+7.3 Emergency Water Level Protection Backup System as Found 
+ 
+An internal e-mail dated October 7, 2005 stated “The Hi and Hi-Hi Warrick 
+probes are 7” and 4” from the top of the wall respectively.  So if on 9-27 the level 
+was 4” below the wall the Hi level Warrick should have picked up.”  And “If you 
+want to lower the Hi level probes we can do  that but I think we chose the levels 
+===PAGE 26===
+26 
+so that normal wave action wouldn’t cause nuisance trips.”  Since the top of the 
+wall at the location of the Warrick pr obes was determined to be at Elev. 1597.92 
+by AmerenUE in 2004 and 1598.0 by Kd G after the breach in December 2005 
+the Hi-Hi probe could have ranged betwe en Elev. 1597.59 an d 1597.67; the Hi 
+probes could have ranged from 1597.35 to 1597.42. 
+ 
+After the breach, the Hi and Hi-Hi conductivity probes were found to be 4” and 7” 
+below the top of the wall as described in the above e-mail of October 7, 2005.  As 
+shown on Figure 7-28, this places the Hi -Hi probe above the top of Panel 95 
+(1597.39), in the breached ar ea and above the top of P anel 72 (1596.99), the 
+minimum elevation of any panel in the re servoir.  We received no documents or 
+interview responses indicating why or w hen the conductivity probes were raised 
+to these elevations.   
+ 
+Since the conductivity probe system had operated correctly when tested at 
+commissioning in the fall of 2004, we in vestigated the following possible reasons 
+for failure to respond before the breach. 
+ 
+Estimates of the maximum reservoir wate r level achieved prior to the breach 
+were made by several parties using the following methods: 
+ 
+• Elev. 1597.63 based on examination of dike crest for evidence of water 
+spill (erosion). 
+• Elev. 1596.74 based on post breach observed vertical movement of 
+transducer pipes. 
+• Elev. 1597.4 based on examination of  pressure transducer data for 
+reduction in rate of rise while pump ing suggesting Elev ation 1597 (panel 
+72). 
+ 
+Figure 7-29 shows areas of erosion around the upper  reservoir perimeter.  
+Estimates of the maximum reservoir water level were made by noting the parapet 
+levels adjacent to these erosion areas. 
+ 
+AmerenUE measured a 14 foot lateral displacement of the transducer pipes over 
+an arc length of 119 feet in the displaced pipe as found after the breach event.  
+This results in a calculated vertical mo vement of about 3 feet for the enclosed 
+transducers.  Adding 3 feet to the ma ximum measured water level of 1593.74 
+gives an adjusted water level of 1596.74. 
+ 
+It should be noted that the as found displa ced position of the transducer pipes 
+does not necessarily repres ent the maximum position achieved prior to the 
+breach event.  In the days following the event, the transducer pipes gradually 
+straightened out and moved back to near thei r original position.  As such, the 
+actual vertical movement of the pressure transducers was likely somewhat higher 
+than the calculated 3 feet value. 
+ 
+===PAGE 27===
+27 
+Figure 7-30 shows a maximum water le vel of about Elev. 1597.4 based on 
+indexing the pressure transducer record to Elev. 1597 when th e rate of rise 
+decreased during one pump operation.  
+ 
+Figure 7-28 is a summary of the results including the as found elevations of the 
+Hi and Hi-Hi conductivity probes.  The es timated level during breach is a shown 
+as a range of levels dependent on method of calculation noted above.  The 
+maximum water level based on the as f ound displaced shape of the transducer 
+pipes is excluded for the reason given above.  
+ 
+While some estimates of maximum water level are higher than the Hi probe 
+elevation, none of the selected estimates reach the Hi-Hi probe elevation.  These 
+results are consistent with the fact  than no probe alarms were recorded on 
+December 14, 2005 since an alarm is onl y initiated from the Hi-Hi probe and not 
+from the Hi probe. 
+  
+While we consider the above to be the most likely explanation for failure of the 
+conductivity probe system to initiate pump shutdown, we considered the following 
+additional possibilities. 
+ 
+At our request, a series of tests was cond ucted to investigate the sensitivity of 
+the probe system to the following conditions: 
+ 
+• Clear vs. turbid water. 
+• Water temperature variation. 
+• Relay supply voltage variation. 
+• Ice on probes. 
+ 
+The results demonstrated t hat the conductivity pro bes and relays performed 
+satisfactorily for all test conditions.   
+ 
+However, the investigation documented a programming error in the Unit #2 pump 
+shutdown logic.  This PLC error, made on September 16, 2005, disabled the Unit 
+#2 shutdown in response to operation of any conductivity probe (Lo, Lo-Lo, Hi, 
+Hi-Hi).   The Unit #1 shutdown logic did no t include this error.  Figure 7-31 shows 
+the final as found shutdown logic. 
+ 
+Since Unit #2 was shutdow n manually on December 14,
+ 2005, the programming 
+error was not a factor in the overtopping event.  Based on the above test results, 
+Unit #1 would have shutdown automatic ally if the Hi and Hi-Hi probes had 
+remained wet for the required sixty seconds. 
+ 
+We conclude that the Hi and Hi-Hi conductivity probes were located too high to 
+initiate pump shutdown and prevent overtopping of the upper reservoir.  As noted 
+above, the programming error in the Unit #2 shutdown logic wa s not a factor in 
+the December 14, 2005 breach of the upper reservoir. 
+===PAGE 28===
+28 
+ 
+ 
+7.4 Overtopping of Embankment Dam 
+ 
+7.4.1 Sensitivity of Taum Sauk Dumped Rockfill Dam to Overtopping 
+ 
+It is well known in the Dam Engine ering profession that overtopping of 
+embankment dams is one of the most fr equent causes of embankment dam 
+failures.  In 1972 Buffalo Creek Dam in We st Virginia failed by overtopping and 
+118 persons were killed.  The dam was built from mine wastes.  In 1977 two 
+earth dams on the same river in Braz il were overtopped and failed during a 
+storm.  In 1964 flow through a 200 ft high section of Hell Hole Dam in California, 
+under construction, resulted in a failure  and the dam had to be rebuilt.  The 
+downstream slope of the dumped rockfill was a 1.3:1 slope which had a dominant 
+size (diameter for 50% passing), Leps 1973,  of about 8-12 inches.  In any case, 
+the Hell Hole failure is an incident where the exiting of seepage on a 1.3:1 
+dumped rockfill slope resulted in erosion and instability of the slope. 
+ 
+Because all embankment dams are consider ed to be vulnerable to failure by 
+overtopping, embankment dams usually have  spillways and failures still result in 
+some cases due to either inadequate spil lway capacity or impr oper operation of 
+spillway gates, caused by human error. 
+ 
+In the case of pumped stor age projects, the Upper Rese rvoir in many cases is 
+not connected to a river and the reservoir levels are determined solely by the 
+controlled pumping and generating activities.  A study of precedent indicates that 
+based on the philosophy of the various owner s and engineers that some of these 
+projects have a spillway capacity equal to the pumping capacity and others have 
+no spillway at all and rely  on controlling the reservoir level and terminating the 
+pumping at predetermined reservoir leve ls.  The Taum Sauk Project was 
+constructed without a spillw ay and thus was dependent on monitoring to control 
+reservoir levels to prevent overtopping.  It is interesting that in the middle 1960’s 
+that Taum Sauk and Cabin Creek were  the only two pumped storage projects 
+without spillways on the Upper Reservoir to pass errant pump overflows. 
+ 
+Although it should be assumed in design that all embankment dams will fail if 
+overtopped, some rockfill dams are more sens itive to failure by overtopping than 
+others depending on the st eepness of the downstream slope, the compactness 
+of the rockfill, and the percentages of sand and fines in the rockfill. 
+ 
+Based on the appearance of  the breach slopes at the Taum Sauk rockfill 
+embankment during the initia l inspection of December 15, 2005, it was evident 
+that the embankment in the area of t he breach was not constructed as a normal 
+rockfill embankment.  At best it should be cl assified as a “dirty rockfill” in the 
+breach area as is shown in Figure 6-4.  The recent drilli ng and investigation 
+program conducted by Paul C. Rizzo Asso ciates (PCR) has also indicated that 
+===PAGE 29===
+29 
+the Upper Reservoir Embankment material s contain much finer materials than 
+expected for a rockfill embankment.  The recent program conducted in January 
+2006 involved drilling (7) bor ings using a 6 inch sa mpler and sonic drilling 
+techniques.  Even after correcting and adjusting for the smaller samples, the 
+inferred rockfill gradations indicated fines  contents as high as 20% passing the # 
+200 sieve.  Reference PCR Forensic Report Dated April 6, 2006. 
+ 
+Studies of the rockfill gradations at T aum Sauk by PCR have resulted in the 
+Lower and Upper bound grain si ze distribution curves, as shown in Figure 7-5 of 
+the PCR Report and given in Figure 7-32 in this report.  It is shown in Figure 7-32 
+that for the upper bound sizes of rockfill at  Taum Sauk that the dominant size 
+(50% passing) is 4 inches and that for the lower bound sizes that the dominant 
+size is about 3/8 inch.  Thus the domi nant size of rock fill at Taum Sauk is 
+significantly smaller than the Hell Hole dominant size range of 8-12 inches, as 
+discussed above; thus the rockfill at Taum  Sauk would be considered to be more 
+vulnerable to erosion than the Hell Hole rockfill.  Panel Member Hendron had the 
+opportunity to inspect the rockfill at t he rebuilt Hell Hole Dam in 1966 and can 
+attest that the gabbro rockfill at Hell Hole Dam was much stronger and of larger 
+size than the Taum Sauk rockfill.  The Hell Hole rock appeared not to have any 
+materials passing the No. 200 sieve, wher eas the range of curves shown in 
+Figure 7-32 indicate that there was from 0-20% passing the No. 200 sieve and 
+from 0 to 45% sand in the rockfill at Taum Sauk.  Due to the steep downstream 
+slope and the small dominant size range of the dumped rockfill at Taum Sauk it is 
+the Panel’s judgment that the Upper Reservoir embankm ent dam slopes in the 
+area of the breach were composed of “d irty” rockfill and were very erodible as 
+compared to other rockfill dams, especiall y other compacted rockfill dams.  In 
+fact the historical docum entation of the project c ontains many comments by 
+James Barry Cooke and others about the erosion of portions of the slopes due to 
+rainfall. 
+ 
+It is noteworthy that Cabin Creek Dam was constructed as an upper reservoir 
+dam for a pumped storage project in Colorado.  This dam was completed about a 
+year after Taum Sauk and consisted of gr anite rockfill compacted in two ft thick 
+lifts with a maximum size of 2 ft.  T he rockfill did not have measurable amounts 
+passing the #200 sieve and had a maximum percentage pas sing the 1-inch size 
+of 10%.  The downstream rockfill slope was 1.75:1.  This dam was overtopped by 
+over pumping but did not  fail.  It is no doubt in large part due to the fact that the 
+dam was well compacted clean rockfill,  as opposed to being dumped, and the 
+downstream rockfill slope was somewhat flatter at 1.75:1 as compared to the 
+dumped “dirty” rockfill slope of 1.3:1 at Taum Sauk. 
+ 
+The “dirty” rockfill found at Taum Sauk, wit h as much as 45% sand plus fines, 
+was likely not free draining for the flows imposed by overtopping.  Thus, the flows 
+from overtopping could increase the phreatic levels beneath the parapet wall and 
+within the downstream slope.  In the case of a steep downstream slope of 1.3:1, 
+the phreatic levels do not need to be increased very much to cause instability of 
+===PAGE 30===
+30 
+many potential failure surfaces.  T he designs of steep sloped CFRD’s are 
+predicated on the assumption that the ro ckfill is free draining.  The rockfill found 
+at the Taum Sauk Breach may in fact not be free draining, and increases in 
+piezometric levels caused by the overto pping flows could also have initiated 
+stability failures of various portions of t he slope and/or sliding and overturning of 
+the parapet wall, as well as erosion.  
+ 
+The failure of the Gouhou Concrete Face  Sand and Gravel Dam in China, on 
+August 27, 1993, is pertinent to the Taum Sauk breach.  Gouhou Dam had an 
+upstream slope of 1.6:1 and a downstr eam slope of 1.5:1 and was a well 
+compacted gravel which contained, on the average, about 40% sand.  The top of 
+the face slab was at Elev.  3277.35 me ters where there was a joint between the 
+horizontal footing of a parapet wall and t he top of the face slab.  The dam had 
+been in service for more than 3 years but  the reservoir level had never exceeded 
+Elev. 3277.35 meters.  An investigation of the failure found that the dam failed 
+within about 24 hours after the water elev ation exceeded 3277.35 meters.  It was 
+concluded from this study , in a paper by Zuyu Chen , October 1993, that the 
+infiltration into the gravel-sand fill, from the face slab-parapet wall joint, increased 
+the phreatic surfaces in the dam due to th e fact that the gravel-sand fill was not 
+free-draining and resulted in failure of the downstream slope.  This particular 
+failure is pertinent to the Taum Sauk case because it is an illustration of the 
+mode of failure which can and did happen in the case  due to leakage through a 
+concrete face and of parapet wall-face joint into a less than free-draining 
+embankment fill.  This is one of the hazards of permi tting a “dirty” rockfill; the 
+Taum Sauk fill could have had as much as  45% sand sizes or smaller which of 
+course was similar to the percentage of sand in the Gouhou embankment fill. 
+ 
+7.4.2 Effect of Storing Water on Parapet Wall 
+ 
+The effects of storing water against a par apet wall as a “normal” routine loading 
+when the embankment is a dumped rockfill  dam are to increase the number of 
+potential modes of failure and to in tensify or increase the probability of 
+occurrence of other modes of failure which existed prior to the decision to store 
+water against a parapet wall founded on the dam crest. 
+ 
+For example, the placement of a 10 ft-high parapet wall on the crest of a dumped 
+rockfill dam before settlements are complete most likely will result in differential 
+settlements along the wall; and, the downstr eam movements associated with the 
+water loading on the dam face and upstream side of the wall will result in opening 
+of the joints between the parapet wall p anels.  This opening of the parapet wall 
+joints results in additional leakage through the wall joints which would not occur if 
+the parapet wall were not used to cont ain operating reserv oir levels.  This 
+leakage could decrease the stability of the slope up on penetration into a dirty 
+rockfill or it could be the cause of su rface erosion of the downstream slope 
+surface. 
+ 
+===PAGE 31===
+31 
+In the case of overtopping of a 10-ft hi gh parapet wall, the velocity of the water 
+impinges on the dam crest with a velocity  of about 25 ft/sec., which is enough to 
+accelerate erosion at the t oe of the wall and results in  the water having an initial 
+velocity down the downstream slope, whic h enhances the erosion capability of a 
+given flow over the top of the wall. 
+ 
+In the most severe case, the overtoppi ng water may erode the rockfill at the toe 
+of the wall footing enough that the 60 ft wide parapet wall panel tips over and 
+results in an immediate flow thr ough the 60 ft wide opening of about 7,000 
+ft
+3/sec.  This large discharge is an imm ediately available source of erosive 
+energy at the top of the slope; it is a source of erosive energy which would not be 
+available if the wall were not used as a storage mechanism. 
+ 
+For the Taum Sauk Upper Reservoir, the probability of over topping the parapet 
+wall was high in the case of any instrum ent errors because the shut off elevation 
+of 1596 was too close to the low point on th e top of the wall of  1596.99 at Panel 
+72. 
+ 
+7.4.3 Foundation of Rockfill Dam 
+ 
+The foundation rock at the Upper Reservoir Dike, being the flattened top of Proffit 
+Mountain, is generally fresh to slightly weathered, hard, moderately to abundantly 
+jointed rhyolite. Joints are generally stee ply dipping, open, and  some were filled 
+with clayey products of weathering such that seepage would occur without proper 
+measures to seal the reservoir floor. Du ring construction, the overburden was 
+observed to vary from a few feet to as  much as 65 feet thick (MWH, 2003). 
+Several significant clay seams, gently di pping, and up to four inches in thickness 
+were encountered. Under the dike, the seams were treated either by excavating 
+and backfilling with concrete or coveri ng with smaller-sized compacted rockfill. 
+The upstream (or inside) 70 feet of the ba se of the dike was specified to be 
+prepared such that not more than two-inches  (average) of soil were left in place. 
+A filter zone and several layers of compacted rock were placed over questionable 
+areas where piping of the foundation mi ght be possible. Outside the 70-foot 
+zone, the weathered rock was left in pl ace where its competence was judged 
+equivalent to the rockfill. Low areas or depressions in the natural topography 
+were filled with compacted rock. Drainag e to the outer slopes was reportedly 
+provided for all foundation areas.  
+ 
+During IPOC inspections at the site, a residual soil zone of weathered rhyolite 
+could also be observed in the breach ar ea; and one location is shown in Figure 
+6-4.  The residual soil was observed to be clayey and it was judged to have an 
+effective shear strength almost dictated by  the clay portion of the soil.  Exposed 
+rhyolite bedrock is also observed in Figu re 6-4 as well as the remnants of the 
+lower face slab and plinth. 
+ 
+===PAGE 32===
+32 
+A closer view of the exposed rhyolite bedrock and residual soil is shown in Figure 
+6-5.  This photo is taken looking east and t he rather flat looking joint surface in 
+the rhyolite dips toward the camera in a westerly direction.  This discontinuity 
+was observed in the field to dip nearly west at a dip of about 10 o.  This 
+discontinuity is described as Fracture Set 8 (FS-8) in the Rizzo Report and is 
+reported to have a dip of 8 o and a dip azimuth of 270 o.  As a result of the 
+observation of the residual soil, the IPOC requested that  samples of the residual 
+soil be taken for direct shear testing. 
+ 
+The shear strengths report ed in the Rizzo Forensic Report ranged from an 
+“effective” angle of shearing resistance of 28° to 38°, with a best fit of 33°, when 
+the data is interpreted with a cohesion value of 0.  It is possibl e that this zone of 
+residual soil of weathered rhyolite was present downstream of the 70 ft. wide 
+stripped area and could control the overa ll stability of the embankment, rather 
+than the angle of shearing resistance of the rockfill, as the angle of shearing 
+resistance is less than the rockfill and the zone of residual soil dips down the hill 
+parallel to the original topography.  The low dipping join t surface shown in Figure 
+6-5 is important in that it serves to give a foundation discontinuity which daylights 
+to the west side of the embankment and gi ves a foundation that in general dips 
+downhill at about 8-10
+o in the direction of the applie d water forces.  In addition 
+some of these joint surfaces appear to have clay coatings. 
+ 
+Considering the downstream  sloping topography of th e embankment foundation 
+of residual soil overburden an d the significant clay coated joints within the 
+foundation rock that also gently dip to  the west, together with the steep 
+embankment slopes, it is understandable that  the stability of the embankment 
+may have been marginally st able and vulnerable with the additional conditions 
+imposed by overtopping.  The surcharge conditions imposed by the water flowing 
+over the parapet wall and over or thr ough the embankment materials may have 
+induced higher phreatic surfaces and caus ed sliding along t he base as well as 
+facilitated shallow slope movements during the progressive failure of the Upper 
+Reservoir embankment.  
+ 
+7.5 Possible Failure Modes 
+ 
+7.5.1 General 
+ 
+The experience that the embankment and parapet wall survived maximum water 
+levels between Elev. 1595 and 1596 many times betw een 1963 and 2004 with 
+leakage out of the reservoir ranging from  10 to 100 cfs indicates that the dam 
+was stable for the conditions present before the liner was installed in 2004.  This 
+observation indicates only that the Factor s of Safety of the dam slopes, and the 
+Factors of Safety of the wall against overturning and sliding were greater than 1.0 
+for various potential sliding surfaces for co nditions prior to 2004.   This does not 
+mean that the actual Factors of Safety between 1963 and 2004 would meet 2006 
+standards or FERC Guidelines, but that is really only an academic discussion 
+===PAGE 33===
+33 
+anyway because in this report we ar e mainly concerned with the technical 
+reasons for breach on December 14, 2005. 
+ 
+After the fall of 2004, the ge omembrane covered the face slab and reservoir face 
+of the parapet wall which r educed the total leakage from the Upper Reservoir to 
+about 5-10 cfs.  Thus the possible local phreatic surfaces around the wall and its 
+footing as well as phreatic surfaces within the dam should have been lower than 
+they have ever been and the Factor of Safe ty of all modes of failure should have 
+been higher than at any time in the histor y of the project for the 1596 reservoir 
+levels without the effects of wall overt opping.  The chronology of events strongly 
+suggest that although the construction of  the liner made t he Upper Reservoir 
+dam more stable, that the unreliable instrumentation system and the missetting 
+of the Warrick Probes made overtopping possi ble.  Moreover field observations 
+after the breach indicated that overtopping did occur.  Thus the modes of failure 
+discussed below are only those associ ated with overtopping.  The dam is 
+assumed to have proved its stability befor e the overtopping event of December 
+14, 2005. 
+ 
+7.5.2 Discussion of Specific Modes of Failure 
+ 
+Mode a) The 1.3:1 slopes (37.5°) are very  steep and when overto pping occurs it 
+is very easy to get erosion down t he slope surface and a local increase in 
+phreatic surface parallel to the slope whic h can result in shallow progressive 
+sloughing of the slope possibly from the to e upward until the sloughing begins to 
+undermine the parapet wall which leads to  sliding and overturning of the wall 
+which then greatly increases the flow as one 60 ft. wide panel overturns or slides 
+resulting in a very high flow which great ly accelerates the fa ilure by immediately 
+imposing a flow of 7,000 cfs on the slope. 
+ 
+Mode b) As overtopping initiates the pr ocess in a) above and the progressive 
+sloughing takes place, the flow of water over the top of the 10 ft. high wall 
+impinges at the dam crest at a velo city of 25 ft./sec. and begins locally 
+undermining the wall footing in addition to  the sloughing caused by thin layers 
+becoming saturated and failing deeper with time.  This shortens the time required 
+to reach overturning or sliding of the wall.  In addition to undermining the wall 
+footing, this jet of water at 25 ft./sec. impinges on the upper finer rockfill and can 
+locally transfer to a 10 ft. pressure head which can change the stability of the wall 
+by changing the uplift pressures at the wall toe. 
+ 
+Mode c) It is possible that the local incr ease in the phreatic surface between the 
+parapet wall and the upper part of the slope caused by  the impinging jet of water 
+can cause a local wedge just beneath the wall to deform and/or reach limiting 
+equilibrium without the entire slope below be coming unstable.  This is similar to 
+the case considered by means of a FL AC analysis in the FERC Breach Report 
+as shown in FERC Report Figure 9.5.  Th is is one possible mechanism which is 
+===PAGE 34===
+34 
+enhanced by the high parapet wall loading in  excess of 10 ft. of water head.  It is 
+obvious that this mechanism can occur combined with a) and b) above. 
+ 
+Mode d) Another mode of failure can be deep wedges founded on a base of 
+residual soil inclined downhill at about 10°.  The various wedges could have 
+steep backslopes as shown in Figures 8- 22, 8-26, and 8-28 of the Rizzo Report 
+and can be analyzed for varying phreatic levels on the residual soil base. 
+ 
+7.5.3 Comments 
+ 
+According to the stability analyses conducted by PCR and FERC potential failure 
+mode a) is very likely and the progressive  sloughing and erosio n in a) can be 
+accelerated, leading to sliding or overturning of the wall, when taking into account 
+the local undermining of the wall by the velocity of the water jet impinging on the 
+downstream side of the parapet wall footing as described in b) above.  According 
+to the PCR calculations the parapet wall  is likely to fail by overturning if 
+undermined by 3 ft.  Mechanism c) de scribed above seems possible and was 
+indicated by a FLAC analysis conducted by FERC.  The deep wedges of mode of 
+failure d) were analyzed by PCR  and required the phreatic surface near the toe 
+to build up to about 30 ft. above the base of  the toe of the dam.  This mechanism 
+is possible but the time for this deep ph reatic surface to build up 30 ft. is 
+somewhat problematic considering that th e “dirty” rockfill will result in a high 
+percentage of water runoff rather than deep infiltration. 
+ 
+It is the judgment of the IPOC  that we most likely will not ever know the exact 
+sequence of failure at the breach.  It seem s most likely that the failure mode was 
+a combination of modes a), b) and c) des cribed above.  The pa rticipation of a 
+deeper mode such a d) cannot be exclude d however especially after any wall 
+panel overturning results in a huge flow of water. 
+ 
+8. Conclusions 
+ 
+The Upper Reservoir Embankment has had a long history of settlement and high 
+leakage increasing to about 60-100 cfs between 1999 and 2003.  Although there 
+were many periods of conc ern and repair wa s required tokeep the water within 
+the reservoir, the embankment and parapet wall did function for 42 years as the 
+containment structure for the Upper Re servoir.  The steep rockfill embankment, 
+as discussed in Section 3.1, was possibly marginally stable for the actual “dirty” 
+dumped rockfill and the seepage conditions  previously experienced.  After 
+installing the geomembrane liner in 2004, it is mo st likely that the Upper 
+Reservoir Dam was more stable than it  has ever been under normal loading 
+because the total leakage was only 5-10 cf s.  Nevertheless there was no margin 
+for accepting the additional pore pressures and erosive effects of overtopping, as 
+was the case with the failure on December 14, 2005. 
+ 
+===PAGE 35===
+35 
+It is the Panel’s opinion that the cause of the December 14, 2005 failure was 
+overtopping of the parapet wall and embankment.  The po ssible modes of failure 
+for the breach event of this dam and the factors which made this dam especially 
+vulnerable and sensitive to overtopping have been discussed in Section 7. 
+ 
+Although this dam and parapet wall comb ined to give an embankment more 
+vulnerable and sensitive to overtopping  than most embankment dams it is the 
+opinion of this Panel that the primary root  causes of failure on this particular date 
+were those factors which caused the ov ertopping to occur.  The secondary root 
+causes or contributing fact ors are those factors which combined to make this 
+embankment more vulnerable to failure by overtopping. 
+ 
+A summary of primary root causes is gi ven below.  These factors contributed to 
+the fact that overtopping occurred. 
+ 
+• The pressure transducers that moni tored reservoir water levels became 
+unattached from their supports causing erroneous water level readings.  
+After these transducers became loos e from their supports, their 
+position heads changed and the reserv oir levels indicated in the 
+PLC system gave reservoir levels lower than the actual reservoir 
+levels.  The fact that the new system installed in 2004 did not 
+consist of a structural support system anchored to the face slab 
+enabled this mode of instrument failure  to occur.  As constructed it 
+was inferior to all of the water level measuring systems used on the 
+Project between 1963 and 2004. 
+ 
+• The emergency backup level probes we re set at an el evation above the 
+lowest points along the parapet wall; thus, they fa iled their protection role 
+because this enabled overtopping to o ccur before the probes could trigger 
+shutdown. 
+These probes were a good concept ual second line of defense.  
+However, the Hi-Hi Warrick Probe had to be in contact with the 
+reservoir water for 60 seconds in or der to trip off the last pumping 
+unit.  The Hi-Hi Warrick Probe unfortunately was set at Elev. 1597.7 
+at Panel 58 where the top of th e parapet wall was at 1598.0 It did 
+not apparently occur to those setting this probe that there were 33 
+wall panels with their tops lo wer than the Hi-Hi probe with the 
+lowest one (Panel 72) having a top at Elev. 1597.0  Thus the 
+emergency backup system was effect ively eliminated by this error 
+of setting the Warrick Probe at an elevation which would allow 
+considerable overtopping, if the main system would fail. 
+ 
+• The normal operating high water levels of 1 ft. below the top of the parapet 
+wall was too near the top of the wall  to allow for any mistakes of mis-
+operation. 
+===PAGE 36===
+36 
+This low free board was not rea listic for the system adopted for 
+monitoring water levels in 2004.  A more rigorous study of the 
+potential errors in the meas urements should have been made 
+before adopting this lo w free board which required such a high 
+accuracy from this system.  T he adoption of this 1 ft. free board 
+was totally inconsistent with having personnel making key design 
+and installation decisions who were not even aware of the lowest 
+elevation of the parapet wall within the nearest 1 ft. 
+ 
+• Visual monitoring of the Upper Re servoir water levels was almost non-
+existent and there wa s no systematic “ground–proofing” recorded of the 
+relationship of the top of the wall and associated water levels actually 
+being achieved. 
+ 
+• There was no overflow spillway to safely carry accidental over-pumped 
+water downstream and below the dam. 
+ 
+The omission of a spillway from the design was a most important 
+root cause of this failure.  If a spillway had been constructed with a 
+capacity of the two pumping units,  an overtopping failure would not 
+have occurred. 
+ 
+A bullet point for a secondary root caus e of the December 14, 2005 breach is 
+given below with detailed explanation. 
+ 
+• The marginally stable dumped “dir ty” rockfill embankment and associated 
+parapet wall atop the dam, constitu ted an unforgiving containment 
+structure.  It could not tolerate the additional pore pres sures and erosive 
+effects of the overtopping water plung ing over the top of the parapet wall 
+onto the narrow dam crest and cascading down the steep 1.3:1 slope. 
+ 
+The steep dumped rockfill slopes composed of rockfill with as much 
+as 20% fines and 45% sand sizes and smaller, make this dam 
+especially sensitive to erosion due to overtopping and also 
+conducive to increases in pore  pressures during overtopping 
+because it is not free draining.  Storing water against a 10 ft. high 
+parapet wall founded on the dam cr est is also a feature which 
+makes this dam vulnerable to overtopping because the overflowing 
+water impinges on the dam crest at a velocity of 25 ft./sec. which 
+enhances erosion and makes a lar ge release of erosive energy 
+possible, should the erosion at t he downstream footing of the wall 
+allow tipping or sliding of the wall. As indicated in previous sections 
+of this report there were plenty of  indications, earlier in the history 
+of this dam, that there was “dirty” rockfill in portions of this dam and 
+much of the repairs as well as co mments in writing were directed to 
+the area of the dam that breached between Panels 88 and 99. 
+ 
+===PAGE 37===
+37 
+Appendix A 
+ 
+IPOC Information Request Letter 
+===PAGE 38===
+38 
+ 
+Alfred J. Hendron, Jr.     Joseph L. Ehasz           Kermit Paul 
+No. 4 College Park Court    11485 Upper Meadow Drive 15 Boies Ct. 
+Savoy, IL 61874     Gold River, CA 95670         Pleasant Hill, CA 94523 
+  
+ 
+         6 January 2006 
+ 
+ 
+Mr. Constantine Tjoumas 
+Director, Division of Dam Safety and Inspections 
+Federal Energy Regulatory Commission 
+888 First Street, NE, Room 6N-01 
+Washington, D.C. 20426 
+ 
+                                                    Re: Initial Information Request 
+     FERC Independent Panel of Consultants (IPOC) 
+       Taum Sauk Pumped Storage Project 
+    
+                      
+Dear Mr. Tjoumas: 
+ At your request we have agreed to serv e as an Independent Panel of Consultants 
+(IPOC) to investigate the breach of the Upper Reservoir of the Taum Sauk Pumped 
+Storage Project that occurred the morning of December 14, 2005.  Each panel member 
+has visited the site, Hendron on 15 December, 2005, Ehasz and Paul on 29 December 
+2005.  Members Ehasz and Paul visited the Osage and Saint Louis Ameren operation 
+centers 30 December 2005.  These visits were instructive and required to start our 
+investigation. To further the Panel’s investigation, the Panel has assembled the initial 
+information request list, enclosed.  If you have any questions regarding any of the 
+requested items or tasks please call any of the Panel members. 
+      Respectfully Submitted, 
+ 
+                                     
+Alfred J. Hendron, Jr.           Joseph L. Ehasz   Kermit Paul 
+===PAGE 39===
+39 
+ 
+===PAGE 40===
+40 
+ 
+===PAGE 41===
+41 
+ 
+===PAGE 42===
+42 
+ 
+===PAGE 43===
+43 
+ 
+===PAGE 44===
+44 
+ 
+===PAGE 45===
+45 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===PAGE 46===
+46 
+ 
+ 
+Appendix B 
+ 
+Event Chronology 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===PAGE 47===
+47 
+FERC SECTION 6 EVENT CHRONLOGY 
+ 
+6.1 January 2002 –December 2005  
+ 
+Taum Sauk Upper Reservoir Breach
+ 
+Time Line 
+ 
+Date Event 
+January 3, 2002 • Ameren sends plans and specs and design 
+calculations for installation of a geomembrane liner 
+to D2SI-CRO for review. 
+• In letter, Ameren proposes starting construction on 
+March 25, 2002.   
+March 1, 2002 • D2SI-CRO sends letter stating it has no comments 
+on the plans and specs.  The letter asks for an 
+erosion control plan and states inspections will be 
+performed in conjunction with the Operation 
+Inspection and a final inspection near the end of 
+construction. 
+April 22, 2002 • Ameren informs D2SI-CRO by phone that budget 
+of the liner has been exceeded and work has not 
+been completed within schedule.  Ameren states the 
+geomembrane installation will take place in Fall 
+2003. 
+• Work completed to date includes installation of the 
+toe sill and snap-lock around the interior perimeter, 
+patching of critical areas with gunite, and pouring 
+concrete in an area that has the most severe leakage. 
+November 5, 2002 • Ameren sends letter to D2SI-CRO stating between 
+September 26 and October 18 of that year, the upper 
+reservoir and penstocks were drained to do 
+maintenance work on the units.  During this time an 
+inspection of the liner revealed cracks in the floor of 
+the tunnel liner about 1500 feet up from the plant.  
+Repairs were made at that time.  (What type of 
+repairs?)  
+March 6, 2003 • Ameren sends letter to D2SI-CRO stating liner 
+project is being postponed to start in September 
+2004 and be completed by the end of the year. 
+April 24, 2003 • D2SI-CRO sends letter to Ameren regarding 
+postponement of liner installation.  The letter notes 
+leakage is steadily increasing from an average of 30 
+===PAGE 48===
+48 
+cfs during 2000 to about 65 cfs during the first 
+quarter of 2003.  Some of the leakage has been 
+attributed to leaky seals in the units.  The revised 
+schedule is accepted because Ameren is continually 
+monitoring leakage and making underwater repairs 
+to the concrete liner in the interim.  Also, it is noted 
+the pumped storage facility is frequently drained 
+and can be drained should the leakage become 
+excessive. 
+March 15, 2004 • D2SI-CRO sends letter to Ameren requiring a 
+Quality Control and Inspection Program be 
+submitted at least 60 days before doing liner work 
+schedule for September 2004.   
+July 23, 2004 • Ameren submits QCIP for liner installation to D2SI-
+CRO.  Notes contractor proposes to start work on 
+September 13, 2004. 
+September 9, 2004 • D2SI-CRO sends letter to Ameren regarding liner 
+installation. 
+• States D2SI-CRO reviewed again the plans and 
+specifications submitted in 2002 and QCIP and have 
+no comments. 
+• States the work is considered maintenance. 
+• Requires monthly construction reports and  
+certifications from the design engineer, QCIP 
+manager, and licensee that project is constructed in 
+accordance with design intent and plans and specs. 
+• Notes if plans and specs are revised, the licensee 
+must assure that changes are coordinated between 
+the engineer, QCIP manager, FERC, and the 
+licensee. 
+• Notes any changes in operation must be authorized 
+by the FERC and properly coordinated between the 
+licensee, FERC, and the operators. 
+• Requires a Final Construction Report within 45 
+days of completing construction. 
+September 9, 2004 - 
+November 15, 2004 
+• Liner installed on upstream slope of upper reservoir.
+• All of the upper reservoir level control and 
+protection devices were replaced.  Three GE Druck 
+1230 transmitters were installed for normal 
+shutdown of the pump/generators.  The Low, 
+Low/Low Warrick Conductivity switches are 
+replaced in kind.  The High, High/High float 
+===PAGE 49===
+49 
+switches were replaced with Warrick Conductivity 
+probes.  The upper reservoir PLC was replaced with 
+an Allen Bradley PLC.  The pump/generator 
+shutdown relays at the plant are replaced with 
+Allen-Bradley PLCs.  The level indicators, 
+alarming, and data acquisition systems were 
+replaced with a WonderWare Operator Interface.  
+(source: Joe Raybuck’s Draft Taum Sauk Upper 
+Reservoir Level Control and Protection Systems - 
+Information Sheet) 
+• Instrumentation pipe supports are changed to cable 
+support system (source: As-built Design Drawings). 
+• Ameren replaced the existing staff gage, which had 
+settled approximately one foot along with the 
+reservoir wall.  The staff gage had been used to 
+measure the normal operating level of the upper 
+reservoir, which was 1596 ft.  Due to the settling, 
+Ameren believes that the upper reservoir was 
+actually operating at 1595 ft. instead of 1596 ft. 
+before the liner replacement project.  (Ameren 
+Chronology) 
+• During the outage new visual level indications were 
+painted on the liner reflecting true elevations.  
+(Ameren Chronology)  
+October 6, 2004 • Geo-Synthetic, Inc. (“GSI”), the installation 
+contractor, raised concerns that the March 7, 2003 
+gage piping design did not provide for adequate 
+anchoring and could compromise the integrity of the 
+liner and gage piping.  In response, Emcon/OWT, 
+Inc. (“Emcon”), an engineering firm retained to 
+design the liner and gage piping, provided a new 
+design drawing (8304-X-155099, Rev. 5, dated 
+10/5/04) proposing a new gage piping anchoring 
+system.  (Ameren Chronology - See Exhibit 8).  
+October 20-23, 2004 • GSI installed the gage piping.  (Ameren Chronology - 
+See Exhibit 9).  During installation, Ameren determined 
+that Emcon’s design (8304-X-155099, Rev. 5, dated 
+10/5/04) for the gage piping could not be installed as 
+shown due to field conditions.  In consultation with 
+Emcon and with its approval, Ameren made field 
+changes to the anchoring system in order to adapt the 
+design to field conditions and to make it more robust. 
+• Subsequently, on November 12, 2004, Emcon and 
+===PAGE 50===
+50 
+Ameren performed a walk-through inspection of the 
+liner and gage piping installation. 
+November 6, 2004 • Ameren field notes reported that the top of panel 72, 
+the lowest known point on the upper reservoir 
+parapet wall, was measured at elevation 1596.99 ft.  
+(Ameren Chronology - See Exhibit 10). 
+November 8, 2004 • Ameren field notes reflected that the level 
+protection probes were intended to be installed at 
+the following elevations:  Lo-Lo probe:  1524 ft.; 
+Lo probe:  1524.5 ft.; Hi probe:  1596 ft.; Hi-Hi 
+probe:  1596.2 ft.  (Ameren Chronology - See 
+Exhibit 11.) 
+Mid-November 2004 • The level control transducers and level protection probes 
+were lowered into the gage pipes.  Wiring from the 
+transducers and probes to the upper reservoir gage house 
+were marked with colored tape to distinguish one probe 
+from another and to provide an elevation reference.  
+Ameren believes the colored tape reflects the as-
+designed and installed elevations of the level protection 
+probes.  These elevations approximate those indicated in 
+Ameren field notes.  (Ameren Chronology.) 
+November 15, 2004 • Ameren released the upper reservoir for operation.  
+(Ameren Chronology - See Exhibit 12.)  The normal 
+operating level remained at 1596 ft., but now was being 
+measured by the new level control transducers and 
+visual level indications.  As a result, the actual normal 
+operating water level was 1596 ft. and not 1595 ft. as it 
+had been prior to the liner replacement project, as 
+further described in the September 10 entry. 
+November 23, 2004 • Reference comment logged into the Upper 
+Reservoir Programmable Logic Controller (“PLC”) 
+program indicated that the Hi probe was at elevation 
+1596 ft.  (Ameren Chronology - See Exhibit 13.) 
+• Reference comment logged into the Taum Sauk 
+Common PLC program indicated that the Hi-Hi 
+probe was at elevation 1596 ft.  (Ameren 
+Chronology - See Exhibit 14.) 
+• Ameren believes, but has been unable to verify, that 
+Tony Zamberlan of Laramore, Douglass, and 
+Popham Consulting Engineers (“LDP”), entered the 
+comments.  LDP was retained by Ameren to 
+provide engineering services related to the new 
+level control and protection instrumentation. 
+===PAGE 51===
+51 
+November 30, 2004 • The Hi probe actuated.  An Osage operator recorded a 
+trip of unit 2 with the upper reservoir level measuring 
+elevation 1595.0 ft.  (Ameren Chronology - See Exhibits 
+15 and 16.) 
+• Later that day, the Lo Lo probe relay lost DC power and 
+shut down both generators.  (Ameren Chronology - See 
+Exhibits 15 and 16.) 
+• An email from Taum Sauk’s plant superintendent listed 
+the shut down setpoints for the upper reservoir.  
+(Ameren Chronology - See Exhibit 16.)  When the 
+average of the three level control transducer readings 
+reflects that the upper reservoir level is at the following 
+elevations, the corresponding pump shut downs will 
+occur: 
+ 
+Elevation 1592 ft.  Normal shut down for first 
+pump. 
+Elevation 1596 ft.  Normal shut down for second 
+or last pump. 
+Elevation 1596.5 ft.  All pumps shut down. 
+• The superintendent also stated that the setpoint for 
+the level protection probes is above elevation 
+1596.5 ft. 
+December 1, 2004 • To prevent intermittent trips, Tony Zamberlan added a 
+one minute time delay to the PLC logic for all level 
+protection probe relays.  (Ameren Chronology - See 
+Exhibits 17 and 18.) 
+• According to Mr. Zamberlan’s Dec. 2nd email, he also 
+was at the upper reservoir to “pull up the Hi level 
+Warrick probes to 1596.5.”  (Ameren Chronology - See 
+Exhibit 17.)  Mr. Zamberlan does not recall, and has 
+been unable to explain why he set the probes at 
+elevation 1596.5 ft., or how he determined that 
+elevation. 
+• Reference comment logged into the Upper 
+Reservoir PLC program indicated that the Hi probe 
+was at elevation 1596.7 ft.  Ameren believes, but 
+has been unable to verify, that Mr. Zamberlan 
+entered the comment.  (Ameren Chronology - See 
+Exhibit 18.) 
+December 10, 2004 • LDP finalized and issued the schematic drawing for the 
+===PAGE 52===
+52 
+upper reservoir level relaying and shut down controls 
+(8303-P-26648, revision 15).  (Ameren Chronology - 
+See Exhibit 19.)  The schematic indicated that the Hi 
+probe was at elevation 1596.7 ft. and the Hi-Hi probe 
+was at elevation 1596.9 ft.  LDP personnel do not recall, 
+and are unable to explain why the drawing reflects the 
+stated elevations.   
+December 14, 2004 • Pump shutdown levels are indicated in the Taum Sauk 
+PLC.  When the average of the three level control 
+transducer readings reflects that the upper reservoir level 
+is at the following elevations, the corresponding pump 
+shut downs will occur: 
+ 
+Elevation 1592 ft.  Normal shut down for first 
+pump. 
+Elevation 1596 ft.  Normal shut down for second 
+or last pump. 
+Elevation 1596.2 ft.  Normal all pumps shut 
+down.   
+Elevation 1596.5 ft.  Non-configurable all 
+pumps trip that, if activated, requires a reset.  
+ 
+(Ameren Chronology - See Exhibit 20.) 
+ 
+• Reference comment logged into the Taum Sauk 
+Common PLC program indicated that the Hi-Hi probe 
+was set at elevation 1596.5 ft.  Ameren believes, but has 
+been unable to verify, that Mr. Zamberlan entered the 
+comment.  (Ameren Chronology - See Exhibit 20.) 
+December 20, 2004 • Ameren sends to letter to D2SI-CRO in response to 
+comments on the 8th Part 12D Report.  As an 
+attachment, Ameren includes the latest survey of the 
+crest (taken November 2003 and corrected October 
+2004) and drawings and diagrams of the new Upper 
+Reservoir Level Controls.  The Schematic Diagram 
+(revised on 12/10/2004) shows the Hi Warrick 
+Probe set at 1596.7 feet and the Hi-Hi Probe set at 
+1596.9 feet.  The design drawing of the instrument 
+supports shows only three pipes. 
+===PAGE 53===
+53 
+Fall 2004?? • Do we know when epoxy was installed in the 
+tunnel crack???  Was this the same time as liner 
+work? 
+December 27, 2004 • A malfunctioning Lo-Lo probe relay was replaced.  
+(Ameren Chronology - See Exhibit 21.) 
+• The PLC historian software recorded a Hi-Hi probe 
+alarm at 3:38 p.m. PST, or 5:38 CST, at an upper 
+reservoir level reading of elevation 1586.4 ft.1  (Ameren 
+Chronology - See Exhibit 22.)  At the time of the alarm, 
+the units were neither pumping nor generating.  (Ameren 
+Chronology - See Exhibit 23.) 
+• Ameren believes this alarm may have been associated 
+with maintenance activities at Taum Sauk. 
+January 5, 2005 • Ameren sends letter to D2SI-CRO showing leakage 
+rate has significantly decreased since installation of 
+liner (from around 50 cfs to around 15 cfs). 
+• Indicates diver will seal all remaining leaks in the 
+floor area during the Spring or Summer.  
+February 12, 2005 • Ameren sends letter to D2SI-CRO including the 
+final construction report for the liner replacement.  
+The report includes gage piping drawing (8304-X-
+155099, Rev. 5, dated 2/7/05) which does not 
+identify the field changes made to the gage piping 
+anchoring system.  (Ameren Chronology - See 
+Exhibit 24.) 
+February 14, 2005 • The PLC historian software recorded a six-second Hi-Hi 
+probe alarm at 3:57 p.m. CST, at an upper reservoir 
+level reading of elevation 1593.5 ft.  (Ameren 
+Chronology - See Exhibit 22.)  At the time of the alarm, 
+the units were neither pumping nor generating.  (Ameren 
+Chronology - See Exhibit 25.) 
+• Ameren believes this alarm may have been associated 
+with maintenance activities at Taum Sauk. 
+February 15, 2005 • The PLC historian software recorded multiple Hi-Hi 
+probe alarms between 4:03 p.m. and 5:49 p.m. CST, at 
+an upper reservoir level reading of elevation 1593.5 ft.  
+(Ameren Chronology - See Exhibit 22.)  At the time of 
+the alarms, the units were neither pumping nor 
+                                                 
+1 On the date of the alarm, the PLC Historian software was 
+programmed to Pacific time.  In June  2005, the PLC Historian software 
+was reprogrammed to Central time.  Throughout this chronology, all noted 
+alarms recorded by the PLC Historia n software are expressed in Central 
+time. 
+===PAGE 54===
+54 
+generating.  (Ameren Chronology - See Exhibit 25.) 
+• These alarms were associated with functional checks of 
+the Hi-Hi probe alarm that were performed by a 
+contractor at the direction of Ameren personnel.  The 
+contractors lowered the Hi and Hi-Hi probes into the 
+water. 
+• The generator trip logic for the Lo and Lo-Lo probes 
+was modified from parallel logic to series logic by Tony 
+Zamberlan.  (Ameren Chronology - See Exhibits 26 and 
+27.)  In series logic, the generators would only shut off 
+if both the Lo and Lo-Lo probes actuate.  A similar 
+change was made by Mr. Zamberlan to the pump trip 
+logic for the Hi and Hi-Hi probes.  Ameren believes the 
+generator trip logic for the Lo and Lo-Lo probes was 
+modified to prevent spurious actuations.  Ameren has 
+been unable to determine why the pump trip logic for 
+the Hi and Hi-Hi probes was modified. T. Zamberlan 
+stated the changes were made for consistency sake. 
+July 20, 2005 • The PLC historian software recorded a one-second Hi-
+Hi probe alarm at 5:15 p.m. CDT, at an upper reservoir 
+level reading of elevation 1573.8 ft.  (Ameren 
+Chronology - See Exhibit 22.)  At the time of the alarm, 
+the units were generating.  (Ameren Chronology - See 
+Exhibit 28.) 
+• Ameren has been unable to determine why this alarm 
+was recorded, but around the time of the alarm, a storm, 
+likely accompanied by lightning, moved through the 
+area of the project works.  The storm may have caused 
+momentary induced voltages on the wiring running 
+between the Hi-Hi probe relay and the plant PLC input 
+card resulting in the PLC Historian recording a false Hi-
+Hi probe alarm. 
+August 14, 2005 • The PLC historian software recorded a one-second Hi-
+Hi probe alarm at 3:50 p.m. CDT, at an upper reservoir 
+level reading of elevation 1591.6 ft.  (Ameren 
+Chronology - See Exhibit 22.)  At the time of the alarm, 
+the units were generating.  (Ameren Chronology - See 
+Exhibit 29.) 
+• Ameren has been unable to determine why this alarm 
+was recorded, but at the time of the alarm, a storm, 
+accompanied by lightning, moved through the area of 
+the project works.  The storm may have caused 
+momentary induced voltages on the wiring running 
+between the Hi-Hi probe relay and the plant PLC input 
+card resulting in the PLC Historian recording a false Hi-
+Hi probe alarm. 
+===PAGE 55===
+55 
+September 25, 2005 • Remnants of Hurricane Rita pass through area. 
+• Workers witness overtopping, referred to as 
+“Niagara Falls at the Northwest corner of the 
+reservoir” 
+• Units are immediately put on generate mode to 
+lower reservoir. (source: 9/27/2005 email from 
+Richard Cooper) 
+• Refer to September 24-26 Operations Time Line 
+September 27, 2005 • The plant superintendent notes the visual level of 
+the reservoir (as measured down from the crest of 
+the parapet wall) does not match the average 
+transmitter level.  The visual level was about 4 
+inches from the top of the parapet wall near “a 
+couple of wet areas on the west side of the reservoir 
+parapet walls”, even though the transducers were 
+showing elevation 1596 feet.  (Note: if the referred 
+to west area was around panel 72, which is the 
+lowest panel on the west side of the dam – 4 inches 
+from the top of the crest would be elevation 1596.66 
+feet.) 
+• One transmitter is found to be reading “a foot higher 
+than the other two” and is eliminated from the 
+average, leaving two transmitters.  When the one 
+transmitter was taken out of the average, the reading 
+was 1596.2 feet.  Since this did not match the 
+elevation in the field, a 0.4 (foot) adjustment was 
+made to the two remaining transmitter readings, 
+making the level read 1996.6 feet. 
+• The plant superintendent states they would “check 
+on what this does to the actual level the next several 
+mornings.”  (source 9/27/2005 email from Richard 
+Cooper) 
+• At 10:11 a.m., an Osage operator noted in the 
+operator log a “high upper resv. alarm [and] small 
+gate setting changed to 7.7% by itself.  HPT’s are 
+working on something @ Sauk.”  (Ameren 
+Chronology - See Exhibit 31.)  At the time the 
+notation was made, the units were neither pumping 
+nor generating.  Ameren believes this alarm is 
+related to work being done on the PLC at 
+approximately the same time.  (Ameren Chronology 
+- See Exhibit 22.)  Between 10:03 and 10:05 a.m., 
+===PAGE 56===
+56 
+the elevation level readings for the upper reservoir 
+were not recorded, suggesting that the PLC was 
+offline so that an adjustment to the logic could be 
+made.  The adjustment may have resulted in an 
+alarm indication once the PLC came back online. 
+September 28, 2005 • The PLC historian software recorded a one-second Hi-
+Hi probe alarm at 6:18 p.m. CDT, at an upper reservoir 
+level reading of elevation 1544.1 ft.  (Ameren 
+Chronology - See Exhibit 22.)  At the time of the alarm, 
+the units were neither pumping nor generating.  (Ameren 
+Chronology - See Exhibit 31.) 
+• Ameren has been unable to determine why this alarm 
+was recorded, but at the time of the alarm, a storm, 
+accompanied by lightning, moved through the area of 
+the project works.  The storm may have caused 
+momentary induced voltages on the wiring running 
+between the Hi-Hi probe relay and the plant PLC input 
+card resulting in the PLC Historian recording a false Hi-
+Hi probe alarm. 
+September 30, 2005 • The Hi and Hi-Hi Warrick Probes are verified to be 
+7 inches and 4 inches below the crest of the wall, 
+respectively.  (Note: This results in elevations 
+1597.417 ft and 1597.667 ft, respectively, based on 
+the recent survey of the parapet wall near the 
+instrumentation.) (Source: 10/7/2005 email from  
+Thomas Pierie and Ameren Chronology.) 
+October 3-4, 2005 • A visual inspection of the upper reservoir revealed that 
+portions of the gage piping support system had failed, 
+allowing the gage piping to move.  The piping was 
+observed to be bent.  Ameren operators recognized that 
+a bend in the piping would produce an elevation reading 
+that is lower than the actual elevation of the upper 
+reservoir.  (Ameren Chronology - See Exhibit 33.) 
+October 6, 2005  • The plant superintendent notes the pvc pipes have 
+come loose from the cables and are bowing at least 
+5 feet out at about 50 feet down. 
+• In the evening, Unit 1 tripped in the generate mode 
+due to high vibrations. (Source: 10/7/2005 email 
+from Richard Cooper) 
+October 7, 2005 • The maximum operating level is set at 1594 feet 
+instead of the normal 1596 feet. 
+• The set point for the “all pumps” shutdown was 
+lowered from elevation 1596.2 ft. to elevation 
+1594.2 ft.  (Ameren Chronology) 
+===PAGE 57===
+57 
+• Arrangements are made to have a diver evaluate 
+whether the piping could be straightened and 
+reattached without draining the reservoir (Ameren 
+Chronology – See Exhibit 34). 
+• Plans were made to add redundancy to the upper 
+reservoir level protection system.  A wind speed 
+measurement, transmitter and alarm, were ordered 
+for installation at the upper reservoir.  Ameren also 
+planned to install an additional probe 2” below the 
+normal last pump shut down setpoint (i.e., at 
+elevation 1595.83 ft.) so that the level transmitters 
+could be checked.  (Ameren Chronology - See 
+Exhibit 32.) 
+• In the morning, Unit 2 tripped on high vibration in 
+the pump mode. 
+• The plant superintendent believes some epoxy 
+material is coming loose from the tunnel liner that 
+was installed last fall.  The epoxy was installed in 
+the tunnel to cover cracks in the steel liner.  The 
+size of the epoxy patch was about 1 inch thick, 6 
+feet wide and 100 feet long.  The tunnel drains were 
+found to be flowing at full pipe link they were 
+before the epoxy patch was installed.  The vibration 
+protection trips on the units were set to normal 
+levels and the superintendent believed these would 
+protect the units if more material is released. 
+(Source: 10/7/2005 email from Richard Cooper)    
+October 11, 2005 • A diver visits the site and says the pipes can be 
+straightened out but Ameren needs to 
+develop/manufacture a new tie down system. 
+(Source: 10/11/2005 email from Richard Cooper) 
+October 25, 2005 • The preliminary design was completed and materials 
+were ordered for the gage piping support retrofit.  
+(Ameren Chronology - See Exhibit 35.) 
+November 2, 2005 • The PLC historian software recorded a nine-second Hi-
+Hi probe alarm at 12:49 p.m. CST, at an upper reservoir 
+level reading of elevation 1578.4 ft.  See Exhibit 22.  At 
+the time of the alarm, the units were neither pumping 
+nor generating.  (Ameren Chronology - See Exhibit 36.)  
+Ameren has been unable to determine why this alarm 
+was recorded. 
+November 23, 2005 • All materials are on hand to make repairs. 
+• Emails indicate Ameren is having trouble 
+===PAGE 58===
+58 
+scheduling repairs and notes the diver may not be 
+available through the end of the year.  (Source: 
+11/23/2005 email from Steven Bluemner) 
+December 13, 2005 • Operations data shows the transmitter elevations 
+drop about 1.9 feet at about 11:20 pm although both 
+units are pumping. (Source: Ameren’s Operation 
+Data) 
+• See December 13-14 Operations Time Line 
+December 14, 2005 • Dam Overtops and Breaches 
+• See December 13-14 Operations Time Line 
+ 
+ 
+===PAGE 59===
+59 
+6.2   Events of September 24- 26, 2005 Overtopping due to the Remnants of 
+Hurricane Rita 
+September 24-26 Operations Time Line 
+Taum Sauk Project, P-2277 
+ 
+Date Time Transmitter
+Elev. (ft) 
+ 
+Unit Info. Weather at 
+Farmington, MO 
+Coincident 
+Events 
+Sept. 
+24 
+13:00 1595.82 Generator 1 
+on-line 
+Wind 8 knots 
+coming from 110 
+degrees of North, 
+Clear 
+ 
+ 13:11 1595.03 Generator 2 
+on-line 
+Same  
+ 18:01 1544.91 Generator 1 
+off-line 
+Wind 5 knots 
+coming from 100 
+degrees of North, 
+Clear 
+ 
+ 18:02 1544.91 Generator 2 
+off-line 
+Same  
+ 18:58 1544.75 Generator 2 
+on-line 
+Wind 4 knots 
+coming from 110 
+degrees of North, 
+Clear 
+ 
+ 19:01 1544.20 Generator 1 
+on-line 
+Same  
+ 20:01 1532.00 Generators 1 
+& 2 off-line 
+Wind 6 knots 
+coming from 110 
+degrees of North 
+ 
+Sept. 
+25 
+00:27 1531.65 Pump 2 on-
+line 
+Wind 3-4 knots 
+coming from 30-
+120 degrees of 
+North  
+ 
+ 01:57 1539.80 Pump 1 on-
+line 
+Wind 5 knots 
+coming from 70 
+degrees of North 
+ 
+ 08:03 1592.11 Pump 2 off-
+line 
+Wind 9 knots (gust 
+to 16 knots) 
+coming from 80 
+degrees of North, 
+precip. 
+ 
+ 9:03 1595.96 Pump 1 of f- Wind 14 knots Ameren 
+===PAGE 60===
+60 
+line (gust to 20 knots) 
+coming from 80 
+degrees of North, 
+precip. 
+ 11:03 1595.97 Generator 2 
+on-line 
+Wind 8 knots 
+coming from 100 
+degrees of North, 
+precip. 
+guards note 
+overtopping 
+during this 
+period. 
+ 12:15 1590.92 Generator 2 
+off-line 
+Wind 8-9 knots 
+coming from 80-
+100 degrees of 
+North, precip. 
+ 
+ 13:56 1590.85 Generators 1 
+& 2 on-line 
+Wind 7 knots 
+coming from 140 
+degrees of North, 
+precip. 
+ 
+ 18:03 1547.91 Generators 1 
+& 2 off-line 
+No wind, slight 
+precip. 
+ 
+ 18:59 1547.78 Generator 1 
+on-line 
+No wind  
+ 19:01 1547.68 Generator 2 
+on-line 
+Same  
+ 20:35 1528.18 Generator 2 
+off-line 
+Wind 3 knots 
+coming from 310 
+degrees of North 
+ 
+ 20:59 1525.80 Generator 1 
+off-line 
+Same  
+ 21:58 1525.42 Pump 2 on-
+line 
+Wind 7 knots 
+coming from 350 
+degrees of North 
+ 
+ 23:01 1531.49 Pump 1 on-
+line 
+Same  
+Sept. 
+26 
+05:53 1591.96 Pump 2 off-
+line 
+Wind 3 knots 
+coming from 300 
+degrees of North, 
+Clear 
+ 
+ 06:43 1594.9 Pump 1 off-
+line 
+Wind 5 knots 
+coming from 260 
+degrees of North, 
+Clear 
+ 
+* Information for this chart is from Ameren’s operation data & Metar Data 
+provided by National Weather Service. 
+===PAGE 61===
+61 
+6.3 Events of December 13 and 14 2005 
+ 
+ 
+December 13-14 Operations Time Line 
+Taum Sauk Project, P-2277 
+ 
+Date Time Transmitter 
+Elev. (ft)* 
+Unit Info. Weather at 
+Farmington, MO
+Coincident 
+Events 
+ 
+Dec. 
+13 
+06:05 1591.52 Generator 1 
+on-line 
+36O , Wind at 5 
+knots coming 
+from 60 degrees 
+from North 
+ 
+ 06:06 1591.54 Generator 2 
+on-line 
+Same  
+ 7:08 1581.57 Generators 1 
+& 2 off-line 
+34O, No wind  
+ 16:43 1581.29 Generator 1 
+on-line 
+43O , Wind at 3 
+knots coming 
+from 180 degrees 
+from North 
+ 
+ 16:50 1580.63 Generator 2 
+on-line 
+Same  
+ 20:06 1548.08 Generator 1 
+off-line 
+45O, Wind at 9 
+knots coming 
+from 160 degrees 
+from North 
+ 
+ 20:27 1546.39 Generator 2 
+off-line 
+45O, Wind at 11 
+knots coming 
+from 180 degrees 
+from North 
+ 
+ 22:33 1546.85 Pump 1 on-
+line 
+43O, Wind at 11 
+knots coming 
+from 160 degrees 
+from North 
+ 
+ 23:13 1548.59 Pump 2 on-
+line 
+41O, Wind at 8 
+knots coming 
+from 140 degrees 
+from North 
+At about 23:20 
+there is a 1.9 
+foot drop in the 
+transmitter 
+readings, 
+although both 
+pumps are 
+===PAGE 62===
+62 
+operating. 
+Dec. 
+14 
+04:43 1591.85 Pump 2 off-
+line 
+39O, Wind at 8 
+knots coming 
+from 150 degrees 
+from North 
+ 
+ 05:16 1593.39 Pump 1 off-
+line 
+39O, Wind at 16 
+knots coming 
+from 160 degrees 
+from North 
+ 05:20 1581.59   
+ 05:25 1548.09   
+Between 5:15 
+and 5:30, 
+USGS Gage 
+07061270 (East 
+Fork Black 
+River Near 
+Lesterville) 
+located near 
+Highway N 
+was damaged 
+by the flood 
+surge. 
+ 05:30 1522.52    
+ 05:35 1510.78  39 O, Wind at 13 
+knots (gust to 19 
+knots) coming 
+from 170 degrees 
+from North 
+At 5:38, the 
+Osage Operator 
+logs that the 
+upper reservoir 
+indication, 
+tailwater level 
+indication, and 
+generate 
+permissives 
+were not 
+reading normal 
+on the LDS and 
+STADA 
+System 
+ 05:40 1507.00   At 5:40, Osage 
+Operator 
+notifies Taum 
+Sauk 
+Superintendent 
+of unusual 
+readings. 
+At 5:41, the 
+Reynolds 
+County 911 
+dispatcher 
+===PAGE 63===
+63 
+received a call 
+about water on 
+Highway N. 
+ 05:45 1505.72    
+ 05:50 1505.12    
+ 05:55 1504.77    
+ 06:00 1504.55  37 O, Wind at 11 
+knots (gust to 16 
+knots) coming 
+from 160 degrees 
+from North 
+At 6:00, the 
+plant 
+superintendent 
+confirms 
+tailrace is 
+muddy.  The 
+Lesterville Fire 
+Deparment and 
+Reynolds 
+County Sheriff 
+contact the 
+Plant 
+Superintendent 
+to confirm the 
+upper reservoir 
+dam has 
+breached.  The 
+plant 
+superintendent 
+begins 
+contacting 
+others on EAP. 
+ 08:00 1503.52  36 O, Wind at 8 
+knots coming 
+from 150 degrees 
+from North, slight 
+precip. 
+ 
+*  Transmitter readings are not the true elevations of reservoir. 
+**  Information for this chart is from Ameren’s operation data, NOAA’s  thrice 
+hourly surface climate data for Farmington, MO Airport Station, Ameren’s 12.10 
+letter, an interview with Reynolds County Sheriff, and a 1/23/2006 email from 
+USGS. 
+ 
+ 
+ 
+ 
+ 
+===PAGE 64===
+64 
+ 
+ 
+Appendix C 
+ 
+Early Project Correspondence 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===PAGE 65===
+65 
+ 
+===PAGE 66===
+66 
+ 
+===PAGE 67===
+67 
+ 
+===PAGE 68===
+68 
+ 
+===PAGE 69===
+69 
+ 
+===PAGE 70===
+70 
+ 
+===PAGE 71===
+71 
+ 
+===PAGE 72===
+72 
+ 
+===PAGE 73===
+73 
+ 
+===PAGE 74===
+74 
+ 
+===PAGE 75===
+75 
+ 
+===PAGE 76===
+
+===PAGE 77===
+
+===PAGE 78===
+
+===PAGE 79===
+
+===PAGE 80===
+Taum Sauk – Upper Reservoir Full
+Figure  1-1
+===PAGE 81===
+Taum Sauk Upper Reservoir Breached
+Figure  1-2
+===PAGE 82===
+Figure 1-3
+===PAGE 83===
+Figure 2-1 Cross section from original design drawings
+===PAGE 84===
+Trends in Type and Height of Rockfill Dams
+Figure 3-1
+Taum Sauk U. R.
+===PAGE 85===
+Cabin Creek Upper Reservoir  Embankment
+Figure  3-2
+===PAGE 86===
+Total Settlement History
+Upper Reservoir Pin Elevations
+Figure 3-3
+===PAGE 87===
+Figure 3-4
+(See Large Drawing S2 Provided)
+===PAGE 88===
+Figure 3-4A
+19
+12
+===PAGE 89===
+Figure 3-5
+(See Large Drawing S1 Provided)
+===PAGE 90===
+Total Leakage (cfs)  vs Time
+Figure 3-6
+===PAGE 91===
+Figure 5-1
+===PAGE 92===
+Figure 5-2
+===PAGE 93===
+Figure 5-3
+===PAGE 94===
+Figure 6-1
+Taum Sauk
+Upper Reservoir
+Breach 12/14/05
+===PAGE 95===
+Figure 6-2
+===PAGE 96===
+Penstock transducer
+Reservoir transducers
+Dec. 14th breach.
+Figure 6-3
+===PAGE 97===
+Figure 6-4
+Rockfill Embankment
+Residual Soil
+Compacted Zone
+Dumped Rockfill
+===PAGE 98===
+Eroded foundation, note rock jointing and overlying clay materials
+Figure 6-5
+===PAGE 99===
+Rockfill between top of rock and base of plinth
+Figure 6-6
+Bed Rock
+RockFill
+Original Concrete Slab
+Repair  Concrete Slab
+Torn Liner
+===PAGE 100===
+Rockfill between top of rock and base of plinth,
+note reddish grout in rockfill beneath the plinth
+Figure 6-7
+===PAGE 101===
+Figure 6-8
+Rockfill between top
+of rock and base of plinth
+===PAGE 102===
+Figure 6-9
+===PAGE 103===
+Pressure Transducers TX2 and TX3
+Compared to Reference Transducer
+(TX2 reads average of 7.86 feet high
+and TX3 reads average of 0.85 feet high)
+Figure 7-1
+===PAGE 104===
+Pressure Transducer Temperature Sensitivity
+(TX2 Output Shift Represents +7.11 Ft. of Water Level 
+at 5 degrees compared to 20 degrees)
+Figure 7-2
+===PAGE 105===
+Figure 7-3
+Note turnbuckle 
+unthreaded from lower 
+bolt.
+===PAGE 106===
+Figure 7-4
+===PAGE 107===
+Note, straightening of protective pipes
+between dates of above photos.
+Figure 7-5
+===PAGE 108===
+Upper ends of protective pipes 
+with instrument cables in enclosure on parapet.
+Pressure transducers use left pipe 
+and conductivity probes use the second pipe from  left.
+Figure 7-6
+===PAGE 109===
+Protective pipe base plates are not anchored to reservoir. 
+Left guy cable has come loose from base plate in top photo. 
+Figure 7-7
+===PAGE 110===
+Protective pipe support system as found. Note eye bolt 
+unthreaded from turnbuckle. Also note lock washer in place at 
+connection to U channel but lack of lock washer at turnbuckle.
+Figure 7-8
+===PAGE 111===
+Hurricane Rita Event
+Figure 7-9
+===PAGE 112===
+Hurricane Rita Event
+Pump 2 off
+Pump 1 off
+Figure 7-10
+===PAGE 113===
+Generation start on day prior to Hurricane Rita.  Note 
+smaller level variations compared to next day.
+Figure 7-11
+===PAGE 114===
+Figure 7-12
+===PAGE 115===
+1525
+1530
+1535
+1540
+1545
+1550
+1555
+12/01/2005
+21:36:00
+12/01/2005
+22:04:48
+12/01/2005
+22:33:36
+12/01/2005
+23:02:24
+12/01/2005
+23:31:12
+12/02/2005
+00:00:00
+12/02/2005
+00:28:48
+12/02/2005
+00:57:36
+12/02/2005
+01:26:24
+12/02/2005
+01:55:12
+12/02/2005
+02:24:00
+Upper Reservoir Level from Dec. 1st and 2nd.  
+1 Pump
+2 Pump
+No Pump 1 Pump
+2 Pump
+1 Pump
+Figure 7-13
+===PAGE 116===
+Dec. 2nd.  Note erratic behavior on rising and  lower level 
+compared to falling level.
+Figure 7-14
+===PAGE 117===
+Jan. 2005 two pump operation.
+Figure 7-15
+===PAGE 118===
+April 2005 two pump operation.
+Figure 7-16
+===PAGE 119===
+June 2005 two pump operation.
+Figure 7-17
+===PAGE 120===
+July 2005 two pump operation.
+Figure 7-18
+===PAGE 121===
+August 1, 2005 two pump operation.
+Figure 7-19
+===PAGE 122===
+August 10, 2005 two pump operation.
+Figure 7-20
+===PAGE 123===
+August 17, 2005 two pump operation.
+Figure 7-21
+===PAGE 124===
+Sept. 2005 two pump operation.
+Figure 7-22
+===PAGE 125===
+1557
+1557.5
+1558
+1558.5
+1559
+1559.5
+12/10/2005
+11:31:12
+12/10/2005
+12:00:00
+12/10/2005
+12:28:48
+12/10/2005
+12:57:36
+12/10/2005
+13:26:24
+12/10/2005
+13:55:12
+12/10/2005
+14:24:00
+12/10/2005
+14:52:48
+12/10/2005
+15:21:36
+12/10/2005
+15:50:24
+12/10/2005
+16:19:12
+12/10/2005
+16:48:00
+Both units off. 2 Gen
+Erratic level indications on Dec. 10th.
+Figure 7-23
+===PAGE 126===
+Pump 1 stop
+Pump 2 stop
+Level trend without offset-222 MW
+Pump 1 start
+Pump 2 start
+Level indications after pump 2 start shows an offset.
+-222 MW = Completion of pump 2 start sequence.
+Figure 7-24
+===PAGE 127===
+Pump 2 off 4:43
+Pump 1 off 5:15
+4 Ft./Hr. Rate for one pump above Elev. 1592
+Water level indications at breach event.
+Figure 7-25
+===PAGE 128===
+Water level indications (left scale) 
+and adjusted (right scale) prior to breach event.
+Estimated start 
+of overtopping at 
+panel 72.
+1597.1
+1597.3
+1597.5
+Panel 95
+Figure 7-26
+===PAGE 129===
+Upper Reservoir Levels
+1540
+1550
+1560
+1570
+1580
+1590
+1600
+123456789 1 0 1 1 1 2 1 3 1 4
+December 2005
+Daily Maximum Level from Pressure Transducers
+Daily maximum indicated levels.
+Figure 7-27
+===PAGE 130===
+Figure 7-28
+Hi probe as installed
+Hi-Hi probe as installed
+Hi probe per PLC comment & DWG
+Hi-Hi probe per PLC comment & DWG
+Hi probe per field inspections
+Hi-Hi probe per field inspections
+Estimated level during breach
+Upper Reservoir Conductivity Probes
+1595.8
+1596
+1596.2
+1596.4
+1596.6
+1596.8
+1597
+1597.2
+1597.4
+1597.6
+1597.8
+8/1/2004 11/9/2004 2/17/2005 5/28/2005 9/5/2005 12/14/2005 3/24/2006
+Elevation
+Minimum parapet elevation Panel 72 
+Breached parapet Panel 95
+Parapet at probes
+===PAGE 131===
+Figure 7-29
+===PAGE 132===
+Hi 
+Probe
+Hi-Hi 
+Probe
+FERC
+Pipe
+Bend
+Ameren
+Pipe
+Bend
+Estimates of Maximum Reservoir Level Before Breach
+1596
+1596.5
+1597
+1597.5
+1598
+123456
+Elevation, Ft.
+Indexed 
+Pressure 
+Transducers
+Siemens
+Report
+Figure 7-30
+===PAGE 133===
+Note: Due to programming error made on 
+Sept. 16, 2005, Unit 2 pump shutdown due 
+to level protection probe response was 
+disabled.
+Figure 7-31
+===PAGE 134===
+Figure 7-32

@@ -1,0 +1,490 @@
+{
+ "version": "2.0",
+ "topic": "The Taum Sauk Upper Reservoir failure (December 14, 2005) — the control-system disaster: known-broken sensors, a computer that kept pumping into a full reservoir, and a fail-safe set above the top of the wall",
+ "research_date": "2026-07-11",
+ "primary_source": {
+  "title": "Taum Sauk Upper Dam Breach, FERC No. 2277 — Technical Reasons for the Breach of December 14, 2005 (Independent Panel of Consultants forensic report)",
+  "authors": "Paul C. Rizzo Associates / Independent Panel of Consultants (FERC-commissioned)",
+  "year": 2006,
+  "local_file": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf",
+  "companion": {
+   "title": "FERC Staff Report — Taum Sauk Investigation (Division of Dam Safety and Inspections)",
+   "local_file": "projects/taum-sauk-2005/research/ferc_staff_investigation_report_2006.pdf"
+  },
+  "deep_extraction": [
+   {
+    "claim": "The parapet wall's LOWEST point had settled to Elev. 1597; the Hi-Hi Warrick emergency-shutdown probe was set at Elev. 1597.70 — 0.7 ft ABOVE the lowest point of the wall. Water physically overtopped the dam before the emergency stop could ever trigger.",
+    "cite": "IPOC pp. 16, 19-20"
+   },
+   {
+    "claim": "The pressure transducers were reading ~4.2 ft LOW: penstock vs transducer comparison shows 12/13/05 5:50 readings of 1595.88 (penstock) vs 1591.68 (transducer); at 5:15 on 12/14 the transducers indicated 1593.70 while water was going over the 1597 wall.",
+    "cite": "IPOC p. 19"
+   },
+   {
+    "claim": "The replacement level-sensing system (installed Nov 2004) was NOT anchored to the concrete face of the reservoir; the HDPE conduits housing the transducers moved, and protective pipe base plates were found unanchored with a guy cable loose after the breach.",
+    "cite": "IPOC pp. 8, 109"
+   },
+   {
+    "claim": "On September 27, 2005 a 0.4 ft software offset was added to the transducer readings IN THE PLC CODE in response to visual observations disagreeing with the instruments — a software patch over a physical sensor failure. Transducer TX1 was removed from service the same day, making the remaining system MORE sensitive to temperature-induced error.",
+    "cite": "IPOC pp. 14, 21"
+   },
+   {
+    "claim": "September 25, 2005 near-miss (two days after Hurricane Rita rains): workers witnessed overtopping described as 'Niagara Falls at the Northwest corner of the reservoir'; units were immediately put on generate mode to lower the reservoir. Documented in a 9/27/2005 internal email.",
+    "cite": "IPOC p. 55; FERC p. 93"
+   },
+   {
+    "claim": "Internal email dated October 7, 2005: 'The Hi and Hi-Hi Warrick probes are 7\" and 4\" from the top of the wall respectively. So if on 9-27 the level was 4\" below the wall the Hi level Warrick should have picked up.' And: 'If you want to lower the Hi level probes we can do that but I think we chose the levels...' — Ameren discussed and declined lowering the fail-safe setpoints ten weeks before the breach.",
+    "cite": "IPOC p. 25"
+   },
+   {
+    "claim": "December 14, 2005 sequence: both units pumping in the early morning; at 04:39 Unit #2 shut down automatically at an INDICATED level of Elev. 1591.6; at 05:15 Unit #1 was shut down MANUALLY by the Bagnell Dam control center operator on instructions from the St. Louis control center — reservoir data indicate pumping stopped at 5:15 AM with the initial breach forming at approximately the same time.",
+    "cite": "IPOC pp. 5, 16-17, 20"
+   },
+   {
+    "claim": "Complete evacuation of the 4,350 acre-ft upper reservoir occurred within about 25 minutes of the initial breach; the flow passed down Proffit Mountain into the East Fork of the Black River through the State Park.",
+    "cite": "IPOC pp. 5, 17; FERC pp. 7, 138 (FERC uses ~4,300 acre-feet)"
+   },
+   {
+    "claim": "The parapet wall had experienced considerable deformation and settlement beginning with the FIRST FILLING of the reservoir (1963); the staff gage was affixed to the parapet wall and settled about one foot WITH the wall — AmerenUE believes the reservoir was actually operating at 1595 ft when indicating 1596 ft.",
+    "cite": "IPOC p. 11; FERC p. 14"
+   },
+   {
+    "claim": "Panel 72 was the LOW POINT of the parapet wall; in an interview, plant superintendent Richard Cooper reported seeing wet spots on the downstream side of the parapet wall at the low point during a pre-breach morning visit.",
+    "cite": "FERC p. 103"
+   },
+   {
+    "claim": "The Emergency Action Plan notification: park superintendent Jerry Toops was ON the notification list; the call to the Toops house went unanswered — emergency personnel arriving on scene found the Toops house destroyed.",
+    "cite": "FERC pp. 133-134"
+   },
+   {
+    "claim": "Control architecture: two Allen-Bradley PLCs (the Common PLC and the Upper Reservoir PLC, programmed with Rockwell RSLogix tooling) with a WonderWare Operator Interface for level indication, alarming, and data acquisition — installed in the 2004 upgrade.",
+    "cite": "FERC pp. 54, 60"
+   },
+   {
+    "claim": "The Warrick probe wiring: LO-LO and HI-HI were wired to alarm AND hard-stop the units, but the LO and HI probes would NOT generate an alarm — and the PLC historian would NOT even record in the logs that water had touched them. The intermediate warnings were silent and invisible by configuration.",
+    "cite": "FERC p. 63"
+   },
+   {
+    "claim": "Emergency preparedness: the last functional EAP exercise at Taum Sauk was May 1998 — seven years before the breach; the next was scheduled for 2008 (the licensee alternated exercises between its Osage and Taum Sauk projects).",
+    "cite": "FERC pp. 132-133"
+   },
+   {
+    "claim": "Cooper's wet-spots account (nuance): he did not witness waves exceeding the wall; the wet spots at Panel 72 (the parapet low point) were possibly spray from waves — the observation that SHOULD have been a red flag was explainable-away in the moment.",
+    "cite": "FERC p. 112"
+   }
+  ],
+  "url": "https://damfailures.org/case-study/taum-sauk-dam-missouri-2005"
+ },
+ "timeline_events": [
+  {
+   "date": "1963",
+   "event": "Taum Sauk pumped-storage plant enters service: upper reservoir on Proffit Mountain (a rockfill dike with concrete parapet, NO emergency spillway), lower reservoir on the East Fork Black River; settlement of the parapet begins with first filling (IPOC p. 11).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2004-11",
+   "event": "New water-level instrumentation installed: pressure transducers in HDPE conduits NOT anchored to the liner, plus five Warrick conductivity probes (commissioned fall 2004) as backup shutdown (IPOC pp. 8, 15).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2005-09-25",
+   "event": "Near-miss overtopping after Hurricane Rita rains: 'Niagara Falls at the Northwest corner' witnessed by workers; units manually switched to generate to save the dam (IPOC p. 55).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2005-09-27",
+   "event": "Instead of a physical repair: a 0.4 ft software offset is coded into the PLC; transducer TX1 removed from service; internal email documents the near-miss (IPOC pp. 14, 21-22).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2005-10-07",
+   "event": "Internal email notes the shutdown probes sit 7 and 4 inches from the top of the wall and that on 9/27 the Hi probe 'should have picked up'; lowering the probes is discussed and deferred (IPOC p. 25).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2005-10 to 12",
+   "event": "Employees observe movement of the HDPE conduits housing the transducers; gauge disagreement continues; plant keeps operating on remote control from St. Louis (IPOC p. 8; web claims).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2005-12-14 ~04:39",
+   "event": "Unit #2 shuts down automatically at an INDICATED Elev. 1591.6 — the real level is ~4 ft higher; pumping continues on Unit #1 into a reservoir that is already at the wall (IPOC p. 16).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2005-12-14 ~05:00-05:15",
+   "event": "Water pours over the settled northwest parapet section; the rockfill dike erodes from the outside; at 05:15 Unit #1 is shut down MANUALLY from Bagnell Dam on St. Louis instructions — the breach is already forming (IPOC pp. 16-17).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2005-12-14 05:15-05:40",
+   "event": "The dike breaches ~656 ft wide; ~4,350 acre-ft (~1.4 billion gallons) evacuates in ~25 minutes down Proffit Mountain into Johnson's Shut-Ins State Park and the East Fork Black River (IPOC pp. 5, 17; damfailures.org).",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "date": "2005-12-14 ~05:15-05:20",
+   "event": "The flood wave hits the park superintendent's home: the house fills in seconds; all five members of the Toops family are swept ~1/4 mile and survive with hypothermia; 5-year-old Tanner is resuscitated over two hours and requires skin grafts from rewarming burns (Deseret News 12/26/2005; MBC Pathway 2020 retrospective).",
+   "source_url": "https://www.deseret.com/2005/12/26/19929651/dad-says-family-s-survival-after-flood-was-miracle/"
+  },
+  {
+   "date": "2005-12-14 ~06:30",
+   "event": "The EAP contact list is completed by plant staff; the call to the Toops house — on the notification list — goes unanswered; responders find the house destroyed (FERC pp. 133-134).",
+   "source_url": "projects/taum-sauk-2005/research/ferc_staff_investigation_report_2006.pdf"
+  },
+  {
+   "date": "2005-12-26",
+   "event": "Within two weeks Ameren publicly attributes the failure to the automated instruments overpumping the reservoir and a backup system that failed to catch it (Deseret News/AP).",
+   "source_url": "https://www.deseret.com/2005/12/26/19929651/dad-says-family-s-survival-after-flood-was-miracle/"
+  },
+  {
+   "date": "2007-2010",
+   "event": "Johnson's Shut-Ins State Park rebuilt over ~4 years with phased reopenings from 2007 (STLPR).",
+   "source_url": "https://www.stlpr.org/politics-issues/2015-12-13/ten-year-anniversary-of-reservoir-breach-that-flooded-johnsons-shut"
+  },
+  {
+   "date": "2009-2010",
+   "event": "FERC levies a $15 million civil penalty — the largest dam-safety penalty in FERC history at the time; Ameren settles with Missouri public entities for ~$180 million; the upper reservoir is rebuilt as a roller-compacted-concrete dam (online 2010, ~$490 million) (STLPR; web claims — penalty split needs a page-cited check against the consent agreement).",
+   "source_url": "https://www.stlpr.org/politics-issues/2015-12-13/ten-year-anniversary-of-reservoir-breach-that-flooded-johnsons-shut"
+  }
+ ],
+ "stakeholders": [
+  {
+   "name": "Jerry Toops",
+   "role": "Johnson's Shut-Ins State Park superintendent, 42; swept from his home with his family; described the wave as 'a group of F-14 jets combined with a fleet of trains'",
+   "needs_sheet": true,
+   "verified_in": "FERC pp. 133-134; Deseret News 12/26/2005"
+  },
+  {
+   "name": "Lisa Toops",
+   "role": "Jerry's wife, 38; awake feeding the baby when the wave hit; carried the children through the flood",
+   "needs_sheet": true,
+   "verified_in": "Deseret News 12/26/2005; MBC Pathway 2020"
+  },
+  {
+   "name": "Tanner, Tara, Tucker Toops",
+   "role": "Children, ages 5, 3, and 7 months; all survived; Tanner near death from hypothermia, resuscitated over two hours",
+   "needs_sheet": true,
+   "verified_in": "Deseret News 12/26/2005; MBC Pathway 2020"
+  },
+  {
+   "name": "Richard Cooper",
+   "role": "Taum Sauk plant superintendent; saw wet spots at the parapet low point before the breach; worked the EAP call list the morning of",
+   "needs_sheet": false,
+   "verified_in": "FERC pp. 103, 112, 133"
+  },
+  {
+   "name": "AmerenUE",
+   "role": "Owner/operator; ran the plant by remote control from St. Louis; patched sensors in software; deferred lowering the fail-safe probes",
+   "needs_sheet": false,
+   "verified_in": "IPOC + FERC throughout; FERC consent docs"
+  },
+  {
+   "name": "FERC",
+   "role": "Regulator; commissioned the Independent Panel; levied the $15M penalty",
+   "needs_sheet": false,
+   "verified_in": "FERC staff report (self)"
+  },
+  {
+   "name": "The Upper Reservoir / parapet wall (Panel 72)",
+   "role": "THE recurring 'thing': a mountaintop rockfill ring with a settled concrete parapet, no spillway; Panel 72 is the low point where it let go",
+   "needs_sheet": true,
+   "verified_in": "IPOC pp. 11, 16; FERC pp. 103, 112"
+  },
+  {
+   "name": "The control room / SCADA-PLC system",
+   "role": "The 'villain instrument': remote St. Louis operation, transducers in loose conduits, the PLC offset patch, Warrick probes set above the wall",
+   "needs_sheet": true,
+   "verified_in": "FERC pp. 54, 60, 63"
+  },
+  {
+   "name": "Johnson's Shut-Ins State Park / East Fork Black River",
+   "role": "The place: the shut-ins, the park, the scour path down Proffit Mountain",
+   "needs_sheet": true,
+   "verified_in": "IPOC pp. 5, 17; FERC p. 138"
+  },
+  {
+   "name": "The Toops house",
+   "role": "The single destroyed home at the foot of the mountain — the survival story's set",
+   "needs_sheet": true,
+   "verified_in": "FERC p. 134; Deseret News 12/26/2005"
+  }
+ ],
+ "data_points": [
+  {
+   "claim": "Fail-safe shutdown probe elevation 1597.70 ft vs parapet lowest point 1597 ft — the emergency stop was set above the top of the wall",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf",
+   "source_name": "IPOC forensic report pp. 16, 19",
+   "credibility": "primary forensic report",
+   "surprise_factor": "the single most damning fact — the fail-safe could not physically fire before overtopping",
+   "usable_as": "script_anchor"
+  },
+  {
+   "claim": "Sensors read 4.2 ft low on the morning of the breach (indicated 1593.7 while water crested the 1597 wall)",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf",
+   "source_name": "IPOC p. 19",
+   "credibility": "primary forensic report",
+   "surprise_factor": "high",
+   "usable_as": "stat_card"
+  },
+  {
+   "claim": "~4,350 acre-feet (~1.4 billion gallons) released through a ~656-ft-wide breach in ~25 minutes; peak discharge ~273,000 cfs",
+   "source_url": "https://damfailures.org/case-study/taum-sauk-dam-missouri-2005",
+   "source_name": "IPOC pp. 5, 17 + ASDSO case study",
+   "credibility": "primary + ASDSO",
+   "surprise_factor": "scale",
+   "usable_as": "stat_card",
+   "note": "press variously says 1.0-1.5 billion gallons; 4,300-4,350 ac-ft = 1.40-1.42B gal — use ~1.4B"
+  },
+  {
+   "claim": "The wall settled ~1 foot since 1963 — and the staff gage settled WITH it, so the numbers looked normal while the wall got lower",
+   "source_url": "projects/taum-sauk-2005/research/ferc_staff_investigation_report_2006.pdf",
+   "source_name": "FERC p. 14; IPOC p. 11",
+   "credibility": "primary",
+   "surprise_factor": "high — the measuring stick sank with the thing it measured",
+   "usable_as": "script_anchor"
+  },
+  {
+   "claim": "Sept 25, 2005: a witnessed near-miss overtopping ('Niagara Falls at the NW corner') 80 days before the breach; the fix was a software offset, not a repair",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf",
+   "source_name": "IPOC pp. 55, 14",
+   "credibility": "primary (internal email quoted)",
+   "surprise_factor": "very high",
+   "usable_as": "hook"
+  },
+  {
+   "claim": "$15M FERC civil penalty + ~$180M Missouri settlement + ~$490M rebuild (RCC dam, online 2010)",
+   "source_url": "https://www.stlpr.org/politics-issues/2015-12-13/ten-year-anniversary-of-reservoir-breach-that-flooded-johnsons-shut",
+   "source_name": "STLPR 10-year retrospective + web corroboration",
+   "credibility": "reputable press; penalty figure also in FERC consent docs",
+   "surprise_factor": "medium",
+   "usable_as": "closing_punch"
+  },
+  {
+   "claim": "All five Toops family members survived being swept ~1/4 mile; Tanner (5) was resuscitated over two hours and needed skin grafts from rewarming burns",
+   "source_url": "https://www.deseret.com/2005/12/26/19929651/dad-says-family-s-survival-after-flood-was-miracle/",
+   "source_name": "Deseret News/AP 12/26/2005 + MBC Pathway 2020",
+   "credibility": "contemporaneous press + first-person retrospective",
+   "surprise_factor": "the emotional spine",
+   "usable_as": "script_anchor"
+  },
+  {
+   "claim": "The plant was operated by REMOTE CONTROL from St. Louis ~90 miles away; the manual shutdown at 5:15 came from the Bagnell Dam operator on St. Louis instructions as the breach formed",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf",
+   "source_name": "IPOC p. 16",
+   "credibility": "primary",
+   "surprise_factor": "high — nobody was on the mountain",
+   "usable_as": "script_anchor"
+  },
+  {
+   "claim": "The upper reservoir had NO emergency spillway — overtopping meant erosion of the rockfill, by design a fatal condition",
+   "source_url": "https://damfailures.org/case-study/taum-sauk-dam-missouri-2005",
+   "source_name": "ASDSO case study + IPOC design sections",
+   "credibility": "primary + ASDSO",
+   "surprise_factor": "medium",
+   "usable_as": "stat_card"
+  },
+  {
+   "claim": "The HI and LO warning probes were configured to neither alarm NOR log: the PLC historian would not record that water had reached them",
+   "source_url": "projects/taum-sauk-2005/research/ferc_staff_investigation_report_2006.pdf",
+   "source_name": "FERC p. 63",
+   "credibility": "primary (staff report, from interviews)",
+   "surprise_factor": "very high — the warnings before the last warning were invisible by design",
+   "usable_as": "script_anchor"
+  },
+  {
+   "claim": "Last emergency-action-plan functional exercise: May 1998 — seven years before the breach; next scheduled 2008",
+   "source_url": "projects/taum-sauk-2005/research/ferc_staff_investigation_report_2006.pdf",
+   "source_name": "FERC pp. 132-133",
+   "credibility": "primary",
+   "surprise_factor": "high",
+   "usable_as": "stat_card"
+  },
+  {
+   "claim": "Unit #2 auto-stopped at 04:39 at an INDICATED Elev. 1591.6 — the computer believed there were ~6 feet of margin while water approached the 1597 wall crest",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf",
+   "source_name": "IPOC p. 16",
+   "credibility": "primary forensic report",
+   "surprise_factor": "high",
+   "usable_as": "script_anchor"
+  },
+  {
+   "claim": "Five Warrick conductivity probes made up the backup system (commissioned fall 2004), with control logic requiring specific probe combinations to trip",
+   "source_url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf",
+   "source_name": "IPOC p. 15; damfailures.org",
+   "credibility": "primary + ASDSO",
+   "surprise_factor": "medium",
+   "usable_as": "stat_card"
+  }
+ ],
+ "unverifiable_claims": [
+  {
+   "claim": "'12 minutes' for the park flood (operator pitch): primary says ~25 minutes for complete reservoir evacuation; the wave reached the park sooner — use 25 min for the reservoir, avoid the 12-min figure unless a source is found",
+   "status": "contradicted by primary; prefer IPOC"
+  },
+  {
+   "claim": "'Zip ties' holding the transducer conduits: press shorthand; IPOC says the conduits/base plates were 'not anchored' and a guy cable came loose — use 'never anchored / came loose', not 'zip ties', unless found in the FERC report text",
+   "status": "unverified phrasing"
+  },
+  {
+   "claim": "Channel-analytics demand data (101-sub channel 20k views at 199x; 2,580-sub channel 130k at 50x; 3+ languages)",
+   "status": "operator-supplied analytics; not independently verified"
+  },
+  {
+   "claim": "$15M was 'the largest FERC dam-safety penalty ever at the time'",
+   "status": "widely reported; verify against the FERC consent agreement text before scripting the superlative"
+  },
+  {
+   "claim": "New dam contains 3.2M vs commonly cited ~2.9M cubic yards of RCC",
+   "status": "conflicting figures; avoid the specific number or verify"
+  },
+  {
+   "claim": "Toops family details: Tara and Tucker released from hospital Dec 18; family relocated to northeast Missouri May 2006",
+   "status": "single-source press each; fine as color, not as load-bearing beats"
+  }
+ ],
+ "landscape": {
+  "existing_content": [
+   {
+    "title": "The Wild Story of the Taum Sauk Dam Failure",
+    "url": "https://www.youtube.com/watch?v=zRM2AnwNY20",
+    "source": "youtube (Practical Engineering)",
+    "angle": "civil-engineering: dam design, overtopping mechanics, the rebuild",
+    "what_it_covers": "authoritative 20-min engineering explainer (Oct 2024) — the canonical big-channel treatment",
+    "what_it_misses": "the control-system story is a segment, not the spine; no Toops narrative depth; no internal-email culture story",
+    "engagement_signal": "multi-million-sub channel; the pitch's 'no channel over 500k' claim only holds for a strict 18-month window"
+   },
+   {
+    "title": "A Giant Wall Of Water Wiped Out Everything: The Taum Sauk Dam Failure",
+    "url": "https://www.youtube.com/watch?v=q74ILIOfPjA",
+    "source": "youtube",
+    "angle": "disaster-story retelling",
+    "what_it_covers": "dramatic recounting (Apr 2025)",
+    "what_it_misses": "primary-source specifics; instrumentation chain",
+    "engagement_signal": "recent small/mid-channel entry"
+   },
+   {
+    "title": "5 at 75: Taum Sauk Dam failure in 2005",
+    "url": "https://www.youtube.com/watch?v=KJqBPFffaQQ",
+    "source": "youtube (local news retrospective)",
+    "angle": "local-news anniversary piece",
+    "what_it_covers": "the event + park impact (Dec 2022)",
+    "what_it_misses": "any technical depth",
+    "engagement_signal": "regional audience"
+   },
+   {
+    "title": "Small-channel breakouts (operator analytics)",
+    "url": "",
+    "source": "youtube analytics",
+    "angle": "generic disaster retellings",
+    "what_it_covers": "demand proof: 101-sub channel 20k views (199x), 2,580-sub channel 130k (50x); breakouts in PT and ES",
+    "what_it_misses": "everything a documentary can add",
+    "engagement_signal": "extreme view/sub ratios = unmet demand"
+   }
+  ],
+  "saturated_angles": [
+   "civil-engineering dam-mechanics explainer (Practical Engineering owns it)",
+   "generic 'dam disaster' listicle retellings",
+   "anniversary local-news recaps"
+  ],
+  "underserved_gaps": [
+   "The CONTROL-SYSTEM spine: sensors lying by 4 feet, a software offset patching a physical failure, a fail-safe set above the top of the wall — told as a software/instrumentation disaster (our channel's exact genre)",
+   "The internal-email paper trail: 'Niagara Falls', 'an absolute NO-NO', 'I think we chose the levels' — the negligence culture story, page-cited",
+   "The Toops survival as the narrative spine with the unanswered EAP phone call as the gut-punch",
+   "The 'measuring stick sank with the wall' irony — gage settled with the parapet",
+   "Remote operation: nobody on the mountain while the computer pumped"
+  ]
+ },
+ "audience_insights": {
+  "common_questions": [
+   "How does a computer keep pumping into a full reservoir?",
+   "Why didn't the backup sensors stop it?",
+   "Did anyone die?",
+   "Did anyone go to jail / what did it cost Ameren?",
+   "Could this happen at other dams today?",
+   "What is a pumped-storage plant and why pump water uphill at night?"
+  ],
+  "misconceptions": [
+   {
+    "myth": "It was a dam failure — an old dam finally gave out",
+    "reality": "The dam failed because the CONTROL SYSTEM kept pumping: sensors under-read by 4 ft, the software got an offset patch instead of a repair, and the emergency probes were set above the wall's settled low point",
+    "source": "IPOC pp. 14-25"
+   },
+   {
+    "myth": "Nobody died, so it wasn't serious",
+    "reality": "A family of five including a 7-month-old was swept a quarter mile in near-freezing pre-dawn water; a 5-year-old was clinically resuscitated over two hours. The zero-fatality outcome was luck measured in inches and minutes",
+    "source": "Deseret News 12/26/2005"
+   },
+   {
+    "myth": "It came out of nowhere",
+    "reality": "Operators watched it nearly happen 80 days earlier ('Niagara Falls'), emailed that overtopping was 'an absolute NO-NO', discussed lowering the probes, and kept pumping",
+    "source": "IPOC pp. 25, 55"
+   },
+   {
+    "myth": "Someone at the plant fell asleep",
+    "reality": "Nobody was at the plant — it was run by remote control from St. Louis; the last-ditch manual stop came from ANOTHER dam's control room as the breach formed",
+    "source": "IPOC p. 16"
+   }
+  ],
+  "knowledge_level": "General audience knows dams can fail (Oroville, Teton footage familiarity); almost nobody knows pumped storage, and the sensor/PLC chain is fresh material. The Practical Engineering audience segment knows the mechanics but not the paper trail or the family story."
+ },
+ "angles_discovered": [
+  {
+   "angle": "THE FAIL-SAFE WAS ABOVE THE WALL",
+   "note": "One sentence carries the whole disaster: the emergency stop was set 0.7 ft above the settled low point of the parapet. The wall let go before the machine was allowed to notice. Everything else is corollary."
+  },
+  {
+   "angle": "The software patch over the physical failure",
+   "note": "Sept 27: instead of re-anchoring the conduits, a 0.4 ft offset went into the PLC code. Our genre's thesis in miniature: patching the reading instead of the reality."
+  },
+  {
+   "angle": "The unanswered phone call",
+   "note": "The EAP worked exactly as written — and the first call on the list rang in a house that no longer existed. Cold open or closing beat."
+  },
+  {
+   "angle": "The measuring stick sank with the wall",
+   "note": "The staff gage was bolted to the parapet and settled with it — even the humans' visual check was calibrated to a sinking reference. Nothing in the loop touched reality."
+  }
+ ],
+ "modern_relevance": {
+  "note": "Sensor-trust failures with software patches over physical faults recur: Boeing 737 MAX MCAS (single-AoA-sensor authority), the 2021 Oldsmar water-treatment remote-access scare, alarm-fatigue findings in process industries (Texas City). Pumped storage is ALSO newly topical as grid-battery infrastructure for renewables — the same plant type being built worldwide today. Frame: the machines we trust to watch the water are only as honest as their worst sensor.",
+  "hooks": [
+   "MCAS parallel: one lying sensor, software authority, no cross-check",
+   "grid-storage boom: we are building many more Taum Sauks",
+   "SCADA remote operation normalcy"
+  ]
+ },
+ "sources": [
+  {
+   "name": "IPOC/Rizzo forensic report (PRIMARY, local PDF, 134 pp)",
+   "url": "projects/taum-sauk-2005/research/ipoc_rizzo_technical_reasons_breach_2006.pdf"
+  },
+  {
+   "name": "FERC staff investigation report (PRIMARY companion, local PDF, 239 pp)",
+   "url": "projects/taum-sauk-2005/research/ferc_staff_investigation_report_2006.pdf"
+  },
+  {
+   "name": "ASDSO Lessons Learned case study",
+   "url": "https://damfailures.org/case-study/taum-sauk-dam-missouri-2005"
+  },
+  {
+   "name": "Deseret News/AP — Toops family survival (12/26/2005)",
+   "url": "https://www.deseret.com/2005/12/26/19929651/dad-says-family-s-survival-after-flood-was-miracle/"
+  },
+  {
+   "name": "MBC Pathway — Toops 15-year retrospective (2020)",
+   "url": "https://mbcpathway.com/2020/06/23/water-was-at-the-neck-then-over-our-heads-toops-family-remembers-near-disaster-gods-faithfulness-15-years-after-flood/"
+  },
+  {
+   "name": "STLPR — 10-year anniversary (2015)",
+   "url": "https://www.stlpr.org/politics-issues/2015-12-13/ten-year-anniversary-of-reservoir-breach-that-flooded-johnsons-shut"
+  },
+  {
+   "name": "Practical Engineering — The Wild Story of the Taum Sauk Dam Failure (2024)",
+   "url": "https://practical.engineering/blog/2024/10/15/the-wild-story-of-the-taum-sauk-dam-failure"
+  },
+  {
+   "name": "Raw web-claims harvest (30 claims, unverified panel died on rate limit)",
+   "url": "projects/taum-sauk-2005/research/web_claims_raw.json"
+  }
+ ]
+}
