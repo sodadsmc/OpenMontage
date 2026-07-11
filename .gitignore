@@ -63,17 +63,7 @@ projects/taum-sauk-2005/script_v1/*
 !projects/taum-sauk-2005/script_v1/*.md
 !projects/taum-sauk-2005/artifacts/
 projects/taum-sauk-2005/artifacts/*
-!projects/taum-sauk-2005/script_v1/
-projects/taum-sauk-2005/script_v1/*
-!projects/taum-sauk-2005/script_v1/*.yaml
-!projects/taum-sauk-2005/script_v1/*.py
-!projects/taum-sauk-2005/script_v1/*.md
 !projects/taum-sauk-2005/artifacts/*.json
-!projects/taum-sauk-2005/script_v1/
-projects/taum-sauk-2005/script_v1/*
-!projects/taum-sauk-2005/script_v1/*.yaml
-!projects/taum-sauk-2005/script_v1/*.py
-!projects/taum-sauk-2005/script_v1/*.md
 !projects/taum-sauk-2005/artifacts/*.jsonl
 
 # Corpus directories (downloaded stock clips, thumbnails, embeddings —
