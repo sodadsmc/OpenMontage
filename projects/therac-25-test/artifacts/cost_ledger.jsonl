@@ -1,0 +1,553 @@
+{"ts": "2026-06-17T04:23:12.030660+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:23:54.431492+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:24:22.908589+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:24:34.681890+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:24:52.814705+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:25:43.981792+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:26:52.915602+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:28:40.317117+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:28:59.294198+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:29:24.588542+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:29:43.333714+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T04:34:15.164502+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.153, "credits": 27.0, "duration_s": 9, "task": "a0203556231eb74193f216b51672f13a"}
+{"ts": "2026-06-17T04:42:54.817937+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.51, "credits": 90.0, "duration_s": 30, "task": "2b0f49137231d16a7a7fb0064800d779"}
+{"ts": "2026-06-17T04:50:13.750137+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.51, "credits": 90.0, "duration_s": 30, "task": "4dffe831facd6e8434948e6cd26dbd02"}
+{"ts": "2026-06-17T04:58:56.311353+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.51, "credits": 90.0, "duration_s": 30, "task": "09ba53f0bb44155aa1a6b02561edd7eb"}
+{"ts": "2026-06-17T05:06:56.078961+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T05:07:29.322476+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T05:07:49.674665+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T05:08:39.457341+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T05:08:51.327009+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T05:09:36.813210+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T05:09:48.647668+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T05:13:29.439124+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.153, "credits": 27.0, "duration_s": 9, "task": "6fc875e430afa75e1970c56dd5dfcdca"}
+{"ts": "2026-06-17T05:14:59.953476+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2e13fd6ee2b5e9cfe3225d85b2e490a7"}
+{"ts": "2026-06-17T05:20:10.264591+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.34, "credits": 60.0, "duration_s": 20, "task": "0d420e5857030c3540a4569c8be85b5e"}
+{"ts": "2026-06-17T05:28:07.847000+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.17, "credits": 30.0, "duration_s": 10, "task": "d8a166599a49a0eec449666ef136566a"}
+{"ts": "2026-06-17T05:38:21.393506+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.51, "credits": 90.0, "duration_s": 30, "task": "bdd92a2aca8597771501b6d02a2e4909"}
+{"ts": "2026-06-17T05:45:41.293857+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.425, "credits": 75.0, "duration_s": 25, "task": "076117f94a31dff3b0ecd346aee55259"}
+{"ts": "2026-06-17T05:51:45.695702+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.425, "credits": 75.0, "duration_s": 25, "task": "b766671d5598acebaad7192c86fe8977"}
+{"ts": "2026-06-17T06:14:04.136303+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.425, "credits": 75.0, "duration_s": 25, "task": "5ebfce3d39ebaa55fd1578691bfd3921"}
+{"ts": "2026-06-17T06:19:40.097091+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T06:38:12.259737+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.425, "credits": 75.0, "duration_s": 25, "task": "5b0e33577cad2a2ab99dbb73a4e79ba1"}
+{"ts": "2026-06-17T06:44:54.133765+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.425, "credits": 75.0, "duration_s": 25, "task": "1b6b6f6421683b5596cc4a2121cc32eb"}
+{"ts": "2026-06-17T06:51:53.054082+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.425, "credits": 75.0, "duration_s": 25, "task": "898231e808ed950cce58456eb42c5aa9"}
+{"ts": "2026-06-17T15:50:30.376496+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T15:50:49.133428+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T15:51:07.975630+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T15:52:04.695541+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T15:56:39.285689+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T16:04:50.370373+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.672, "credits": 112.0, "duration_s": 8, "task": "6828084e93d72acfdcaeb586188a05a5"}
+{"ts": "2026-06-17T16:06:51.533711+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.756, "credits": 126.0, "duration_s": 9, "task": "1b21125a7dedd36b6f689cbe01a17151"}
+{"ts": "2026-06-17T16:10:49.016396+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "5270df1b94eb96a51ab6f892530ac403"}
+{"ts": "2026-06-17T16:12:22.015603+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "144621b9c12b7ef3ace7a8415deb1058"}
+{"ts": "2026-06-17T16:16:19.457837+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a72dad3461f1cccdc0c4fd5ca2db9050"}
+{"ts": "2026-06-17T16:17:35.337525+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7f7a7e7193ecb1cad17ad165eb5ea9fb"}
+{"ts": "2026-06-17T16:19:23.796253+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "3524fa54fca79de7f284052ee8ac7d9b"}
+{"ts": "2026-06-17T16:20:06.946217+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T16:27:43.007748+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 1.176, "credits": 196.0, "duration_s": 14, "task": "9b00b1b7d0c61d14019661e8c4c02c37"}
+{"ts": "2026-06-17T16:27:59.585727+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T16:30:43.292323+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 1.26, "credits": 210.0, "duration_s": 15, "task": "97f8a74c31f147132cbf70e6ffa8d016"}
+{"ts": "2026-06-17T16:31:03.804205+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T16:34:03.405878+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 1.26, "credits": 210.0, "duration_s": 15, "task": "00b8e2045dc6b4afe99c38e080c7e82d"}
+{"ts": "2026-06-17T16:34:23.495195+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T16:36:00.248284+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.42, "credits": 70.0, "duration_s": 5, "task": "04957df9e9ca377c8f4e03c00db0b1c9"}
+{"ts": "2026-06-17T18:31:36.422161+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:31:49.092999+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:32:01.757163+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:32:20.693644+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:32:39.460839+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:32:51.709768+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:33:04.185309+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:33:16.671237+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:33:33.345699+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:34:40.943456+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T18:47:32.197186+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "124d84b5b11d0360094390dc22753c73"}
+{"ts": "2026-06-17T18:51:20.684008+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "4c2fe87d29df4be66314bbc0a5dee70f"}
+{"ts": "2026-06-17T18:53:06.757273+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7a2d2f5dd2af4f9fadeb63211f2a9061"}
+{"ts": "2026-06-17T18:54:13.701367+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7379a5f713bbf1c7c46e9bd59c4c7d86"}
+{"ts": "2026-06-17T18:55:36.020532+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b7eb0c2f2c7fe6bc716cd4d570e298b0"}
+{"ts": "2026-06-17T18:57:02.558060+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ac22e4be5442af3453883c5a30f1bf99"}
+{"ts": "2026-06-17T18:58:36.201095+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "3bae3b3da0c70c4e862e88bcb7ca7791"}
+{"ts": "2026-06-17T19:00:19.717536+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ebb49719e864ef76921b26721ecf6df8"}
+{"ts": "2026-06-17T19:01:47.051036+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "0648205c8ff5993a1ea04cf1e64902c8"}
+{"ts": "2026-06-17T19:03:15.622441+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c63997eeec509aecb6a5c43192b68e88"}
+{"ts": "2026-06-17T19:04:32.103352+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b2790dd8bb69a180c25b72d24181a71c"}
+{"ts": "2026-06-17T19:05:47.758935+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "52a77ebd444dcf63f3ab52a64d14b56a"}
+{"ts": "2026-06-17T19:07:20.380720+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d23ac7cb08289d22768dfb39d49a7ef8"}
+{"ts": "2026-06-17T19:08:48.445950+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "0c62682443225c0ad4bbd9de62b88a57"}
+{"ts": "2026-06-17T19:10:11.622380+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "e19f4b5617d6117946c15ff30712507c"}
+{"ts": "2026-06-17T19:11:29.940871+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "094ea906f8646f8494f214d52d6aba19"}
+{"ts": "2026-06-17T19:12:50.734316+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "559cb8430bf0a3322c4c03bf1bdefd7c"}
+{"ts": "2026-06-17T19:14:18.856930+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "5c3bf5b473b1dbfc4a0309e69691a5fe"}
+{"ts": "2026-06-17T19:15:36.947164+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "6c697e3a75ba15725003b7d2e2566ed8"}
+{"ts": "2026-06-17T19:17:00.782976+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9192b3162890d7d59b9237d775b0ee86"}
+{"ts": "2026-06-17T19:18:24.959371+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "124816d88e6fd3fd1a300fdfa909cb2e"}
+{"ts": "2026-06-17T19:20:00.527843+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "1bb3cf2aa352290c1b642c3448a38e9d"}
+{"ts": "2026-06-17T19:21:49.518756+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "f0309b8544e2e1fdadee54d21db473d7"}
+{"ts": "2026-06-17T19:23:19.106632+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "977edf939a61085f7bd3c29a7411f887"}
+{"ts": "2026-06-17T19:24:42.784558+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "4a21de81f525ca9d6ec38588670ab18f"}
+{"ts": "2026-06-17T19:26:07.878606+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "239f3b6fac1c7fed33bed50d8cd1d6aa"}
+{"ts": "2026-06-17T19:27:27.328592+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b323c7c9e5b246879416728c7604c50c"}
+{"ts": "2026-06-17T19:29:10.003797+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "217493ac69c21e646968252c915aa6d9"}
+{"ts": "2026-06-17T19:30:34.828216+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9321243d7afc1e3484b007eefbef41be"}
+{"ts": "2026-06-17T19:37:54.518157+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2e33dc57390a7310dece77d7d4e0ce04"}
+{"ts": "2026-06-17T19:38:05.888254+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T19:39:25.388154+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d248c221fee64a9f491d7e92a9776007"}
+{"ts": "2026-06-17T19:40:44.912974+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "6044db7ca7a98886947c83f3eb4e5621"}
+{"ts": "2026-06-17T19:42:09.918560+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "556ec775fff104de34ccd24d51c0b57d"}
+{"ts": "2026-06-17T19:43:18.987964+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "3927b272e7f8424066b90990c2c26f92"}
+{"ts": "2026-06-17T19:44:36.550389+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c2b4799b7d7f9029a36e9c2d0d3c0fbc"}
+{"ts": "2026-06-17T19:45:58.259171+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ecf5f75609262e51a904f8ef8a4fef19"}
+{"ts": "2026-06-17T19:47:27.502411+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "5d6440d411c06beed7c418a0ba753b14"}
+{"ts": "2026-06-17T19:56:39.125436+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T19:57:11.053704+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-17T19:59:10.221791+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.504, "credits": 84.0, "duration_s": 6, "task": "f0735802daa8a8b41e19d238200c7394"}
+{"ts": "2026-06-17T20:01:59.064338+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-17T20:04:12.974997+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.504, "credits": 84.0, "duration_s": 6, "task": "2bdf422da228a31e9f34ab6290732b78"}
+{"ts": "2026-06-17T20:09:32.080106+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a2601b1b63c0dbbaa3e15b03357313ef"}
+{"ts": "2026-06-17T20:11:09.665407+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b6b41297fa11c89aa7192113c953692c"}
+{"ts": "2026-06-17T20:12:40.212313+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "3a6518e837a96e43d4725888620835b4"}
+{"ts": "2026-06-17T20:14:22.311079+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "df74328f62837f6002205f949b26c3b0"}
+{"ts": "2026-06-17T20:16:14.256181+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "52d06decfb9396b9b619edd64da04f7b"}
+{"ts": "2026-06-17T20:18:10.536646+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "dfafc93bd478e458ec8143d2e2595f39"}
+{"ts": "2026-06-17T20:19:22.288914+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a08da20489f584a602cf16563526c7f7"}
+{"ts": "2026-06-17T20:20:29.377267+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a8582660832e42c9fd9ef90ce963ee31"}
+{"ts": "2026-06-17T20:21:29.234029+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ce89a410c36afe6912c276bb41a8be2d"}
+{"ts": "2026-06-17T20:22:57.051715+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9ab445d2f3471fbcb16d16ca406e6e32"}
+{"ts": "2026-06-17T20:24:09.647441+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7646483a35b46339d183237a4f93b315"}
+{"ts": "2026-06-17T20:25:31.294925+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "307ce6c306aa6c4fd81c38ea5f78721c"}
+{"ts": "2026-06-17T20:27:17.441625+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "99bca37dc7b6c224421dc98457eace6f"}
+{"ts": "2026-06-17T20:28:55.640836+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "1f0a74d8701b90c739dc597a924dc507"}
+{"ts": "2026-06-18T23:58:17.873510+00:00", "provider": "grok-kie", "operation": "text_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c3dca736de4f6cdf46ed7e181f20072b"}
+{"ts": "2026-06-18T23:59:32.157598+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "5567345660947018d9f7c653a10697da"}
+{"ts": "2026-06-19T00:01:01.511279+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "f92f5f8b4c36f8db69e4b07e20abe333"}
+{"ts": "2026-06-19T00:02:07.907600+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.26, "duration_s": 14.72, "scene_id": "seg_009", "take": 1, "revision_id": "461e8518b993", "kind": "take_regen"}
+{"ts": "2026-06-19T03:30:44.946098+00:00", "provider": "grok-kie", "operation": "text_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "42a01101fd0f4050be7468800c86a8a6"}
+{"ts": "2026-06-19T03:32:29.295575+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7cfa11b64a36ae0b7547f278b95c276a"}
+{"ts": "2026-06-19T03:33:53.629002+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "f5687b6b14c3c9cd2a07e2bdade26c54"}
+{"ts": "2026-06-19T03:35:41.017209+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a98c049f41502845aadec02f273b5438"}
+{"ts": "2026-06-19T03:36:45.353541+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.26, "duration_s": 14.72, "scene_id": "seg_009", "take": 2, "revision_id": "89135b2e5731", "kind": "take_regen"}
+{"ts": "2026-06-19T04:00:43.557678+00:00", "provider": "grok-kie", "operation": "text_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d31bbf9d362b3ce4ecf9566b6d7266e5"}
+{"ts": "2026-06-19T04:02:17.803162+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "0c2013649b07d73b24b99a83a912ff3a"}
+{"ts": "2026-06-19T04:03:59.909825+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "fa7ddb772694a71d59de58d8149f6659"}
+{"ts": "2026-06-19T04:04:52.413591+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.26, "duration_s": 14.72, "scene_id": "seg_009", "take": 3, "revision_id": "fc64b2b96763", "kind": "take_regen"}
+{"ts": "2026-06-19T16:14:50.920213+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "4e43106d2793869560df2b9a870f79f7"}
+{"ts": "2026-06-19T16:16:45.052253+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9d686a1a21be154cf99f94d1bfd49c88"}
+{"ts": "2026-06-19T16:18:03.668556+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "11273be830d22fd8e0cf0bee415c4654"}
+{"ts": "2026-06-19T16:19:57.388475+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7c224300c14bbb6ae1c2a5904661e2d2"}
+{"ts": "2026-06-19T16:20:57.825007+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.26, "duration_s": 14.72, "scene_id": "seg_009", "take": 5, "revision_id": "8083ab7dae08", "kind": "take_regen"}
+{"ts": "2026-06-19T18:13:17.793332+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "e22e781bbdc35ff33bfbb2b331c8995f"}
+{"ts": "2026-06-19T18:14:59.364228+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9417a5151b27c6a50d1e887f6a28c154"}
+{"ts": "2026-06-19T18:16:40.312150+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "267488ab1e7f2df2fd5e7afcc7e6480b"}
+{"ts": "2026-06-19T18:18:12.971884+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7e9afde5679d3b80070e5577984e7208"}
+{"ts": "2026-06-19T18:19:56.210857+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d2385d7e0179820b34c179628dcf91f0"}
+{"ts": "2026-06-19T18:21:20.356693+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "183257787a2d0954386a2bd6ff304602"}
+{"ts": "2026-06-19T18:22:52.065748+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c5d9b8b0bf0de970d80d44075c06ddad"}
+{"ts": "2026-06-19T18:24:20.779068+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "e9f883473a5439c47abbd1aa1bd96b3c"}
+{"ts": "2026-06-19T18:25:52.730911+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "e9b58df8e340cb05b58315f5fee191ae"}
+{"ts": "2026-06-19T18:27:17.508098+00:00", "provider": "grok-kie", "operation": "text_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2cc4927b820cab9b5333610832503944"}
+{"ts": "2026-06-19T18:28:43.144419+00:00", "provider": "grok-kie", "operation": "text_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "5e25274557a193a3b706fa39b9cdd658"}
+{"ts": "2026-06-19T18:29:53.784077+00:00", "provider": "grok-kie", "operation": "text_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "fe4c13868ced1ce3cdb57cf982561f25"}
+{"ts": "2026-06-19T18:31:25.522209+00:00", "provider": "grok-kie", "operation": "text_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c7238daff03b5f359689f33791ccc83a"}
+{"ts": "2026-06-19T21:49:22.776521+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "05a3e3149a1d09d48e4c2bdf8251e149"}
+{"ts": "2026-06-19T21:51:25.610890+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a5fe52589a9f2cc13f7785239b0bccc3"}
+{"ts": "2026-06-19T21:53:13.616475+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ca5fc918d197d55ead3921874a89ba1f"}
+{"ts": "2026-06-19T21:54:47.089123+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7fa795b53f14547ea8843ccf56301292"}
+{"ts": "2026-06-19T21:55:56.593391+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.26, "duration_s": 14.72, "scene_id": "seg_009", "take": 6, "revision_id": "b6d09b3eb6e7", "kind": "take_regen"}
+{"ts": "2026-06-19T22:06:47.093821+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "6baf9b226c54805e3f7c261fad6c5023"}
+{"ts": "2026-06-19T22:07:59.793918+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "452993b6c7dc5a116297f2e5245638bf"}
+{"ts": "2026-06-19T22:10:18.644742+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "8286c5bcdc774fca578430d0d7fd5865"}
+{"ts": "2026-06-19T22:12:09.225016+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "543702c400126bead537600ed04c1fab"}
+{"ts": "2026-06-19T22:13:58.596558+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "8cf235a482fcd6d5979df96ca0003ac7"}
+{"ts": "2026-06-19T22:16:41.928256+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "dc0640c5707c309078a38dddc47b0e9c"}
+{"ts": "2026-06-19T22:17:59.415598+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9a4f4ec8371e40b5b0c4f47e5fd50881"}
+{"ts": "2026-06-19T22:19:00.932751+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.39, "duration_s": 23.36, "scene_id": "seg_012", "take": 1, "revision_id": "3aba6f394798", "kind": "take_regen"}
+{"ts": "2026-06-20T00:20:57.106983+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "5c03d34448ae03cd8978c2b4a8f38578"}
+{"ts": "2026-06-20T00:22:45.559368+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2e765161a0de8237daad56e26828b4f8"}
+{"ts": "2026-06-20T00:25:16.375588+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "6ec602a22b209fc1088bd2447bb04c13"}
+{"ts": "2026-06-20T00:26:52.329927+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "95c53e84fb58c6939aee42b6a84c25c9"}
+{"ts": "2026-06-20T00:28:23.821384+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "14244c83031c7f1fbaaf79786b898ba1"}
+{"ts": "2026-06-20T16:34:28.355505+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c283dd358ae5b6706f8911127ef3f8ed"}
+{"ts": "2026-06-20T16:36:58.360338+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "4419254409f9c0a9ff2e3c1c1e158556"}
+{"ts": "2026-06-20T16:39:38.672444+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c7b753ca48224fba209b1c45074897db"}
+{"ts": "2026-06-20T16:41:06.833544+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c0e0e4d69a8822fb0b97e66d853998ad"}
+{"ts": "2026-06-20T16:42:48.148537+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "4071f4cd8c367d03535ee99c36a4f4d6"}
+{"ts": "2026-06-20T16:44:29.560385+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b2528cbaa9fb9ee7de53dd939977f3a7"}
+{"ts": "2026-06-20T16:45:56.179549+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "de9bdce5d86e8bbf0de250adc02105f0"}
+{"ts": "2026-06-20T16:47:18.395936+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.6, "duration_s": 26.68, "scene_id": "seg_014", "take": 1, "revision_id": "043b48b97e1f", "kind": "take_regen", "beats": 3}
+{"ts": "2026-06-20T23:35:38.549139+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "133d71f7fd5cbcdb3d3bc681d70850ae"}
+{"ts": "2026-06-20T23:38:33.080881+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "633a9078e7de19cf7e47b026e9a0f444"}
+{"ts": "2026-06-20T23:40:43.944202+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d294265bf229bfe6d7d9ad24322d0bb2"}
+{"ts": "2026-06-20T23:43:34.378923+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "bcfbfb775aeb4d4236a0f022afb949bb"}
+{"ts": "2026-06-20T23:44:31.390497+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.3, "duration_s": 13.19, "scene_id": "seg_015", "take": 1, "revision_id": "cfc5d40f28a6", "kind": "take_regen", "beats": 3}
+{"ts": "2026-06-21T16:46:25.725031+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "456c9f5ae4107366ba7e15f5aa957638"}
+{"ts": "2026-06-21T16:48:17.117227+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "32794c6dc85437012cb30a10a79a4a90"}
+{"ts": "2026-06-21T16:49:48.239875+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "fbb61963c773976c997041e2a74bec11"}
+{"ts": "2026-06-21T16:51:38.477153+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.2, "duration_s": 13.19, "scene_id": "seg_015", "take": 2, "kind": "take_regen", "beats": 2}
+{"ts": "2026-06-21T17:42:55.482764+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "e83022150584a676d9565e98166ca66c"}
+{"ts": "2026-06-21T17:44:33.659365+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.1, "duration_s": 13.19, "scene_id": "seg_015", "take": 3, "kind": "take_regen", "beats": 1}
+{"ts": "2026-06-21T18:10:39.578763+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "25750522a52e5d151f73746fcf25ff21"}
+{"ts": "2026-06-21T18:12:24.809732+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "542225b63bfaf85e130df9bbebf9b60b"}
+{"ts": "2026-06-21T18:14:20.547868+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2ab7d57731423c8e0d4a0e035a731bbe"}
+{"ts": "2026-06-21T18:15:55.140385+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "aa10e22cdc765175c2ef284e7c8b7d3f"}
+{"ts": "2026-06-21T18:17:32.031125+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.3, "duration_s": 13.19, "scene_id": "seg_015", "take": 1, "revision_id": "b16dfa985b2a", "kind": "take_regen"}
+{"ts": "2026-06-21T20:17:34.086153+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "87f5bd6692d9ac32c75b2ab5fdda9836"}
+{"ts": "2026-06-21T20:19:00.700176+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "4c41382cbd4b6f4c0106b9a7919579b7"}
+{"ts": "2026-06-21T20:21:25.874400+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "e871abcee3fa5602d1b0485858cd8c6e"}
+{"ts": "2026-06-21T20:23:19.330671+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "afb883ad00b8a9ceea148fc5e22619fe"}
+{"ts": "2026-06-21T20:24:53.227301+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d8b1515578c0293febbca89022e258a0"}
+{"ts": "2026-06-21T20:26:58.583863+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ce65c9052df60fc6615ea2c6c1cff3bd"}
+{"ts": "2026-06-21T20:28:33.366735+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.4, "duration_s": 16.16, "scene_id": "seg_019", "take": 1, "revision_id": "f02ba222e02d", "kind": "take_regen", "beats": 3}
+{"ts": "2026-06-23T18:04:25.784536+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.1, "duration_s": 16.16, "scene_id": "seg_019", "take": 2, "kind": "take_regen", "beats": 1}
+{"ts": "2026-06-29T18:05:06.654883+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:06:07.159557+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:06:55.137727+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:07:22.568330+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:07:50.285302+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:10:40.710309+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:11:34.148302+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:12:13.186901+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:12:36.883814+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:13:02.888759+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:14:03.600208+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:15:40.087221+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:17:23.852000+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T18:17:57.902799+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-06-29T22:51:18.643615+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d61f3f03020be1993ecaa1b41e368339"}
+{"ts": "2026-06-29T22:53:30.771609+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a22215a16875816f9888bea37278c115"}
+{"ts": "2026-06-29T22:55:00.141036+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b40b3a604038d77f69148290a2078249"}
+{"ts": "2026-06-29T22:56:25.063536+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.3, "duration_s": 16.16, "scene_id": "seg_019", "take": 1, "revision_id": "af8de11718d9", "kind": "take_regen", "beats": 2}
+{"ts": "2026-06-29T23:45:45.395193+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2faeb83a1f52ccf1a1bafd5ef2acec70"}
+{"ts": "2026-06-29T23:47:37.629040+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d52be579f4405e244f21148fdab13d7a"}
+{"ts": "2026-06-29T23:49:13.012648+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2b2574966f007f45ca65d23c08726d6f"}
+{"ts": "2026-06-29T23:53:36.467989+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ccbf562def6759d737fe89441af8098b"}
+{"ts": "2026-06-29T23:55:20.903385+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.4, "duration_s": 16.16, "scene_id": "seg_019", "take": 2, "revision_id": "550b59e4f298", "kind": "take_regen", "beats": 4}
+{"ts": "2026-06-30T18:44:53.803449+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T18:45:06.068582+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T19:01:30.366636+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T19:07:48.657214+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T19:08:24.269969+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T19:22:29.999067+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "67cbd7909d39fa5e022b3d1a2deed4a5"}
+{"ts": "2026-06-30T19:24:09.154560+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d1e05ee0a98584f35f167194f44bfdca"}
+{"ts": "2026-06-30T22:42:03.727276+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T22:43:15.777916+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T22:43:48.964402+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T22:44:08.068036+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T22:44:45.767190+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T22:45:16.636285+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-06-30T23:26:22.423675+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "58158c02c80e58ed908f5d874819e0a9"}
+{"ts": "2026-06-30T23:27:30.444288+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "95aed70c6d3c66c0a7b68059e6006024"}
+{"ts": "2026-06-30T23:28:41.610148+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d496d8df3d580a0dce12df5bd44fff13"}
+{"ts": "2026-07-01T16:43:22.189767+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:43:56.674176+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:44:31.661864+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:45:10.785476+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:46:27.409733+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2c752b4a93929d461f2e048fb4accad0"}
+{"ts": "2026-07-01T16:47:16.083580+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:49:10.890645+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.42, "credits": 70.0, "duration_s": 5, "task": "01a2afde9358f5e041f3824df79f06fe"}
+{"ts": "2026-07-01T16:49:34.505105+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:50:03.827100+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:50:31.963068+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:51:47.913041+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b2da1137c396020fd17ac33e69bc3017"}
+{"ts": "2026-07-01T16:53:43.062192+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:54:22.291670+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:54:52.740443+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T16:57:57.189119+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "42b6e48338c6ff11a5d0acb2c029bc2d"}
+{"ts": "2026-07-01T16:58:45.829417+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T17:00:51.291447+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b30d686f8a47df6999d648293258bc63"}
+{"ts": "2026-07-01T17:02:31.962897+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.77, "duration_s": 22.11, "scene_id": "seg_019", "take": 4, "revision_id": "718b62bc35f0", "kind": "take_regen", "beats": 5}
+{"ts": "2026-07-01T21:47:53.700487+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T21:49:48.684515+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7c603f03983f07cc228ee1c5a268c3c7"}
+{"ts": "2026-07-01T21:50:14.718843+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T21:53:21.428933+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "27511811abf75ace45ab500ef332d037"}
+{"ts": "2026-07-01T21:54:07.387298+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T21:57:36.148120+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T21:58:12.180006+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T22:02:59.644282+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c312781a6b697433ad2f71411f747f08"}
+{"ts": "2026-07-01T22:03:46.512660+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T22:07:53.197007+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "16dd486267001a196c76939197838a97"}
+{"ts": "2026-07-01T22:08:39.414261+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T22:12:11.650269+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T22:14:14.481484+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-01T22:17:54.167342+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b0fbb4f69e5817069dcd72496a04fabe"}
+{"ts": "2026-07-01T22:20:03.406467+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.5, "duration_s": 22.11, "scene_id": "seg_019", "take": 5, "revision_id": "20b597235905", "kind": "take_regen", "beats": 5}
+{"ts": "2026-07-02T04:53:45.551919+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T04:56:16.580506+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T04:59:40.903894+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T05:02:51.445547+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T05:04:16.565127+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T05:06:15.666697+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T05:48:57.897121+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T05:52:32.396987+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T05:56:09.100569+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T05:59:56.805910+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T06:03:16.905495+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T06:06:30.531485+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T06:08:25.361183+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T06:09:53.623824+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T21:49:59.523733+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T21:50:36.352040+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T21:51:13.610653+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T21:56:16.033756+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T21:56:52.275951+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T22:08:16.349812+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T22:09:05.466267+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T22:09:53.116065+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T22:10:56.859830+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T22:16:07.372985+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T22:16:45.554847+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T22:17:32.178666+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-02T23:59:15.088822+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "f20dec6fb3a6a91dbbfa94eacdc30e51", "refs": 3}
+{"ts": "2026-07-03T17:13:55.501928+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T17:14:28.516613+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T17:15:03.612010+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T17:16:11.126693+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T17:16:57.812418+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T17:17:26.746607+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T17:18:07.521738+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T17:25:08.456974+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "121491f2135b8bd5f1f9aa7ef59c8ea9", "refs": 3}
+{"ts": "2026-07-03T18:38:38.790060+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T18:39:45.481353+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T18:40:22.067724+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T18:41:03.770917+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T18:43:51.460646+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T18:44:19.020457+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T18:45:01.555794+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T22:46:00.485561+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T22:46:36.346843+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-03T22:49:00.156654+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T00:08:13.992454+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T00:08:54.344581+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T00:09:30.382721+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T01:14:02.321509+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "debab4853085b0093b0a2c2a5f5718fb"}
+{"ts": "2026-07-04T01:16:04.064876+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "10b6bd169740aa43d99659080dfee7c6"}
+{"ts": "2026-07-04T01:16:50.649536+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T01:18:34.451509+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "87b54d79eab65a1b7e8b57c0bce38830"}
+{"ts": "2026-07-04T01:19:34.752564+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "178da4697a59603334c8c8159f2cdab9"}
+{"ts": "2026-07-04T01:21:40.970152+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "1895d029d5a42aaa03f0092a1c6df22e"}
+{"ts": "2026-07-04T01:23:12.826444+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.5, "duration_s": 22.11, "scene_id": "seg_019", "take": 6, "revision_id": "ab3e0cf29e11", "kind": "take_regen", "beats": 4}
+{"ts": "2026-07-04T01:56:51.478178+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "fe063954dda271937f20b16c18553221"}
+{"ts": "2026-07-04T01:57:46.543818+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T01:58:20.817626+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T01:59:35.663890+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "049e18391dfa66cd4dca284ea4a0142d"}
+{"ts": "2026-07-04T02:01:07.276531+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a67252981a42a5b4816909f446b90f61"}
+{"ts": "2026-07-04T02:02:18.352635+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "6601591398bc76e32b32a754b20aec85"}
+{"ts": "2026-07-04T02:04:31.366607+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "4182656fbad3b3d0623db09ca3401f6c"}
+{"ts": "2026-07-04T02:06:07.155238+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.51, "duration_s": 22.11, "scene_id": "seg_019", "take": 7, "revision_id": "820b170da8f6", "kind": "take_regen", "beats": 3}
+{"ts": "2026-07-04T02:50:34.932977+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "8540a0d5103753168abbe915ac7b2009"}
+{"ts": "2026-07-04T02:52:08.055023+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.1, "duration_s": 22.11, "scene_id": "seg_019", "take": 8, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-04T03:20:53.257126+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "97372baa118c6b90ee89d7a0a3495675"}
+{"ts": "2026-07-04T03:23:44.182623+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T03:24:49.814442+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T03:25:32.969271+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T03:26:07.757634+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T03:28:01.842623+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "99b00831992b7def0ad09cce9c5f88ac"}
+{"ts": "2026-07-04T03:30:47.849011+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "dde46e39e676475ab6637af08325f4fc"}
+{"ts": "2026-07-04T03:31:48.254261+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "82861e0337ca58fd7af8d6fd46b3e25b"}
+{"ts": "2026-07-04T03:33:22.780769+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.51, "duration_s": 22.11, "scene_id": "seg_019", "take": 9, "revision_id": "738eba26581b", "kind": "take_regen", "beats": 3}
+{"ts": "2026-07-04T03:45:59.248786+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "be72324c1c1034202cb591f42a36963a", "refs": 3}
+{"ts": "2026-07-04T03:47:23.985870+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.1, "duration_s": 22.11, "scene_id": "seg_019", "take": 10, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-04T05:08:23.878763+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T05:09:01.020747+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T05:09:47.718097+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T05:10:34.795859+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T05:12:21.105628+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "8a42727755e59c9d8cf97bf2c121bd0f"}
+{"ts": "2026-07-04T05:13:43.069874+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "fda77dcdd015bba73d294896d8aa054e"}
+{"ts": "2026-07-04T05:15:06.753925+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "6efec4f64cc4b7a83cbadf05bfb720d3"}
+{"ts": "2026-07-04T05:16:39.682372+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.31, "duration_s": 22.11, "scene_id": "seg_019", "take": 12, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-04T18:57:33.704549+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T18:58:55.965016+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T18:59:59.953655+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:00:40.324966+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:02:56.034956+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:03:57.028992+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:05:54.172933+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:13:42.430601+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ba82edb85515c2216dc41f302c77ca83"}
+{"ts": "2026-07-04T19:14:26.120146+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:16:55.224756+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "fccc6a9b35495dee456c3e17654381a9", "refs": 2}
+{"ts": "2026-07-04T19:19:12.443216+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "b861c86a34d9a787f17d46447e342040", "refs": 2}
+{"ts": "2026-07-04T19:20:06.339027+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:22:11.210720+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ffa6cde47e0986a9876e47845996e22c"}
+{"ts": "2026-07-04T19:23:14.865831+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9f23204c49071ca04da367ec3518cedc"}
+{"ts": "2026-07-04T19:24:00.281742+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:26:35.163695+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.336, "credits": 56.0, "duration_s": 4, "task": "9464b7ab977a3b4d06b59568e540d4a0"}
+{"ts": "2026-07-04T19:27:42.091161+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.79, "duration_s": 21.08, "scene_id": "seg_021", "take": 1, "revision_id": "2c6079633266", "kind": "take_regen", "beats": 4}
+{"ts": "2026-07-04T19:32:49.168524+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T19:38:53.184296+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "9386af693ddf99663567a140c12a7476", "refs": 2}
+{"ts": "2026-07-04T19:41:13.219715+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "a378b4125d9222a65faebc463f21818b", "refs": 2}
+{"ts": "2026-07-04T19:42:42.227754+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.2, "duration_s": 21.08, "scene_id": "seg_021", "take": 2, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-04T20:47:30.176939+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-07-04T20:47:42.891595+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T20:49:12.649726+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ba06253b2cd924da35d20eadce8fe2a5"}
+{"ts": "2026-07-04T20:50:47.555347+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "eb1c1f2244d1d85dd8a676ec90e66239"}
+{"ts": "2026-07-04T20:51:40.438921+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-07-04T20:51:59.519474+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T20:52:25.725767+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T20:53:35.711703+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "35c2f34a1908639f246811bda39084a2"}
+{"ts": "2026-07-04T20:54:39.881415+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-07-04T20:54:52.446740+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T20:56:11.460056+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "814b782c513930eeb7e5e3581674b5d2"}
+{"ts": "2026-07-04T20:57:33.990613+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d2c0cca89b13df6c42a4caf56338d02b"}
+{"ts": "2026-07-04T20:59:36.538974+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.5, "duration_s": 24.43, "scene_id": "seg_022", "take": 1, "revision_id": "60d2baa9c8b9", "kind": "take_regen", "beats": 3}
+{"ts": "2026-07-04T22:57:34.883125+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T22:58:04.600808+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T22:59:16.939751+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "dec58fe2dca74cc3f66822f74358f5ee"}
+{"ts": "2026-07-04T23:01:31.953833+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "11e5cd4ce61a972c32a22a2dd1ed4169"}
+{"ts": "2026-07-04T23:02:27.449012+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T23:03:36.186692+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7c5b630eb3d101a141c0e624d736734b"}
+{"ts": "2026-07-04T23:05:26.765722+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.3, "duration_s": 24.43, "scene_id": "seg_022", "take": 2, "kind": "take_regen", "beats": 2}
+{"ts": "2026-07-04T23:08:20.230312+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-04T23:10:29.025778+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "f6fb751ede5176f968d6a9ea3ded967a"}
+{"ts": "2026-07-04T23:12:14.180874+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7b71a4cb970cb0544c5e493b47ff7100"}
+{"ts": "2026-07-04T23:13:47.726583+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.1, "duration_s": 24.43, "scene_id": "seg_022", "take": 3, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-05T20:28:44.768888+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:29:43.683486+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:30:41.910675+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:31:20.482839+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:32:45.953207+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:33:16.124249+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:33:39.575354+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:37:57.153458+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:39:33.804948+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:40:10.501306+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:41:14.262263+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:44:09.010570+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:45:18.060509+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:45:55.260903+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:47:24.206045+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:47:59.386239+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:48:28.755883+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-05T20:54:40.051426+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "8a311e35e962d0ef92a19671f08958bb"}
+{"ts": "2026-07-05T20:57:15.509397+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "82c66a8496ff7defd8ba1f6b989cd4c3"}
+{"ts": "2026-07-05T20:58:16.288777+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "bfb8e76ae923f419d7fc8080276515b2"}
+{"ts": "2026-07-05T20:59:56.526776+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "40a11faa65e7d3f278bfec3c1f7aa219"}
+{"ts": "2026-07-05T21:00:34.679788+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-07-05T21:04:07.506243+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.588, "credits": 98.0, "duration_s": 7, "task": "edc1b7360e2116c0cc14a33d516bf536"}
+{"ts": "2026-07-05T21:14:59.524384+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "f58cc0708871559d4481f158561445a8"}
+{"ts": "2026-07-05T21:16:00.132659+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "49ab9c14a756fd810bf13f11839d3205"}
+{"ts": "2026-07-05T21:17:10.003076+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-07-05T21:19:15.580820+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.672, "credits": 112.0, "duration_s": 8, "task": "9f99e3d47b133fed723befdde06a6cf7"}
+{"ts": "2026-07-05T21:20:46.772665+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "dfd298b501a2b94286a91b9dc1cefc49"}
+{"ts": "2026-07-05T21:22:21.266348+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "4da378e4b8207de2aa9512ef2211aa0e"}
+{"ts": "2026-07-05T21:24:16.170881+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 2.16, "duration_s": 52.48, "scene_id": "seg_018", "take": 1, "revision_id": "6a6fc746cb88", "kind": "take_regen", "beats": 8}
+{"ts": "2026-07-05T21:31:17.012143+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "94bb0e7553f3ba79be79f80faeaca3ff", "refs": 3}
+{"ts": "2026-07-06T02:35:17.018617+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "693bd4b10523c72f75c1cd98a88bf059", "refs": 3}
+{"ts": "2026-07-06T02:42:25.191385+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "50068c127f469f461e10504bf3ddb8d7", "refs": 3}
+{"ts": "2026-07-06T02:44:27.894851+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.2, "duration_s": 52.48, "scene_id": "seg_018", "take": 2, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-06T16:53:23.937387+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T16:58:16.007130+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T18:21:50.821190+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b705e607c46a0516773968227d6a9e7a"}
+{"ts": "2026-07-06T18:23:39.851340+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "f4f0e83dc4394b928b776ae42c2b4aa8"}
+{"ts": "2026-07-06T18:25:28.669073+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "0e402021a65cd9ae48735310e16637cf"}
+{"ts": "2026-07-06T18:27:26.807001+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "7ceb6665adf9edf082a7abee04bd4c8f"}
+{"ts": "2026-07-06T18:30:31.956046+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.83, "duration_s": 26.08, "scene_id": "seg_023", "take": 1, "revision_id": "2b9d1e6ac5c2", "kind": "take_regen", "beats": 4}
+{"ts": "2026-07-06T18:33:18.640441+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T18:35:53.655766+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "082e756885db5270fdfada2c4ccecf8d"}
+{"ts": "2026-07-06T18:37:50.004986+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.1, "duration_s": 26.08, "scene_id": "seg_023", "take": 2, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-06T18:44:50.749387+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "c85ec22f0e1402d4d6f9c1d7a9e479ee"}
+{"ts": "2026-07-06T18:46:32.026636+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9a32904e6e75f3cb2c95dbc1d36ae020"}
+{"ts": "2026-07-06T18:48:25.066626+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.2, "duration_s": 26.08, "scene_id": "seg_023", "take": 4, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-06T21:47:37.877521+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "914f2f0ed3e83dfcc9a5c209ed4f7568"}
+{"ts": "2026-07-06T21:49:11.808647+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.1, "duration_s": 26.08, "scene_id": "seg_023", "take": 6, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-06T22:50:35.700544+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T22:51:38.899785+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T22:52:08.653017+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T22:52:50.639747+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T22:53:17.966839+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T22:53:47.283740+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T23:20:51.317129+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T23:21:16.175647+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-06T23:25:57.433517+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T00:04:28.439785+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.4, "duration_s": 15.7, "scene_id": "seg_024", "take": 1, "revision_id": "6b1ea03919b0", "kind": "take_regen", "beats": 3}
+{"ts": "2026-07-07T00:13:37.358838+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.4, "duration_s": 15.7, "scene_id": "seg_024", "take": 2, "kind": "take_regen", "beats": 3}
+{"ts": "2026-07-07T00:18:26.865652+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "0bbdfdde687c228e1b0e41849b140272"}
+{"ts": "2026-07-07T00:19:52.520071+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "908898409ab2baf2b4c588339d9337fa"}
+{"ts": "2026-07-07T00:21:45.325704+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "a3f09e0dbceb0c1c7c8c79a87a2f6d27"}
+{"ts": "2026-07-07T00:22:54.953213+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "56c28b2d6f90cdc4b0805be674186c09"}
+{"ts": "2026-07-07T00:24:16.054626+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.4, "duration_s": 15.7, "scene_id": "seg_024", "take": 3, "kind": "take_regen", "beats": 3}
+{"ts": "2026-07-07T02:53:25.640997+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T02:59:16.656482+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T02:59:42.386219+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T03:00:12.816938+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T03:00:38.924739+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T03:01:11.419979+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T18:26:38.578066+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T18:27:05.944375+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T18:27:48.982598+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T18:30:37.990115+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-07T18:33:34.349829+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "60c09752e465a42707f6f19d2cb6091d"}
+{"ts": "2026-07-07T18:35:56.078444+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "65e201b2fccfcce92b56337e94b4af36"}
+{"ts": "2026-07-07T18:37:40.329292+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "ad0e2f3bdb8114b84666d70d2fd23ac6"}
+{"ts": "2026-07-07T18:39:43.645012+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "fc1c8e6829f7bcb61a366d5ad594132e"}
+{"ts": "2026-07-07T18:42:40.978398+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "b271d319256103d43f7b541316519d66"}
+{"ts": "2026-07-07T18:45:00.301172+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "bf87abdec8b1189ae9caab21b06206e2"}
+{"ts": "2026-07-07T18:47:03.115324+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d42664473dc130b2d58fc206b1ea5dad"}
+{"ts": "2026-07-07T18:49:27.050331+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.7, "duration_s": 33.2, "scene_id": "seg_025", "take": 1, "revision_id": "01a82be513ba", "kind": "take_regen", "beats": 6}
+{"ts": "2026-07-07T18:51:03.620132+00:00", "provider": "nano-banana", "operation": "image_generate", "cost_usd": 0.04}
+{"ts": "2026-07-07T18:53:41.903080+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.588, "credits": 98.0, "duration_s": 7, "task": "6703caece3bf0acc8c2c8a5b2a948931"}
+{"ts": "2026-07-07T18:55:34.518756+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.52, "duration_s": 33.2, "scene_id": "seg_025", "take": 2, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-08T01:34:28.354868+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:35:03.940962+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:35:44.050145+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:36:51.275715+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:37:45.770428+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:38:34.390811+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:39:03.903545+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:39:27.834903+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:40:06.040191+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:40:35.148746+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:42:24.119034+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T01:43:13.310848+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T03:13:32.276229+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "cf9fb35ffb3f5fc7b02c7b4b3e01ada1"}
+{"ts": "2026-07-08T03:15:56.528502+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "19f435941aad74373c7990ba81a6c89d", "refs": 2}
+{"ts": "2026-07-08T03:18:33.530395+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "ed884c7e2ec02b0fc25eec2421b63b42", "refs": 2}
+{"ts": "2026-07-08T03:20:33.654128+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "2161cad5ab903177de26f6699a223eb9", "refs": 2}
+{"ts": "2026-07-08T03:22:28.090166+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "6e05f22a779807bb76b2d5b993666132"}
+{"ts": "2026-07-08T03:24:16.301004+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "0feb576fbf9a63d2a038f55cfdafccf8"}
+{"ts": "2026-07-08T03:26:23.434196+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d43a113f8e71d950ee2ffddc4d16964d"}
+{"ts": "2026-07-08T03:28:24.785122+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "3dfd28500f00e7ab12264f7d6a00d3ed"}
+{"ts": "2026-07-08T03:29:53.287149+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9a9ec4f489b05d709c7418dc8e8b1152"}
+{"ts": "2026-07-08T03:31:45.401945+00:00", "provider": "mixed", "operation": "mixed_beats", "cost_usd": 0.7, "duration_s": 24.66, "scene_id": "seg_030", "take": 1, "revision_id": "5a5c5a9c4dae", "kind": "take_regen", "beats": 5}
+{"ts": "2026-07-08T03:35:14.987682+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "684fae1906df6d3adbb2b867cc7aa896"}
+{"ts": "2026-07-08T03:36:44.343511+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "db67192d614c5377bc4909951b670076"}
+{"ts": "2026-07-08T03:38:16.074439+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.1, "duration_s": 24.66, "scene_id": "seg_030", "take": 2, "kind": "take_regen", "beats": 1}
+{"ts": "2026-07-08T03:54:18.344592+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T03:54:48.379548+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T03:56:14.649446+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-08T03:58:53.522276+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "96c8245a21795d860e5659a834893d99"}
+{"ts": "2026-07-08T04:01:41.569994+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "e7fbdbbf289b66f0f3aa56a390aa89f5"}
+{"ts": "2026-07-08T04:04:45.587915+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "e581ac0ff22556baf19ce84550d9e4f1"}
+{"ts": "2026-07-08T04:06:40.885861+00:00", "provider": "mixed", "operation": "regen_beats", "cost_usd": 0.3, "duration_s": 24.66, "scene_id": "seg_030", "take": 4, "kind": "take_regen", "beats": 2}
+{"ts": "2026-07-09T17:05:20.871958+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-09T17:07:09.961358+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-09T17:07:34.645175+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-09T17:39:05.300060+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-09T17:40:01.572751+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-09T17:40:13.425812+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-09T17:42:00.634193+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-09T18:06:29.622209+00:00", "provider": "nano-banana", "operation": "image_edit", "cost_usd": 0.04}
+{"ts": "2026-07-09T19:31:50.439193+00:00", "provider": "gemini-image", "operation": "image_generate", "cost_usd": 0.039}
+{"ts": "2026-07-09T19:32:00.306401+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-09T19:32:08.207414+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-09T19:32:17.431839+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-09T19:32:25.801981+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-09T19:33:59.804686+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-09T19:41:37.972127+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "34c7f09dad6524ed9494a81105f70165"}
+{"ts": "2026-07-09T19:42:26.281559+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "359e548ed6a5a10e214c4c756f5733db"}
+{"ts": "2026-07-09T19:43:40.054818+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "f6b74868c8885ac07b78eb415ec47235"}
+{"ts": "2026-07-09T19:45:14.456841+00:00", "provider": "veo-ref-kie", "operation": "reference_to_video", "cost_usd": 0.32, "duration_s": 8, "task": "c68451f28d53a020f49e2eb1a37a1b7d", "refs": 2}
+{"ts": "2026-07-09T19:48:30.419052+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "39e276897acb4cd35837fb8fd2844084"}
+{"ts": "2026-07-09T19:49:11.540591+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "d4f935422d10c10b22b53b04373cd51d"}
+{"ts": "2026-07-09T19:50:00.699190+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "406b00053f570faa81c8e605a42c8e25"}
+{"ts": "2026-07-09T19:55:02.099704+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "0ba44a13a8002e7d5f8f505d80947ce8"}
+{"ts": "2026-07-10T02:09:29.659454+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-10T02:09:43.118646+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-10T02:10:45.047176+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "2935d405bb67f97a66d9418e8497e053"}
+{"ts": "2026-07-10T02:11:50.188402+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "369f68a8d8fa8f3f4fb6c92345e39c4c"}
+{"ts": "2026-07-10T02:12:00.555965+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-10T02:14:16.394167+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.42, "credits": 70.0, "duration_s": 5, "task": "d4d7a61e6e21b66b10d7af32448cc476"}
+{"ts": "2026-07-10T14:33:29.781363+00:00", "provider": "gemini-image", "operation": "image_edit", "cost_usd": 0.039}
+{"ts": "2026-07-10T14:34:48.363305+00:00", "provider": "grok-kie", "operation": "image_to_video", "cost_usd": 0.102, "credits": 18.0, "duration_s": 6, "task": "9b7b17d93fc5959686835b9b8bae715a"}
+{"ts": "2026-07-10T17:30:55.365749+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.42, "credits": 70.0, "duration_s": 5, "task": "5d76d4ba513dacaa778474e450e11beb"}
+{"ts": "2026-07-10T17:43:18.122332+00:00", "provider": "kling-kie", "operation": "first_last_frame", "cost_usd": 0.42, "credits": 70.0, "duration_s": 5, "task": "ce6dd00b1532d5ef90334a9eae6d9124"}

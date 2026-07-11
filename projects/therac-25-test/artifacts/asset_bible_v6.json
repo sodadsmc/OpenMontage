@@ -1,0 +1,308 @@
+{
+  "version": "1.0",
+  "topic": "Therac-25 radiation therapy disaster",
+  "assets": [
+    {
+      "asset_id": "loc_kennestone_corridor",
+      "type": "location",
+      "name": "Kennestone Corridor",
+      "description": "Slow tracking shot down a hospital corridor. Fluorescent lights. Linoleum floors. 1985 period detail.\n",
+      "locked_attributes": [
+        "period-accurate 1985"
+      ],
+      "period_constraints": "1985 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "projects\\therac-25-test\\assets\\asset_bible\\loc_kennestone_corridor.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/w8wlLLeMHabe/loc_kennestone_corridor.png",
+      "canonical_image_prompt": "Slow tracking shot down a hospital corridor. Fluorescent lights. Linoleum floors. 1985 period detail.. period-accurate 1985. 1985 era - no anachronisms. Empty and unoccupied, no people, no figures, no patients. Period-accurate mid-1980s only; no modern vehicles, no modern signage, blank unlettered signs. graphic novel illustration, bold black ink linework, cross-hatch and stippled shading, halftone dot texture, duotone palette of deep navy blue and warm amber, high contrast, heavy film grain, aged paper texture, interior comic-panel art (not a cover, no title), illustrated not photorealistic",
+      "appears_in": [
+        "seg_001"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "",
+      "identity_tokens": [],
+      "reference_images": [],
+      "reference_sheet": "",
+      "reference_sheet_url": ""
+    },
+    {
+      "asset_id": "loc_kennestone_treatment_room",
+      "type": "location",
+      "name": "Kennestone Treatment Room",
+      "description": "A treatment room. The Therac-25 machine looming overhead. Oppressive, clinical atmosphere.\n",
+      "locked_attributes": [
+        "period-accurate 1985"
+      ],
+      "period_constraints": "1985 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "projects/therac-25-test/assets/asset_bible/loc_kennestone_treatment_room_v5_master.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/wxwML2egHt3p/loc_kennestone_treatment_room_v4_graded.png",
+      "canonical_image_prompt": "graphic-novel illustration, 1985 treatment room with the REAL AECL Therac-25 geometry (rounded-top housing + projecting beam head), grounded on Leveson's verified facility figure + the v2 reference sheet",
+      "appears_in": [
+        "seg_002"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "Therac-25",
+      "identity_tokens": [
+        "the AECL Therac-25: a massive beige floor-standing housing with a smooth rounded top (a monolithic arch-like body, NOT a C-arm or open gantry ring), from whose upper face a smooth cylindrical beam-head assembly with a flattened rounded collimator snout projects out and angles down over the patient treatment table; clean molded mid-1980s panels",
+        "a smooth ROUNDED cylindrical treatment head hanging from the curved overhead arm (never a boxy or squared head)"
+      ],
+      "reference_images": [
+        "https://0-cdn2-ovh-bea.energycdn.com/cdn3sto/heavensteppledge-sto/6a28f26cc6cec6.64352803/613989672/1781068495/52a51f21f291d9cf620c4bc17b038c992765dd3e/a21ad649ed51882b10424989c81c82e825d6ab733655a1d56fe4a9698c7cb0ba/real_09.png",
+        "https://6-cdn2-ovh-bea.energycdn.com/cdn3sto/fearlesshawk-sto/6a28f274a77953.00611685/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/92290c3b9bdcb27b9ff227e019654dadcf8fd8fa38afc8d0995653a101bb94aa/real_08.png",
+        "https://3-cdn2-ovh-bea.energycdn.com/cdn3sto/mightybear-sto/6a28f279e3b456.20239310/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/843e2db7855ee7e306933f788134b42217f712bcba632d2aa65769e04779d571/real_02.jpg",
+        "https://3-cdn2-ovh-bea.energycdn.com/cdn3sto/mightybear-sto/6a28f279e3b456.20239310/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/843e2db7855ee7e306933f788134b42217f712bcba632d2aa65769e04779d571/real_02.jpg"
+      ],
+      "reference_sheet": "projects\\therac-25-test\\assets\\asset_bible\\therac25_reference_sheet.png",
+      "reference_sheet_url": "https://tmpfiles.org/dl/wcwgL6eWHIQE/therac25_reference_sheet.png"
+    },
+    {
+      "asset_id": "loc_therac_terminal",
+      "type": "location",
+      "name": "Therac Terminal",
+      "description": "A 1985 radiation-therapy control terminal glowing calm amber, the machine reporting normal while catastrophe has already happened.\n",
+      "locked_attributes": [
+        "period-accurate 1985"
+      ],
+      "period_constraints": "1985 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "D:\\OpenMontage2\\projects\\therac-25-test\\assets\\asset_bible\\loc_therac_terminal.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/wXwkLAeBHyDB/loc_therac_terminal.png",
+      "canonical_image_prompt": "A single 1985-era radiation-therapy control terminal: a boxy beige sheet-metal computer console with a bulky curved-glass CRT monitor glowing soft AMBER phosphor, beside a chunky beige mechanical monospace keyboard with worn square keycaps, exposed ribbon cables and a coiled cord, folded dot-matrix fanfold printout nearby, an empty operator chair at the desk edge. The screen shows only dense INDISTINCT monospace and a single block cursor, deliberately illegible \u2014 no readable words, letters, or numbers, no signage anywhere. Empty, unoccupied, no people, no hands, no faces, no vehicles, no windows. Strictly period-correct: chunky beige/metal casing, convex CRT glass, no flatscreen, no LED, no modern UI. Tight three-quarter angle, the amber screen the dominant light source, the room dissolving into deep navy shadow. graphic novel illustration, bold black ink linework, cross-hatch and stippled shading, halftone dot texture, duotone palette of deep navy blue and warm amber, high contrast, heavy film grain, aged paper texture, interior comic-panel art (not a cover, no title), illustrated not photorealistic",
+      "appears_in": [
+        "seg_005",
+        "seg_009",
+        "seg_019",
+        "seg_024",
+        "seg_031",
+        "seg_034"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "",
+      "identity_tokens": [],
+      "reference_images": [],
+      "reference_sheet": "projects\\therac-25-test\\assets\\asset_bible\\therac25_reference_sheet.png",
+      "reference_sheet_url": "https://tmpfiles.org/dl/wcwgL6eWHIQE/therac25_reference_sheet.png"
+    },
+    {
+      "asset_id": "loc_kennestone_marietta",
+      "type": "location",
+      "name": "Kennestone Marietta",
+      "description": "Hospital exterior \u2014 Kennestone Regional Medical Center, Marietta, Georgia. A community hospital in the American South.\n",
+      "locked_attributes": [
+        "period-accurate 1985"
+      ],
+      "period_constraints": "1985 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "projects\\therac-25-test\\assets\\asset_bible\\loc_kennestone_marietta.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/w8wNL5eQH62O/loc_kennestone_marietta.png",
+      "canonical_image_prompt": "Hospital exterior \u2014 Kennestone Regional Medical Center, Marietta, Georgia. A community hospital in the American South.. period-accurate 1985. 1985 era - no anachronisms. Empty and unoccupied, no people, no figures, no patients. Period-accurate mid-1980s only; no modern vehicles, no modern signage, blank unlettered signs. graphic novel illustration, bold black ink linework, cross-hatch and stippled shading, halftone dot texture, duotone palette of deep navy blue and warm amber, high contrast, heavy film grain, aged paper texture, interior comic-panel art (not a cover, no title), illustrated not photorealistic",
+      "appears_in": [
+        "seg_012"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "",
+      "identity_tokens": [],
+      "reference_images": [],
+      "reference_sheet": "",
+      "reference_sheet_url": ""
+    },
+    {
+      "asset_id": "loc_ontario_hamilton",
+      "type": "location",
+      "name": "Ontario Hamilton",
+      "description": "Hospital exterior \u2014 Ontario Cancer Foundation, Hamilton, Ontario. Canadian institutional architecture, overcast sky.\n",
+      "locked_attributes": [
+        "period-accurate 1985"
+      ],
+      "period_constraints": "1985 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "projects\\therac-25-test\\assets\\asset_bible\\loc_ontario_hamilton.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/wJwRLielHih0/loc_ontario_hamilton.png",
+      "canonical_image_prompt": "Hospital exterior \u2014 Ontario Cancer Foundation, Hamilton, Ontario. Canadian institutional architecture, overcast sky.. period-accurate 1985. 1985 era - no anachronisms. Empty and unoccupied, no people, no figures, no patients. Period-accurate mid-1980s only; no modern vehicles, no modern signage, blank unlettered signs. graphic novel illustration, bold black ink linework, cross-hatch and stippled shading, halftone dot texture, duotone palette of deep navy blue and warm amber, high contrast, heavy film grain, aged paper texture, interior comic-panel art (not a cover, no title), illustrated not photorealistic",
+      "appears_in": [
+        "seg_014"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "",
+      "identity_tokens": [],
+      "reference_images": [],
+      "reference_sheet": "",
+      "reference_sheet_url": ""
+    },
+    {
+      "asset_id": "loc_yakima_washington",
+      "type": "location",
+      "name": "Yakima Washington",
+      "description": "Hospital exterior \u2014 Yakima Valley Memorial Hospital, Washington State. Pacific Northwest setting.\n",
+      "locked_attributes": [
+        "period-accurate 1985"
+      ],
+      "period_constraints": "1985 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "projects\\therac-25-test\\assets\\asset_bible\\loc_yakima_washington.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/w2wqLCeTHl8z/loc_yakima_washington.png",
+      "canonical_image_prompt": "Hospital exterior \u2014 Yakima Valley Memorial Hospital, Washington State. Pacific Northwest setting.. period-accurate 1985. 1985 era - no anachronisms. Empty and unoccupied, no people, no figures, no patients. Period-accurate mid-1980s only; no modern vehicles, no modern signage, blank unlettered signs. graphic novel illustration, bold black ink linework, cross-hatch and stippled shading, halftone dot texture, duotone palette of deep navy blue and warm amber, high contrast, heavy film grain, aged paper texture, interior comic-panel art (not a cover, no title), illustrated not photorealistic",
+      "appears_in": [
+        "seg_015"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "",
+      "identity_tokens": [],
+      "reference_images": [],
+      "reference_sheet": "",
+      "reference_sheet_url": ""
+    },
+    {
+      "asset_id": "loc_tyler_texas",
+      "type": "location",
+      "name": "Tyler Texas",
+      "description": "Interior \u2014 East Texas Cancer Center, Tyler, Texas. A treatment room. The operator at the terminal.\n",
+      "locked_attributes": [
+        "period-accurate 1986"
+      ],
+      "period_constraints": "1986 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "projects\\therac-25-test\\assets\\asset_bible\\loc_tyler_texas.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/wTwmLHeiTZKo/loc_tyler_texas.png",
+      "canonical_image_prompt": "Interior \u2014 East Texas Cancer Center, Tyler, Texas. A treatment room. The operator at the terminal.. period-accurate 1986. 1986 era - no anachronisms. Empty and unoccupied, no people, no figures, no patients. Period-accurate mid-1980s only; no modern vehicles, no modern signage, blank unlettered signs. graphic novel illustration, bold black ink linework, cross-hatch and stippled shading, halftone dot texture, duotone palette of deep navy blue and warm amber, high contrast, heavy film grain, aged paper texture, interior comic-panel art (not a cover, no title), illustrated not photorealistic",
+      "appears_in": [
+        "seg_018"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "",
+      "identity_tokens": [
+        "the AECL Therac-25: a massive beige floor-standing housing with a smooth rounded top (a monolithic arch-like body, NOT a C-arm or open gantry ring), from whose upper face a smooth cylindrical beam-head assembly with a flattened rounded collimator snout projects out and angles down over the patient treatment table; clean molded mid-1980s panels",
+        "a smooth ROUNDED cylindrical treatment head hanging from the curved overhead arm (never a boxy or squared head)"
+      ],
+      "reference_images": [
+        "https://0-cdn2-ovh-bea.energycdn.com/cdn3sto/heavensteppledge-sto/6a28f26cc6cec6.64352803/613989672/1781068495/52a51f21f291d9cf620c4bc17b038c992765dd3e/a21ad649ed51882b10424989c81c82e825d6ab733655a1d56fe4a9698c7cb0ba/real_09.png",
+        "https://6-cdn2-ovh-bea.energycdn.com/cdn3sto/fearlesshawk-sto/6a28f274a77953.00611685/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/92290c3b9bdcb27b9ff227e019654dadcf8fd8fa38afc8d0995653a101bb94aa/real_08.png",
+        "https://3-cdn2-ovh-bea.energycdn.com/cdn3sto/mightybear-sto/6a28f279e3b456.20239310/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/843e2db7855ee7e306933f788134b42217f712bcba632d2aa65769e04779d571/real_02.jpg",
+        "https://3-cdn2-ovh-bea.energycdn.com/cdn3sto/mightybear-sto/6a28f279e3b456.20239310/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/843e2db7855ee7e306933f788134b42217f712bcba632d2aa65769e04779d571/real_02.jpg"
+      ],
+      "reference_sheet": "projects\\therac-25-test\\assets\\asset_bible\\therac25_reference_sheet.png",
+      "reference_sheet_url": "https://tmpfiles.org/dl/wcwgL6eWHIQE/therac25_reference_sheet.png"
+    },
+    {
+      "asset_id": "loc_tyler_texas_2",
+      "type": "location",
+      "name": "Tyler Texas 2",
+      "description": "Interior \u2014 same treatment room, same machine. A different patient. The repetition is the horror.\n",
+      "locked_attributes": [
+        "period-accurate 1986"
+      ],
+      "period_constraints": "1986 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "projects\\therac-25-test\\assets\\asset_bible\\loc_tyler_texas_2.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/wuwkLZecT9nX/loc_tyler_texas_2.png",
+      "canonical_image_prompt": "Interior \u2014 same treatment room, same machine. A different patient. The repetition is the horror.. period-accurate 1986. 1986 era - no anachronisms. Empty and unoccupied, no people, no figures, no patients. Period-accurate mid-1980s only; no modern vehicles, no modern signage, blank unlettered signs. graphic novel illustration, bold black ink linework, cross-hatch and stippled shading, halftone dot texture, duotone palette of deep navy blue and warm amber, high contrast, heavy film grain, aged paper texture, interior comic-panel art (not a cover, no title), illustrated not photorealistic",
+      "appears_in": [
+        "seg_021"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "",
+      "identity_tokens": [
+        "the AECL Therac-25: a massive beige floor-standing housing with a smooth rounded top (a monolithic arch-like body, NOT a C-arm or open gantry ring), from whose upper face a smooth cylindrical beam-head assembly with a flattened rounded collimator snout projects out and angles down over the patient treatment table; clean molded mid-1980s panels",
+        "a smooth ROUNDED cylindrical treatment head hanging from the curved overhead arm (never a boxy or squared head)"
+      ],
+      "reference_images": [
+        "https://0-cdn2-ovh-bea.energycdn.com/cdn3sto/heavensteppledge-sto/6a28f26cc6cec6.64352803/613989672/1781068495/52a51f21f291d9cf620c4bc17b038c992765dd3e/a21ad649ed51882b10424989c81c82e825d6ab733655a1d56fe4a9698c7cb0ba/real_09.png",
+        "https://6-cdn2-ovh-bea.energycdn.com/cdn3sto/fearlesshawk-sto/6a28f274a77953.00611685/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/92290c3b9bdcb27b9ff227e019654dadcf8fd8fa38afc8d0995653a101bb94aa/real_08.png",
+        "https://3-cdn2-ovh-bea.energycdn.com/cdn3sto/mightybear-sto/6a28f279e3b456.20239310/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/843e2db7855ee7e306933f788134b42217f712bcba632d2aa65769e04779d571/real_02.jpg",
+        "https://3-cdn2-ovh-bea.energycdn.com/cdn3sto/mightybear-sto/6a28f279e3b456.20239310/613989672/1781068497/52a51f21f291d9cf620c4bc17b038c992765dd3e/843e2db7855ee7e306933f788134b42217f712bcba632d2aa65769e04779d571/real_02.jpg"
+      ],
+      "reference_sheet": "projects\\therac-25-test\\assets\\asset_bible\\therac25_reference_sheet.png",
+      "reference_sheet_url": "https://tmpfiles.org/dl/wcwgL6eWHIQE/therac25_reference_sheet.png"
+    },
+    {
+      "asset_id": "loc_yakima_washington_2",
+      "type": "location",
+      "name": "Yakima Washington 2",
+      "description": "Hospital exterior \u2014 Yakima Valley Memorial Hospital again. The same hospital returning in the pattern.\n",
+      "locked_attributes": [
+        "period-accurate 1987"
+      ],
+      "period_constraints": "1987 era - no anachronisms",
+      "negative_attributes": [],
+      "canonical_reference_image": "projects\\therac-25-test\\assets\\asset_bible\\loc_yakima_washington_2.png",
+      "canonical_image_url": "https://tmpfiles.org/dl/wwwDLaekTMde/loc_yakima_washington_2.png",
+      "canonical_image_prompt": "Hospital exterior \u2014 Yakima Valley Memorial Hospital again. The same hospital returning in the pattern.. period-accurate 1987. 1987 era - no anachronisms. Empty and unoccupied, no people, no figures, no patients. Period-accurate mid-1980s only; no modern vehicles, no modern signage, blank unlettered signs. graphic novel illustration, bold black ink linework, cross-hatch and stippled shading, halftone dot texture, duotone palette of deep navy blue and warm amber, high contrast, heavy film grain, aged paper texture, interior comic-panel art (not a cover, no title), illustrated not photorealistic",
+      "appears_in": [
+        "seg_023"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "",
+      "identity_tokens": [],
+      "reference_images": [],
+      "reference_sheet": "",
+      "reference_sheet_url": ""
+    },
+    {
+      "asset_id": "subj_cox",
+      "type": "subject",
+      "name": "Voyne Ray Cox",
+      "description": "The Tyler, Texas Therac-25 patient \u2014 a gaunt middle-aged man, an amber-on-navy shadowed figure in a pale hospital gown.",
+      "locked_attributes": [],
+      "period_constraints": null,
+      "negative_attributes": [],
+      "canonical_reference_image": "",
+      "canonical_image_url": "",
+      "canonical_image_prompt": "",
+      "appears_in": [
+        "seg_018",
+        "seg_019"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "Voyne Ray Cox",
+      "identity_tokens": [
+        "Voyne Ray Cox, a gaunt middle-aged man with short dark hair",
+        "a pale hospital gown",
+        "an amber-lit shadowed graphic-novel figure, illustrated not photoreal"
+      ],
+      "reference_images": [],
+      "reference_sheet": "D:\\OpenMontage2\\projects\\therac-25-test\\assets\\asset_bible\\subj_cox_reference_sheet.png",
+      "reference_sheet_url": "https://tempfile.aiquickdraw.com/aistudio/4052117fd092ada702e759e31d0814dd_1782966897176.png"
+    },
+    {
+      "asset_id": "subj_hager",
+      "type": "subject",
+      "name": "Fritz Hager",
+      "description": "The Tyler, Texas hospital physicist who reproduced Malfunction 54 - an older man with grey receding hair and wire-frame glasses, white lab coat over shirt and dark tie.",
+      "locked_attributes": [],
+      "period_constraints": null,
+      "negative_attributes": [],
+      "canonical_reference_image": "",
+      "canonical_image_url": "",
+      "canonical_image_prompt": "",
+      "appears_in": [
+        "seg_021",
+        "seg_025",
+        "seg_031",
+        "seg_034"
+      ],
+      "continuity_group": null,
+      "uniqueness_exempt": true,
+      "subject": "Fritz Hager",
+      "identity_tokens": [
+        "Fritz Hager, the hospital physicist - an older man with grey receding hair and wire-frame glasses",
+        "a white lab coat over a shirt and dark tie, pens in the breast pocket, a small notepad in hand",
+        "an amber-lit graphic-novel figure, illustrated not photoreal",
+        "NOT a young technician, NOT a doctor with a stethoscope"
+      ],
+      "reference_images": [],
+      "reference_sheet": "D:/OpenMontage2/projects/therac-25-test/assets/asset_bible/subj_hager_reference_sheet.png",
+      "reference_sheet_url": "https://tempfile.aiquickdraw.com/aistudio/090cdab4f11768eae17322c3cbfddb59_1783392802462.png"
+    }
+  ]
+}

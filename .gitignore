@@ -32,6 +32,22 @@ projects/therac-25-test/*
 projects/therac-25-test/script_v5/*
 !projects/therac-25-test/script_v5/*.py
 !projects/therac-25-test/script_v5/scored_script.yaml
+# Approval state + small identity artifacts: the source of truth for every
+# gate/verdict/promotion (append-only text) — losing the disk must not lose
+# the production's decision history. Media stays out of git.
+!projects/therac-25-test/feedback/
+projects/therac-25-test/feedback/*
+!projects/therac-25-test/feedback/events.jsonl
+!projects/therac-25-test/artifacts/
+projects/therac-25-test/artifacts/*
+!projects/therac-25-test/artifacts/ai_segments_takes.json
+!projects/therac-25-test/artifacts/entity_census.json
+!projects/therac-25-test/artifacts/asset_bible_v6.json
+!projects/therac-25-test/artifacts/cost_ledger.jsonl
+!projects/therac-25-test/artifacts/duration_map_v6.json
+!projects/therac-25-test/research/
+projects/therac-25-test/research/*
+!projects/therac-25-test/research/*.json
 
 # Corpus directories (downloaded stock clips, thumbnails, embeddings —
 # regenerable from source APIs via corpus_builder). Explicit rule even

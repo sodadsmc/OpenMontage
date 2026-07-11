@@ -1,0 +1,492 @@
+{
+  "project": "therac-25-test",
+  "source": "llm",
+  "segments": 36,
+  "entities": [
+    {
+      "name": "Therac-25",
+      "type": "thing",
+      "segments": [
+        "seg_002",
+        "seg_005",
+        "seg_006",
+        "seg_007",
+        "seg_009",
+        "seg_010",
+        "seg_012",
+        "seg_014",
+        "seg_015",
+        "seg_016",
+        "seg_018",
+        "seg_019",
+        "seg_021",
+        "seg_024",
+        "seg_025",
+        "seg_026",
+        "seg_027",
+        "seg_028",
+        "seg_029",
+        "seg_030",
+        "seg_031",
+        "seg_032",
+        "seg_034",
+        "seg_035",
+        "seg_036",
+        "seg_037"
+      ],
+      "mentions": 29,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "The Therac-25 is the faulty machine that is the subject of the entire story and responsible for all the incidents.",
+      "bible_coverage": "SHEET",
+      "action_needed": false
+    },
+    {
+      "name": "Software (Code / Bugs)",
+      "type": "thing",
+      "segments": [
+        "seg_009",
+        "seg_010",
+        "seg_025",
+        "seg_026",
+        "seg_028",
+        "seg_029",
+        "seg_030",
+        "seg_031",
+        "seg_034",
+        "seg_035",
+        "seg_036"
+      ],
+      "mentions": 16,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "The inherent flaws in the software, and the overconfidence in it, are the core of the story's problem.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Radiation (Overdose / Dose)",
+      "type": "thing",
+      "segments": [
+        "seg_001",
+        "seg_003",
+        "seg_004",
+        "seg_006",
+        "seg_014",
+        "seg_019",
+        "seg_020",
+        "seg_022",
+        "seg_023",
+        "seg_024",
+        "seg_027"
+      ],
+      "mentions": 14,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "The uncontrolled radiation output is the direct mechanism of harm and the central threat.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Beam",
+      "type": "thing",
+      "segments": [
+        "seg_007",
+        "seg_008",
+        "seg_018",
+        "seg_019",
+        "seg_026",
+        "seg_027",
+        "seg_029"
+      ],
+      "mentions": 12,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "The uncontrolled firing of the electron or X-ray beam was the immediate cause of physical harm to patients.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "AECL",
+      "type": "organization",
+      "segments": [
+        "seg_009",
+        "seg_010",
+        "seg_012",
+        "seg_013",
+        "seg_015",
+        "seg_016",
+        "seg_025",
+        "seg_029",
+        "seg_032",
+        "seg_034"
+      ],
+      "mentions": 11,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "As the manufacturer, AECL made critical design decisions and initially denied responsibility for the accidents.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Katherine Yarbrough",
+      "type": "person",
+      "segments": [
+        "seg_001",
+        "seg_003",
+        "seg_011",
+        "seg_012",
+        "seg_022",
+        "seg_032"
+      ],
+      "mentions": 6,
+      "importance": 5,
+      "needs_sheet": true,
+      "why": "She is the first patient whose suffering initiates the narrative and illustrates the machine's failure.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Control Terminal (Console / Screen)",
+      "type": "thing",
+      "segments": [
+        "seg_005",
+        "seg_006",
+        "seg_009",
+        "seg_018",
+        "seg_020",
+        "seg_024",
+        "seg_025",
+        "seg_026",
+        "seg_031",
+        "seg_034"
+      ],
+      "mentions": 11,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "It is the human-machine interface where errors were introduced and false assurances given.",
+      "bible_coverage": "SHEET",
+      "action_needed": false
+    },
+    {
+      "name": "Hardware (Safety Interlocks / Fuses)",
+      "type": "thing",
+      "segments": [
+        "seg_008",
+        "seg_009",
+        "seg_015",
+        "seg_029",
+        "seg_030",
+        "seg_036"
+      ],
+      "mentions": 9,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "The deliberate removal of redundant hardware interlocks allowed the software bugs to become lethal.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Operator (Tyler)",
+      "type": "person",
+      "segments": [
+        "seg_018",
+        "seg_019",
+        "seg_021",
+        "seg_025",
+        "seg_031"
+      ],
+      "mentions": 9,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "Her fast typing was the trigger for the race condition, and her collaboration with Fritz Hager exposed the bug.",
+      "bible_coverage": "SHEET",
+      "action_needed": false
+    },
+    {
+      "name": "Target (Metal)",
+      "type": "thing",
+      "segments": [
+        "seg_007",
+        "seg_008",
+        "seg_027",
+        "seg_029"
+      ],
+      "mentions": 6,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "Its incorrect positioning, due to software errors, was the immediate physical cause of overdose in X-ray mode.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Arithmetic Overflow (Single Byte Counter)",
+      "type": "thing",
+      "segments": [
+        "seg_028",
+        "seg_029",
+        "seg_031"
+      ],
+      "mentions": 5,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "This specific software flaw bypassed safety checks due to an unexpected counter rollover.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Fritz Hager",
+      "type": "person",
+      "segments": [
+        "seg_021",
+        "seg_025"
+      ],
+      "mentions": 3,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "He was instrumental in demonstrating and exposing the software bugs by reproducing the incidents.",
+      "bible_coverage": "SHEET",
+      "action_needed": false
+    },
+    {
+      "name": "Race Condition",
+      "type": "thing",
+      "segments": [
+        "seg_026",
+        "seg_030",
+        "seg_031"
+      ],
+      "mentions": 3,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "This specific software flaw directly led to the machine firing at full power without the target in place.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Malfunction 54",
+      "type": "thing",
+      "segments": [
+        "seg_018",
+        "seg_025",
+        "seg_031"
+      ],
+      "mentions": 3,
+      "importance": 4,
+      "needs_sheet": true,
+      "why": "This specific error code was a critical, yet ignored, warning sign that pointed to the underlying malfunctions.",
+      "bible_coverage": "SHEET",
+      "action_needed": false
+    },
+    {
+      "name": "Hospital (Setting)",
+      "type": "place",
+      "segments": [
+        "seg_001",
+        "seg_002",
+        "seg_003",
+        "seg_005",
+        "seg_011",
+        "seg_012",
+        "seg_015",
+        "seg_016",
+        "seg_018",
+        "seg_019",
+        "seg_021",
+        "seg_022",
+        "seg_023",
+        "seg_036",
+        "seg_037"
+      ],
+      "mentions": 15,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "The hospital setting is where all the patient incidents took place, highlighting the tragic irony of a place of healing becoming one of harm.",
+      "bible_coverage": "CANONICAL_ONLY",
+      "action_needed": true
+    },
+    {
+      "name": "Tyler (East Texas Cancer Center)",
+      "type": "place",
+      "segments": [
+        "seg_018",
+        "seg_021",
+        "seg_025"
+      ],
+      "mentions": 5,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "Tyler is the site of critical incidents and where the specific software bug was finally reproduced and identified.",
+      "bible_coverage": "SHEET",
+      "action_needed": false
+    },
+    {
+      "name": "Voyne Ray Cox",
+      "type": "person",
+      "segments": [
+        "seg_018",
+        "seg_019",
+        "seg_022"
+      ],
+      "mentions": 5,
+      "importance": 3,
+      "needs_sheet": false,
+      "why": "His case, along with Kidd's, was crucial in demonstrating the race condition bug triggered by operator speed.",
+      "bible_coverage": "SHEET",
+      "action_needed": false
+    },
+    {
+      "name": "Yakima",
+      "type": "place",
+      "segments": [
+        "seg_015",
+        "seg_016",
+        "seg_023",
+        "seg_029"
+      ],
+      "mentions": 4,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "Yakima is the site of multiple, recurring incidents, demonstrating the widespread and unaddressed nature of the problem.",
+      "bible_coverage": "CANONICAL_ONLY",
+      "action_needed": true
+    },
+    {
+      "name": "Verdon Kidd",
+      "type": "person",
+      "segments": [
+        "seg_021",
+        "seg_022",
+        "seg_032"
+      ],
+      "mentions": 3,
+      "importance": 3,
+      "needs_sheet": false,
+      "why": "His death spurred the hospital physicist, Fritz Hager, to investigate and reproduce the error.",
+      "bible_coverage": "MISSING",
+      "action_needed": false
+    },
+    {
+      "name": "Glen Dodd",
+      "type": "person",
+      "segments": [
+        "seg_023",
+        "seg_029"
+      ],
+      "mentions": 3,
+      "importance": 3,
+      "needs_sheet": false,
+      "why": "His death demonstrated the return of the specific arithmetic overflow bug in a previously affected location.",
+      "bible_coverage": "MISSING",
+      "action_needed": false
+    },
+    {
+      "name": "FDA",
+      "type": "organization",
+      "segments": [
+        "seg_032",
+        "seg_034"
+      ],
+      "mentions": 3,
+      "importance": 3,
+      "needs_sheet": true,
+      "why": "The FDA's intervention ultimately led to the declaration of the Therac-25 as defective and its eventual removal.",
+      "bible_coverage": "MISSING",
+      "action_needed": true
+    },
+    {
+      "name": "Frances Hill",
+      "type": "person",
+      "segments": [
+        "seg_014"
+      ],
+      "mentions": 2,
+      "importance": 3,
+      "needs_sheet": false,
+      "why": "She is documented as the first fatality attributed to the Therac-25's malfunction.",
+      "bible_coverage": "MISSING",
+      "action_needed": false
+    },
+    {
+      "name": "Nancy Leveson",
+      "type": "person",
+      "segments": [
+        "seg_035"
+      ],
+      "mentions": 2,
+      "importance": 3,
+      "needs_sheet": false,
+      "why": "Her definitive investigation became a standard case study, providing crucial understanding of the accidents.",
+      "bible_coverage": "MISSING",
+      "action_needed": false
+    },
+    {
+      "name": "Clark Turner",
+      "type": "person",
+      "segments": [
+        "seg_035"
+      ],
+      "mentions": 1,
+      "importance": 3,
+      "needs_sheet": false,
+      "why": "He co-authored the definitive investigation into the Therac-25 accidents.",
+      "bible_coverage": "MISSING",
+      "action_needed": false
+    },
+    {
+      "name": "Older Therac Models (Therac-6, Therac-20)",
+      "type": "thing",
+      "segments": [
+        "seg_008",
+        "seg_030",
+        "seg_031"
+      ],
+      "mentions": 3,
+      "importance": 2,
+      "needs_sheet": false,
+      "why": "They provide crucial context for the Therac-25's design choices and the history of its embedded software bugs.",
+      "bible_coverage": "SHEET",
+      "action_needed": false
+    },
+    {
+      "name": "Nineteen Eighty-Five",
+      "type": "thing",
+      "segments": [
+        "seg_001",
+        "seg_009"
+      ],
+      "mentions": 2,
+      "importance": 2,
+      "needs_sheet": false,
+      "why": "It establishes the historical context for the start of the incidents and the technology involved.",
+      "bible_coverage": "MISSING",
+      "action_needed": false
+    },
+    {
+      "name": "Tim Still",
+      "type": "person",
+      "segments": [
+        "seg_012"
+      ],
+      "mentions": 1,
+      "importance": 2,
+      "needs_sheet": false,
+      "why": "He was the first to suspect the machine and question AECL, even if his concerns were initially dismissed.",
+      "bible_coverage": "MISSING",
+      "action_needed": false
+    },
+    {
+      "name": "Single Programmer",
+      "type": "person",
+      "segments": [
+        "seg_009"
+      ],
+      "mentions": 1,
+      "importance": 2,
+      "needs_sheet": false,
+      "why": "The fact that a single programmer wrote the critical safety software highlights the resource constraints and potential for error.",
+      "bible_coverage": "MISSING",
+      "action_needed": false
+    }
+  ]
+}

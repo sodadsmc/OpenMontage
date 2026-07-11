@@ -1,0 +1,386 @@
+{
+  "version": "1.0",
+  "topic": "The Therac-25 radiation therapy disaster",
+  "research_date": "2026-04-20",
+  "primary_source": {
+    "title": "An Investigation of the Therac-25 Accidents",
+    "authors": "Nancy Leveson, Clark S. Turner",
+    "publication": "IEEE Computer, Vol. 26, No. 7, July 1993, pp. 18-41",
+    "url": "https://web.stanford.edu/class/cs240/old/sp2014/readings/therac-25.pdf",
+    "why_authoritative": "Definitive academic investigation by the foremost software safety researchers"
+  },
+  "timeline_events": [
+    {
+      "date": "1976",
+      "event": "AECL creates double-pass accelerator prototype",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "date": "1982",
+      "event": "Therac-25 introduced. Hardware interlocks removed, software handles all safety",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25"
+    },
+    {
+      "date": "1983-03",
+      "event": "AECL safety analysis apparently excludes software analysis",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "date": "1985-06-03",
+      "event": "Katherine Yarbrough (61) overdosed at Kennestone, Marietta GA. 15,000-20,000 rad vs 200 rad prescribed",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25"
+    },
+    {
+      "date": "1985-07-26",
+      "event": "Frances Hill (40) overdosed at Ontario Cancer Foundation, Hamilton ON. 13,000-17,000 rad",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25"
+    },
+    {
+      "date": "1985-11-03",
+      "event": "Frances Hill dies from cancer. Autopsy notes radiation damage",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25"
+    },
+    {
+      "date": "1985-12",
+      "event": "Woman overdosed at Yakima Valley Memorial Hospital, WA",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25"
+    },
+    {
+      "date": "1986-02-24",
+      "event": "AECL claims Therac-25 could not have been responsible for Yakima injuries",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "date": "1986-03-21",
+      "event": "Voyne Ray Cox overdosed at East Texas Cancer Center, Tyler TX. 16,500-25,000 rad in <1 second",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25"
+    },
+    {
+      "date": "1986-04-11",
+      "event": "Verdon Kidd overdosed at ETCC Tyler during facial treatment. Fritz Hager discovers overdose extent",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "date": "1986-05-01",
+      "event": "Verdon Kidd dies - first official death from therapeutic radiation accident",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "date": "1986-05-02",
+      "event": "FDA declares Therac-25 defective, demands Corrective Action Plan",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_3.html"
+    },
+    {
+      "date": "1986-08",
+      "event": "Voyne Ray Cox dies from radiation burns",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "date": "1987-01-17",
+      "event": "Glen A. Dodd (65) overdosed at Yakima. 8,000-10,000 rad vs 86 rad prescribed",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25"
+    },
+    {
+      "date": "1987-02-10",
+      "event": "FDA issues Notice of Adverse Findings. Recommends all units removed from service",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_4.html"
+    },
+    {
+      "date": "1987-04",
+      "event": "Glen A. Dodd dies from radiation complications",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "date": "1987-07-21",
+      "event": "AECL sends fifth and final CAP revision to FDA",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_4.html"
+    },
+    {
+      "date": "1988",
+      "event": "AECL dissolves Medical section. Theratronics assumes maintenance",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25"
+    }
+  ],
+  "stakeholders": [
+    {
+      "name": "Katherine (Katie) Yarbrough",
+      "role": "Patient, Kennestone, Marietta GA. Age 61",
+      "verified_in": "secondary_source",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline",
+      "note": "Name in Online Ethics timeline and Wikipedia. Not in Leveson paper."
+    },
+    {
+      "name": "Frances Hill",
+      "role": "Patient, Ontario Cancer Foundation, Hamilton ON. Age 40",
+      "verified_in": "secondary_source",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline",
+      "note": "Name in Online Ethics timeline. Not in Leveson paper."
+    },
+    {
+      "name": "Voyne Ray Cox",
+      "role": "Patient, ETCC Tyler TX. Died Aug 1986",
+      "verified_in": "secondary_source",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline",
+      "note": "Named in timeline, lawsuit filed Sep 1986. Leveson paper uses case numbers."
+    },
+    {
+      "name": "Verdon Kidd",
+      "role": "Patient, ETCC Tyler TX. Died May 1, 1986. First official death from therapeutic radiation",
+      "verified_in": "secondary_source",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline",
+      "note": "Named in Online Ethics timeline. Not in Leveson paper."
+    },
+    {
+      "name": "Glen A. Dodd",
+      "role": "Patient, Yakima Valley Memorial Hospital. Age 65. Died Apr 1987",
+      "verified_in": "secondary_source",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "name": "Fritz Hager",
+      "role": "Physicist, East Texas Cancer Center. Reproduced the error",
+      "verified_in": "secondary_source",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    },
+    {
+      "name": "Nancy Leveson",
+      "role": "Software safety researcher, U of Washington. Co-author of definitive investigation",
+      "verified_in": "primary_source",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_3.html"
+    },
+    {
+      "name": "Clark S. Turner",
+      "role": "Co-author, UC Irvine",
+      "verified_in": "primary_source",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_3.html"
+    },
+    {
+      "name": "Ed Miller",
+      "role": "FDA Division of Standards Enforcement",
+      "verified_in": "primary_source",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_4.html"
+    },
+    {
+      "name": "Tim Still",
+      "role": "Physicist, Kennestone. First to inquire about overdose",
+      "verified_in": "secondary_source",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline"
+    }
+  ],
+  "data_points": [
+    {
+      "claim": "Therac-25 removed hardware safety interlocks present in Therac-6 and Therac-20",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25",
+      "source_name": "Wikipedia / Leveson 1993",
+      "credibility": "primary_source",
+      "surprise_factor": "counterintuitive",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "Six known accidents between 1985 and 1987",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25",
+      "source_name": "Wikipedia / Leveson 1993",
+      "credibility": "primary_source",
+      "surprise_factor": "notable",
+      "usable_as": "hook"
+    },
+    {
+      "claim": "At least three patients died (Kidd May 1986, Cox Aug 1986, Dodd Apr 1987)",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline",
+      "source_name": "Online Ethics Timeline",
+      "credibility": "secondary_source",
+      "surprise_factor": "surprising",
+      "usable_as": "hook"
+    },
+    {
+      "claim": "Yarbrough received 15,000-20,000 rad vs prescribed 200 rad (75-100x overdose)",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25",
+      "source_name": "Wikipedia",
+      "credibility": "secondary_source",
+      "surprise_factor": "surprising",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "Race condition: mode change within 8-second window caused beam to fire without target",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_3.html",
+      "source_name": "Leveson 1993 Part III",
+      "credibility": "primary_source",
+      "surprise_factor": "counterintuitive",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "Arithmetic overflow: Class3 variable (1 byte, max 255) rolled to 0, bypassing safety check",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_3.html",
+      "source_name": "Leveson 1993 Part III",
+      "credibility": "primary_source",
+      "surprise_factor": "surprising",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "AECL stated overdose was impossible",
+      "source_url": "https://onlineethics.org/cases/therac-25-timeline",
+      "source_name": "Online Ethics Timeline",
+      "credibility": "secondary_source",
+      "surprise_factor": "counterintuitive",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "Malfunction 54 was undocumented; operators pressed P to proceed past it",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25",
+      "source_name": "Wikipedia / Leveson 1993",
+      "credibility": "primary_source",
+      "surprise_factor": "surprising",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "FDA declared Therac-25 defective May 2, 1986",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_3.html",
+      "source_name": "Leveson 1993 Part III",
+      "credibility": "primary_source",
+      "surprise_factor": "expected",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "Software written in PDP-11 assembly by single programmer over several years",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25",
+      "source_name": "Wikipedia / Leveson 1993",
+      "credibility": "primary_source",
+      "surprise_factor": "surprising",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "Full CAP took more than two years after first Tyler accident",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_3.html",
+      "source_name": "Leveson 1993 Part III",
+      "credibility": "primary_source",
+      "surprise_factor": "notable",
+      "usable_as": "closing_punch"
+    },
+    {
+      "claim": "Ray Cox received 16,500-25,000 rad in <1 second over 1 cm2",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25",
+      "source_name": "Wikipedia / Leveson 1993",
+      "credibility": "secondary_source",
+      "surprise_factor": "surprising",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "FDA: 'impossible for CDRH to find all potential failure modes of the software'",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_4.html",
+      "source_name": "Leveson 1993 Part IV",
+      "credibility": "primary_source",
+      "surprise_factor": "notable",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "Final CAP Revision 5 included 23+ changes including reinstated hardware interlocks",
+      "source_url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_4.html",
+      "source_name": "Leveson 1993 Part IV",
+      "credibility": "primary_source",
+      "surprise_factor": "expected",
+      "usable_as": "script_anchor"
+    },
+    {
+      "claim": "Per-accident display behavior: in the FIRST accident (Kennestone, Marietta GA, June 1985) the machine gave NO overdose indication - its readouts indicated a normal treatment, which is why physicist Tim Still had to inquire and AECL could assert an overdose was impossible. The undocumented MALFUNCTION 54 error code belongs to the LATER Tyler, Texas accidents (March/April 1986). Fact-vetting note: do not flag narration of the first accident (no alarm / treatment read as normal) as contradicting the Malfunction 54 data point - they are different accidents.",
+      "source_url": "https://en.wikipedia.org/wiki/Therac-25",
+      "source_name": "Wikipedia / Leveson 1993",
+      "credibility": "primary_source",
+      "surprise_factor": "surprising",
+      "usable_as": "script_anchor"
+    }
+  ],
+  "unverifiable_claims": [
+    "Patient names (Yarbrough, Hill, Cox, Kidd, Dodd) appear in secondary sources but NOT in the Leveson/Turner primary paper",
+    "Exact dose figures vary between sources (e.g., 100x vs 75-100x for Yarbrough)",
+    "Some secondary sources describe Kidd as 'first person to die from a software bug' which is an editorial characterization"
+  ],
+  "landscape": {
+    "existing_content": [
+      {
+        "title": "History's Worst Software Error",
+        "url": "https://www.youtube.com/watch?v=Ap0orGCiou8",
+        "source": "youtube",
+        "angle": "Narrative documentary essay",
+        "what_it_covers": "Full chronological account",
+        "what_it_misses": "Deep technical race condition explanation"
+      },
+      {
+        "title": "A Brief History of: The killer Therac-25",
+        "url": "https://www.youtube.com/watch?v=-7gVqBY52MY",
+        "source": "youtube",
+        "angle": "Short documentary",
+        "what_it_covers": "Accident timeline",
+        "what_it_misses": "Arithmetic overflow bug; FDA timeline"
+      },
+      {
+        "title": "Leveson & Turner IEEE Paper",
+        "url": "https://web.stanford.edu/class/cs240/old/sp2014/readings/therac-25.pdf",
+        "source": "academic",
+        "angle": "Technical investigation",
+        "what_it_covers": "Complete engineering analysis",
+        "what_it_misses": "Patient names; modern context"
+      }
+    ],
+    "saturated_angles": [
+      "Simple timeline retelling",
+      "Using Therac-25 as cautionary tale without technical depth"
+    ],
+    "underserved_gaps": [
+      "Step-by-step visual explanation of the race condition",
+      "Modern parallels to AECL denial pattern",
+      "The operator habituation to Malfunction 54"
+    ]
+  },
+  "audience_insights": {
+    "common_questions": [
+      "What exactly was the race condition?",
+      "Why were hardware interlocks removed?",
+      "Could this happen again with modern software?",
+      "Who was responsible?"
+    ],
+    "misconceptions": [
+      "One bug caused all accidents (there were at least two distinct bugs)",
+      "The programmer was negligent (software reused from models with hardware backups)",
+      "FDA failed to act (declared defective May 1986 but lacked technical resources)"
+    ],
+    "knowledge_level": "general_public_with_tech_interest"
+  },
+  "angles_discovered": [
+    {
+      "name": "The Denial Machine",
+      "hook": "AECL said overdose was impossible while patients died",
+      "type": "narrative",
+      "why_now": "Parallels modern tech company safety dismissals",
+      "grounded_in": "AECL denial documented in timeline"
+    },
+    {
+      "name": "The Bug You Cannot Test For",
+      "hook": "A timing bug so subtle it only triggered when operators typed too fast",
+      "type": "data_driven",
+      "why_now": "AI in safety-critical systems",
+      "grounded_in": "Race condition from Leveson paper"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_3.html",
+      "name": "Leveson & Turner 1993 Part III",
+      "type": "primary"
+    },
+    {
+      "url": "https://cse.msu.edu/~cse470/Public/Handouts/Therac/Therac_4.html",
+      "name": "Leveson & Turner 1993 Part IV",
+      "type": "primary"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Therac-25",
+      "name": "Wikipedia: Therac-25",
+      "type": "secondary"
+    },
+    {
+      "url": "https://onlineethics.org/cases/therac-25-timeline",
+      "name": "Online Ethics: Therac-25 Timeline",
+      "type": "secondary"
+    }
+  ]
+}
