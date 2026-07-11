@@ -1,0 +1,1868 @@
+{
+  "script": "projects\\taum-sauk-2005\\script_v1\\scored_script.yaml",
+  "title": "The Computer Kept Pumping",
+  "model": "gemini-2.5-flash",
+  "panels": [
+    "fact",
+    "style",
+    "flow",
+    "shots",
+    "retention",
+    "story"
+  ],
+  "brief": "projects\\taum-sauk-2005\\research\\research_brief.json",
+  "generated_at": "2026-07-11T20:49:15+00:00",
+  "fact": {
+    "results": [
+      {
+        "segment_id": "seg_001",
+        "claims": [
+          {
+            "claim": "It's four in the morning, December fourteenth, two thousand five.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 5, 16-17, 20 and Timeline 2005-12-14 ~04:39 confirm early morning on this date."
+          },
+          {
+            "claim": "In the Ozark mountains of Missouri, a park superintendent's house sits at the foot of Proffit Mountain.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders (Jerry Toops, The Toops house) and IPOC pp. 5, 17 confirm location and resident."
+          },
+          {
+            "claim": "Jerry Toops is asleep.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005 implies the family was in bed when the flood hit."
+          },
+          {
+            "claim": "His wife Lisa is awake with the baby.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders (Lisa Toops) and Deseret News 12/26/2005 state Lisa was awake feeding the baby."
+          },
+          {
+            "claim": "Three children.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders (Tanner, Tara, Tucker Toops) confirm three children."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_002",
+        "claims": [
+          {
+            "claim": "A quarter of a mile above their roof, on the flattened top of the mountain, sits a lake.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The upper reservoir is on Proffit Mountain, above the Toops house, consistent with a narrative approximation."
+          },
+          {
+            "claim": "A man-made ring of rock and concrete holding one and a half billion gallons of water.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "Data Points specify ~1.4 billion gallons, making 'one and a half billion' an inflation."
+          },
+          {
+            "claim": "And all through the night, a computer ninety miles away has been pumping more water in.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data Points confirm remote operation from St. Louis (~90 miles); IPOC pp. 5, 16-17, 20 and Timeline 2005-12-14 ~04:39 confirm pumping in the early morning."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_003",
+        "claims": [
+          {
+            "claim": "At five fifteen, Lisa hears it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline 2005-12-14 ~05:00-05:15 and ~05:15-05:20 confirm the breach forming and flood hitting the house around this time."
+          },
+          {
+            "claim": "A roar, like jet engines and freight trains at once.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders (Jerry Toops) directly quote Jerry Toops' description of the sound."
+          },
+          {
+            "claim": "The house fills with black winter water in seconds.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline 2005-12-14 ~05:15-05:20 states the house filled in seconds."
+          },
+          {
+            "claim": "The walls come apart.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 134 and Stakeholders (The Toops house) confirm the house was destroyed."
+          },
+          {
+            "claim": "And the whole family — Jerry, Lisa, a five-year-old, a three-year-old, a seven-month-old baby — is swept into the dark.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline 2005-12-14 ~05:15-05:20 and Stakeholders (Toops family) confirm all five members were swept away."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_004",
+        "claims": [
+          {
+            "claim": "One and a half billion gallons emptied through the valley in twenty-five minutes.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "Data Points specify ~1.4 billion gallons, making 'one and a half billion' an inflation, though the 25 minutes is supported by IPOC pp. 5, 17."
+          },
+          {
+            "claim": "Nobody at the plant pressed a wrong button.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 5, 16-17, 20 indicates the manual shutdown was a response to the breach, not a cause."
+          },
+          {
+            "claim": "Nobody fell asleep at a control panel.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data Points confirm the plant was operated by remote control, implying no local operator to fall asleep."
+          },
+          {
+            "claim": "There was no control panel.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "FERC pp. 54, 60 describe a control architecture with an operator interface, but operation was remote, making 'no control panel' a dramatic simplification."
+          },
+          {
+            "claim": "There was a computer, reading sensors that had been wrong for months — and everyone knew.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 19, 21, 25, 55, FERC p. 93, and Timeline events 2005-09-27, 2005-10-07, 2005-10 to 12 confirm faulty sensors, software patches, and internal knowledge."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_005",
+        "claims": [
+          {
+            "claim": "Taum Sauk was a battery. Not a chemical one — a battery made of water and gravity.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "General knowledge of pumped-storage hydropower, confirmed by Timeline 1963, describes it as a form of energy storage."
+          },
+          {
+            "claim": "At night, when electricity is cheap, giant pumps push water from a river up the mountain into the reservoir.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "This describes the standard operating principle of a pumped-storage plant, confirmed by Timeline 1963."
+          },
+          {
+            "claim": "In the day, when demand peaks, the water falls back down through turbines and becomes electricity again.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "This describes the standard operating principle of a pumped-storage plant."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_006",
+        "claims": [
+          {
+            "claim": "The upper reservoir was a ring of rockfill crowning the mountain, topped with a concrete wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders (The Upper Reservoir) and Timeline 1963 describe the reservoir as a rockfill dike with a concrete parapet."
+          },
+          {
+            "claim": "It held four thousand three hundred fifty acre-feet of water.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 5, 17 and Data Points specify ~4,350 acre-feet."
+          },
+          {
+            "claim": "And it had one unusual feature: no spillway. No overflow drain.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data Points and Timeline 1963 explicitly state the upper reservoir had no emergency spillway."
+          },
+          {
+            "claim": "If the water ever rose too high, there was nowhere for it to go — except over the wall, and through it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data Points confirm that without a spillway, overtopping meant erosion of the rockfill, a fatal condition by design."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_007",
+        "claims": [
+          {
+            "claim": "Nobody worked on the mountain.",
+            "verdict": "contradicts_known_facts",
+            "severity": "warn",
+            "reason": "FERC p. 103 mentions plant superintendent Richard Cooper's visit; IPOC p. 55 mentions workers witnessing overtopping."
+          },
+          {
+            "claim": "The plant ran by remote control from Saint Louis, ninety miles away.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 16 and data_points confirm remote operation from St. Louis ~90 miles away."
+          },
+          {
+            "claim": "The computer's eyes were four pressure sensors under the water, riding in plastic pipes on the reservoir floor.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The brief confirms pressure transducers in HDPE conduits but does not specify the number 'four'."
+          },
+          {
+            "claim": "In two thousand four, those pipes had been replaced",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 8, 109 and timeline_events state new instrumentation was installed in Nov 2004."
+          },
+          {
+            "claim": "the new ones were never anchored down.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 8, 109 and timeline_events state the HDPE conduits were NOT anchored."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_008",
+        "claims": [
+          {
+            "claim": "As backup, five simple probes hung near the top of the wall",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "timeline_events and data_points confirm five Warrick conductivity probes as backup."
+          },
+          {
+            "claim": "bare metal switches that close when water touches them.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Warrick conductivity probes function by detecting water completing a circuit between electrodes."
+          },
+          {
+            "claim": "The two highest were wired to kill the pumps.",
+            "verdict": "contradicts_known_facts",
+            "severity": "critical",
+            "reason": "FERC p. 63 states the LO-LO (lowest) and HI-HI (highest) probes were wired to hard-stop, not the two highest."
+          },
+          {
+            "claim": "The middle ones were wired to nothing.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "FERC p. 63 states the LO and HI probes would not generate an alarm or log, implying they were wired but configured to be silent, not 'wired to nothing'."
+          },
+          {
+            "claim": "If water reached them, no alarm would sound.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 63 states the LO and HI probes would NOT generate an alarm."
+          },
+          {
+            "claim": "The computer wouldn't even write it down.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 63 states the PLC historian would NOT even record in the logs that water had touched them."
+          }
+        ],
+        "worst_severity": "critical"
+      },
+      {
+        "segment_id": "seg_009",
+        "claims": [
+          {
+            "claim": "The wall had been sinking since the day it was built.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 11 and timeline_events state settlement began with the first filling in 1963."
+          },
+          {
+            "claim": "By two thousand five, parts of the parapet had dropped a full foot.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 14, IPOC p. 11, and data_points confirm the wall settled ~1 foot since 1963."
+          },
+          {
+            "claim": "the depth gauge the staff read was bolted to that same wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 11, FERC p. 14, and data_points state the staff gage was affixed to the parapet wall."
+          },
+          {
+            "claim": "The wall sank. The gauge sank with it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 11, FERC p. 14, and data_points confirm the staff gage settled with the wall."
+          },
+          {
+            "claim": "The numbers looked perfect.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 11, FERC p. 14, and data_points indicate the numbers looked normal despite the wall lowering."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_010",
+        "claims": [
+          {
+            "claim": "September twenty-fifth, two thousand five.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline_events confirm the near-miss date."
+          },
+          {
+            "claim": "Eighty days before the breach.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Calculation from Sept 25, 2005, to the Dec 14, 2005, breach date is 80 days."
+          },
+          {
+            "claim": "After the rains of Hurricane Rita, workers on the mountain watch water pouring over the northwest corner of the wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline_events confirm the near-miss after Hurricane Rita rains, witnessed by workers at the Northwest corner."
+          },
+          {
+            "claim": "One of them will describe it as Niagara Falls.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and FERC p. 93 quote the 'Niagara Falls' description."
+          },
+          {
+            "claim": "They save the dam by hand — slamming the plant into generate to drain the reservoir down.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline_events state units were manually switched to generate mode to lower the reservoir."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_011",
+        "claims": [
+          {
+            "claim": "Two days later, an engineer writes it down in an email",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline_events confirm the near-miss was documented in a 9/27/2005 internal email, two days after Sept 25."
+          },
+          {
+            "claim": "overflowing this reservoir is, quote, an absolute no-no.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The specific quote 'an absolute no-no' is not found in the provided research brief."
+          },
+          {
+            "claim": "The water will erode the dam, and the dam will fail.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "While the consequence of overtopping is known (data_points), the specific quote and its attribution to this email are not in the brief."
+          },
+          {
+            "claim": "It is dated October — ten weeks before it happened.",
+            "verdict": "contradicts_known_facts",
+            "severity": "critical",
+            "reason": "The email documenting the near-miss was dated Sept 27, 2005, not October. The October 7 email (68 days before the breach) is not 'ten weeks' (70 days)."
+          }
+        ],
+        "worst_severity": "critical"
+      },
+      {
+        "segment_id": "seg_012",
+        "claims": [
+          {
+            "claim": "The plant knew the pipes had moved.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 8, 109 and timeline_events state employees observed movement of the HDPE conduits."
+          },
+          {
+            "claim": "The readings disagreed with what people could see with their own eyes.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 and timeline_events confirm a software offset was added due to visual observations disagreeing with instruments."
+          },
+          {
+            "claim": "on September twenty-seventh, someone fixed it — in software.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 and timeline_events confirm a 0.4 ft software offset was added on Sept 27, 2005."
+          },
+          {
+            "claim": "They typed a correction into the computer: add point four feet.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 confirm a 0.4 ft software offset was added to transducer readings."
+          },
+          {
+            "claim": "Don't re-anchor the pipes.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 and timeline_events imply this decision, as a software patch was applied 'instead of a physical repair' to the unanchored pipes."
+          },
+          {
+            "claim": "Don't drain and repair.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 and timeline_events imply this decision, as a software patch was applied 'instead of a physical repair'."
+          },
+          {
+            "claim": "Just… adjust the number.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 describe the action as a 'software patch over a physical sensor failure' by adding an offset."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_013",
+        "claims": [
+          {
+            "claim": "October seventh. Another email.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2005-10-07 confirms an internal email on this date."
+          },
+          {
+            "claim": "the emergency probes sit seven inches, and four inches, from the top of the wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC p. 25) quotes the internal email stating these measurements."
+          },
+          {
+            "claim": "During the September spill, the water must have reached them.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC p. 25) quotes the email's statement that the Hi probe 'should have picked up' on 9/27."
+          },
+          {
+            "claim": "They should have tripped.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC p. 25) quotes the email's statement that the Hi probe 'should have picked up'."
+          },
+          {
+            "claim": "They didn't.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC p. 25) states Ameren discussed and declined lowering the probes, implying they did not trip."
+          },
+          {
+            "claim": "The email even offers: we can lower the probes if you want.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC p. 25) quotes the email offering to lower the probes."
+          },
+          {
+            "claim": "The reply history shows what happened next. Nothing.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC p. 25) states Ameren 'declined lowering the fail-safe setpoints'."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_014",
+        "claims": [
+          {
+            "claim": "Early December. The plant superintendent walks the wall on a routine morning and sees wet spots on the outside of the parapet — at its lowest point.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (FERC p. 103) confirms Richard Cooper saw wet spots at the low point (Panel 72) during a pre-breach morning visit."
+          },
+          {
+            "claim": "Spray, probably. Waves.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (FERC p. 112) states the wet spots were 'possibly spray from waves' and Cooper did not witness waves exceeding the wall."
+          },
+          {
+            "claim": "It was explainable.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (FERC p. 112) states the observation 'was explainable-away in the moment'."
+          },
+          {
+            "claim": "The pumps kept their schedule.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2005-10 to 12 indicates the plant continued operating on remote control."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_015",
+        "claims": [
+          {
+            "claim": "The sensors, riding in their loose pipes, are reading four point two feet low.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data points and deep extraction (IPOC p. 19) confirm sensors read ~4.2 ft low; deep extraction (IPOC pp. 8, 109) confirms loose conduits."
+          },
+          {
+            "claim": "The computer in Saint Louis believes the water is six feet below the top.",
+            "verdict": "overstated",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC p. 16) states Unit #2 auto-stopped at an *indicated* 1591.6 ft, implying 5.4 ft of margin to the 1597 ft wall, not 'six feet'."
+          },
+          {
+            "claim": "The probes that would catch the lie are set above the lowest point of the sinking wall",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data points and deep extraction (IPOC pp. 16, 19-20) confirm the Hi-Hi probe was 0.7 ft above the 1597 ft wall low point, and the wall settled."
+          },
+          {
+            "claim": "and the middle ones wouldn't say anything anyway.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (FERC p. 63) states the LO and HI probes would not generate an alarm or be logged."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_016",
+        "claims": [
+          {
+            "claim": "The emergency stop — the last line of defense — was set seven tenths of a foot above the lowest point of the wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC pp. 16, 19-20) explicitly states the Hi-Hi probe was 0.7 ft above the wall's lowest point."
+          },
+          {
+            "claim": "Water would be pouring over the dam before the machine was allowed to notice.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC pp. 16, 19-20) states 'Water physically overtopped the dam before the emergency stop could ever trigger'."
+          },
+          {
+            "claim": "The fail-safe could not fire until the disaster was already happening.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "This is a direct consequence of the Hi-Hi probe being set above the wall, as stated in IPOC pp. 16, 19-20."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_017",
+        "claims": [
+          {
+            "claim": "December fourteenth, four thirty-nine in the morning. Pump two shuts itself down",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC pp. 5, 16-17, 20) and data points confirm Unit #2 shut down automatically at 04:39 on Dec 14."
+          },
+          {
+            "claim": "its gauge reads over six feet of room to spare.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data points confirm Unit #2 auto-stopped at an *indicated* 1591.6 ft, meaning the computer believed there was ~6 feet of margin to the 1597 ft wall crest."
+          },
+          {
+            "claim": "Pump one keeps going.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC pp. 5, 16-17, 20) states Unit #1 was shut down manually at 05:15, implying it continued pumping after Unit #2 stopped."
+          },
+          {
+            "claim": "water is already finding the top of the wall at its lowest panel. Panel seventy-two.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2005-12-14 ~05:00-05:15 states water poured over the parapet; deep extraction (FERC p. 103) identifies Panel 72 as the low point."
+          },
+          {
+            "claim": "Right where the wet spots were.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (FERC p. 103) confirms Panel 72 was the low point where Richard Cooper saw wet spots."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_018",
+        "claims": [
+          {
+            "claim": "It found the loose rock behind the wall and began to carve.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2005-12-14 ~05:00-05:15 states 'the rockfill dike erodes from the outside'."
+          },
+          {
+            "claim": "At five fifteen, a human being finally stopped the last pump",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC pp. 5, 16-17, 20) and timeline event 2005-12-14 ~05:00-05:15 confirm Unit #1 was shut down manually at 05:15."
+          },
+          {
+            "claim": "an operator at a different dam, following a phone instruction from Saint Louis.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC pp. 5, 16-17, 20) and data points confirm the shutdown came from the Bagnell Dam operator on St. Louis instructions."
+          },
+          {
+            "claim": "At that same minute, the wall at panel seventy-two let go.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction (IPOC pp. 5, 16-17, 20) states the initial breach formed at approximately 05:15 AM; stakeholders confirm Panel 72 as the breach point."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_019",
+        "claims": [
+          {
+            "claim": "The gap tore itself six hundred fifty feet wide.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 5, 17; damfailures.org states a ~656-ft-wide breach."
+          },
+          {
+            "claim": "Four thousand three hundred fifty acre-feet — a lake — left the mountain in twenty-five minutes.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 5, 17; damfailures.org states ~4,350 acre-ft evacuated in ~25 minutes."
+          },
+          {
+            "claim": "A wall of water, rock, and shredded forest went down Proffit Mountain at the valley below.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The breach of a rockfill dike through a State Park implies rock and forest debris in the flood path (IPOC pp. 5, 17)."
+          },
+          {
+            "claim": "At the house at the foot of it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The Toops house was at the foot of the mountain in the flood path (FERC pp. 133-134)."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_020",
+        "claims": [
+          {
+            "claim": "The wave that reached the Toops house was carrying their world away within seconds.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005 states the house filled in seconds."
+          },
+          {
+            "claim": "Lisa held the baby.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005 and stakeholder brief confirm Lisa carried the children."
+          },
+          {
+            "claim": "The five-year-old's bedroom filled before he could stand.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The brief states the house filled in seconds and Tanner was 5, but not this specific detail about his bedroom."
+          },
+          {
+            "claim": "The water carried them a quarter of a mile.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005 states the family was swept ~1/4 mile."
+          },
+          {
+            "claim": "through trees, in the dark, in December.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The event occurred on Dec 14, 2005, around 5:15 AM (before sunrise), through a state park."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_021",
+        "claims": [
+          {
+            "claim": "They lived. All five of them.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005 confirms all five Toops family members survived."
+          },
+          {
+            "claim": "Rescuers found them scattered in the shallows — freezing, stripped by the water, alive.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The brief confirms hypothermia, but not that they were stripped or scattered in shallows."
+          },
+          {
+            "claim": "The five-year-old, Tanner, came closest.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005 and stakeholder brief state Tanner was near death from hypothermia."
+          },
+          {
+            "claim": "Two hours of resuscitation.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005 states Tanner was resuscitated over two hours."
+          },
+          {
+            "claim": "So cold that warming him left burns needing skin grafts.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005 states Tanner required skin grafts from rewarming burns."
+          },
+          {
+            "claim": "A seven-month-old baby survived a quarter-mile ride through a flood that moved boulders.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The brief confirms a 7-month-old child was swept ~1/4 mile, and the flood's power implies it moved boulders (IPOC pp. 5, 17)."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_022",
+        "claims": [
+          {
+            "claim": "The plant had an emergency call list, and Jerry Toops — the park superintendent — was on it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC pp. 133-134 states Jerry Toops was on the EAP notification list."
+          },
+          {
+            "claim": "At six thirty, they worked down the list and called his house.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC pp. 133-134 states the EAP call to the Toops house occurred around 06:30."
+          },
+          {
+            "claim": "The phone rang and rang. There was no house.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC pp. 133-134 states the call went unanswered and responders found the house destroyed."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_023",
+        "claims": [
+          {
+            "claim": "The investigation took a year",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The IPOC and FERC staff reports were published in 2006, less than a year after the Dec 2005 breach."
+          },
+          {
+            "claim": "Sensors nobody re-anchored.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 8, 109 states the level-sensing system was NOT anchored and base plates were found unanchored."
+          },
+          {
+            "claim": "A software offset instead of a repair.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 states a 0.4 ft software offset was added as a patch over a physical sensor failure."
+          },
+          {
+            "claim": "Warning probes wired to stay silent.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 63 states LO and HI probes would NOT generate an alarm or log data."
+          },
+          {
+            "claim": "A fail-safe set above the top of a sinking wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 16, 19-20 states the Hi-Hi probe was 0.7 ft ABOVE the lowest wall point; IPOC p. 11 states the wall settled since 1963."
+          },
+          {
+            "claim": "And the paperwork knew.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Internal emails (IPOC p. 25) and PLC code changes (IPOC p. 14) document the issues."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_024",
+        "claims": [
+          {
+            "claim": "Ameren paid fifteen million dollars to federal regulators",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective states FERC levied a $15 million civil penalty."
+          },
+          {
+            "claim": "a record for dam safety.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective states it was the largest dam-safety penalty in FERC history at the time."
+          },
+          {
+            "claim": "It paid roughly one hundred eighty million more to the state of Missouri.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective states Ameren settled with Missouri for ~$180 million."
+          },
+          {
+            "claim": "They rebuilt the reservoir in solid concrete.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective states the reservoir was rebuilt as a roller-compacted-concrete dam."
+          },
+          {
+            "claim": "The new instruments cross-check each other.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The brief describes the old control system but does not detail the specific features of the new instrumentation."
+          },
+          {
+            "claim": "The new rim gives water somewhere to go.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The original design had no emergency spillway; a rebuilt dam would incorporate this safety feature."
+          },
+          {
+            "claim": "It went back online in twenty ten.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective states the new dam was online in 2010."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_025",
+        "claims": [
+          {
+            "claim": "The Toops family moved away from the park.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The `unverifiable_claims` section of the brief mentions the Toops family relocated to northeast Missouri in May 2006."
+          },
+          {
+            "claim": "The shut-ins filled with swimmers again.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "`timeline_events` states Johnson's Shut-Ins State Park was rebuilt and reopened from 2007."
+          },
+          {
+            "claim": "A disaster with no dead.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "`data_points` and `timeline_events` confirm all five Toops family members survived the flood."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_026",
+        "claims": [
+          {
+            "claim": "The computer did exactly what it was told.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "`deep_extraction` confirms the PLC code included a 0.4 ft offset and Unit #2 shut down automatically at the indicated level, executing its programming."
+          },
+          {
+            "claim": "The sensors reported exactly what they touched.",
+            "verdict": "contradicts_known_facts",
+            "severity": "critical",
+            "reason": "`deep_extraction` states pressure transducers were reading ~4.2 ft low and were not anchored, leading to movement and temperature-induced error, meaning they did not accurately report the actual water level."
+          },
+          {
+            "claim": "Somebody saw Niagara Falls and typed point four feet into a config file.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "`deep_extraction` confirms workers witnessed 'Niagara Falls' overtopping on 9/25/05, and a 0.4 ft software offset was added on 9/27/05."
+          }
+        ],
+        "worst_severity": "critical"
+      },
+      {
+        "segment_id": "seg_027",
+        "claims": [
+          {
+            "claim": "We are building more of these plants now.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The research brief does not provide evidence regarding the current construction rate of pumped-storage plants."
+          },
+          {
+            "claim": "Giant water batteries for a renewable grid.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The brief's `topic` and `data_points` implicitly characterize pumped-storage as relevant to a renewable grid."
+          },
+          {
+            "claim": "Run by remote.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "`data_points` explicitly states the plant was operated by remote control from St. Louis."
+          },
+          {
+            "claim": "Watched by sensors.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The entire brief, particularly `deep_extraction` and `data_points`, details the extensive use of sensors for monitoring."
+          }
+        ],
+        "worst_severity": "warn"
+      }
+    ]
+  },
+  "style": {
+    "results": [
+      {
+        "segment_id": "seg_001",
+        "score": 4,
+        "violations": [
+          {
+            "type": "evidence_reading",
+            "evidence": "It's four in the morning, December fourteenth, two thousand five. In the Ozark mountains of Missouri,",
+            "fix": "Deep in the Ozark mountains of Missouri, at the foot of Proffit Mountain, a park superintendent's house sits. Inside, Jerry Toops sleeps. His wife Lisa is awake with the baby, four in the morning on December fourteenth, two thousand five."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_002",
+        "score": 7,
+        "violations": [
+          {
+            "type": "data_dump",
+            "evidence": "one and a half billion gallons of water.",
+            "fix": "A man-made ring of rock and concrete holding one and a half billion gallons of water, a volume that could submerge the entire valley below."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_003",
+        "score": 8,
+        "violations": [
+          {
+            "type": "passive_recitation",
+            "evidence": "is swept into the dark.",
+            "fix": "And the black water sweeps the whole family — Jerry, Lisa, a five-year-old, a three-year-old, a seven-month-old baby — into the dark."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_004",
+        "score": 5,
+        "violations": [
+          {
+            "type": "data_dump",
+            "evidence": "One and a half billion gallons emptied through the valley in twenty-five minutes.",
+            "fix": "The one and a half billion gallons of water tore through the valley in twenty-five minutes."
+          },
+          {
+            "type": "passive_recitation",
+            "evidence": "One and a half billion gallons emptied through the valley in twenty-five minutes.",
+            "fix": "The one and a half billion gallons of water tore through the valley in twenty-five minutes."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_005",
+        "score": 9,
+        "violations": []
+      },
+      {
+        "segment_id": "seg_006",
+        "score": 5,
+        "violations": [
+          {
+            "type": "data_dump",
+            "evidence": "It held four thousand three hundred fifty acre-feet of water.",
+            "fix": "It holds four thousand three hundred fifty acre-feet of water, a contained force pressing against its concrete wall."
+          },
+          {
+            "type": "passive_recitation",
+            "evidence": "The upper reservoir was a ring of rockfill crowning the mountain, topped with a concrete wall. It held four thousand three hundred fifty acre-feet of water.",
+            "fix": "The upper reservoir is a ring of rockfill crowning the mountain, topped with a concrete wall. It holds four thousand three hundred fifty acre-feet of water."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_007",
+        "score": 4,
+        "violations": [
+          {
+            "type": "evidence_reading",
+            "evidence": "In two thousand four, those pipes had been replaced",
+            "fix": "The computer's eyes are four pressure sensors under the water, riding in plastic pipes on the reservoir floor. In two thousand four, workers replaced those pipes, but they never anchored the new ones down."
+          },
+          {
+            "type": "passive_recitation",
+            "evidence": "The computer's eyes were four pressure sensors under the water, riding in plastic pipes on the reservoir floor. In two thousand four, those pipes had been replaced — and the new ones were never anchored down.",
+            "fix": "The computer's eyes are four pressure sensors under the water, riding in plastic pipes on the reservoir floor. In two thousand four, workers replaced those pipes, but they never anchored the new ones down."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_008",
+        "score": 2,
+        "violations": [
+          {
+            "type": "passive_recitation",
+            "evidence": "As backup, five simple probes hung near the top of the wall — bare metal switches that close when water touches them. The two highest were wired to kill the pumps. The middle ones were wired to nothing. If water reached them, no alarm would sound. The computer wouldn't even write it down.",
+            "fix": "As backup, five simple probes hang near the top of the wall — bare metal switches that close when water touches them. The two highest are wired to kill the pumps. The middle ones are wired to nothing. If water reaches them, no alarm sounds. The computer doesn't even write it down."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_009",
+        "score": 7,
+        "violations": []
+      },
+      {
+        "segment_id": "seg_010",
+        "score": 3,
+        "violations": [
+          {
+            "type": "evidence_reading",
+            "evidence": "September twenty-fifth, two thousand five. Eighty days before the breach.",
+            "fix": "After the rains of Hurricane Rita, workers on the mountain watch water pouring over the northwest corner of the wall. It is September twenty-fifth, two thousand five, eighty days before the breach."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_011",
+        "score": 7,
+        "violations": [
+          {
+            "type": "tell_dont_show",
+            "evidence": "They knew.",
+            "fix": "The email confirms it. It is in writing. The document bears the date October — ten weeks before it happened."
+          },
+          {
+            "type": "passive_recitation",
+            "evidence": "It is dated October",
+            "fix": "The document bears the date October"
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_012",
+        "score": 6,
+        "violations": []
+      },
+      {
+        "segment_id": "seg_013",
+        "score": 3,
+        "violations": [
+          {
+            "type": "evidence_reading",
+            "evidence": "October seventh. Another email.",
+            "fix": "Another email arrives. It is October seventh, and someone has done the arithmetic: the emergency probes sit seven inches, and four inches, from the top of the wall."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_014",
+        "score": 3,
+        "violations": [
+          {
+            "type": "evidence_reading",
+            "evidence": "Early December.",
+            "fix": "In early December, the plant superintendent walks the wall on a routine morning and sees wet spots on the outside of the parapet — at its lowest point."
+          },
+          {
+            "type": "repetitive_form",
+            "evidence": "Early December. The plant superintendent walks the wall on a routine morning and sees wet spots on the outside of the parapet — at its lowest point.",
+            "fix": "The plant superintendent walks the wall on a routine morning in early December and sees wet spots on the outside of the parapet — at its lowest point."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_015",
+        "score": 8,
+        "violations": [
+          {
+            "type": "passive_recitation",
+            "evidence": "The probes that would catch the lie are set above the lowest point of the sinking wall",
+            "fix": "The probes that would catch the lie sit above the lowest point of the sinking wall"
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_016",
+        "score": 4,
+        "violations": [
+          {
+            "type": "passive_recitation",
+            "evidence": "was set seven tenths of a foot",
+            "fix": "The emergency stop — the last line of defense — sits seven tenths of a foot above the lowest point of the wall."
+          },
+          {
+            "type": "passive_recitation",
+            "evidence": "the machine was allowed to notice.",
+            "fix": "Water pours over the dam before the machine notices."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_017",
+        "score": 5,
+        "violations": [
+          {
+            "type": "evidence_reading",
+            "evidence": "December fourteenth, four thirty-nine in the morning.",
+            "fix": "At four thirty-nine in the morning on December fourteenth, pump two shuts itself down — its gauge reads over six feet of room to spare."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_018",
+        "score": 9,
+        "violations": []
+      },
+      {
+        "segment_id": "seg_019",
+        "score": 10,
+        "violations": []
+      },
+      {
+        "segment_id": "seg_020",
+        "score": 7,
+        "violations": [
+          {
+            "type": "tell_dont_show",
+            "evidence": "The wave that reached the Toops house was carrying their world away within seconds.",
+            "fix": "The wave reached the Toops house. Within seconds, Lisa held the baby as the five-year-old's bedroom filled before he could stand."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_021",
+        "score": 10,
+        "violations": []
+      },
+      {
+        "segment_id": "seg_022",
+        "score": 5,
+        "violations": [
+          {
+            "type": "weak_transition",
+            "evidence": "One more detail from that morning.",
+            "fix": "That morning, the plant's emergency call list included Jerry Toops, the park superintendent. At six thirty, they worked down the list and called his house. The phone rang and rang. There was no house."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_023",
+        "score": 10,
+        "violations": []
+      },
+      {
+        "segment_id": "seg_024",
+        "score": 3,
+        "violations": []
+      },
+      {
+        "segment_id": "seg_025",
+        "score": 4,
+        "violations": [
+          {
+            "type": "repetitive_form",
+            "evidence": "The Toops family moved away from the park. The children grew up. The shut-ins filled with swimmers again.",
+            "fix": "The Toops family moves away from the park, their children growing up, the shut-ins filling with swimmers once more."
+          },
+          {
+            "type": "tell_dont_show",
+            "evidence": "A disaster with no dead.",
+            "fix": "A disaster unfolds, yet leaves no dead."
+          },
+          {
+            "type": "tell_dont_show",
+            "evidence": "That is why you have probably never heard of it.",
+            "fix": "Perhaps this is why you have never heard its name."
+          },
+          {
+            "type": "passive_recitation",
+            "evidence": "It is also how every part of it got permission to happen.",
+            "fix": "It is also how the system allows every part of it to happen."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_026",
+        "score": 5,
+        "violations": [
+          {
+            "type": "repetitive_form",
+            "evidence": "The computer did exactly what it was told. The sensors reported exactly what they touched. Every machine told the truth as it knew it — and the whole system lied.",
+            "fix": "The computer, told precisely what to do, does it. The sensors report exactly what they touch. Every machine speaks its truth — and the whole system lies."
+          },
+          {
+            "type": "tell_dont_show",
+            "evidence": "Because here is the lesson, and it is not about dams.",
+            "fix": "This is not about dams."
+          },
+          {
+            "type": "tell_dont_show",
+            "evidence": "The gap between those two things is where disasters live.",
+            "fix": "In that gap, disasters live."
+          }
+        ]
+      },
+      {
+        "segment_id": "seg_027",
+        "score": 5,
+        "violations": [
+          {
+            "type": "repetitive_form",
+            "evidence": "Run by remote. Watched by sensors. The technology is good. The lesson is standing. Trust is a design decision.",
+            "fix": "Remote operators run them; sensors watch them. The technology proves itself. The lesson endures. Trust becomes a design decision."
+          },
+          {
+            "type": "tell_dont_show",
+            "evidence": "The technology is good. The lesson is standing. Trust is a design decision.",
+            "fix": "The technology proves itself. The lesson endures. Trust becomes a design decision."
+          },
+          {
+            "type": "passive_recitation",
+            "evidence": "Run by remote. Watched by sensors.",
+            "fix": "Remote operators run them; sensors watch them."
+          }
+        ]
+      }
+    ]
+  },
+  "flow": {
+    "date_location_openers": [
+      "seg_001",
+      "seg_010",
+      "seg_013",
+      "seg_014",
+      "seg_017"
+    ],
+    "counts": {
+      "segments": 27,
+      "date_location_openers": 5,
+      "model_reported": 4,
+      "heuristic_detected": 5
+    },
+    "findings": [
+      {
+        "issue": "hook",
+        "segments": [
+          "seg_001",
+          "seg_002",
+          "seg_003",
+          "seg_004"
+        ],
+        "severity": "info",
+        "suggestion": "The hook is effective. It immediately establishes high stakes, introduces a compelling mystery, and promises a deeper systemic failure beyond simple human error. No leaks found."
+      },
+      {
+        "issue": "act_structure",
+        "segments": [
+          "seg_005",
+          "seg_006",
+          "seg_007",
+          "seg_008"
+        ],
+        "severity": "warn",
+        "suggestion": "The tension curve breaks significantly in Act 2. After the immediate crisis and shocking reveal of 'everyone knew' in Act 1, the narrative flattens into a purely expository recitation of technical details and design flaws. While this information is crucial, its presentation as a series of 'establishing' segments (seg_005-008) lacks rising dramatic tension, making it feel like a case-file download rather than an escalating narrative."
+      },
+      {
+        "issue": "transitions",
+        "segments": [
+          "seg_004",
+          "seg_005"
+        ],
+        "severity": "warn",
+        "suggestion": "The transition between `seg_004` and `seg_005` is abrupt. `seg_004` ends with the bombshell 'everyone knew,' implying a causal chain of negligence. `seg_005` then abruptly shifts to a dry definition of 'Taum Sauk was a battery.' There is no clear causal or emotional thread carrying the viewer from the 'knowledge of failure' to the 'explanation of the system.' A bridge is needed to connect *why* we need to understand the system to *how* everyone knew it was failing."
+      },
+      {
+        "issue": "repetition",
+        "segments": [],
+        "severity": "info",
+        "suggestion": "Four segments open with a date or location slate. No other opening formula is used three or more times."
+      },
+      {
+        "issue": "dead_spots",
+        "segments": [
+          "seg_005",
+          "seg_006",
+          "seg_007",
+          "seg_008"
+        ],
+        "severity": "warn",
+        "suggestion": "The entire Act 2 (`seg_005` through `seg_008`) constitutes a dead spot. The pacing remains consistently 'establishing,' presenting crucial information without a corresponding rise in intensity or stakes. This stretch feels like an information dump, causing the narrative momentum to stall before Act 3's escalation. Consider ways to dramatize these technical revelations or intersperse them with more immediate human context or foreshadowing."
+      },
+      {
+        "issue": "ending",
+        "segments": [
+          "seg_023",
+          "seg_024",
+          "seg_025",
+          "seg_026",
+          "seg_027"
+        ],
+        "severity": "info",
+        "suggestion": "The ending is strong. It effectively lands a profound idea about the 'design of trust' and systemic failure, moving beyond the specific incident to a universal, chilling lesson. The final segments provide both resolution and a powerful, relevant warning for the future, leaving a lasting impact rather than just stopping."
+      }
+    ],
+    "overall": 6
+  },
+  "shots": {
+    "results": [
+      {
+        "segment_id": "seg_001",
+        "verdict": "illustrates",
+        "staging_score": 4,
+        "dramatic_core": "The deceptive calm before the storm; the 'kind of night where nothing happens' is a lie.",
+        "missed_device": "scale contrast, isolation",
+        "staged_prompt": "A small, warmly lit ranger's house nestled precariously at the base of a colossal, dark, and featureless mountain that looms over it, dominating the frame. Bare winter trees frame the house, emphasizing its isolation and vulnerability. The mountain's peak is obscured by shadow, hinting at a hidden, immense presence.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_002",
+        "verdict": "stages",
+        "staging_score": 8,
+        "dramatic_core": "The hidden, immense, and actively growing threat (the overfilled reservoir) above the unsuspecting valley.",
+        "missed_device": "",
+        "staged_prompt": "",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_003",
+        "verdict": "stages",
+        "staging_score": 9,
+        "dramatic_core": "The sudden, overwhelming, and destructive force of the flood engulfing the family and house.",
+        "missed_device": "",
+        "staged_prompt": "",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_004",
+        "verdict": "stages",
+        "staging_score": 6,
+        "dramatic_core": "The immense, irreversible destruction caused by a systemic, known failure, not human error. The 'everyone knew' is the key irony.",
+        "missed_device": "prop that lies",
+        "staged_prompt": "A vast pale scar of scoured rock and mud cutting straight down a forested mountainside from a breached mountaintop reservoir, trees flattened at its edges, mist in the valley below. In the immediate foreground, half-buried in the mud and debris, lies a broken, corroded 1985-era pressure sensor, its wires severed, hinting at the systemic failure.",
+        "overlay_lines": [],
+        "support_assets_hint": "pressure_sensor_1985"
+      },
+      {
+        "segment_id": "seg_006",
+        "verdict": "stages",
+        "staging_score": 7,
+        "dramatic_core": "The critical design flaw: 'no spillway,' meaning the only way out for excess water is over or through the wall.",
+        "missed_device": "before/within the turn",
+        "staged_prompt": "A low-angle shot from the perspective of the water, looking up at the weathered concrete parapet wall, which rises like an insurmountable barrier. The dark water laps just inches below the top of the wall, reflecting a cold, empty sky. On the other side of the wall, the steep, rocky slope drops sharply into the distant forest, emphasizing the immense fall. The wall appears continuous and unbroken, with no visible outlet or spillway.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_007",
+        "verdict": "illustrates",
+        "staging_score": 5,
+        "dramatic_core": "The unseen, unmonitored, and faulty sensors (unanchored pipes) that are the 'eyes' of the remote system, leading to a critical failure.",
+        "missed_device": "point of view, foreground/background juxtaposition",
+        "staged_prompt": "A close-up, slightly distorted underwater view of several plastic pipes, clearly unanchored and floating loosely just above the concrete floor of the reservoir. They appear fragile and out of place, with sensor cables trailing. In the background, out of focus, a faint, distant glow suggests the surface of the water, or perhaps a distant light source, hinting at the remote system's 'view' through these faulty 'eyes'.",
+        "overlay_lines": [],
+        "support_assets_hint": "pressure_sensor_1985"
+      },
+      {
+        "segment_id": "seg_009",
+        "verdict": "stages",
+        "staging_score": 10,
+        "dramatic_core": "The 'quiet lie' – the gauge gives a false sense of security because it sinks with the wall, making the water level appear stable when it's actually rising relative to the true ground.",
+        "missed_device": "",
+        "staged_prompt": "",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_010",
+        "verdict": "stages",
+        "staging_score": 9,
+        "dramatic_core": "The near-catastrophe averted by manual intervention, highlighting the extreme danger and the inadequacy of the automated system.",
+        "missed_device": "",
+        "staged_prompt": "",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_011",
+        "verdict": "stages",
+        "staging_score": 6,
+        "dramatic_core": "The explicit, ignored warning of dam failure, written ten weeks before it happened.",
+        "missed_device": "foreground/background juxtaposition",
+        "staged_prompt": "A printed corporate email page with a highlighted line, lying on a dark desk in lamplight. In the background, through a large office window, a perfectly calm reservoir with the dam wall visible, serene under an overcast sky. The document is sharp, the view outside is slightly soft, hinting at the impending disaster.",
+        "overlay_lines": [],
+        "support_assets_hint": "proffit_reservoir"
+      },
+      {
+        "segment_id": "seg_012",
+        "verdict": "stages",
+        "staging_score": 7,
+        "dramatic_core": "The dangerous act of 'fixing' a physical problem (moved pipes) by merely changing a number in software, ignoring the real issue.",
+        "missed_device": "the prop that lies",
+        "staged_prompt": "Extreme close-up on a beige CRT monitor screen, glowing amber. The screen displays a calm, official-looking data table or gauge readout, with a single, prominent value (represented by a block of unreadable characters) that has just been updated and now appears perfectly normal. A subtle, almost imperceptible flicker of the screen suggests the recent change. No hands or people visible, just the screen's calm, lying face.",
+        "overlay_lines": [
+          "ADD POINT FOUR FEET",
+          "JUST ADJUST THE NUMBER"
+        ],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_013",
+        "verdict": "stages",
+        "staging_score": 8,
+        "dramatic_core": "The clear warning about failed safety probes and the offer to fix them, met with complete inaction.",
+        "missed_device": "",
+        "staged_prompt": "",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_014",
+        "verdict": "stages",
+        "staging_score": 7,
+        "dramatic_core": "The superintendent dismisses clear warning signs (wet spots) as 'explainable,' leading to inaction before disaster.",
+        "missed_device": "foreground/background juxtaposition",
+        "staged_prompt": "Wide shot from a low angle, looking up at the plant superintendent, a small figure in a winter coat, standing casually on the dam crest, looking down at the wet spots on the parapet wall. He gestures dismissively with one hand. Behind him, the vast, calm surface of the reservoir stretches to the horizon under an overcast sky, its immense, silent power contrasting with the man's casual dismissal.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_017",
+        "verdict": "stages",
+        "staging_score": 7,
+        "dramatic_core": "The physical reality of water spilling over the dam, directly contradicting the false safety indicated by a pump gauge.",
+        "missed_device": "foreground/background juxtaposition",
+        "staged_prompt": "Close-up on a beige CRT monitor screen, glowing amber, displaying a calm, official-looking pump gauge readout with a prominent value (represented by unreadable characters) indicating ample room. In the background, out of focus, through a dark window or on a security monitor, the top edge of a concrete parapet wall at night, with a thin sheet of black reservoir water just beginning to spill over its edge.",
+        "overlay_lines": [
+          "GAUGE READS OVER SIX FEET TO SPARE"
+        ],
+        "support_assets_hint": "control_system"
+      },
+      {
+        "segment_id": "seg_018",
+        "verdict": "stages",
+        "staging_score": 7,
+        "dramatic_core": "The dam wall fails at the exact moment a human finally acts, highlighting the tragic delay and the overwhelming power of the unleashed water.",
+        "missed_device": "foreground/background juxtaposition",
+        "staged_prompt": "Close-up on an anonymous human hand pressing a large, illuminated 'STOP' button on a beige 1985-era control panel. The button glows red. In the background, out of focus, through a dark window or on a security monitor, a section of concrete parapet wall collapsing outward off a rockfill dam as white water tears through the widening gap, boulders tumbling, spray luminous against darkness.",
+        "overlay_lines": [],
+        "support_assets_hint": "control_system"
+      },
+      {
+        "segment_id": "seg_019",
+        "verdict": "stages",
+        "staging_score": 9,
+        "dramatic_core": "The overwhelming scale and speed of the dam's failure, a destructive wall of water racing towards a specific, vulnerable house in the valley below.",
+        "missed_device": "consequence in frame",
+        "staged_prompt": "Wide night view. A mountaintop reservoir emptying through a huge breach in its rim, a luminous white torrent plunging down a dark forested mountainside. Trees are swallowed at its edges. In the distant valley below, a single, small, isolated house with a faint light in a window is visible, directly in the path of the oncoming flood front.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_020",
+        "verdict": "stages",
+        "staging_score": 10,
+        "dramatic_core": "The intimate, personal tragedy of a family's world being swept away, implied through the destruction of their home's fragments.",
+        "missed_device": "",
+        "staged_prompt": "",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_021",
+        "verdict": "illustrates",
+        "staging_score": 5,
+        "dramatic_core": "The miraculous survival of children against overwhelming odds, highlighting the extreme conditions and consequences they endured.",
+        "missed_device": "consequence in frame (the burns, the near-death state), isolation (Tanner's vulnerability)",
+        "staged_prompt": "Close-up, low-angle, 1985. A small, pale, blanket-wrapped child's head and chest on a makeshift stretcher in a chaotic, cold, shallow floodwater scene at dawn. A rescuer's gloved hands work a manual resuscitator bag near the child's face, breath fogging. The child's skin shows faint, angry red marks from burns. Debris and floodwater visible in the background. Focus on the child's vulnerability and the urgent, desperate effort.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_022",
+        "verdict": "stages",
+        "staging_score": 7,
+        "dramatic_core": "The chilling irony of calling a house that no longer exists, highlighting the disconnect between bureaucratic procedure and devastating reality.",
+        "missed_device": "foreground/background juxtaposition (the call list/phone vs. the destroyed house)",
+        "staged_prompt": "1985. A close-up on a beige rotary desk phone, receiver off the hook, with a printed emergency call list beside it, a finger tracing a name. Through a grimy, rain-streaked window in the background, a bare concrete house foundation stands in shallow muddy floodwater strewn with debris, a snapped utility pole with its line sagging into the water. The phone, a symbol of futile procedure, is in sharp focus, the devastation beyond slightly blurred.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_023",
+        "verdict": "stages",
+        "staging_score": 6,
+        "dramatic_core": "The insidious nature of systemic failure, where 'reasonable decisions' hollowed out safety, and the 'paperwork knew' the hidden truth.",
+        "missed_device": "the prop that lies (the document itself contains the lie/flaw), consequence in frame (the design flaw is the cause of the consequence)",
+        "staged_prompt": "1985. Close-up on a detailed engineering cross-section drawing of a dam wall and reservoir, spread on a table under cold fluorescent light. A thick red line, implied as 'FAIL-SAFE LEVEL' by its position, is clearly drawn *above* the top edge of the dam wall. A faint, almost erased pencil mark or correction fluid patch is visible where the line might have been lower. Other technical annotations are present but illegible. The drawing is pristine but subtly reveals the fatal design flaw.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_024",
+        "verdict": "stages",
+        "staging_score": 6,
+        "dramatic_core": "The immense cost and over-engineering required to fix a problem caused by past negligence, highlighting the scale of the institutional response.",
+        "missed_device": "scale contrast (the immense, expensive solution vs. the previous negligence), consequence in frame (the over-engineered solution as a direct result of the past failure)",
+        "staged_prompt": "Aerial, low-angle, daylight. A massive, imposing, stepped roller-compacted-concrete rim of a rebuilt mountaintop reservoir dominates the frame, its sheer scale and solidity emphasized. The concrete is clean and stark against the surrounding landscape. A small, intricate array of instrument masts and sensors is visible along the rim, suggesting complex redundancy. The blue water of the reservoir is visible beyond the rim. The shot emphasizes the overwhelming, almost excessive, engineering solution.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_025",
+        "verdict": "illustrates",
+        "staging_score": 4,
+        "dramatic_core": "The unsettling irony of a disaster with 'no dead' leading to its obscurity and, implicitly, allowing the conditions for it to happen again.",
+        "missed_device": "the prop that lies (the peaceful scene contradicts the unsettling truth), foreground/background juxtaposition (the surface peace vs. the hidden implications)",
+        "staged_prompt": "Summer daylight. A beautiful rocky river gorge with smooth pink granite boulders and clear turquoise pools. Tiny distant swimmers enjoy the water. However, a distinct, faded high-water mark is visible on a prominent boulder in the foreground, subtly hinting at the past flood's destructive power. A small, twisted piece of metal debris is wedged high in a tree branch, almost overlooked. The scene is peaceful but carries a faint, unsettling echo of past danger.",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      },
+      {
+        "segment_id": "seg_027",
+        "verdict": "stages",
+        "staging_score": 9,
+        "dramatic_core": "The chilling implication that despite lessons learned, the fundamental vulnerability of 'trust as a design decision' persists in new, remote, sensor-driven systems, where 'a computer believes a number.'",
+        "missed_device": "",
+        "staged_prompt": "",
+        "overlay_lines": [],
+        "support_assets_hint": ""
+      }
+    ]
+  },
+  "retention": {
+    "hook": {
+      "score": 7,
+      "kallaway": "The hook attempts Kallaway by setting a mundane scene ('The kind of night where nothing happens' - seg_001) and immediately shattering it with a catastrophic event ('The mountain has opened. The house fills with black winter water in seconds.' - seg_003). The contrast is present, but the 'contrarian statement' is less a statement and more a generic setup violently refuted, lacking the intellectual bite of a true contrarian thesis.",
+      "blackman": "The Blackman formula is more successfully executed: Character (Jerry, Lisa, children - seg_001), Concept (quiet family night, house at mountain's foot, man-made lake above - seg_001-002), Dire Stakes (family swept into the dark as the mountain opens - seg_003). The stakes are immediate and visceral.",
+      "sells_payload": false,
+      "issues": [
+        "While the hook effectively establishes immediate crisis and human stakes, it fails the 'write-the-hook-last' test. It sells a disaster story, but not the *specific* payload of systemic failure, the 'design of trust' villain, or the unique 'disaster with no dead' twist. The hook promises a thrilling recount of a tragedy, not the deeper, more intellectual exploration the script eventually delivers, making it a bait-and-switch on the story's true nature.",
+        "Key hook sentences are short, but the overall prose in the opening segments isn't consistently under ~10 words, which slightly dilutes the intended punch."
+      ]
+    },
+    "roadmap": {
+      "score": 2,
+      "present": false,
+      "where_it_fits": "A critical roadmap beat is entirely absent in the first 90 seconds. The script immediately dives into technical explanations (seg_004-008) without articulating the broader thematic scope or the ultimate payoff. The audience is left to assume this is merely a detailed account of a dam failure, missing the crucial 'why this matters beyond this one event' until the very end. A statement like, 'This isn't just the story of a dam breaking; it's a chilling look at how small, 'reasonable' decisions can hollow out trust in complex systems, leading to catastrophe even when everyone 'knew'' should be inserted after seg_004 or seg_008 to provide necessary context and promise."
+    },
+    "loops": [
+      {
+        "setup_segment": "seg_001",
+        "setup": "A quiet house. The kind of night where nothing happens. A quarter of a mile above their roof, on the flattened top of the mountain, sits a lake. A man-made ring of rock and concrete holding one and a half billion gallons of water. And all through the night, a computer ninety miles away has been pumping more water in.",
+        "payoff_segment": "seg_003",
+        "status": "closed",
+        "note": "Immediate crisis payoff. Effective, but relies on shock."
+      },
+      {
+        "setup_segment": "seg_004",
+        "setup": "Nobody at the plant pressed a wrong button. Nobody fell asleep at a control panel. There was no control panel. There was a computer, reading sensors that had been wrong for months — and everyone knew.",
+        "payoff_segment": "seg_018",
+        "status": "closed",
+        "note": "This is the primary investigative loop. The setup 'everyone knew' is a significant value leak, as the subsequent segments (seg_007, seg_009, seg_010, seg_011, seg_012, seg_013, seg_014, seg_015, seg_016) then *prove* this statement rather than *uncovering* it. This is a classic 'teaching without a question' flaw, as the audience is given the answer before the full mystery has been allowed to develop. The payoff is the dam's final failure, confirming the consequences of the known flaws."
+      },
+      {
+        "setup_segment": "seg_006",
+        "setup": "It had one unusual feature: no spillway. No overflow drain. If the water ever rose too high, there was nowhere for it to go — except over the wall, and through it.",
+        "payoff_segment": "seg_010",
+        "status": "closed",
+        "note": "This is a technical detail explained before the audience fully understands its catastrophic implications. While it pays off with the 'Niagara Falls' event, it's a 'teaching without a question' moment."
+      },
+      {
+        "setup_segment": "seg_008",
+        "setup": "As backup, five simple probes hung near the top of the wall... The two highest were wired to kill the pumps. The middle ones were wired to nothing. If water reached them, no alarm would sound. The computer wouldn't even write it down.",
+        "payoff_segment": "seg_013",
+        "status": "closed",
+        "note": "Another 'teaching without a question' instance. The audience is given the flaw (useless probes) before the question 'what about the backups?' is fully formed. The payoff confirms their failure."
+      },
+      {
+        "setup_segment": "seg_022",
+        "setup": "One more detail from that morning. The plant had an emergency call list, and Jerry Toops — the park superintendent — was on it. At six thirty, they worked down the list and called his house.",
+        "payoff_segment": "seg_022",
+        "status": "closed",
+        "note": "A late, minor emotional loop. Effective for its brevity and starkness."
+      }
+    ],
+    "value_sequencing": {
+      "compliant": false,
+      "inversions": [
+        "The statement 'sensors that had been wrong for months — and everyone knew' (seg_004) is a significant value inversion. This core conceptual revelation, the 'villain' of systemic knowledge and inaction, is delivered far too early. It robs the subsequent narrative of the tension of discovery, turning it into a mere illustration of a known fact rather than an unfolding mystery. The true intellectual climax of 'the design of trust' (seg_023) and 'disaster with no dead' (seg_025) is held back, but the most potent element of that climax ('everyone knew') is squandered at the beginning."
+      ]
+    },
+    "open_questions": [
+      {
+        "question": "What happened to the family?",
+        "planted": "seg_003",
+        "status": "closed",
+        "closed_at": "seg_021"
+      },
+      {
+        "question": "How could sensors be wrong for months and everyone knew, but nothing was done?",
+        "planted": "seg_004",
+        "status": "closed",
+        "closed_at": "seg_007, seg_009, seg_011, seg_012, seg_013, seg_016"
+      },
+      {
+        "question": "What was the 'computer ninety miles away' doing?",
+        "planted": "seg_002",
+        "status": "closed",
+        "closed_at": "seg_005, seg_007, seg_015"
+      },
+      {
+        "question": "What happens if the water rises too high with no spillway?",
+        "planted": "seg_006",
+        "status": "closed",
+        "closed_at": "seg_010, seg_017, seg_018"
+      },
+      {
+        "question": "What about the backup probes wired to nothing?",
+        "planted": "seg_008",
+        "status": "closed",
+        "closed_at": "seg_013, seg_016"
+      },
+      {
+        "question": "Who was the villain in this disaster?",
+        "planted": "seg_004",
+        "status": "closed",
+        "closed_at": "seg_023"
+      },
+      {
+        "question": "Why have I probably never heard of this disaster?",
+        "planted": "seg_001",
+        "status": "closed",
+        "closed_at": "seg_025"
+      },
+      {
+        "question": "What is the lesson from this event?",
+        "planted": "seg_004",
+        "status": "closed",
+        "closed_at": "seg_026, seg_027"
+      }
+    ],
+    "overall": 5,
+    "top_fixes": [
+      "Re-architect the opening: Introduce a clear, compelling roadmap within the first 90 seconds that articulates the broader thematic stakes beyond just a dam failure. This is not merely a story of *what* happened, but *why* it matters to every complex system we build. Without this, the audience lacks a guiding purpose for the detailed exposition.",
+      "Re-sequence revelations: The 'everyone knew' revelation in seg_004 is a critical value leak. Reframe the early narrative to build towards the *discovery* of this systemic knowledge, rather than stating it upfront. Let the audience piece together the negligence, making the eventual reveal of 'design of trust' more impactful and less of a confirmation of an already-stated fact.",
+      "Re-engineer information delivery: Convert 'teaching without a question' segments (e.g., seg_005-008, and the detailed explanations following seg_004) into genuine curiosity loops. Plant specific questions about *how* such a disaster could occur, then deliver the technical explanations as answers, rather than as standalone facts. This will increase engagement and make the information feel earned."
+    ],
+    "verdict": "ok"
+  },
+  "story": {
+    "cold_open": {
+      "score": 9,
+      "issues": []
+    },
+    "pattern_interrupts": {
+      "score": 7,
+      "longest_flat_stretch": "seg_005..seg_008 (~40-60s)",
+      "re_hook_present": true,
+      "issues": [
+        "The initial block of technical explanation (seg_005-008) relies solely on narrative content to maintain interest, lacking explicit directorial beats for visual or pacing shifts. While not excessively long, it's the most vulnerable to attention drift."
+      ]
+    },
+    "reveal_architecture": {
+      "score": 4,
+      "missing_moves": [
+        {
+          "segment": "seg_004",
+          "suggest": "genre_bait_and_switch / cold_open_inversion",
+          "why": "The script pivots sharply from a natural disaster framing to one of systemic failure and negligence. This fundamental re-framing of the story's premise is a critical directorial move that is left untagged."
+        },
+        {
+          "segment": "seg_009",
+          "suggest": "dark_turn / chronological_reveal_ladder",
+          "why": "The revelation of the 'quiet lie' regarding the sinking depth gauge is a significant dark turn, exposing deliberate obfuscation. This moment demands an explicit directorial beat to amplify its impact."
+        },
+        {
+          "segment": "seg_012",
+          "suggest": "dark_turn / chronological_reveal_ladder",
+          "why": "The decision to 'fix' sensor readings in software rather than addressing the physical problem is a major ethical and narrative turning point. This active manipulation of data should be explicitly directed as a dark revelation."
+        },
+        {
+          "segment": "seg_016",
+          "suggest": "recontextualized_replay",
+          "why": "The re-emphasis and re-framing of the fail-safe's critical inadequacy, building on previously presented technical details, is a powerful recontextualization that lacks a specific directorial beat."
+        },
+        {
+          "segment": "seg_023",
+          "suggest": "cold_open_inversion / thematic_reveal",
+          "why": "The conclusion that the 'villain' is not an individual but the 'design of trust' is a profound re-interpretation of the entire crisis, directly inverting the initial perception. This thematic shift requires explicit directorial guidance."
+        }
+      ],
+      "misapplied": [],
+      "ethics_flags": [
+        "The script commendably avoids individual villain-framing, instead attributing blame to systemic design flaws and a series of 'reasonable decisions' that collectively led to disaster. This approach is ethically sound and avoids distorting information for dramatic effect."
+      ]
+    },
+    "cliffhangers": {
+      "score": 7,
+      "dead_ends": [
+        "seg_024"
+      ]
+    },
+    "narration_alternation": {
+      "score": 8,
+      "verdict": "alternates"
+    },
+    "audio_transitions": {
+      "score": 1,
+      "issues": [
+        "The script completely omits any specification for audio transitions (j_cut, l_cut, sound_bridge). This is a critical failure for a 'directed' script, leaving all scene handoffs as implied hard cuts and missing significant opportunities to enhance flow, build tension, or create thematic links. This is a fundamental oversight in directing the audio landscape."
+      ]
+    },
+    "overall": 6,
+    "top_fixes": [
+      "Integrate explicit 'reveal_architecture' beats (e.g., genre_bait_and_switch, dark_turn, recontextualized_replay, cold_open_inversion) at key narrative and tonal turning points to guide the direction of crucial revelations.",
+      "Mandate the inclusion of specific 'audio_transition' tags (e.g., j_cut, l_cut, sound_bridge) between segments. The current script offers zero direction for audio handoffs, which is unacceptable for a directed piece.",
+      "Re-evaluate the ending of seg_024 to create forward pull or a more impactful thematic bridge, rather than a flat informational closure.",
+      "Consider adding a subtle 'pattern_interrupt' beat or a visual change directive within the longer 'technical_explanation' blocks (e.g., seg_005-008) to proactively combat potential attention drift."
+    ],
+    "verdict": "ok"
+  },
+  "summary": {
+    "fact": {
+      "segments": 27,
+      "worst_severity_counts": {
+        "info": 17,
+        "warn": 7,
+        "critical": 3
+      },
+      "critical_claims": [
+        {
+          "segment_id": "seg_008",
+          "claim": "The two highest were wired to kill the pumps.",
+          "verdict": "contradicts_known_facts",
+          "reason": "FERC p. 63 states the LO-LO (lowest) and HI-HI (highest) probes were wired to hard-stop, not the two highest."
+        },
+        {
+          "segment_id": "seg_011",
+          "claim": "It is dated October — ten weeks before it happened.",
+          "verdict": "contradicts_known_facts",
+          "reason": "The email documenting the near-miss was dated Sept 27, 2005, not October. The October 7 email (68 days before the breach) is not 'ten weeks' (70 days)."
+        },
+        {
+          "segment_id": "seg_026",
+          "claim": "The sensors reported exactly what they touched.",
+          "verdict": "contradicts_known_facts",
+          "reason": "`deep_extraction` states pressure transducers were reading ~4.2 ft low and were not anchored, leading to movement and temperature-induced error, meaning they did not accurately report the actual water level."
+        }
+      ]
+    },
+    "style": {
+      "segments": 27,
+      "errors": 0,
+      "average_score": 5.85,
+      "violation_counts": {
+        "evidence_reading": 6,
+        "data_dump": 3,
+        "passive_recitation": 11,
+        "tell_dont_show": 7,
+        "repetitive_form": 4,
+        "weak_transition": 1
+      },
+      "worst_segments": [
+        {
+          "segment_id": "seg_008",
+          "score": 2
+        },
+        {
+          "segment_id": "seg_010",
+          "score": 3
+        },
+        {
+          "segment_id": "seg_013",
+          "score": 3
+        },
+        {
+          "segment_id": "seg_014",
+          "score": 3
+        },
+        {
+          "segment_id": "seg_024",
+          "score": 3
+        }
+      ]
+    },
+    "flow": {
+      "overall": 6,
+      "date_location_openers": 5,
+      "critical_findings": 0
+    },
+    "shots": {
+      "segments": 22,
+      "errors": 0,
+      "average_staging": 7.09,
+      "illustrates_count": 4,
+      "weakest_segments": [
+        {
+          "segment_id": "seg_001",
+          "staging_score": 4
+        },
+        {
+          "segment_id": "seg_025",
+          "staging_score": 4
+        },
+        {
+          "segment_id": "seg_007",
+          "staging_score": 5
+        },
+        {
+          "segment_id": "seg_021",
+          "staging_score": 5
+        },
+        {
+          "segment_id": "seg_004",
+          "staging_score": 6
+        }
+      ]
+    },
+    "retention": {
+      "overall": 5,
+      "hook_score": 7,
+      "roadmap_present": false,
+      "unfired_setups": [],
+      "never_closed_questions": []
+    },
+    "story": {
+      "overall": 6,
+      "cold_open_score": 9,
+      "missing_moves": [
+        "seg_004",
+        "seg_009",
+        "seg_012",
+        "seg_016",
+        "seg_023"
+      ],
+      "dead_ends": [
+        "seg_024"
+      ],
+      "ethics_flags": [
+        "The script commendably avoids individual villain-framing, instead attributing blame to systemic design flaws and a series of 'reasonable decisions' that collectively led to disaster. This approach is ethically sound and avoids distorting information for dramatic effect."
+      ]
+    },
+    "passed": false
+  }
+}

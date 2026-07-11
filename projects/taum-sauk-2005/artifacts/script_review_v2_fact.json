@@ -1,0 +1,895 @@
+{
+  "script": "projects\\taum-sauk-2005\\script_v1\\scored_script.yaml",
+  "title": "The Computer Kept Pumping",
+  "model": "gemini-2.5-flash",
+  "panels": [
+    "fact"
+  ],
+  "brief": "projects\\taum-sauk-2005\\research\\research_brief.json",
+  "generated_at": "2026-07-11T21:01:56+00:00",
+  "fact": {
+    "results": [
+      {
+        "segment_id": "seg_001",
+        "claims": [
+          {
+            "claim": "It's four in the morning, December fourteenth, two thousand five.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline events indicate the incident began around 04:39 on December 14, 2005."
+          },
+          {
+            "claim": "In the Ozark mountains of Missouri, a park superintendent's house sits at the foot of Proffit Mountain.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders identify Jerry Toops as the Johnson's Shut-Ins State Park superintendent and his house at the foot of Proffit Mountain."
+          },
+          {
+            "claim": "Jerry Toops is asleep. His wife Lisa is awake with the baby. Three children.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders list Jerry, Lisa, and three children (Tanner, Tara, Tucker) and timeline events describe Lisa awake with the baby when the flood hit."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_002",
+        "claims": [
+          {
+            "claim": "A quarter of a mile above their roof, on the flattened top of the mountain, sits a lake.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The upper reservoir is described as on Proffit Mountain, above Johnson's Shut-Ins State Park."
+          },
+          {
+            "claim": "A man-made ring of rock and concrete",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders describe the upper reservoir as a 'mountaintop rockfill ring with a settled concrete parapet'."
+          },
+          {
+            "claim": "holding one and a half billion gallons of water.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "Data points state the reservoir held '~4,350 acre-feet (~1.4 billion gallons)', making 'one and a half billion' an inflation."
+          },
+          {
+            "claim": "a computer ninety miles away has been pumping more water in.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data points and stakeholders confirm the plant was operated by remote control from St. Louis, ~90 miles away, and pumping continued into the early morning of the breach."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_003",
+        "claims": [
+          {
+            "claim": "At five fifteen, Lisa hears it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline events state the flood wave hit the Toops home between ~05:15-05:20."
+          },
+          {
+            "claim": "A roar, like jet engines and freight trains at once.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Jerry Toops is quoted in stakeholders describing the wave as 'a group of F-14 jets combined with a fleet of trains'."
+          },
+          {
+            "claim": "The house fills with black winter water in seconds. The walls come apart.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline events state the house filled in seconds and FERC p. 134 notes the house was destroyed."
+          },
+          {
+            "claim": "And the whole family — Jerry, Lisa, a five-year-old, a three-year-old, a seven-month-old baby — is swept into the dark.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders confirm all five Toops family members (Jerry, Lisa, Tanner (5), Tara (3), Tucker (7 months)) were swept ~1/4 mile."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_004",
+        "claims": [
+          {
+            "claim": "One and a half billion gallons emptied through the valley in twenty-five minutes.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "Data points state the reservoir released '~4,350 acre-feet (~1.4 billion gallons)' in '~25 minutes', making the volume an inflation."
+          },
+          {
+            "claim": "Nobody at the plant pressed a wrong button. Nobody fell asleep at a control panel.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data points and stakeholders confirm the plant was operated by remote control from St. Louis, with manual shutdown instructions coming from St. Louis to Bagnell Dam."
+          },
+          {
+            "claim": "There was no control panel.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "Deep extraction notes the control architecture included a 'WonderWare Operator Interface for level indication, alarming, and data acquisition', which is a control interface, even if not a manned operational panel."
+          },
+          {
+            "claim": "There was a computer, reading sensors that had been wrong for months — and everyone knew.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction and timeline events show a software offset was added in Sept 2005 due to visual observations disagreeing with instruments, and employees observed transducer movement and gauge disagreement for months."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_005",
+        "claims": [
+          {
+            "claim": "Taum Sauk was a battery. Not a chemical one — a battery made of water and gravity.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The research brief topic identifies Taum Sauk as a 'pumped-storage plant', which functions as a water-and-gravity battery."
+          },
+          {
+            "claim": "At night, when electricity is cheap, giant pumps push water from a river up the mountain into the reservoir.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "This is a standard description of the pumping cycle for a pumped-storage hydroelectric facility, consistent with the brief's context."
+          },
+          {
+            "claim": "In the day, when demand peaks, the water falls back down through turbines and becomes electricity again.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "This is a standard description of the generation cycle for a pumped-storage hydroelectric facility, consistent with the brief's context."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_006",
+        "claims": [
+          {
+            "claim": "The upper reservoir was a ring of rockfill crowning the mountain, topped with a concrete wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Stakeholders describe the upper reservoir as a 'mountaintop rockfill ring with a settled concrete parapet'."
+          },
+          {
+            "claim": "It held four thousand three hundred fifty acre-feet of water.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data points explicitly state the reservoir held '~4,350 acre-feet'."
+          },
+          {
+            "claim": "And it had one unusual feature: no spillway. No overflow drain.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data points explicitly state 'The upper reservoir had NO emergency spillway'."
+          },
+          {
+            "claim": "If the water ever rose too high, there was nowhere for it to go — except over the wall, and through it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Data points explain that 'overtopping meant erosion of the rockfill, by design a fatal condition' due to the lack of a spillway."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_007",
+        "claims": [
+          {
+            "claim": "Nobody worked on the mountain.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "FERC p. 103 and IPOC p. 16 indicate plant superintendent Richard Cooper was on site the morning of the breach."
+          },
+          {
+            "claim": "The plant ran by remote control from Saint Louis, ninety miles away.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 16 confirms remote operation from St. Louis ~90 miles away."
+          },
+          {
+            "claim": "The computer's eyes were four pressure sensors under the water, riding in plastic pipes on the reservoir floor.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "IPOC p. 14 and p. 21 state TX1 transducer was removed from service on Sept 27, 2005, leaving fewer than four."
+          },
+          {
+            "claim": "In two thousand four, those pipes had been replaced",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2004-11 confirms new instrumentation installed in 2004."
+          },
+          {
+            "claim": "the new ones were never anchored down.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 8, 109 and timeline event 2004-11 confirm the conduits were not anchored."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_008",
+        "claims": [
+          {
+            "claim": "As backup, five simple probes hung near the top of the wall",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 15 and timeline event 2004-11 confirm five Warrick probes as backup."
+          },
+          {
+            "claim": "bare metal switches that close when water touches them.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "General knowledge of Warrick conductivity probes confirms this operational principle."
+          },
+          {
+            "claim": "The very top one and the very bottom one were wired to kill the pumps.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 63 confirms LO-LO and HI-HI probes were wired to hard-stop the units."
+          },
+          {
+            "claim": "The ones between were wired to nothing.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "FERC p. 63 states LO and HI probes were wired but configured not to alarm or log, not 'wired to nothing.'"
+          },
+          {
+            "claim": "If water reached them, no alarm would sound.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 63 confirms LO and HI probes would not generate an alarm."
+          },
+          {
+            "claim": "The computer wouldn't even write it down.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 63 confirms the PLC historian would not record water touching LO and HI probes."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_009",
+        "claims": [
+          {
+            "claim": "The wall had been sinking since the day it was built.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 11 and timeline event 1963 confirm settlement began with first filling in 1963."
+          },
+          {
+            "claim": "Rockfill settles.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "General engineering knowledge about rockfill dam construction."
+          },
+          {
+            "claim": "By two thousand five, parts of the parapet had dropped a full foot.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 14 and IPOC p. 11 confirm the wall settled about one foot."
+          },
+          {
+            "claim": "the depth gauge the staff read was bolted to that same wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 14 and IPOC p. 11 confirm the staff gage was affixed to the parapet wall."
+          },
+          {
+            "claim": "The wall sank. The gauge sank with it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 14 and IPOC p. 11 confirm the staff gage settled with the wall."
+          },
+          {
+            "claim": "The numbers looked perfect.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 14 and IPOC p. 11 state the staff gage settled with the wall, making the numbers appear normal."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_010",
+        "claims": [
+          {
+            "claim": "September twenty-fifth, two thousand five.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline event 2005-09-25 confirm the date."
+          },
+          {
+            "claim": "Eighty days before the breach.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Calculation from timeline events 2005-09-25 and 2005-12-14."
+          },
+          {
+            "claim": "After the rains of Hurricane Rita",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline event 2005-09-25 confirm this occurred after Hurricane Rita rains."
+          },
+          {
+            "claim": "workers on the mountain watch water pouring over the northwest corner of the wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline event 2005-09-25 confirm workers witnessed overtopping at the northwest corner."
+          },
+          {
+            "claim": "One of them will describe it as Niagara Falls.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline event 2005-09-25 confirm this description."
+          },
+          {
+            "claim": "They save the dam by hand — slamming the plant into generate to drain the reservoir down.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline event 2005-09-25 confirm units were manually switched to generate mode."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_011",
+        "claims": [
+          {
+            "claim": "Two days later, an engineer writes it down in an email",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline event 2005-09-27 confirm an internal email dated 9/27/2005 documented the near-miss."
+          },
+          {
+            "claim": "overflowing this reservoir is, quote, an absolute no-no.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The exact quote \"overflowing this reservoir is, quote, an absolute no-no\" is not found in the research brief."
+          },
+          {
+            "claim": "The water will erode the dam, and the dam will fail.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "ASDSO case study and IPOC design sections confirm the dam had no emergency spillway, making overtopping a fatal condition."
+          },
+          {
+            "claim": "It is dated September twenty-seventh",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 55 and timeline event 2005-09-27 confirm the email date."
+          },
+          {
+            "claim": "eleven weeks before it happened.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Calculation from timeline events 2005-09-27 and 2005-12-14 confirms approximately 11 weeks."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_012",
+        "claims": [
+          {
+            "claim": "The plant knew the pipes had moved.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2005-10 to 12 confirms employees observed movement of the HDPE conduits."
+          },
+          {
+            "claim": "The readings disagreed with what people could see with their own eyes.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 confirm the software offset was added in response to visual observations disagreeing with instruments."
+          },
+          {
+            "claim": "So on September twenty-seventh, someone fixed it — in software.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 and timeline event 2005-09-27 confirm a software offset was added on Sept 27, 2005."
+          },
+          {
+            "claim": "They typed a correction into the computer: add point four feet.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 and timeline event 2005-09-27 confirm a 0.4 ft software offset was added."
+          },
+          {
+            "claim": "Don't re-anchor the pipes.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "IPOC pp. 8, 109 state the pipes were never anchored, not that a decision was made not to re-anchor them."
+          },
+          {
+            "claim": "Don't drain and repair.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 indicate a software patch was applied instead of a physical sensor repair."
+          },
+          {
+            "claim": "Just… adjust the number.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21 confirm a 0.4 ft software offset was added to the PLC code."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_013",
+        "claims": [
+          {
+            "claim": "October seventh. Another email.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2005-10-07 confirms an internal email on this date."
+          },
+          {
+            "claim": "the emergency probes sit seven inches, and four inches, from the top of the wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction and timeline event for 2005-10-07 explicitly state this."
+          },
+          {
+            "claim": "During the September spill, the water must have reached them.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 25 email implies water reached the level of the probes during the 9/25 near-miss overtopping."
+          },
+          {
+            "claim": "They should have tripped.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The 10/07 email states 'the Hi level Warrick should have picked up'."
+          },
+          {
+            "claim": "They didn't.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The 10/07 email implies the Hi level Warrick did not pick up, and the dam later breached."
+          },
+          {
+            "claim": "The email even offers: we can lower the probes if you want.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction for 10/07 email quotes: 'If you want to lower the Hi level probes we can do that'."
+          },
+          {
+            "claim": "The reply history shows what happened next. Nothing.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deep extraction for 10/07 email states Ameren 'discussed and declined lowering the fail-safe setpoints'."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_014",
+        "claims": [
+          {
+            "claim": "Early December. The plant superintendent walks the wall on a routine morning and sees wet spots on the outside of the parapet — at its lowest point.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "Brief states 'pre-breach morning visit' for Cooper's observation, not specifically 'Early December'."
+          },
+          {
+            "claim": "Spray, probably. Waves.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 112 states Cooper's observation was 'possibly spray from waves'."
+          },
+          {
+            "claim": "It was explainable.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 112 states 'the observation that SHOULD have been a red flag was explainable-away in the moment'."
+          },
+          {
+            "claim": "The pumps kept their schedule.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline 2005-10 to 12 states 'plant keeps operating on remote control from St. Louis'."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_015",
+        "claims": [
+          {
+            "claim": "The sensors, riding in their loose pipes, are reading four point two feet low.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 19 and data point confirm sensors read ~4.2 ft low; IPOC pp. 8, 109 confirm loose pipes."
+          },
+          {
+            "claim": "The computer in Saint Louis believes the water is six feet below the top.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "IPOC p. 16 states indicated level was 1591.6 ft, meaning 5.4 ft below the 1597 ft wall, not 'six feet'."
+          },
+          {
+            "claim": "The probes that would catch the lie are set above the lowest point of the sinking wall",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 16, 19-20 and data point confirm Hi-Hi probe at 1597.70 ft, 0.7 ft above the 1597 ft lowest wall point; IPOC p. 11 confirms wall settlement."
+          },
+          {
+            "claim": "the middle ones wouldn't say anything anyway.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 63 states the LO and HI probes would NOT generate an alarm or log."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_016",
+        "claims": [
+          {
+            "claim": "The emergency stop — the last line of defense — was set seven tenths of a foot above the lowest point of the wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 16, 19-20 and data point confirm Hi-Hi probe at 1597.70 ft, 0.7 ft ABOVE the 1597 ft lowest wall point."
+          },
+          {
+            "claim": "Water would be pouring over the dam before the machine was allowed to notice.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 16, 19-20 states 'Water physically overtopped the dam before the emergency stop could ever trigger'."
+          },
+          {
+            "claim": "The fail-safe could not fire until the disaster was already happening.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "This is a direct consequence of the Hi-Hi probe being set above the lowest point of the wall, as stated in IPOC pp. 16, 19-20."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_017",
+        "claims": [
+          {
+            "claim": "December fourteenth, four thirty-nine in the morning. Pump two shuts itself down",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 16 and data point confirm Unit #2 shut down automatically at 04:39 on Dec 14, 2005."
+          },
+          {
+            "claim": "its gauge reads over six feet of room to spare.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "IPOC p. 16 states indicated level was 1591.6 ft, meaning 5.4 ft below the 1597 ft wall, not 'over six feet'."
+          },
+          {
+            "claim": "Pump one keeps going.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 16 states Unit #1 was shut down manually at 05:15, implying it continued pumping after Unit #2 stopped at 04:39."
+          },
+          {
+            "claim": "On the mountain, in the dark, water is already finding the top of the wall at its lowest panel. Panel seventy-two.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 19 confirms water was going over the 1597 wall by 5:15 AM; FERC p. 103 confirms Panel 72 was the low point."
+          },
+          {
+            "claim": "Right where the wet spots were.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 103 confirms Cooper saw wet spots at Panel 72, the low point."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_018",
+        "claims": [
+          {
+            "claim": "Water over rockfill is a saw. It found the loose rock behind the wall and began to carve.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2005-12-14 ~05:00-05:15 and data point confirm rockfill erosion due to overtopping."
+          },
+          {
+            "claim": "At five fifteen, a human being finally stopped the last pump — an operator at a different dam, following a phone instruction from Saint Louis.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 16 and timeline event 2005-12-14 ~05:00-05:15 confirm Unit #1 shut down manually at 05:15 by Bagnell Dam operator on St. Louis instructions."
+          },
+          {
+            "claim": "At that same minute, the wall at panel seventy-two let go.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC p. 17 states initial breach formed at approximately 5:15 AM; FERC p. 103 confirms Panel 72 was the low point."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_019",
+        "claims": [
+          {
+            "claim": "The gap tore itself six hundred fifty feet wide.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 5, 17; damfailures.org data point."
+          },
+          {
+            "claim": "Four thousand three hundred fifty acre-feet — a lake — left the mountain in twenty-five minutes.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 5, 17; damfailures.org data point."
+          },
+          {
+            "claim": "A wall of water, rock, and shredded forest went down Proffit Mountain at the valley below.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 5, 17; FERC p. 138."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_020",
+        "claims": [
+          {
+            "claim": "Lisa held the baby.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005; MBC Pathway 2020."
+          },
+          {
+            "claim": "The five-year-old's bedroom filled before he could stand.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005; MBC Pathway 2020."
+          },
+          {
+            "claim": "The water carried them a quarter of a mile.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005; MBC Pathway 2020."
+          },
+          {
+            "claim": "in December.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Timeline event 2005-12-14."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_021",
+        "claims": [
+          {
+            "claim": "They lived. All five of them.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005; MBC Pathway 2020."
+          },
+          {
+            "claim": "The five-year-old, Tanner, came closest.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005; MBC Pathway 2020."
+          },
+          {
+            "claim": "Two hours of resuscitation.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005; MBC Pathway 2020."
+          },
+          {
+            "claim": "So cold that warming him left burns needing skin grafts.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005; MBC Pathway 2020."
+          },
+          {
+            "claim": "A seven-month-old baby survived a quarter-mile ride through a flood that moved boulders.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Deseret News 12/26/2005; MBC Pathway 2020; IPOC pp. 5, 17."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_022",
+        "claims": [
+          {
+            "claim": "The plant had an emergency call list, and Jerry Toops — the park superintendent — was on it.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC pp. 133-134."
+          },
+          {
+            "claim": "At six thirty, they worked down the list and called his house.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC pp. 133-134."
+          },
+          {
+            "claim": "There was no house.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 134; Deseret News 12/26/2005."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_023",
+        "claims": [
+          {
+            "claim": "The investigation took a year.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC and FERC reports published in 2006, following a Dec 2005 breach."
+          },
+          {
+            "claim": "Sensors nobody re-anchored.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 8, 109."
+          },
+          {
+            "claim": "A software offset instead of a repair.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 14, 21."
+          },
+          {
+            "claim": "Warning probes wired to stay silent.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "FERC p. 63."
+          },
+          {
+            "claim": "A fail-safe set above the top of a sinking wall.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "IPOC pp. 16, 19-20; FERC p. 14."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_024",
+        "claims": [
+          {
+            "claim": "Ameren paid fifteen million dollars to federal regulators.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective; FERC consent docs."
+          },
+          {
+            "claim": "a record for dam safety.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective; FERC consent docs (as stated in timeline)."
+          },
+          {
+            "claim": "It paid roughly one hundred eighty million more to the state of Missouri.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective."
+          },
+          {
+            "claim": "They rebuilt the reservoir in solid concrete.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective."
+          },
+          {
+            "claim": "The new instruments cross-check each other.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The brief details the old system's flaws but does not explicitly describe the cross-checking features of the new instrumentation."
+          },
+          {
+            "claim": "The new rim gives water somewhere to go.",
+            "verdict": "unsupported_by_brief",
+            "severity": "warn",
+            "reason": "The brief notes the old dam lacked an emergency spillway but does not explicitly describe the overflow features of the new dam."
+          },
+          {
+            "claim": "It went back online in twenty ten.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "STLPR 10-year retrospective."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_025",
+        "claims": [
+          {
+            "claim": "The Toops family moved away from the park.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Unverifiable claims section notes the Toops family relocated in May 2006."
+          },
+          {
+            "claim": "The shut-ins filled with swimmers again.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Johnson's Shut-Ins State Park was rebuilt and reopened in phases from 2007."
+          },
+          {
+            "claim": "A disaster with no dead.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The brief confirms all five Toops family members survived the flood."
+          }
+        ],
+        "worst_severity": "info"
+      },
+      {
+        "segment_id": "seg_026",
+        "claims": [
+          {
+            "claim": "The computer did exactly what it was told.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "The PLC was programmed with a 0.4 ft offset and continued pumping Unit #1 based on indicated levels, even as the reservoir overtopped."
+          },
+          {
+            "claim": "The sensors reported faithfully from where they lay — pipes that had drifted out of place.",
+            "verdict": "overstated",
+            "severity": "warn",
+            "reason": "Sensors reported ~4.2 ft low, not 'faithfully,' though they were in drifted pipes."
+          },
+          {
+            "claim": "Somebody saw Niagara Falls and typed point four feet into a config file.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Brief documents 'Niagara Falls' overtopping on 9/25/2005 and a subsequent 0.4 ft software offset on 9/27/2005."
+          }
+        ],
+        "worst_severity": "warn"
+      },
+      {
+        "segment_id": "seg_027",
+        "claims": [
+          {
+            "claim": "We are building more of these plants now.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "General knowledge confirms a global trend of building more pumped-hydro storage for renewable grids."
+          },
+          {
+            "claim": "Run by remote.",
+            "verdict": "supported",
+            "severity": "info",
+            "reason": "Taum Sauk was operated by remote control, and this is a common feature of modern pumped-hydro plants."
+          }
+        ],
+        "worst_severity": "info"
+      }
+    ]
+  },
+  "summary": {
+    "fact": {
+      "segments": 27,
+      "worst_severity_counts": {
+        "info": 16,
+        "warn": 11
+      },
+      "critical_claims": []
+    },
+    "passed": true
+  }
+}
