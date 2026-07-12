@@ -66,6 +66,19 @@ def list_entities(pid: str) -> dict:
                     bound[name] = p["sheet_path"]
     sheet_dir = PROJECTS_DIR / pid / "assets" / "asset_bible"
     ref_dir = PROJECTS_DIR / pid / "assets" / "_reference"
+    # Explicit binding sidecar (beats fuzzy filename matching, which mis-assigns
+    # when entities share a token — every "Toops X" grabbed the same sheet).
+    #   artifacts/sheet_map.json: {"<entity name>": {"sheet": "loc_x.png",
+    #     "ref_dirs": ["reservoir", ...], "role": "sheet"|"prop"|"covered"}}
+    # role prop/covered => the entity is a document/diagram prop or is covered
+    # by another sheet, so it needs NO sheet and drops out of the gate.
+    smap_path = PROJECTS_DIR / pid / "artifacts" / "sheet_map.json"
+    sheet_map = {}
+    if smap_path.is_file():
+        try:
+            sheet_map = json.loads(smap_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            sheet_map = {}
     out = []
     def _norm(s: str) -> str:
         return "".join(c for c in s.lower() if c.isalnum())
@@ -86,8 +99,14 @@ def list_entities(pid: str) -> dict:
         return any(n in cand_norm for n in needles)
 
     for ent in census:
+        ent = dict(ent)
         name = ent.get("name") or "?"
         needles = _tokens(name)
+        mapping = sheet_map.get(name) or {}
+        role = mapping.get("role", "sheet")
+        if role in ("prop", "covered"):
+            ent["needs_sheet"] = False
+            ent["sheet_role"] = role
         # sheets: prefer explicit *reference_sheet* files over locale canonicals
         cands = [c for c in sorted(sheet_dir.glob("*.png"))
                  if _matches(_norm(c.stem), needles)]
@@ -108,9 +127,27 @@ def list_entities(pid: str) -> dict:
                 marker = f"projects/{pid}/"
                 return s.split(marker, 1)[1] if marker in s else s
 
-        sheet = _rel(bound.get(name) or (str(cands[0]) if cands else None))
+        # sheet: operator binding > sidecar mapping > fuzzy match
+        mapped_sheet = None
+        if mapping.get("sheet"):
+            cand = sheet_dir / mapping["sheet"]
+            if cand.is_file():
+                mapped_sheet = str(cand)
+        sheet = _rel(bound.get(name) or mapped_sheet
+                     or (str(cands[0]) if cands else None))
+        # reference photos: sidecar ref_dirs > fuzzy token match
         refs = []
-        if ref_dir.is_dir():
+        map_dirs = mapping.get("ref_dirs") or []
+        if map_dirs:
+            for rd in map_dirs:
+                sub_dir = ref_dir / rd
+                if sub_dir.is_dir():
+                    for sub in sorted(sub_dir.glob("*")):
+                        if sub.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
+                            refs.append(_rel(str(sub)))
+                        if len(refs) >= 8:
+                            break
+        elif ref_dir.is_dir():
             for sub in ref_dir.rglob("*"):
                 if sub.is_file() and sub.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp") \
                         and _matches(_norm(str(sub)), needles):
