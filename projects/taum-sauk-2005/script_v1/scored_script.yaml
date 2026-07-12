@@ -143,7 +143,7 @@ segments:
   pacing: crisis
   rhythm: fast
   retention_beat: cold_open
-  silence_after_s: 2
+  silence_after_s: 1.5
 
 - id: seg_004
   act: act_1
@@ -181,7 +181,7 @@ segments:
   pacing: establishing
   rhythm: breath
   retention_beat: commitment_hook
-  silence_after_s: 2
+  silence_after_s: 1.5
 
 # -----------------------------------------------------------------------
 # ACT 2: THE MACHINE
@@ -330,7 +330,7 @@ segments:
     action: plant
     id: silent_probes
     note: "the probes that don't alarm or log — pays off in act 4"
-  silence_after_s: 2
+  silence_after_s: 1
 
 # -----------------------------------------------------------------------
 # ACT 3: THE PATTERN
@@ -479,7 +479,7 @@ segments:
   editorial_intent: pattern_recognition
   pacing: escalation
   retention_beat: pattern_interrupt
-  silence_after_s: 2
+  silence_after_s: 1
 
 - id: seg_013
   act: act_3
@@ -551,7 +551,7 @@ segments:
   editorial_intent: pattern_recognition
   pacing: escalation
   rhythm: lingering
-  silence_after_s: 2
+  silence_after_s: 1.5
 
 # -----------------------------------------------------------------------
 # ACT 4: THE EXPLANATION
@@ -625,7 +625,7 @@ segments:
   open_loop:
     action: payoff
     id: silent_probes
-  silence_after_s: 2
+  silence_after_s: 1.5
 
 - id: seg_017
   act: act_4
@@ -774,7 +774,7 @@ segments:
   editorial_intent: emotional_impact
   pacing: resolution
   rhythm: lingering
-  silence_after_s: 2
+  silence_after_s: 1
 
 - id: seg_021
   act: act_4
@@ -810,7 +810,7 @@ segments:
   editorial_intent: emotional_impact
   pacing: resolution
   rhythm: breath
-  silence_after_s: 2
+  silence_after_s: 1
 
 - id: seg_022
   act: act_4
@@ -847,7 +847,7 @@ segments:
   pacing: resolution
   rhythm: breath
   retention_beat: payoff
-  silence_after_s: 3
+  silence_after_s: 2.5
 
 # -----------------------------------------------------------------------
 # ACT 5: THE RECKONING
@@ -1029,4 +1029,4 @@ segments:
   pacing: resolution
   rhythm: breath
   retention_beat: payoff
-  silence_after_s: 3
+  silence_after_s: 2
