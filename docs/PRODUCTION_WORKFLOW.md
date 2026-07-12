@@ -287,6 +287,14 @@ before EVERY operator review, and follow these craft rules when building/fixing 
   derivation (master frame → cascades → Veo keyframes → beat cuts: ~20 scenes on therac).
   Deborder/inspect a still BEFORE it becomes a gold ref, master, or FLF anchor
   (`lib/frame_hygiene.find_border_box`).
+- **Sheets: bind entity→sheet EXPLICITLY, and mark props.** The census over-flags (document
+  props like emails/offsets/gauges get `needs_sheet`), and fuzzy filename matching
+  mis-binds entities that share a token (every "Toops X" grabbed one sheet). Author
+  `artifacts/sheet_map.json`: `{"<entity>": {"sheet": "loc_x.png", "ref_dirs": [...],
+  "role": "sheet"|"prop"|"covered"}}`. role prop/covered drops the entity from the sheets
+  gate (handled by the diagram/deterministic lane or another sheet). The Sheets page reads
+  it before fuzzy matching. Ground each generated sheet on the curated REAL photos
+  (`lib/image_search` → `assets/_reference/<dir>/`), NB2 Lite ~$0.034/sheet.
 - **Wobbling borders: overscan, never run-split.** Hand-drawn borders shift frame to
   frame; detect-and-crop flickers on playback. Cure = uniform overscan crop of the
   ORIGINAL (`frame_hygiene.overscan_vf`, 4.5-5.5%/edge) — never overscan an already
