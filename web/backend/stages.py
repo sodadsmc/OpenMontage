@@ -107,6 +107,9 @@ def list_entities(pid: str) -> dict:
         if role in ("prop", "covered"):
             ent["needs_sheet"] = False
             ent["sheet_role"] = role
+        elif name in sheet_map:  # explicit role "sheet" forces it onto the gate
+            ent["needs_sheet"] = True
+            ent["sheet_role"] = "sheet"
         # sheets: prefer explicit *reference_sheet* files over locale canonicals
         cands = [c for c in sorted(sheet_dir.glob("*.png"))
                  if _matches(_norm(c.stem), needles)]

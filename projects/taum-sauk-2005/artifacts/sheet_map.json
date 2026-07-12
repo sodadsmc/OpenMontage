@@ -1,8 +1,8 @@
 {
-  "Taum Sauk Upper Reservoir": {"sheet": "loc_upper_reservoir.png", "ref_dirs": ["taum_sauk_reservoir", "parapet_wall"], "role": "sheet"},
-  "Concrete Parapet Wall": {"sheet": "loc_upper_reservoir.png", "ref_dirs": ["parapet_wall"], "role": "covered"},
-  "Proffit Mountain": {"sheet": "loc_upper_reservoir.png", "ref_dirs": ["taum_sauk_reservoir", "scour_path"], "role": "covered"},
-  "Taum Sauk Pumped-Storage Plant": {"sheet": "loc_control_room.png", "ref_dirs": ["pumped_storage_plant"], "role": "covered"},
+  "Taum Sauk Upper Reservoir": {"sheet": "loc_upper_reservoir.png", "ref_dirs": ["taum_sauk_reservoir"], "role": "sheet"},
+  "Concrete Parapet Wall": {"sheet": "loc_parapet_wall.png", "ref_dirs": ["parapet_wall_v2", "parapet_wall"], "role": "sheet"},
+  "Proffit Mountain": {"sheet": "loc_proffit_mountain.png", "ref_dirs": ["proffit_mountain"], "role": "sheet"},
+  "Taum Sauk Pumped-Storage Plant": {"sheet": "loc_pumped_storage_plant.png", "ref_dirs": ["pumped_storage_plant"], "role": "sheet"},
   "Control Computer": {"sheet": "loc_control_room.png", "ref_dirs": ["control_room_era"], "role": "sheet"},
   "Saint Louis": {"sheet": "loc_control_room.png", "ref_dirs": ["control_room_era"], "role": "covered"},
   "Toops House": {"sheet": "loc_toops_house.png", "ref_dirs": ["toops_house_aftermath"], "role": "sheet"},
@@ -12,13 +12,13 @@
   "Toops baby (seven-month-old)": {"sheet": "subj_lisa_toops.png", "ref_dirs": ["toops_family"], "role": "covered"},
   "Shut-ins": {"sheet": "loc_shutins.png", "ref_dirs": ["johnsons_shutins"], "role": "sheet"},
   "Pressure Sensors": {"sheet": "loc_sensor_conduit.png", "ref_dirs": ["parapet_wall"], "role": "sheet"},
-  "Emergency Probes": {"sheet": "loc_sensor_conduit.png", "ref_dirs": ["parapet_wall"], "role": "covered"},
+  "Emergency Probes": {"sheet": "subj_emergency_probes.png", "ref_dirs": ["warrick_probes"], "role": "sheet"},
   "Plastic Sensor Pipes": {"sheet": "loc_sensor_conduit.png", "ref_dirs": ["parapet_wall"], "role": "covered"},
+  "Ozark Mountains": {"sheet": "loc_ozark_mountains.png", "ref_dirs": ["ozark_mountains"], "role": "sheet"},
   "Pumps": {"role": "prop"},
   "Depth Gauge": {"role": "prop"},
   "Software Offset": {"role": "prop"},
   "Emails": {"role": "prop"},
   "Ameren": {"role": "prop"},
-  "State of Missouri": {"role": "prop"},
-  "Ozark Mountains": {"sheet": "loc_upper_reservoir.png", "ref_dirs": ["scour_path"], "role": "prop"}
+  "State of Missouri": {"role": "prop"}
 }
