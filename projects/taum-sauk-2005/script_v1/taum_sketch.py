@@ -1,0 +1,353 @@
+"""Taum Sauk explanatory diagrams as hand-inked, narration-SYNCED sketch scenes
+(lib.sketch_diagrams style) — the house graphic-novel look, animating at every
+point (rippling water, blinking probes, flowing penstock, breathing gap arrows),
+graded by the channel finishing pass so they sit in the same look as the footage.
+
+  taum_pumped   -> seg_005  (water battery: pump up at night / generate by day)
+  taum_probes   -> seg_008  (five probes; top+bottom wired, middle three silent)
+  taum_gap      -> seg_015  (TRUE vs BELIEVED water level, the 4.2 ft lie)
+  taum_failsafe -> seg_016  (emergency stop set ABOVE the wall low point)
+  taum_essence  -> seg_026  (the gap between TRUE and BELIEVED, then the CRT)
+
+Each factory takes a resolved cue map C = {cue: start_seconds} and returns a
+draw(ax, t, dur). Render via render_diagrams_sketch.py (resolve_cues + finishing).
+"""
+import numpy as np
+from matplotlib.patches import Polygon, Circle
+from lib.sketch_diagrams import (
+    text, box, arrow, reveal, pulse, flash, pulse_glow, clamp,
+    NAVY, NAVY2, AMBER, AMBER_HOT, AMBER_D, CREAM, MUTE)
+
+ROCK = "#2a2318"   # rockfill (warm-dark -> low amber after duotone)
+WFILL = "#122238"  # water body (dark navy)
+
+
+# --- source footnote (taum, not therac) ------------------------------------
+def taum_footer(ax, t):
+    text(ax, 5, 0.32, "Taum Sauk Upper Reservoir  -  FERC / Ameren investigation, 2006",
+         15, CREAM, alpha=reveal(t, 1.0, 0.9) * 0.5)
+
+
+# --- always-moving water: a wavy filled surface -----------------------------
+def ripple(ax, x0, x1, floor, level, t, alpha=0.55, amp=0.07, speed=2.1,
+           fill=WFILL, surf=AMBER):
+    xs = np.linspace(x0, x1, 46)
+    top = level + amp * (np.sin(xs * 2.0 + t * speed) + 0.4 * np.sin(xs * 4.6 - t * 1.4))
+    verts = [(x0, floor)] + list(zip(xs, top)) + [(x1, floor)]
+    ax.add_patch(Polygon(verts, closed=True, facecolor=fill, edgecolor="none",
+                         alpha=alpha, zorder=2))
+    ax.plot(xs, top, color=surf, lw=2, alpha=min(1.0, alpha + 0.35), zorder=3,
+            solid_capstyle="round")
+    return top
+
+
+# --- dots travelling along a segment (penstock flow) ------------------------
+def flow(ax, p0, p1, t, t0, period=1.1, n=5, color=AMBER_HOT, alpha=1.0, rev=False):
+    if t < t0 or alpha <= 0.01:
+        return
+    (x0, y0), (x1, y1) = p0, p1
+    for i in range(n):
+        ph = (((t - t0) + i * period / n) % period) / period
+        if rev:
+            ph = 1 - ph
+        ax.scatter([x0 + (x1 - x0) * ph], [y0 + (y1 - y0) * ph], s=85, c=color,
+                   alpha=alpha * 0.9, zorder=6, linewidths=0)
+
+
+# ===========================================================================
+# seg_005 — the water battery
+# ===========================================================================
+PUMP_CUES = {"title": "a battery", "grav": "water and gravity", "night": "At night",
+             "pumps": "push water", "up": "up the mountain", "day": "In the day",
+             "down": "falls back down", "power": "becomes electricity"}
+
+
+def taum_pumped(C):
+    UP = (5.0, 6.95)      # upper reservoir centre
+    LO = (2.55, 1.95)     # lower reservoir centre
+    PH = (3.5, 2.25)      # powerhouse
+    p0, p1 = (3.5, 2.55), (4.15, 6.6)   # penstock endpoints
+
+    def draw(ax, t, dur):
+        # mountain
+        m = reveal(t, C["grav"], 0.7)
+        ax.add_patch(Polygon([(0.5, 1.6), (5.0, 8.3), (9.5, 1.6)], closed=True,
+                             facecolor="#0f1c30", edgecolor=MUTE, lw=1.5,
+                             alpha=m, zorder=1))
+        text(ax, 5, 9.25, "A BATTERY OF WATER AND GRAVITY", 40, AMBER,
+             alpha=reveal(t, C["title"], 0.6), stroke=1.6)
+
+        # reservoirs + powerhouse + penstock
+        box(ax, UP[0], UP[1], 2.3, 0.72, edge=AMBER, fill=WFILL, fill_alpha=0.0, lw=3, alpha=m)
+        ripple(ax, UP[0] - 1.05, UP[0] + 1.05, UP[1] - 0.34, UP[1] + 0.16, t, alpha=0.75 * m)
+        text(ax, UP[0], UP[1] + 0.62, "UPPER RESERVOIR", 18, CREAM, alpha=m)
+        box(ax, LO[0], LO[1], 3.3, 0.66, edge=AMBER, fill=WFILL, fill_alpha=0.0, lw=2.5, alpha=m)
+        ripple(ax, LO[0] - 1.55, LO[0] + 1.55, LO[1] - 0.3, LO[1] + 0.12, t, alpha=0.7 * m)
+        text(ax, LO[0], LO[1] - 0.62, "LOWER RESERVOIR  (river)", 16, CREAM, alpha=m)
+        ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color=CREAM, lw=6, alpha=m, zorder=2,
+                solid_capstyle="round")
+        box(ax, PH[0], PH[1], 0.85, 0.62, edge=CREAM, fill=NAVY2, fill_alpha=1.0, lw=2, alpha=m)
+
+        night = reveal(t, C["night"], 0.6) * (1 - reveal(t, C["day"] - 0.4, 0.5))
+        day = reveal(t, C["day"], 0.6)
+
+        # NIGHT: pump UP
+        if night > 0.01:
+            ax.add_patch(Circle((8.4, 7.7), 0.34, facecolor=CREAM, edgecolor="none",
+                                alpha=night * 0.9, zorder=4))
+            flow(ax, p0, p1, t, C["pumps"], period=1.0, color="#bcd6ea", alpha=night)
+            arrow(ax, 5.5, 3.2, 4.7, 6.0, color="#bcd6ea", lw=3, alpha=night * reveal(t, C["up"], 0.5))
+            text(ax, 5.0, 0.95, "NIGHT   -   cheap power   -   PUMPING UP", 24,
+                 CREAM, alpha=night, stroke=1.0)
+
+        # DAY: generate DOWN
+        if day > 0.01:
+            sx, sy = 8.4, 7.7
+            ax.add_patch(Circle((sx, sy), 0.36, facecolor=AMBER_HOT, edgecolor="none",
+                                alpha=day, zorder=4))
+            for a in range(8):
+                ang = a * np.pi / 4
+                ax.plot([sx + 0.45 * np.cos(ang), sx + 0.66 * np.cos(ang)],
+                        [sy + 0.45 * np.sin(ang), sy + 0.66 * np.sin(ang)],
+                        color=AMBER_HOT, lw=2.5, alpha=day, zorder=4)
+            flow(ax, p0, p1, t, C["down"], period=0.85, color=AMBER_HOT, alpha=day, rev=True)
+            arrow(ax, 4.7, 6.0, 5.5, 3.2, color=AMBER_HOT, lw=3, alpha=day)
+            pw = reveal(t, C["power"], 0.5)
+            pulse_glow(ax, PH[0], PH[1], t, C["power"], rmax=1.1, alpha=pw)
+            text(ax, PH[0] - 1.15, PH[1], "POWER", 20, AMBER_HOT, alpha=pw, ha="right", stroke=1.0)
+            text(ax, 5.0, 0.95, "DAY   -   peak demand   -   GENERATING DOWN", 24,
+                 AMBER, alpha=day, stroke=1.0)
+    return draw
+
+
+# ===========================================================================
+# shared reservoir cross-section for the sensor diagrams
+# ===========================================================================
+FLOOR, CREST, ORIG = 1.8, 5.2, 6.05
+WX0, WX1 = 6.5, 9.3          # rockfill base
+WTX0, WTX1 = 7.15, 8.75      # rockfill crest span
+WLEFT = 6.5                  # water meets the wall here
+PROBE_X = 6.35
+PROBE_Y = [5.35, 5.78, 6.21, 6.64, 7.07]
+
+
+def reservoir(ax, t, appear=1.0, show_orig=True):
+    ax.add_patch(Polygon([(WX0, FLOOR), (WTX0, CREST), (WTX1, CREST), (WX1, FLOOR)],
+                         closed=True, facecolor=ROCK, edgecolor=AMBER_D, lw=2,
+                         alpha=appear, zorder=2))
+    box(ax, (WTX0 + WTX1) / 2, CREST + 0.13, (WTX1 - WTX0) + 0.22, 0.3,
+        edge=CREAM, fill=NAVY2, fill_alpha=0.7, lw=2, alpha=appear)
+    text(ax, (WTX0 + WTX1) / 2, CREST - 0.62, "wall crest", 15, CREAM, alpha=appear * 0.85)
+    if show_orig:
+        ax.plot([WTX0 - 0.35, WTX1 + 0.4], [ORIG, ORIG], color=MUTE, lw=1.6,
+                dashes=(5, 3), alpha=appear * 0.7, zorder=3)
+        text(ax, WTX1 + 0.55, ORIG, "orig. top", 13, MUTE, alpha=appear * 0.7, ha="left")
+
+
+def draw_probes(ax, t, appear, wired=(0, 4), dim_mid=False):
+    ax.plot([PROBE_X + 0.18, PROBE_X + 0.18], [CREST, PROBE_Y[-1] + 0.2],
+            color=MUTE, lw=3, alpha=appear * 0.8, zorder=3)  # mounting mast
+    for i, y in enumerate(PROBE_Y):
+        w = i in wired
+        blink = 0.55 + 0.45 * np.sin(t * 3.0 + i * 1.3)
+        col = AMBER_HOT if w else MUTE
+        a = appear * (0.4 if (dim_mid and not w) else 1.0)
+        ax.plot([PROBE_X, PROBE_X + 0.18], [y, y], color=col, lw=2.5, alpha=a, zorder=4)
+        ax.add_patch(Circle((PROBE_X, y), 0.1, facecolor=col, edgecolor="none",
+                            alpha=a * (0.6 + 0.4 * blink), zorder=5))
+
+
+def level_line(ax, y, t, color, label, dashed=False, up=True, alpha=1.0, x1=WLEFT):
+    xs = np.linspace(1.2, x1, 40)
+    yy = y + 0.05 * np.sin(xs * 2.2 + t * 2.0)
+    if dashed:
+        ax.plot(xs, yy, color=color, lw=3, dashes=(6, 4), alpha=alpha, zorder=4)
+    else:
+        ax.plot(xs, yy, color=color, lw=3, alpha=alpha, zorder=4)
+    text(ax, 1.6, y + (0.3 if up else -0.3), label, 17, color, alpha=alpha,
+         ha="left", stroke=0.8)
+
+
+# ===========================================================================
+# seg_008 — five backup probes
+# ===========================================================================
+PROBE_CUES = {"title": "five simple probes", "switch": "bare metal switches",
+              "topbot": "very top one", "kill": "wired to kill",
+              "between": "ones between", "noalarm": "no alarm",
+              "nolog": "write it down"}
+
+
+def taum_probes(C):
+    def draw(ax, t, dur):
+        text(ax, 5, 9.25, "FIVE BACKUP PROBES", 42, AMBER,
+             alpha=reveal(t, C["title"], 0.6), stroke=1.6)
+        app = reveal(t, C["title"], 0.7)
+        reservoir(ax, t, appear=app)
+        ripple(ax, 1.2, WLEFT, FLOOR, 4.3, t, alpha=0.5 * app)  # water mid level, always moving
+        # probes reveal
+        pa = reveal(t, C["title"] + 0.4, 0.8)
+        dim = reveal(t, C["between"], 0.6) > 0.4
+        draw_probes(ax, t, pa, wired=(0, 4), dim_mid=dim)
+        # wired -> KILL
+        kill = reveal(t, C["kill"], 0.6)
+        if kill > 0.01:
+            for idx in (0, 4):
+                y = PROBE_Y[idx]
+                ax.plot([PROBE_X - 0.1, 3.6], [y, y], color=AMBER_HOT, lw=2, alpha=kill, zorder=4)
+            text(ax, 3.4, PROBE_Y[4], "WIRED -> KILL PUMPS", 18, AMBER_HOT,
+                 alpha=kill, ha="right", stroke=1.0)
+            text(ax, 3.4, PROBE_Y[0], "WIRED -> KILL PUMPS", 18, AMBER_HOT,
+                 alpha=kill, ha="right", stroke=1.0)
+            pulse_glow(ax, PROBE_X, PROBE_Y[4], t, C["kill"], rmax=0.7, alpha=kill)
+            pulse_glow(ax, PROBE_X, PROBE_Y[0], t, C["kill"], rmax=0.7, alpha=kill)
+        # middle silent
+        na = reveal(t, C["noalarm"], 0.6)
+        if na > 0.01:
+            for idx in (1, 2, 3):
+                ax.plot([PROBE_X - 0.1, 3.6], [PROBE_Y[idx], PROBE_Y[2]], color=MUTE,
+                        lw=1.6, alpha=na * 0.7, zorder=3)
+            text(ax, 3.4, PROBE_Y[2] + 0.28, "NO ALARM", 20, MUTE, alpha=na, ha="right", stroke=1.0)
+            text(ax, 3.4, PROBE_Y[2] - 0.32, "not even logged", 16, MUTE,
+                 alpha=reveal(t, C["nolog"], 0.6), ha="right")
+        taum_footer(ax, t)
+    return draw
+
+
+# ===========================================================================
+# seg_015 — TRUE vs BELIEVED, the 4.2 ft lie
+# ===========================================================================
+GAP_CUES = {"title": "machine's picture", "loose": "loose pipes",
+            "low": "four point two feet low", "believe": "six feet below the top",
+            "catch": "catch the lie", "lowest": "lowest point", "middle": "wouldn't say"}
+TRUE_Y, SENS_Y = 5.45, 4.05
+
+
+def taum_gap(C):
+    def draw(ax, t, dur):
+        text(ax, 5, 9.25, "THE MACHINE'S PICTURE OF THE WORLD", 30, AMBER,
+             alpha=reveal(t, C["title"], 0.6), stroke=1.4)
+        app = reveal(t, C["title"], 0.7)
+        reservoir(ax, t, appear=app)
+        draw_probes(ax, t, reveal(t, C["catch"], 0.6), wired=(0, 4), dim_mid=False)
+        # water sits at the SENSED (believed) level and ripples
+        sens = reveal(t, C["loose"], 0.6)
+        ripple(ax, 1.2, WLEFT, FLOOR, SENS_Y, t, alpha=0.55 * sens)
+        if sens > 0.01:
+            level_line(ax, SENS_Y, t, "#8fb8d6", "BELIEVED  (6 ft below top)",
+                       dashed=False, up=False, alpha=reveal(t, C["believe"], 0.6))
+        # the TRUE level, above the crest
+        tr = reveal(t, C["catch"], 0.6)
+        if tr > 0.01:
+            level_line(ax, TRUE_Y, t, AMBER_HOT, "TRUE water level", dashed=True,
+                       up=True, alpha=tr)
+            # the 4.2 ft gap, breathing
+            gx = 2.5
+            breath = 0.5 + 0.5 * np.sin(t * 2.2)
+            ax.annotate("", xy=(gx, TRUE_Y), xytext=(gx, SENS_Y),
+                        arrowprops=dict(arrowstyle="<->", color=AMBER_HOT,
+                                        lw=3 + breath, alpha=tr), zorder=5)
+            text(ax, gx + 0.35, (TRUE_Y + SENS_Y) / 2, "4.2 ft\nLIE", 20, AMBER_HOT,
+                 alpha=tr, ha="left", stroke=1.0)
+        text(ax, 5, 1.15, "sensors ride in loose pipes  -  reading 4.2 ft low", 18,
+             CREAM, alpha=reveal(t, C["low"], 0.6))
+        taum_footer(ax, t)
+    return draw
+
+
+# ===========================================================================
+# seg_016 — the fail-safe that could not fire
+# ===========================================================================
+FAIL_CUES = {"title": "Read that again", "stop": "emergency stop",
+             "defense": "last line of defense", "seven": "seven tenths",
+             "above": "above the lowest point", "pour": "pouring over the dam",
+             "notice": "allowed to notice", "cannot": "could not fire"}
+
+
+def taum_failsafe(C):
+    def draw(ax, t, dur):
+        text(ax, 5, 9.25, "THE FAIL-SAFE THAT COULD NOT FIRE", 30, AMBER_HOT,
+             alpha=reveal(t, C["title"], 0.6), stroke=1.4)
+        app = reveal(t, C["stop"], 0.6)
+        reservoir(ax, t, appear=max(app, reveal(t, C["title"], 0.6)))
+        # the emergency stop sits a clear 0.7 ft ABOVE the crest so the fatal gap reads
+        ey = CREST + 0.7
+        sa = reveal(t, C["stop"], 0.6)
+        ax.plot([PROBE_X, PROBE_X + 0.18], [ey, ey], color=AMBER_HOT, lw=3, alpha=sa, zorder=4)
+        ax.add_patch(Circle((PROBE_X, ey), 0.12, facecolor=AMBER_HOT, edgecolor="none",
+                            alpha=sa * (0.6 + 0.4 * np.sin(t * 3)), zorder=5))
+        # crest line + probe line + the 0.7 ft measure between
+        cl = reveal(t, C["above"], 0.6)
+        ax.plot([1.2, WLEFT], [CREST, CREST], color=CREAM, lw=2.5, alpha=cl, zorder=4)
+        text(ax, 1.5, CREST - 0.32, "wall crest (spills here)", 15, CREAM, alpha=cl, ha="left")
+        ax.plot([1.2, PROBE_X], [ey, ey], color=AMBER_HOT, lw=2.5, dashes=(6, 4), alpha=sa, zorder=4)
+        text(ax, 1.5, ey + 0.3, "emergency stop set HERE", 15, AMBER_HOT, alpha=sa, ha="left")
+        sv = reveal(t, C["seven"], 0.5)
+        if sv > 0.01:
+            ax.annotate("", xy=(2.6, ey), xytext=(2.6, CREST),
+                        arrowprops=dict(arrowstyle="<->", color=AMBER_HOT, lw=3, alpha=sv), zorder=5)
+            text(ax, 2.9, (ey + CREST) / 2, "0.7 ft", 18, AMBER_HOT, alpha=sv, ha="left", stroke=1.0)
+        # water RISES past the crest and spills, but stays BELOW the emergency stop
+        pr = reveal(t, C["pour"], 0.9)
+        wl = CREST - 1.6 + (CREST + 0.1 - (CREST - 1.6)) * pr   # rises to just over crest
+        ripple(ax, 1.2, WLEFT, FLOOR, wl, t, alpha=0.6)
+        if pr > 0.3:
+            flow(ax, (WLEFT, CREST + 0.05), (WX1 - 0.2, FLOOR + 0.6), t, C["pour"],
+                 period=0.7, n=6, color=AMBER_HOT, alpha=pr)  # spill down the outer face
+            text(ax, 5.0, 1.15, "water is already pouring over the dam", 20, AMBER_HOT,
+                 alpha=pr, stroke=1.0)
+        ns = reveal(t, C["cannot"], 0.6)
+        if ns > 0.01:
+            text(ax, 5.0, 0.62, "...the machine still reads SAFE", 18, MUTE, alpha=ns)
+        taum_footer(ax, t)
+    return draw
+
+
+# ===========================================================================
+# seg_026 — the gap between TRUE and BELIEVED, then the CRT
+# ===========================================================================
+ESS_CUES = {"title": "here is the lesson", "told": "exactly what it was told",
+            "faith": "reported faithfully", "drift": "drifted out of place",
+            "truth": "its own small truth", "lied": "the whole system lied",
+            "typed": "point four feet", "gap": "gap between", "live": "disasters live"}
+
+
+def taum_essence(C):
+    def draw(ax, t, dur):
+        text(ax, 5, 9.25, "EVERY PART TOLD ITS OWN SMALL TRUTH", 28, AMBER,
+             alpha=reveal(t, C["truth"], 0.6), stroke=1.3)
+        fade = 1 - reveal(t, C["gap"] + 1.5, 1.2)      # the section fades late, leaving the gap
+        app = reveal(t, C["title"], 0.7) * clamp(fade + 0.15)
+        reservoir(ax, t, appear=app, show_orig=False)
+        ripple(ax, 1.2, WLEFT, FLOOR, SENS_Y, t, alpha=0.5 * app)
+        # TRUE / BELIEVED lines persist through the fade
+        lz = reveal(t, C["faith"], 0.6)
+        level_line(ax, TRUE_Y, t, AMBER_HOT, "TRUE", dashed=True, up=True, alpha=lz)
+        level_line(ax, SENS_Y, t, "#8fb8d6", "BELIEVED", dashed=False, up=False, alpha=lz)
+        # the gap, emphasised on 'the whole system lied'
+        gz = reveal(t, C["lied"], 0.6)
+        if gz > 0.01:
+            gx = 3.1
+            breath = 0.5 + 0.5 * np.sin(t * 2.2)
+            ax.annotate("", xy=(gx, TRUE_Y), xytext=(gx, SENS_Y),
+                        arrowprops=dict(arrowstyle="<->", color=AMBER_HOT, lw=3 + breath, alpha=gz), zorder=5)
+            text(ax, gx + 0.35, (TRUE_Y + SENS_Y) / 2, "the gap is where\ndisasters live", 18,
+                 AMBER_HOT, alpha=reveal(t, C["gap"], 0.6), ha="left", stroke=1.0)
+        # the CRT believing '6.0 ft', glowing, on 'typed point four feet'
+        cz = reveal(t, C["typed"], 0.7)
+        if cz > 0.01:
+            box(ax, 5.0, 4.9, 3.0, 2.0, edge=AMBER, fill="#1a1206", fill_alpha=1.0,
+                lw=3, alpha=cz)
+            glow = 0.7 + 0.3 * np.sin(t * 4.0)
+            text(ax, 5.0, 4.9, "6.0 ft", 40, AMBER_HOT, alpha=cz * glow, stroke=1.2)
+            text(ax, 5.0, 3.6, "what the computer believed", 16, CREAM, alpha=cz * 0.8)
+        taum_footer(ax, t)
+    return draw
+
+
+SCENES = {
+    "seg_005": (taum_pumped, PUMP_CUES),
+    "seg_008": (taum_probes, PROBE_CUES),
+    "seg_015": (taum_gap, GAP_CUES),
+    "seg_016": (taum_failsafe, FAIL_CUES),
+    "seg_026": (taum_essence, ESS_CUES),
+}
