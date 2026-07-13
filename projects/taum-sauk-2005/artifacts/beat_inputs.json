@@ -1,0 +1,209 @@
+{
+ "seg_001": {
+  "narration": "It's four in the morning, December fourteenth, two thousand five. In the Ozark mountains of Missouri, a park superintendent's house sits at the foot of Proffit Mountain. Jerry Toops is asleep. His wife Lisa is awake with the baby. Three children. A quiet house. The kind of night where nothing happens.",
+  "location": "toops_house",
+  "sheets": [
+   "loc_toops_house.png",
+   "subj_jerry_toops.png",
+   "subj_lisa_toops.png",
+   "subj_tanner_toops.png",
+   "subj_toops_baby.png"
+  ],
+  "intent": "A small house in a dark wooded valley at the foot of a mountain, one warm window lit against the winter dark. Slow push toward the window."
+ },
+ "seg_002": {
+  "narration": "A quarter of a mile above their roof, on the flattened top of the mountain, sits a lake. A man-made ring of rock and concrete holding one and a half billion gallons of water. And all through the night, a computer ninety miles away has been pumping more water in.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "Aerial reveal: from the dark house, the camera rises up the wooded mountainside to reveal the glowing rim of a vast mountaintop reservoir, water black and still."
+ },
+ "seg_004": {
+  "narration": "One and a half billion gallons emptied through the valley in twenty-five minutes. Nobody at the plant pressed a wrong button. Nobody fell asleep at a control panel. There was no control panel. There was a computer, reading sensors that had been wrong for months \u2014 and everyone knew.",
+  "location": "valley_scour",
+  "sheets": [
+   "loc_valley_scour.png",
+   "loc_reservoir_breached.png",
+   "loc_toops_house.png"
+  ],
+  "intent": "The flood path from above: a scoured channel of mud and stripped rock running from the breached reservoir down through the forest. Then black. Title beat."
+ },
+ "seg_006": {
+  "narration": "The upper reservoir was a ring of rockfill crowning the mountain, topped with a concrete wall. It held four thousand three hundred fifty acre-feet of water. And it had one unusual feature: no spillway. No overflow drain. If the water ever rose too high, there was nowhere for it to go \u2014 except over the wall, and through it.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "The reservoir rim in daylight: the parapet wall running along the rockfill dike, water near the top; emphasis on the absence of any outlet."
+ },
+ "seg_007": {
+  "narration": "Nobody worked on the mountain. The plant ran by remote control from Saint Louis, ninety miles away. The computer's eyes were four pressure sensors under the water, riding in plastic pipes on the reservoir floor. In two thousand four, those pipes had been replaced \u2014 and the new ones were never anchored down.",
+  "location": "control_system",
+  "sheets": [
+   "loc_control_room.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png",
+   "subj_emergency_probes.png"
+  ],
+  "intent": "The empty control landscape: an unmanned equipment room at the reservoir, then conceptually the sensor conduits lying on the sloped liner under dark water."
+ },
+ "seg_009": {
+  "narration": "The wall had been sinking since the day it was built. Rockfill settles. By two thousand five, parts of the parapet had dropped a full foot. And here is the first quiet lie: the depth gauge the staff read was bolted to that same wall. The wall sank. The gauge sank with it. The numbers looked perfect.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "The parapet wall with a staff gauge bolted to it; a slow visual settle \u2014 wall and gauge sinking together while the painted number stays level with the water."
+ },
+ "seg_010": {
+  "narration": "September twenty-fifth, two thousand five. Eighty days before the breach. After the rains of Hurricane Rita, workers on the mountain watch water pouring over the northwest corner of the wall. One of them will describe it as Niagara Falls. They save the dam by hand \u2014 slamming the plant into generate to drain the reservoir down.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "Water sheeting over the parapet wall corner in grey storm light, workers small against it; the spillover thins and stops."
+ },
+ "seg_012": {
+  "narration": "And the sensors? The plant knew the pipes had moved. The readings disagreed with what people could see with their own eyes. So on September twenty-seventh, someone fixed it \u2014 in software. They typed a correction into the computer: add point four feet. Don't re-anchor the pipes. Don't drain and repair. Just\u2026 adjust the number.",
+  "location": "control_system",
+  "sheets": [
+   "loc_control_room.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png",
+   "subj_emergency_probes.png"
+  ],
+  "intent": "The amber CRT: a cursor edits a configuration value; a hand on a keyboard in lamplight; the reservoir unchanged behind/above."
+ },
+ "seg_014": {
+  "narration": "Early December. The plant superintendent walks the wall on a routine morning and sees wet spots on the outside of the parapet \u2014 at its lowest point. Spray, probably. Waves. It was explainable. Everything is explainable, right up until it isn't. The pumps kept their schedule.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "A figure walking the crest in winter coat inspects dark stains on the outer face of the wall; wind, cold; he moves on."
+ },
+ "seg_017": {
+  "narration": "December fourteenth, four thirty-nine in the morning. Pump two shuts itself down \u2014 its gauge reads over six feet of room to spare. Pump one keeps going. On the mountain, in the dark, water is already finding the top of the wall at its lowest panel. Panel seventy-two. Right where the wet spots were.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "Night on the reservoir: black water absolutely at the brim, trembling at the wall top in the dark; a first silver thread slips over the concrete."
+ },
+ "seg_018": {
+  "narration": "Water over rockfill is a saw. It found the loose rock behind the wall and began to carve. At five fifteen, a human being finally stopped the last pump \u2014 an operator at a different dam, following a phone instruction from Saint Louis. At that same minute, the wall at panel seventy-two let go.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "The overtopping sheet grows; rockfill sloughs away beneath the wall; a section of parapet tilts and collapses into the growing torrent."
+ },
+ "seg_019": {
+  "narration": "The gap tore itself six hundred fifty feet wide. Four thousand three hundred fifty acre-feet \u2014 a lake \u2014 left the mountain in twenty-five minutes. A wall of water, rock, and shredded forest went down Proffit Mountain at the valley below. At the house at the foot of it.",
+  "location": "valley_scour",
+  "sheets": [
+   "loc_valley_scour.png",
+   "loc_reservoir_breached.png",
+   "loc_toops_house.png"
+  ],
+  "intent": "The full breach from a distance: the reservoir emptying through the gap like a burst artery, the flood front carving down the mountainside through forest."
+ },
+ "seg_020": {
+  "narration": "The wave that reached the Toops house was carrying their world away within seconds. Lisa held the baby. The five-year-old's bedroom filled before he could stand. The water carried them a quarter of a mile \u2014 through trees, in the dark, in December.",
+  "location": "valley_scour",
+  "sheets": [
+   "loc_valley_scour.png",
+   "loc_reservoir_breached.png",
+   "loc_toops_house.png"
+  ],
+  "intent": "Fragments in the torrent: a child's bed frame, a door, tree limbs, all racing in black water; intimate and terrible without gore."
+ },
+ "seg_021": {
+  "narration": "They lived. All five of them. Rescuers found them scattered in the shallows \u2014 freezing, stripped by the water, alive. The five-year-old, Tanner, came closest. Two hours of resuscitation. So cold that warming him left burns needing skin grafts. A seven-month-old baby survived a quarter-mile ride through a flood that moved boulders.",
+  "location": "valley_scour",
+  "sheets": [
+   "loc_valley_scour.png",
+   "loc_reservoir_breached.png",
+   "loc_toops_house.png"
+  ],
+  "intent": "First light: rescuers wading shallow braided water among debris, wrapped small figures carried to safety; restrained, hopeful."
+ },
+ "seg_022": {
+  "narration": "One more detail from that morning. The plant had an emergency call list, and Jerry Toops \u2014 the park superintendent \u2014 was on it. At six thirty, they worked down the list and called his house. The phone rang and rang. There was no house.",
+  "location": "office_paper",
+  "sheets": [
+   "loc_upper_reservoir.png"
+  ],
+  "intent": "An office phone beat: a hand dials from a printed list; cut to bare foundations in floodwater at dawn, a phone line trailing into water. Cold stop."
+ },
+ "seg_024": {
+  "narration": "Ameren paid fifteen million dollars to federal regulators \u2014 a record for dam safety. It paid roughly one hundred eighty million more to the state of Missouri. They rebuilt the reservoir in solid concrete. The new instruments cross-check each other. The new rim gives water somewhere to go. It went back online in twenty ten.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "The rebuilt reservoir: clean modern RCC rim in daylight, engineered and over-instrumented; then the restored park below, water running clear through the shut-ins."
+ },
+ "seg_025": {
+  "narration": "The Toops family moved away from the park. The children grew up. The shut-ins filled with swimmers again. And the story settled into a strange shape. A disaster with no dead. That is why you have probably never heard of it. It is also how every part of it got permission to happen.",
+  "location": "park_shutins",
+  "sheets": [
+   "loc_shutins.png"
+  ],
+  "intent": "The restored park in summer: families small in the distance at the shut-ins, water bright; life continuing over the healed scar."
+ },
+ "seg_027": {
+  "narration": "We are building more of these plants now. Giant water batteries for a renewable grid. Run by remote. Watched by sensors. The technology is good. The lesson is standing. Trust is a design decision. And somewhere on a quiet mountain tonight, a computer believes a number.",
+  "location": "proffit_reservoir",
+  "sheets": [
+   "loc_upper_reservoir.png",
+   "loc_parapet_wall.png",
+   "loc_proffit_mountain.png",
+   "subj_emergency_probes.png",
+   "loc_sensor_conduit.png",
+   "loc_sensor_pipes.png"
+  ],
+  "intent": "Final image: a modern reservoir at night, one small red indicator light blinking on an instrument mast above still black water; hold; cut to black."
+ }
+}
