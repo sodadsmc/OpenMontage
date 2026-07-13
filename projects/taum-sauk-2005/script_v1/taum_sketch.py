@@ -131,17 +131,22 @@ PROBE_X = 6.35
 PROBE_Y = [5.35, 5.78, 6.21, 6.64, 7.07]
 
 
-def reservoir(ax, t, appear=1.0, show_orig=True):
+def reservoir(ax, t, appear=1.0, show_orig=False, label_dam=True, crest_label=True):
     ax.add_patch(Polygon([(WX0, FLOOR), (WTX0, CREST), (WTX1, CREST), (WX1, FLOOR)],
                          closed=True, facecolor=ROCK, edgecolor=AMBER_D, lw=2,
                          alpha=appear, zorder=2))
     box(ax, (WTX0 + WTX1) / 2, CREST + 0.13, (WTX1 - WTX0) + 0.22, 0.3,
         edge=CREAM, fill=NAVY2, fill_alpha=0.7, lw=2, alpha=appear)
-    text(ax, (WTX0 + WTX1) / 2, CREST - 0.62, "wall crest", 15, CREAM, alpha=appear * 0.85)
+    if crest_label:
+        text(ax, (WTX0 + WTX1) / 2, CREST - 0.55, "top of the wall", 15, CREAM, alpha=appear * 0.85)
+    if label_dam:
+        text(ax, (WX0 + WX1) / 2 + 0.05, FLOOR + 1.05, "THE DAM WALL", 15, CREAM, alpha=appear * 0.65)
+        text(ax, (WX0 + WX1) / 2 + 0.05, FLOOR + 0.55, "(cross-section)", 12, MUTE, alpha=appear * 0.6)
     if show_orig:
         ax.plot([WTX0 - 0.35, WTX1 + 0.4], [ORIG, ORIG], color=MUTE, lw=1.6,
                 dashes=(5, 3), alpha=appear * 0.7, zorder=3)
-        text(ax, WTX1 + 0.55, ORIG, "orig. top", 13, MUTE, alpha=appear * 0.7, ha="left")
+        text(ax, WTX1 + 0.55, ORIG + 0.02, "original height\n(wall has sunk)", 12, MUTE,
+             alpha=appear * 0.7, ha="left")
 
 
 def draw_probes(ax, t, appear, wired=(0, 4), dim_mid=False):
@@ -268,7 +273,7 @@ def taum_failsafe(C):
         text(ax, 5, 9.25, "THE FAIL-SAFE THAT COULD NOT FIRE", 30, AMBER_HOT,
              alpha=reveal(t, C["title"], 0.6), stroke=1.4)
         app = reveal(t, C["stop"], 0.6)
-        reservoir(ax, t, appear=max(app, reveal(t, C["title"], 0.6)))
+        reservoir(ax, t, appear=max(app, reveal(t, C["title"], 0.6)), crest_label=False)
         # the emergency stop sits a clear 0.7 ft ABOVE the crest so the fatal gap reads
         ey = CREST + 0.7
         sa = reveal(t, C["stop"], 0.6)
@@ -317,7 +322,7 @@ def taum_essence(C):
              alpha=reveal(t, C["truth"], 0.6), stroke=1.3)
         fade = 1 - reveal(t, C["gap"] + 1.5, 1.2)      # the section fades late, leaving the gap
         app = reveal(t, C["title"], 0.7) * clamp(fade + 0.15)
-        reservoir(ax, t, appear=app, show_orig=False)
+        reservoir(ax, t, appear=app, show_orig=False, label_dam=False)
         ripple(ax, 1.2, WLEFT, FLOOR, SENS_Y, t, alpha=0.5 * app)
         # TRUE / BELIEVED lines persist through the fade
         lz = reveal(t, C["faith"], 0.6)
