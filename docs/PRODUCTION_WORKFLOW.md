@@ -75,6 +75,12 @@ Else: does ONE element change to a SPECIFIC new state the viewer must SEE change
       (glyph X→E, error code appears, needle to a reading, 6→3 figures)?
    └─ YES → FLF STATE-MORPH  (visual.flf; two pixel-matched keyframes; Kling interpolates)
 
+Else: does the ENVIRONMENT change state at scale under a locked camera, with a
+      precise WHERE (and where-NOT) the viewer must read (overflow starts over the
+      far wall but the near walkway stays dry; a stain spreads; a room floods)?
+   └─ YES → FLF ENVIRONMENT MORPH  (Lane B2 below — composite endpoint; do NOT
+            burn Grok attempts first: Grok drifts the where/where-not contract)
+
 Else: is this a rare "going cold / going dark" emotional FULL-STOP?
    └─ YES → FLF DRAIN  (visual.flf with a high drain; end = start darkened toward navy)
             ⚠ reads as a fade — use SPARINGLY, never two quiet beats back-to-back.
@@ -83,11 +89,40 @@ Else (a SUBJECT physically acts + a camera move stages the narration verb):
    └─→ GROK i2v  (visual.type=ai_video)  ◄── the default for the kept first 3 minutes
 ```
 
+**ESCALATION RULE (operator directive, 2026-07-14, taum-sauk act 3):** if a beat fails
+Grok **twice** (timeout, reversed physics, broken where/where-not), **stop iterating
+Grok.** Re-route immediately: environment/state change → FLF with a composite endpoint
+(Lane B/B2); an element to add/remove on a still → `lib.gemini_image` edit; counted
+choreography → Omni Flash. Judge lanes on **$/LANDED-take, not $/attempt** — one $0.70
+FLF that lands beats four $0.10 Groks that don't (plus an operator review round each).
+The automatic push fallback is **banned** while narration continues — it is Ken Burns.
+
 **Lane A — MANIM/SKETCH** — *technical mechanism, a count taught, a labeled schematic.* The diagram is authored, not interpolated, so labels and counts are exact. Route via `SKETCH_SCENE_MAP` / `SKETCH_SEGMENT_OVERRIDE` in `build_v6.py`; falls back to `lib/diagram_codegen.generate_diagram_scene`, then legacy `MANIM_ASSETS`.
 - *Examples this episode:* `seg` with template `race_condition` (the concurrency bug schematic); `radiation_therapy`→`linac` (how the beam path works); `byte_overflow` (the counter rolling over). **Never** ask Grok to "show how the interlock works" — it cannot draw a correct labeled mechanism.
 
 **Lane B — FLF STATE-MORPH** — *a precise content change you must watch happen.* Author two keyframes differing only in the one element; Kling 3.0 FLF interpolates between them (`vr.generate_flf_shot`). Counts, per-object state, locked camera, and object permanence hold **by construction**. This is what FLF is FOR.
 - *Examples this episode:* the dose glyph `X→E` appearing on the console (carry the literal change in the keyframes, not in a Grok screen); a dial needle moving to a specific reading; "6 overdosed" figures where 3 then go dark (band drain — see Lane C mechanism, used here for a *count reveal*, `band=(0.50,0.62)` so the front 3 drain while the back 3 stay lit).
+
+**Lane B2 — FLF ENVIRONMENT MORPH** — *a large environment state-change under a locked
+camera with a where/where-NOT contract.* Proven on taum-sauk seg_010 b3 (2026-07-14): "water
+flows over the far northwest wall; the near walkway — where the crew walks next shot — stays
+dry." Landed FIRST TRY after two Grok timeouts and an operator-rejected texture-scroll. The recipe:
+1. **START = an approved still of the composition.** If subjects must be absent, remove them
+   with `lib.gemini_image` — removal/big-lever edits are reliable; small-lever edits
+   (waterline nudges) regress (5 recorded failures).
+2. **END = deterministic composite, never a generative edit.** Splice ONLY the changing
+   element's pixels from another approved SAME-CAMERA still: HSV water mask (warm-white foam
+   needs `V>140 & S<110`, not the blue-leaning mask), region polygon, geometric exclusion
+   lines for the must-stay-dry zones, then **recolor by source luminance to the base's grade**
+   (`140+112L / 150+103L / 163+90L` killed the warm cast) so the splice reads as water under
+   the base's light.
+3. **Pre-crop BOTH frames to 16:9** — Kling ignores `aspect_ratio` and honors the keyframe AR.
+4. `lib.flf.flf_beat(start, prompt, span, out, derive=<copy of the composite>)` — the prompt
+   describes the transition AND names what must not change ("near walkway stays dry and
+   empty; the wall never moves or morphs").
+- *Why not the alternatives:* Grok reverses flow direction / breaks the where-not contract on
+  water; np.roll texture-scroll of a still reads as **flashing** (operator rejected 3 shots);
+  a generative end-frame breaks the FLF pixel match.
 
 **Lane C — FLF DRAIN** — *rare "going cold/dark" punctuation.* End frame = start blended toward navy `#0a1428` (`lib.flf.drain_endpoint`, `drain≈0.8`). **This reads as a fade (Ken Burns).** Use it once in a great while, never as a default, never on two consecutive quiet beats.
 - *Examples this episode:* the seg_009 "removed safety fuse goes cold" (uniform drain); the final powered-down room settling to dead navy. If you find yourself reaching for it twice in a row, one of those beats wants Lane B or D instead.
@@ -272,6 +307,9 @@ Stage state is derived from the append-only feedback log (event types
 - **Gates are fail-closed.** DON'T pass `--skip-narration-gate`/`SKIP_IDENTITY_GATE=1`/`ALLOW_AI_STOCK_FALLBACK=1` for a real render — fix the scored script instead. WHY: misalignment is cheap to fix pre-spend, expensive after the bulk batch.
 - **Duration Map is law.** DON'T hand-edit `visual_assets_v6.json` or change audio without rebuilding the duration map. WHY: every slot reads from it; stale = silent desync caught only at the hard post-render gate.
 - **Chunk before you spend.** DON'T fire the full bulk batch unreviewed. DO `build_preview.py --until …`, review, then proceed; announce cost and check `python -m lib.cost_ledger`.
+- **Two-strike Grok escalation.** DON'T iterate Grok past two failures on the same beat. DO re-route: FLF composite endpoint (Lane B/B2) for state changes, `lib.gemini_image` for still edits, Omni Flash for counted choreography. WHY: operator directive (2026-07-14) — $/landed-take, not $/attempt; every failed round costs a review cycle too.
+- **No texture-scroll water.** DON'T animate water by wrap-scrolling a still's own texture (two-layer `np.roll` + periodic crossfade) — the period reset reads as FLASHING/gleam; the operator rejected 3 such shots in one review. DO stage flowing water as Lane B2 or a Grok verb-beat.
+- **Sketch holds must boil.** DON'T let a sketch/manim scene hold a static frame — matplotlib's `path.sketch` wobble is deterministic per path, so a hold renders pixel-identical (a dead still). DO nudge path geometry every ⅓s (`_boil()` in taum_sketch.py), ride typewriter text with a blinking caret, and gate with the freeze-scan: no ≥3s stretch under 0.35 mean delta at 1fps.
 
 ### Polish-pass rules (codified from the therac-25 rounds 1-4, 2026-07)
 
