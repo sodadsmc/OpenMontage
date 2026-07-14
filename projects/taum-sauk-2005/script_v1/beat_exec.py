@@ -68,6 +68,8 @@ def spans(sid, anchors):
     return out
 
 def author_kf(prompt, sheets, out):
+    if Path(out).exists():  # approved still (stills-first gate) — never re-roll
+        return True
     refs = [str(B / s) for s in sheets if (B / s).exists()][:2]
     ok = gemini_image(prompt + KFSTYLE, str(out), image_paths=refs or None)
     if not ok: return False
@@ -101,21 +103,14 @@ def animate(kf, motion, span, out, seed):
     hits = video_border_hits(clip, 0, min(3, durof(clip)))
     if hits:
         vf = "crop=iw*0.89:ih*0.89:iw*0.055:ih*0.055," + NORM
-    # conform to span (trim or freeze-pad)
+    # conform to span — NO FREEZE TAILS (workflow §4): a short clip SLOWS to fill
+    # its narration span (setpts slow-fit); an over-long clip trims.
+    have_raw = durof(clip)
+    if have_raw < span - 0.05:
+        slow = span / max(0.1, have_raw)
+        vf = f"setpts=PTS*{slow:.5f}," + vf
     run(["ffmpeg", "-y", "-i", str(clip), "-t", f"{span:.3f}", "-vf", vf,
          "-c:v", "libx264", "-preset", "fast", "-crf", "18", "-an", str(out)])
-    have = durof(out)
-    if have < span - 0.05:
-        fr = str(out) + ".png"; run(["ffmpeg", "-y", "-sseof", "-0.1", "-i", str(out), "-frames:v", "1", fr])
-        pad = str(out) + ".pad.mp4"
-        run(["ffmpeg", "-y", "-loop", "1", "-i", fr, "-frames:v", str(round((span-have)*FPS)+1),
-             "-vf", f"scale=1920:1080,fps={FPS},format=yuv420p", "-c:v", "libx264",
-             "-preset", "fast", "-crf", "18", "-an", pad])
-        lst = str(out) + ".txt"
-        open(lst, "w").write(f"file '{Path(out).resolve().as_posix()}'\nfile '{Path(pad).resolve().as_posix()}'\n")
-        j = str(out) + ".j.mp4"
-        run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c:v", "libx264",
-             "-preset", "fast", "-crf", "18", "-an", j]); os.replace(j, out)
 
 DISSOLVE = 0.5  # crossfade length between beats flagged for a dissolve
 

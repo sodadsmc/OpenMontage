@@ -1,176 +1,881 @@
 [
-  {
-    "scene_id": "seg_001",
-    "beats": [
-      {"label": "Dark valley house", "phrase_anchor": "It's four in the morning", "keyframe_prompt": "A small wooden ranger's house in a dark wooded valley at the foot of a mountain, one warm amber window glowing against the winter night, bare trees, light snow, 4am.", "motion_prompt": "thin chimney smoke curls upward from the house and light snow drifts steadily down through the dark bare trees; the lone window glows warm and steady", "sheets": ["loc_toops_house.png"]},
-      {"label": "House at foot of mountain", "phrase_anchor": "In the Ozark mountains of Missouri", "keyframe_prompt": "The small lit ranger's house dwarfed at the foot of dark layered Ozark mountain ridges, forested slopes rising behind it, winter pre-dawn.", "motion_prompt": "a slow aerial drift back and upward reveals the small lit house tiny at the foot of the dark layered Ozark ridges while snow drifts down", "sheets": ["loc_toops_house.png", "loc_ozark_mountains.png"]},
-      {"label": "Jerry asleep", "phrase_anchor": "Jerry Toops is asleep", "keyframe_prompt": "A bearded man asleep in a bed in a pitch-dark bedroom, blanket to his shoulder, faint hallway light, winter night.", "motion_prompt": "the sleeping bearded man breathes slowly and shifts once under the blanket; faint light plays across his face", "sheets": ["subj_jerry_toops.png"]},
-      {"label": "Lisa and baby", "phrase_anchor": "His wife Lisa is awake with the baby", "keyframe_prompt": "A young woman awake in a dim lamplit room, cradling a seven-month-old infant against her shoulder, night.", "motion_prompt": "the woman gently rocks and sways the baby in her arms in the dim lamplight, looking down at it tenderly", "sheets": ["subj_lisa_toops.png", "subj_toops_baby.png"]},
-      {"label": "Quiet night", "phrase_anchor": "The kind of night where nothing happens", "keyframe_prompt": "Wide view of the small dark house in the wooded valley, one small warm window lit, steady snowfall, silent winter night.", "motion_prompt": "snow falls steadily over the quiet dark house, the single window light small and unwavering; utterly still and calm", "sheets": ["loc_toops_house.png"]}
+ {
+  "scene_id": "seg_001",
+  "beats": [
+   {
+    "label": "Dark valley house",
+    "phrase_anchor": "It's four in the morning",
+    "keyframe_prompt": "A small wooden ranger's house in a dark wooded valley at the foot of a mountain, one warm amber window glowing against the winter night, bare trees, light snow, 4am.",
+    "motion_prompt": "thin chimney smoke curls upward from the house and light snow drifts steadily down through the dark bare trees; the lone window glows warm and steady",
+    "sheets": [
+     "loc_toops_house.png"
     ]
-  },
-  {
-    "scene_id": "seg_002",
-    "beats": [
-      {"label": "Rise up mountain", "phrase_anchor": "A quarter of a mile above", "keyframe_prompt": "Looking up a steep black forested mountainside at night from beside the small lit house, a faint glow at the distant summit far above.", "motion_prompt": "the camera climbs fast straight up the black forested slope, dark bare trees rushing downward past the frame, toward a pale glow cresting the summit", "sheets": ["loc_proffit_mountain.png", "loc_toops_house.png"]},
-      {"label": "Reveal reservoir", "phrase_anchor": "on the flattened top of the mountain", "keyframe_prompt": "The vast black still reservoir sitting on the flattened mountain summit at night, its curving concrete-and-rock rim, huge and silent.", "motion_prompt": "a slow, steady aerial descent toward the still reservoir; the rim and the black water shape hold perfectly stable and rigid, only gentle surface shimmer and a subtle downward drift; NO warping, NO morphing, NO shape change", "sheets": ["loc_upper_reservoir.png"]},
-      {"label": "Ring of rock", "phrase_anchor": "holding one and a half billion gallons", "keyframe_prompt": "The curving ring of rockfill topped with a concrete parapet wall at night, black water lapping high against the inner face.", "motion_prompt": "the camera tracks along the curving parapet rim as black water laps high and heavy against the concrete, brimming", "sheets": ["loc_parapet_wall.png", "loc_upper_reservoir.png"]},
-      {"label": "Pumping in", "phrase_anchor": "a computer ninety miles away has been pumping", "keyframe_prompt": "High aerial of the calm mountaintop reservoir at night, the black water nearly full, smooth and still with only gentle ripples, the concrete-and-rock rim completely intact and quiet; far away on the distant horizon a tiny faint cluster of warm amber facility lights (a remote control plant many miles off). The dam is fully intact — NO waterfall, NO breach, NO eruption, NO whitewater, NO overtopping.", "motion_prompt": "the still black water rises very slightly and shimmers with gentle calm ripples as it slowly fills; the distant facility lights softly glimmer on the horizon; a slow stable aerial hold with NO warping and NO morphing, the reservoir shape held rigid", "sheets": ["loc_upper_reservoir.png"], "label_overlay": "SAINT LOUIS CONTROL  —  90 MILES AWAY"}
+   },
+   {
+    "label": "House at foot of mountain",
+    "phrase_anchor": "In the Ozark mountains of Missouri",
+    "keyframe_prompt": "The small lit ranger's house dwarfed at the foot of dark layered Ozark mountain ridges, forested slopes rising behind it, winter pre-dawn.",
+    "motion_prompt": "a slow aerial drift back and upward reveals the small lit house tiny at the foot of the dark layered Ozark ridges while snow drifts down",
+    "sheets": [
+     "loc_toops_house.png",
+     "loc_ozark_mountains.png"
     ]
-  },
-  {
-    "scene_id": "seg_004",
-    "beats": [
-      {"label": "Scoured channel", "phrase_anchor": "emptied through the valley in twenty-five minutes", "keyframe_prompt": "Aerial of a raw scoured flood channel of mud and stripped rock running down a forested mountainside from a breached reservoir rim, cold daylight.", "motion_prompt": "the camera races down the raw scoured mud-and-rock channel from the breached rim down the mountain, forest stripped bare on both sides", "sheets": ["loc_valley_scour.png", "loc_reservoir_breached.png"]},
-      {"label": "Empty control room", "phrase_anchor": "Nobody at the plant pressed a wrong button", "keyframe_prompt": "A dim unmanned 2005-era control room, one CRT monitor glowing amber, an empty operator chair, no people.", "motion_prompt": "a slow dolly through the empty dim control room; the operator chair sits still and one status light blinks quietly in the dark", "sheets": ["loc_control_room.png"]},
-      {"label": "The computer", "phrase_anchor": "There was a computer, reading sensors", "keyframe_prompt": "Close on a single glowing amber CRT and a beige computer rack alone in a dark room, indicator lights, 2005.", "motion_prompt": "the amber CRT flickers and a row of indicator lights on the rack pulses steadily in the dark; the screen a warm glow with no legible text", "sheets": ["loc_control_room.png"]},
-      {"label": "Everyone knew", "phrase_anchor": "and everyone knew", "keyframe_prompt": "Wide cold view of the empty scoured valley channel under failing grey light, devastated and silent.", "motion_prompt": "the light slowly fails over the empty scoured channel and a few flakes of snow drift down; a cold, still settle toward darkness", "sheets": ["loc_valley_scour.png"]}
+   },
+   {
+    "label": "Jerry asleep",
+    "phrase_anchor": "Jerry Toops is asleep",
+    "keyframe_prompt": "A bearded man asleep in a bed in a pitch-dark bedroom, blanket to his shoulder, faint hallway light, winter night.",
+    "motion_prompt": "the sleeping bearded man breathes slowly and shifts once under the blanket; faint light plays across his face",
+    "sheets": [
+     "subj_jerry_toops.png"
     ]
-  },
-  {
-    "scene_id": "seg_006",
-    "dissolve": true,
-    "beats": [
-      {"label": "Ring crowning mountain", "phrase_anchor": "a ring of rockfill crowning the mountain", "keyframe_prompt": "Daylight aerial of the full circular rockfill reservoir crowning the mountain summit, water inside the ring, forested slopes falling away.", "motion_prompt": "a slow steady aerial track along the curving rockfill rim crowning the summit; the reservoir rim and water shape stay geometrically rigid and consistent, NO warping, NO morphing of the basin, only the camera glides", "sheets": ["loc_upper_reservoir.png", "loc_proffit_mountain.png"]},
-      {"label": "Concrete wall", "phrase_anchor": "topped with a concrete wall", "keyframe_prompt": "A low view running along the top of the concrete parapet wall on the rim, water on one side, a long drop down the rockfill on the other, daylight.", "motion_prompt": "a steady low tracking shot glides along the top of the concrete parapet wall, water on one side and the slope dropping away on the other; the wall and water geometry hold rigid, NO warping or morphing", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "Mass of water", "phrase_anchor": "It held four thousand", "keyframe_prompt": "A high wide view of the immense body of water held inside the rockfill ring, vast and heavy against the concrete wall, daylight.", "motion_prompt": "the camera cranes up slowly to reveal the immense expanse of water inside the ring, only gentle wind stipple on the surface; the basin shape stays rigid and consistent, NO warping, NO morphing", "sheets": ["loc_upper_reservoir.png", "loc_parapet_wall.png"]},
-      {"label": "No spillway", "phrase_anchor": "no spillway", "keyframe_prompt": "A stretch of solid unbroken concrete parapet wall with water pressing against it, no gap, no drain, no outlet, daylight.", "motion_prompt": "the camera glides slowly along the rim past solid unbroken wall, finding no gap and no drain, water calm against the concrete; rigid geometry, NO warping or morphing", "sheets": ["loc_parapet_wall.png", "loc_upper_reservoir.png"]},
-      {"label": "Over and through", "phrase_anchor": "except over the wall, and through it", "lane": "det-rise+flf-cascade", "note": "HERO SHOT, two-part (NOT grok): (1) RISE 2.0s = deterministic waterline sweep between _beats/seg_006_b5_face_low.png and _face_high.png (down-the-inner-face comp; eased boundary lerp + drawn amber waterline stroke; scratchpad s6b5_rise_build.py recipe) — Kling FLF and gemini edits both FAIL on the crest-level comp (water level is a tiny pixel lever there; Kling lazy-morphs, edits regress). (2) SPILL 1.76s = Kling FLF cascade from _beats/seg_006_b5_flf_raw.mp4 (base->cascade, crop-to-fill, speed-fit). Hard cut between them.", "keyframe_prompt": "Daylight along the concrete parapet wall of the reservoir, the calm water level a hand's width BELOW the top of the wall with a clear strip of dry concrete showing above the waterline; low three-quarter angle looking along the wall crest.", "motion_prompt": "the calm water level slowly RISES up the face of the concrete wall until it reaches the very top edge, then a thin sheet of water begins to SPILL over the crest and run down the outer face; gradual and steady, the concrete wall stays perfectly rigid, no warping, no morphing, no breach", "sheets": ["loc_parapet_wall.png"]}
+   },
+   {
+    "label": "Lisa and baby",
+    "phrase_anchor": "His wife Lisa is awake with the baby",
+    "keyframe_prompt": "A young woman awake in a dim lamplit room, cradling a seven-month-old infant against her shoulder, night.",
+    "motion_prompt": "the woman gently rocks and sways the baby in her arms in the dim lamplight, looking down at it tenderly",
+    "sheets": [
+     "subj_lisa_toops.png",
+     "subj_toops_baby.png"
     ]
-  },
-  {
-    "scene_id": "seg_007",
-    "beats": [
-      {"label": "Nobody on mountain", "phrase_anchor": "Nobody worked on the mountain", "keyframe_prompt": "The empty windswept reservoir rim with a bare service road, no people, overcast day.", "motion_prompt": "wind drives ripples across the empty reservoir and stirs dry grass along the bare service road; no one is there", "sheets": ["loc_upper_reservoir.png", "loc_proffit_mountain.png"]},
-      {"label": "Remote from St Louis", "phrase_anchor": "remote control from Saint Louis", "keyframe_prompt": "A dim distant control room with a glowing status map and an empty chair, 2005, unmanned.", "motion_prompt": "the CRT and status map flicker quietly in the empty dim control room; the chair sits still", "sheets": ["loc_control_room.png"]},
-      {"label": "Sensors underwater", "phrase_anchor": "four pressure sensors under the water", "keyframe_prompt": "Underwater on the sloped reservoir liner: capped white PVC sensor pipes with cables trailing off screen, resting on the floor, dim green-black water.", "motion_prompt": "a slow underwater drift over the capped PVC sensor pipes and their trailing cables resting on the sloped liner, silt swirling gently", "sheets": ["loc_sensor_pipes.png", "loc_sensor_conduit.png"]},
-      {"label": "Pipes replaced 2004", "phrase_anchor": "those pipes had been replaced", "keyframe_prompt": "Underwater: new white capped PVC sensor pipes freshly laid on the sloped liner beside older mounting marks, cables trailing, dim water.", "motion_prompt": "silt settles slowly around the freshly laid new PVC sensor pipes resting loose on the liner, their cables trailing off, unsecured", "sheets": ["loc_sensor_pipes.png"], "dissolve_in": true},
-      {"label": "Never anchored", "phrase_anchor": "the new ones were never anchored down", "keyframe_prompt": "A capped PVC sensor pipe lifting loose off the reservoir floor liner, cable going slack, sediment stirring, dim underwater.", "motion_prompt": "one capped PVC sensor pipe slowly lifts and drifts up off the floor, its cable going slack and unanchored, sediment clouding the water", "sheets": ["loc_sensor_pipes.png"], "dissolve_in": true}
+   },
+   {
+    "label": "Quiet night",
+    "phrase_anchor": "The kind of night where nothing happens",
+    "keyframe_prompt": "Wide view of the small dark house in the wooded valley, one small warm window lit, steady snowfall, silent winter night.",
+    "motion_prompt": "snow falls steadily over the quiet dark house, the single window light small and unwavering; utterly still and calm",
+    "sheets": [
+     "loc_toops_house.png"
     ]
-  },
-  {
-    "scene_id": "seg_009",
-    "beats": [
-      {"label": "Wall sinking", "phrase_anchor": "The wall had been sinking", "keyframe_prompt": "A section of the concrete parapet wall visibly settled and slightly tilted into the rockfill beneath it, daylight.", "motion_prompt": "the concrete wall section settles and tilts a little lower as small rock trickles from the fill beneath it", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "Dropped a foot", "phrase_anchor": "parts of the parapet had dropped", "keyframe_prompt": "A close view of a settled low section of the concrete parapet, visibly dropped below the neighboring wall panels, daylight.", "motion_prompt": "a low section of the concrete parapet settles further, sinking below its neighbors as fill shifts beneath it; grit trickling down", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "Bolted gauge", "phrase_anchor": "the depth gauge the staff read was bolted", "keyframe_prompt": "Close on a painted staff depth gauge bolted to the concrete parapet wall, water surface beside it, daylight.", "motion_prompt": "a slow push in on the painted staff gauge bolted to the concrete, the water surface lapping quietly beside its markings", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "Both sink together", "phrase_anchor": "The wall sank. The gauge sank with it", "keyframe_prompt": "The parapet wall and its bolted gauge together while the reservoir water line stays level, daylight.", "motion_prompt": "the wall and its bolted gauge drift downward together while the water line holds level, the reading looking unchanged; a quiet deceptive settle", "sheets": ["loc_parapet_wall.png"]}
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_002",
+  "beats": [
+   {
+    "label": "Rise up mountain",
+    "phrase_anchor": "A quarter of a mile above",
+    "keyframe_prompt": "Looking up a steep black forested mountainside at night from beside the small lit house, a faint glow at the distant summit far above.",
+    "motion_prompt": "the camera climbs fast straight up the black forested slope, dark bare trees rushing downward past the frame, toward a pale glow cresting the summit",
+    "sheets": [
+     "loc_proffit_mountain.png",
+     "loc_toops_house.png"
     ]
-  },
-  {
-    "scene_id": "seg_010",
-    "beats": [
-      {"label": "Hurricane rains", "phrase_anchor": "After the rains of Hurricane Rita", "keyframe_prompt": "The reservoir under a dark storm sky, heavy rain hammering the surface, water high against the wall, grey storm light.", "motion_prompt": "heavy rain lashes the reservoir surface and wind whips the water high against the wall under dark racing clouds", "sheets": ["loc_upper_reservoir.png", "loc_parapet_wall.png"]},
-      {"label": "Eighty days before", "phrase_anchor": "Eighty days before the breach", "keyframe_prompt": "The storm-lashed reservoir brimming dangerously high against the parapet wall, water near the top, dark storm light.", "motion_prompt": "wind-driven waves slap and climb the parapet wall as the brimming reservoir surges dangerously near its top in the storm", "sheets": ["loc_upper_reservoir.png", "loc_parapet_wall.png"]},
-      {"label": "Pouring over corner", "phrase_anchor": "water pouring over the northwest corner", "keyframe_prompt": "Water sheeting over the corner of the concrete parapet wall and cascading down the outer rockfill slope, tiny workers at the rim, storm light.", "motion_prompt": "a thick sheet of water pours over the corner of the parapet and cascades down the outer rockfill slope, small workers watching from the rim", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "Niagara Falls", "phrase_anchor": "describe it as Niagara Falls", "keyframe_prompt": "A roaring waterfall-like cascade thundering down the outer rockfill slope, spray flying, storm light.", "motion_prompt": "the cascade roars down the outer slope like a waterfall, spray exploding and flying in the wind", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "Saved by hand", "phrase_anchor": "They save the dam by hand", "keyframe_prompt": "Workers in rain gear at the reservoir rim as the spillover thins and slows, rain easing, grey light.", "motion_prompt": "workers in rain gear work urgently at the rim and the cascade thins and slows to a trickle as the water level drops", "sheets": ["loc_parapet_wall.png"]}
+   },
+   {
+    "label": "Reveal reservoir",
+    "phrase_anchor": "on the flattened top of the mountain",
+    "keyframe_prompt": "The vast black still reservoir sitting on the flattened mountain summit at night, its curving concrete-and-rock rim, huge and silent.",
+    "motion_prompt": "a slow, steady aerial descent toward the still reservoir; the rim and the black water shape hold perfectly stable and rigid, only gentle surface shimmer and a subtle downward drift; NO warping, NO morphing, NO shape change",
+    "sheets": [
+     "loc_upper_reservoir.png"
     ]
-  },
-  {
-    "scene_id": "seg_012",
-    "beats": [
-      {"label": "Pipes had moved", "phrase_anchor": "The plant knew the pipes had moved", "keyframe_prompt": "Underwater: a capped PVC sensor pipe shifted off its position on the reservoir floor liner, cable slack, dim water.", "motion_prompt": "the displaced PVC sensor pipe lies shifted off its mark on the floor, cable slack, silt drifting slowly past it", "sheets": ["loc_sensor_pipes.png"]},
-      {"label": "Readings disagreed", "phrase_anchor": "The readings disagreed", "keyframe_prompt": "Close on the glowing amber CRT readout in the dark control room, a steady numeric reading shown only as an amber glow, no legible text, 2005.", "motion_prompt": "the amber CRT reading glows and a cursor blinks steadily, calm and certain, while everything about it feels quietly wrong", "sheets": ["loc_control_room.png"]},
-      {"label": "Fixed in software", "phrase_anchor": "someone fixed it", "keyframe_prompt": "A hand reaching into warm amber lamplight toward a keyboard at a glowing 2005-era CRT console, dim room.", "motion_prompt": "a hand reaches into the amber lamplight toward the keyboard at the glowing CRT console; the screen a warm glow with no legible text", "sheets": ["loc_control_room.png"]},
-      {"label": "Typed a correction", "phrase_anchor": "They typed a correction into the computer", "keyframe_prompt": "Close on a hand typing on a beige keyboard at a glowing amber CRT, 2005, lamplight.", "motion_prompt": "the hand types on the keyboard, keys pressing one after another, the amber CRT glow flickering with each stroke; no legible text", "sheets": ["loc_control_room.png"]},
-      {"label": "Just adjust it", "phrase_anchor": "Don't re-anchor the pipes", "keyframe_prompt": "The hand still resting at the amber CRT keyboard after entering the offset, the glowing console, dim room, 2005.", "motion_prompt": "the hand rests on the keyboard after the correction, fingers lifting slightly as the amber console glows on; the fix quietly accepted", "sheets": ["loc_control_room.png"]},
-      {"label": "Adjust the number", "phrase_anchor": "adjust the number", "keyframe_prompt": "The glowing amber CRT console alone in the dark room after the hand withdraws, one indicator light settling.", "motion_prompt": "the hand presses a final key and withdraws from frame, leaving the glowing console alone as one indicator light settles steady", "sheets": ["loc_control_room.png"]}
+   },
+   {
+    "label": "Ring of rock",
+    "phrase_anchor": "holding one and a half billion gallons",
+    "keyframe_prompt": "The curving ring of rockfill topped with a concrete parapet wall at night, black water lapping high against the inner face.",
+    "motion_prompt": "the camera tracks along the curving parapet rim as black water laps high and heavy against the concrete, brimming",
+    "sheets": [
+     "loc_parapet_wall.png",
+     "loc_upper_reservoir.png"
     ]
-  },
-  {
-    "scene_id": "seg_014",
-    "beats": [
-      {"label": "Walks the wall", "phrase_anchor": "The plant superintendent walks the wall", "keyframe_prompt": "A bearded man in a heavy winter coat walking along the top of the parapet wall in cold morning light, breath fogging.", "motion_prompt": "the man in the heavy winter coat walks steadily along the top of the parapet wall, breath fogging in the cold morning air", "sheets": ["subj_jerry_toops.png", "loc_parapet_wall.png"]},
-      {"label": "Wet spots", "phrase_anchor": "sees wet spots on the outside", "keyframe_prompt": "The man crouched at the edge, looking down at dark wet stains seeping on the outer concrete face of the parapet, morning.", "motion_prompt": "the man stops and crouches, looking down at dark wet stains seeping on the outer concrete face, reaching a hand toward them", "sheets": ["subj_jerry_toops.png", "loc_parapet_wall.png"]},
-      {"label": "Explainable", "phrase_anchor": "It was explainable", "keyframe_prompt": "The man standing back up on the wall, glancing at the water and the grey sky, unworried, cold morning.", "motion_prompt": "the man straightens, glances at the water then the sky, shrugs it off and turns to walk on down the wall", "sheets": ["subj_jerry_toops.png", "loc_parapet_wall.png"]},
-      {"label": "Pumps on schedule", "phrase_anchor": "The pumps kept their schedule", "keyframe_prompt": "Close on the outer concrete face of the wall with a dark wet patch, unseen, cold light.", "motion_prompt": "on the outer wall the dark wet patch slowly darkens and spreads a little as water seeps through the concrete, unseen", "sheets": ["loc_parapet_wall.png"]}
+   },
+   {
+    "label": "Pumping in",
+    "phrase_anchor": "a computer ninety miles away has been pumping",
+    "keyframe_prompt": "High aerial of the calm mountaintop reservoir at night, the black water nearly full, smooth and still with only gentle ripples, the concrete-and-rock rim completely intact and quiet; far away on the distant horizon a tiny faint cluster of warm amber facility lights (a remote control plant many miles off). The dam is fully intact \u2014 NO waterfall, NO breach, NO eruption, NO whitewater, NO overtopping.",
+    "motion_prompt": "the still black water rises very slightly and shimmers with gentle calm ripples as it slowly fills; the distant facility lights softly glimmer on the horizon; a slow stable aerial hold with NO warping and NO morphing, the reservoir shape held rigid",
+    "sheets": [
+     "loc_upper_reservoir.png"
+    ],
+    "label_overlay": "SAINT LOUIS CONTROL  \u2014  90 MILES AWAY"
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_004",
+  "beats": [
+   {
+    "label": "Scoured channel",
+    "phrase_anchor": "emptied through the valley in twenty-five minutes",
+    "keyframe_prompt": "Aerial of a raw scoured flood channel of mud and stripped rock running down a forested mountainside from a breached reservoir rim, cold daylight.",
+    "motion_prompt": "the camera races down the raw scoured mud-and-rock channel from the breached rim down the mountain, forest stripped bare on both sides",
+    "sheets": [
+     "loc_valley_scour.png",
+     "loc_reservoir_breached.png"
     ]
-  },
-  {
-    "scene_id": "seg_017",
-    "beats": [
-      {"label": "Pump two off", "phrase_anchor": "Pump two shuts itself down", "keyframe_prompt": "A dark 2005 control room at night, a row of pump indicator lights, one going dark, CRT glow.", "motion_prompt": "in the dark control room a row of indicator lights glows and one blinks off, the CRT glowing steady behind it", "sheets": ["loc_control_room.png"]},
-      {"label": "Room to spare", "phrase_anchor": "over six feet of room to spare", "keyframe_prompt": "Close on a glowing gauge and readout on the dark control panel showing an apparently safe mid-scale level as an amber glow, no legible text, night.", "motion_prompt": "a glowing gauge on the dark panel sits reassuringly mid-scale, a light pulsing calmly; the false comfort of six feet to spare", "sheets": ["loc_control_room.png"]},
-      {"label": "Still filling", "phrase_anchor": "Pump one keeps going", "keyframe_prompt": "The black reservoir at night still filling, water surging in from the inlet, brimming in the dark.", "motion_prompt": "heavy water still surges into the black reservoir in the dark, the surface rising toward the wall top", "sheets": ["loc_upper_reservoir.png"]},
-      {"label": "Water at the brim", "phrase_anchor": "water is already finding the top of the wall", "keyframe_prompt": "Night: black water trembling right at the very top edge of the concrete parapet wall at its lowest panel, about to spill.", "motion_prompt": "black water trembles right at the top edge of the concrete wall in the dark, quivering and swelling, about to spill over", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "First thread over", "phrase_anchor": "Right where the wet spots were", "keyframe_prompt": "A first thin silver thread of water slipping over the concrete wall lip and running down the dark outer face, night.", "motion_prompt": "a thin silver thread of water slips over the concrete lip and runs down the dark outer face; the first overtopping", "sheets": ["loc_parapet_wall.png"]}
+   },
+   {
+    "label": "Empty control room",
+    "phrase_anchor": "Nobody at the plant pressed a wrong button",
+    "keyframe_prompt": "A dim unmanned 2005-era control room, one CRT monitor glowing amber, an empty operator chair, no people.",
+    "motion_prompt": "a slow dolly through the empty dim control room; the operator chair sits still and one status light blinks quietly in the dark",
+    "sheets": [
+     "loc_control_room.png"
     ]
-  },
-  {
-    "scene_id": "seg_018",
-    "beats": [
-      {"label": "Water is a saw", "phrase_anchor": "Water over rockfill is a saw", "keyframe_prompt": "A widening sheet of black water pouring over the parapet wall and cutting into the loose rockfill below, rocks loosening, night.", "motion_prompt": "a widening sheet of black water pours over the wall and saws into the loose rockfill below, rocks tumbling loose as a channel begins to cut", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "Carving deeper", "phrase_anchor": "began to carve", "keyframe_prompt": "A deepening cut in the rockfill below the wall, chunks of rock ripping away and tumbling down the dark slope, night.", "motion_prompt": "the water channel carves deeper into the rockfill, chunks of rock ripping away and tumbling down the dark outer slope", "sheets": ["loc_parapet_wall.png", "loc_proffit_mountain.png"]},
-      {"label": "Last pump stopped", "phrase_anchor": "a human being finally stopped the last pump", "keyframe_prompt": "An operator's hand on a phone receiver reaching to a control panel, a pump indicator going dark, dim night control room.", "motion_prompt": "an operator's hand holds a phone receiver and reaches to a control; a pump indicator light finally goes dark", "sheets": ["loc_control_room.png"]},
-      {"label": "At that same minute", "phrase_anchor": "At that same minute", "keyframe_prompt": "The overtopping water sawing hard into a deeply cut notch in the rockfill behind the wall, the wall undermined, night, tense.", "motion_prompt": "the black water saws violently into the deep notch it has cut and the undermined wall trembles on the edge of collapse", "sheets": ["loc_parapet_wall.png"]},
-      {"label": "Panel 72 lets go", "phrase_anchor": "the wall at panel seventy-two let go", "keyframe_prompt": "A whole section of concrete parapet tilting, cracking and collapsing forward into a surging black torrent, night.", "motion_prompt": "a whole section of concrete parapet tilts, cracks and collapses forward into the surging black torrent; catastrophic failure", "sheets": ["loc_parapet_wall.png", "loc_reservoir_breached.png"]}
+   },
+   {
+    "label": "The computer",
+    "phrase_anchor": "There was a computer, reading sensors",
+    "keyframe_prompt": "Close on a single glowing amber CRT and a beige computer rack alone in a dark room, indicator lights, 2005.",
+    "motion_prompt": "the amber CRT flickers and a row of indicator lights on the rack pulses steadily in the dark; the screen a warm glow with no legible text",
+    "sheets": [
+     "loc_control_room.png"
     ]
-  },
-  {
-    "scene_id": "seg_019",
-    "beats": [
-      {"label": "Gap tears wide", "phrase_anchor": "The gap tore itself", "keyframe_prompt": "A breach in the reservoir rim ripping violently wider, concrete and rockfill torn away, black water blasting through, dawn dark.", "motion_prompt": "the breach in the rim rips violently wider, concrete and rockfill torn away as black water blasts through the growing gap", "sheets": ["loc_reservoir_breached.png"]},
-      {"label": "Lake leaves mountain", "phrase_anchor": "left the mountain", "keyframe_prompt": "The whole black reservoir pouring out through a huge breach like a burst artery, water level dropping, dark.", "motion_prompt": "the black reservoir pours out through the huge breach like a burst artery, the water level visibly dropping fast", "sheets": ["loc_reservoir_breached.png", "loc_upper_reservoir.png"]},
-      {"label": "Down the mountain", "phrase_anchor": "went down Proffit Mountain", "keyframe_prompt": "A wall of water, rock and shredded trees roaring down a dark forested mountainside, mowing the forest flat.", "motion_prompt": "a wall of water, rock and shredded forest roars down the dark mountainside, mowing the trees flat as it races downhill", "sheets": ["loc_valley_scour.png", "loc_proffit_mountain.png"]},
-      {"label": "At the house", "phrase_anchor": "At the house at the foot of it", "keyframe_prompt": "The black flood front surging through the last bare trees toward the small lit house at the foot of the mountain, night.", "motion_prompt": "the black flood front surges through the last trees, bearing straight down on the small lit house at the foot of the mountain", "sheets": ["loc_toops_house.png", "loc_valley_scour.png"]}
+   },
+   {
+    "label": "Everyone knew",
+    "phrase_anchor": "and everyone knew",
+    "keyframe_prompt": "Wide cold view of the empty scoured valley channel under failing grey light, devastated and silent.",
+    "motion_prompt": "the light slowly fails over the empty scoured channel and a few flakes of snow drift down; a cold, still settle toward darkness",
+    "sheets": [
+     "loc_valley_scour.png"
     ]
-  },
-  {
-    "scene_id": "seg_020",
-    "beats": [
-      {"label": "Wave takes house", "phrase_anchor": "The wave that reached the Toops house", "keyframe_prompt": "The black flood wave slamming into the small wooden house, walls buckling, spray exploding upward, night.", "motion_prompt": "the black wave slams into the small house and it bursts apart, walls buckling and spray exploding upward in the dark", "sheets": ["loc_toops_house.png"]},
-      {"label": "Lisa holds baby", "phrase_anchor": "Lisa held the baby", "keyframe_prompt": "A woman clutching an infant to her chest as black water surges up around her in a dark collapsing room, night.", "motion_prompt": "the woman clutches the baby tight to her chest as black water surges violently up around her in the dark, holding on", "sheets": ["subj_lisa_toops.png", "subj_toops_baby.png"]},
-      {"label": "Bedroom fills", "phrase_anchor": "bedroom filled before he could stand", "keyframe_prompt": "A child's small dark bedroom flooding fast, black water rising over a bed and scattered toys, night.", "motion_prompt": "black water floods the child's small bedroom, rising fast over the bed and toys within seconds in the dark", "sheets": ["loc_toops_house.png"]},
-      {"label": "Swept away", "phrase_anchor": "carried them a quarter of a mile", "keyframe_prompt": "Dark churning water racing through bare winter trees carrying broken timbers and small helpless figures away into blackness, night.", "motion_prompt": "black water races through the bare winter trees carrying broken timbers and small helpless figures away into the darkness; turbulent", "sheets": ["loc_valley_scour.png"]}
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_006",
+  "dissolve": true,
+  "beats": [
+   {
+    "label": "Ring crowning mountain",
+    "phrase_anchor": "a ring of rockfill crowning the mountain",
+    "keyframe_prompt": "Daylight aerial of the full circular rockfill reservoir crowning the mountain summit, water inside the ring, forested slopes falling away.",
+    "motion_prompt": "a slow steady aerial track along the curving rockfill rim crowning the summit; the reservoir rim and water shape stay geometrically rigid and consistent, NO warping, NO morphing of the basin, only the camera glides",
+    "sheets": [
+     "loc_upper_reservoir.png",
+     "loc_proffit_mountain.png"
     ]
-  },
-  {
-    "scene_id": "seg_021",
-    "beats": [
-      {"label": "Found in shallows", "phrase_anchor": "Rescuers found them scattered in the shallows", "keyframe_prompt": "Grey first light: rescuers in gear wading slowly through shallow braided floodwater strewn with debris, searching, breath fogging.", "motion_prompt": "at grey first light rescuers wade slowly through the shallow debris-strewn floodwater, searching, their breath fogging in the cold", "sheets": ["loc_valley_scour.png"]},
-      {"label": "Alive in cold", "phrase_anchor": "freezing, stripped by the water", "keyframe_prompt": "A rescuer kneeling to a small survivor in the freezing shallow water at first light, reaching to lift them, debris around.", "motion_prompt": "a rescuer kneels and reaches down to a small survivor in the freezing shallow water, gathering them up gently; breath fogging", "sheets": ["loc_valley_scour.png", "subj_tanner_toops.png"]},
-      {"label": "Carrying Tanner", "phrase_anchor": "Tanner, came closest", "keyframe_prompt": "A rescuer lifting and carrying a small wrapped child out of the shallow water toward safety, first light.", "motion_prompt": "a rescuer lifts a small wrapped child from the water and carries him carefully toward safety, cradling him close", "sheets": ["subj_tanner_toops.png", "loc_valley_scour.png"]},
-      {"label": "Warming him", "phrase_anchor": "warming him left burns", "keyframe_prompt": "Hands wrapping blankets around a small still child and rubbing warmth into him, tense and hopeful, first light.", "motion_prompt": "hands wrap more blankets around the small still child and rub warmth into his arms; tense, careful, hopeful", "sheets": ["subj_tanner_toops.png"]},
-      {"label": "Baby survives", "phrase_anchor": "A seven-month-old baby survived", "keyframe_prompt": "A tiny infant wrapped tightly in blankets, held close in someone's arms, alive, first light.", "motion_prompt": "the tightly wrapped baby is held close and stirs with a small movement; alive against all odds", "sheets": ["subj_toops_baby.png"]}
+   },
+   {
+    "label": "Concrete wall",
+    "phrase_anchor": "topped with a concrete wall",
+    "keyframe_prompt": "A low view running along the top of the concrete parapet wall on the rim, water on one side, a long drop down the rockfill on the other, daylight.",
+    "motion_prompt": "a steady low tracking shot glides along the top of the concrete parapet wall, water on one side and the slope dropping away on the other; the wall and water geometry hold rigid, NO warping or morphing",
+    "sheets": [
+     "loc_parapet_wall.png"
     ]
-  },
-  {
-    "scene_id": "seg_022",
-    "beats": [
-      {"label": "The call list", "phrase_anchor": "The plant had an emergency call list", "keyframe_prompt": "A hand sliding a printed emergency call list across a desk under a lamp, a finger at the top of the typed names, dim office.", "motion_prompt": "a hand slides a printed call list across the desk under the lamp and a finger settles at the top of the column of names", "sheets": ["loc_control_room.png"]},
-      {"label": "Jerry on the list", "phrase_anchor": "Jerry Toops", "keyframe_prompt": "A finger stopping on a typed name partway down a printed emergency call list under a desk lamp, dim office, 2005.", "motion_prompt": "the finger runs down the printed list and stops on a name partway down, tapping it once; lamplight, dim office", "sheets": ["loc_control_room.png"]},
-      {"label": "Dialing", "phrase_anchor": "worked down the list and called his house", "keyframe_prompt": "A hand lifting a beige desk phone receiver and dialing, lamplight, 2005 office.", "motion_prompt": "a hand lifts the desk phone receiver and dials, pressing the buttons one by one in the lamplight", "sheets": ["loc_control_room.png"]},
-      {"label": "Rang and rang", "phrase_anchor": "The phone rang and rang", "keyframe_prompt": "A phone receiver held to an ear in dim lamplight, waiting, no answer, 2005 office.", "motion_prompt": "the receiver waits at an ear in the lamplight, ringing and ringing unanswered; a slow, sinking dawning", "sheets": ["loc_control_room.png"]},
-      {"label": "No house", "phrase_anchor": "There was no house", "keyframe_prompt": "A bare concrete house foundation standing alone in shallow floodwater at grey dawn, a downed phone line trailing into the water, nothing left.", "motion_prompt": "shallow floodwater ripples around the bare house foundation at grey dawn, a downed phone line trailing into the water; nothing remains", "sheets": ["loc_toops_house.png", "loc_valley_scour.png"]}
+   },
+   {
+    "label": "Mass of water",
+    "phrase_anchor": "It held four thousand",
+    "keyframe_prompt": "A high wide view of the immense body of water held inside the rockfill ring, vast and heavy against the concrete wall, daylight.",
+    "motion_prompt": "the camera cranes up slowly to reveal the immense expanse of water inside the ring, only gentle wind stipple on the surface; the basin shape stays rigid and consistent, NO warping, NO morphing",
+    "sheets": [
+     "loc_upper_reservoir.png",
+     "loc_parapet_wall.png"
     ]
-  },
-  {
-    "scene_id": "seg_024",
-    "beats": [
-      {"label": "Rebuilding", "phrase_anchor": "Ameren paid fifteen million dollars", "keyframe_prompt": "A construction site on the mountaintop: cranes over a half-built modern stepped-concrete reservoir rim, workers, daylight.", "motion_prompt": "construction cranes swing and workers move over the half-built stepped-concrete rim in bright daylight; heavy rebuilding underway", "sheets": ["loc_rebuilt_dam.png"]},
-      {"label": "Paid the state", "phrase_anchor": "one hundred eighty million more", "keyframe_prompt": "The mountaintop rebuild well underway: fresh concrete forms and rebar over the reservoir rim, cranes and trucks, bright daylight.", "motion_prompt": "cranes lift concrete forms into place and trucks move across the busy rebuild site over the reservoir rim in bright daylight", "sheets": ["loc_rebuilt_dam.png"]},
-      {"label": "Solid concrete", "phrase_anchor": "rebuilt the reservoir in solid concrete", "keyframe_prompt": "The finished clean modern stepped-concrete reservoir rim curving away, solid and engineered, water inside, daylight.", "motion_prompt": "the camera tracks along the clean modern stepped-concrete rim curving away, solid and engineered, still water inside", "sheets": ["loc_rebuilt_dam.png", "loc_upper_reservoir.png"]},
-      {"label": "Instruments cross-check", "phrase_anchor": "The new instruments cross-check", "keyframe_prompt": "Modern instrument masts and redundant sensors standing along the new concrete rim, small indicator lights, daylight.", "motion_prompt": "modern instrument masts stand along the new rim, small indicator lights blinking steadily; redundant sensors watching each other", "sheets": ["loc_rebuilt_dam.png"]},
-      {"label": "Somewhere to go", "phrase_anchor": "gives water somewhere to go", "keyframe_prompt": "A new engineered concrete spillway channel with water flowing in a controlled sheet down it, daylight.", "motion_prompt": "water flows in a smooth controlled sheet down the new engineered concrete spillway channel; finally somewhere for it to go", "sheets": ["loc_rebuilt_dam.png"]}
+   },
+   {
+    "label": "No spillway",
+    "phrase_anchor": "no spillway",
+    "keyframe_prompt": "A stretch of solid unbroken concrete parapet wall with water pressing against it, no gap, no drain, no outlet, daylight.",
+    "motion_prompt": "the camera glides slowly along the rim past solid unbroken wall, finding no gap and no drain, water calm against the concrete; rigid geometry, NO warping or morphing",
+    "sheets": [
+     "loc_parapet_wall.png",
+     "loc_upper_reservoir.png"
     ]
-  },
-  {
-    "scene_id": "seg_025",
-    "beats": [
-      {"label": "Shut-ins in sun", "phrase_anchor": "The Toops family moved away", "keyframe_prompt": "The restored park in summer: bright water running and tumbling through the pink granite shut-ins gorge, sunlit.", "motion_prompt": "bright clear water runs and tumbles through the pink granite shut-ins in the summer sunlight, sparkling and alive", "sheets": ["loc_shutins.png"]},
-      {"label": "Swimmers again", "phrase_anchor": "shut-ins filled with swimmers again", "keyframe_prompt": "Small distant figures wading and playing in the bright water among the granite of the shut-ins, summer.", "motion_prompt": "small distant figures wade and splash in the bright water among the granite; life returned to the gorge", "sheets": ["loc_shutins.png"]},
-      {"label": "No dead", "phrase_anchor": "A disaster with no dead", "keyframe_prompt": "Wide serene view of the healed green valley and the bright shut-ins water in summer sun.", "motion_prompt": "sunlight and shadow move over the healed green valley as the bright water keeps running through the granite; peaceful", "sheets": ["loc_shutins.png"]},
-      {"label": "Permission to happen", "phrase_anchor": "got permission to happen", "keyframe_prompt": "The bright shut-ins water running steadily over the pink granite, indifferent and calm, summer.", "motion_prompt": "the bright water keeps running steadily over the granite, indifferent; a slow, quietly unsettling settle", "sheets": ["loc_shutins.png"]}
+   },
+   {
+    "label": "Over and through",
+    "phrase_anchor": "except over the wall, and through it",
+    "lane": "det-rise+flf-cascade",
+    "note": "HERO SHOT, two-part (NOT grok): (1) RISE 2.0s = deterministic waterline sweep between _beats/seg_006_b5_face_low.png and _face_high.png (down-the-inner-face comp; eased boundary lerp + drawn amber waterline stroke; scratchpad s6b5_rise_build.py recipe) \u2014 Kling FLF and gemini edits both FAIL on the crest-level comp (water level is a tiny pixel lever there; Kling lazy-morphs, edits regress). (2) SPILL 1.76s = Kling FLF cascade from _beats/seg_006_b5_flf_raw.mp4 (base->cascade, crop-to-fill, speed-fit). Hard cut between them.",
+    "keyframe_prompt": "Daylight along the concrete parapet wall of the reservoir, the calm water level a hand's width BELOW the top of the wall with a clear strip of dry concrete showing above the waterline; low three-quarter angle looking along the wall crest.",
+    "motion_prompt": "the calm water level slowly RISES up the face of the concrete wall until it reaches the very top edge, then a thin sheet of water begins to SPILL over the crest and run down the outer face; gradual and steady, the concrete wall stays perfectly rigid, no warping, no morphing, no breach",
+    "sheets": [
+     "loc_parapet_wall.png"
     ]
-  },
-  {
-    "scene_id": "seg_027",
-    "beats": [
-      {"label": "More plants now", "phrase_anchor": "We are building more of these plants now", "keyframe_prompt": "A large modern pumped-storage reservoir at twilight, still black water inside an engineered concrete rim, dusk.", "motion_prompt": "the camera glides slowly out over the still black water of the large modern reservoir at twilight, its engineered rim curving away", "sheets": ["loc_rebuilt_dam.png"]},
-      {"label": "Watched by sensors", "phrase_anchor": "Watched by sensors", "keyframe_prompt": "Instrument masts standing over the still black reservoir at night, indicator lights blinking, dark.", "motion_prompt": "instrument masts stand over the still black reservoir at night, their indicator lights blinking steadily in the dark", "sheets": ["loc_rebuilt_dam.png"]},
-      {"label": "Design decision", "phrase_anchor": "Trust is a design decision", "keyframe_prompt": "Close on a single small red indicator light blinking on an instrument mast above still black water at night.", "motion_prompt": "a slow push toward one small red indicator light blinking alone on the instrument mast above the still black water", "sheets": ["loc_rebuilt_dam.png"]},
-      {"label": "Believes a number", "phrase_anchor": "a computer believes a number", "keyframe_prompt": "The single small red light blinking alone above vast still black water in the dark, everything else black.", "motion_prompt": "the single red light blinks alone above the black water; hold, and darkness slowly closes in around it", "sheets": ["loc_rebuilt_dam.png"]}
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_007",
+  "beats": [
+   {
+    "label": "Nobody on mountain",
+    "phrase_anchor": "Nobody worked on the mountain",
+    "keyframe_prompt": "The empty windswept reservoir rim with a bare service road, no people, overcast day.",
+    "motion_prompt": "wind drives ripples across the empty reservoir and stirs dry grass along the bare service road; no one is there",
+    "sheets": [
+     "loc_upper_reservoir.png",
+     "loc_proffit_mountain.png"
     ]
-  }
+   },
+   {
+    "label": "Remote from St Louis",
+    "phrase_anchor": "remote control from Saint Louis",
+    "keyframe_prompt": "A dim distant control room with a glowing status map and an empty chair, 2005, unmanned.",
+    "motion_prompt": "the CRT and status map flicker quietly in the empty dim control room; the chair sits still",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Sensors underwater",
+    "phrase_anchor": "four pressure sensors under the water",
+    "keyframe_prompt": "Underwater on the sloped reservoir liner: capped white PVC sensor pipes with cables trailing off screen, resting on the floor, dim green-black water.",
+    "motion_prompt": "a slow underwater drift over the capped PVC sensor pipes and their trailing cables resting on the sloped liner, silt swirling gently",
+    "sheets": [
+     "loc_sensor_pipes.png",
+     "loc_sensor_conduit.png"
+    ]
+   },
+   {
+    "label": "Pipes replaced 2004",
+    "phrase_anchor": "those pipes had been replaced",
+    "keyframe_prompt": "Underwater: new white capped PVC sensor pipes freshly laid on the sloped liner beside older mounting marks, cables trailing, dim water.",
+    "motion_prompt": "silt settles slowly around the freshly laid new PVC sensor pipes resting loose on the liner, their cables trailing off, unsecured",
+    "sheets": [
+     "loc_sensor_pipes.png"
+    ],
+    "dissolve_in": true
+   },
+   {
+    "label": "Never anchored",
+    "phrase_anchor": "the new ones were never anchored down",
+    "keyframe_prompt": "A capped PVC sensor pipe lifting loose off the reservoir floor liner, cable going slack, sediment stirring, dim underwater.",
+    "motion_prompt": "one capped PVC sensor pipe slowly lifts and drifts up off the floor, its cable going slack and unanchored, sediment clouding the water",
+    "sheets": [
+     "loc_sensor_pipes.png"
+    ],
+    "dissolve_in": true
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_009",
+  "beats": [
+   {
+    "label": "Wall sinking",
+    "phrase_anchor": "The wall had been sinking",
+    "keyframe_prompt": "A section of the concrete parapet wall visibly settled and slightly tilted into the rockfill beneath it, daylight.",
+    "motion_prompt": "the concrete wall section settles and tilts a little lower as small rock trickles from the fill beneath it",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ],
+    "lane": "det-sag",
+    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling"
+   },
+   {
+    "label": "Dropped a foot",
+    "phrase_anchor": "parts of the parapet had dropped",
+    "keyframe_prompt": "A close view of a settled low section of the concrete parapet, visibly dropped below the neighboring wall panels, daylight.",
+    "motion_prompt": "a low section of the concrete parapet settles further, sinking below its neighbors as fill shifts beneath it; grit trickling down",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ],
+    "lane": "det-sag",
+    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling"
+   },
+   {
+    "label": "Bolted gauge",
+    "phrase_anchor": "the depth gauge the staff read was bolted",
+    "keyframe_prompt": "Close on a painted staff depth gauge bolted to the concrete parapet wall, water surface beside it, daylight.",
+    "motion_prompt": "the water surface beside the painted staff gauge LAPS and ripples against the concrete, small waves rising and falling against the gauge markings, light reflections dancing on the wall; the gauge and wall stay rigid, no morphing",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "Both sink together",
+    "phrase_anchor": "The wall sank. The gauge sank with it",
+    "keyframe_prompt": "The parapet wall and its bolted gauge together while the reservoir water line stays level, daylight.",
+    "motion_prompt": "the wall and its bolted gauge drift downward together while the water line holds level, the reading looking unchanged; a quiet deceptive settle",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ],
+    "lane": "det-sag",
+    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling"
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_010",
+  "beats": [
+   {
+    "label": "Hurricane rains",
+    "phrase_anchor": "After the rains of Hurricane Rita",
+    "keyframe_prompt": "The reservoir under a dark storm sky, heavy rain hammering the surface, water high against the wall, grey storm light.",
+    "motion_prompt": "heavy rain lashes the reservoir surface and wind whips the water high against the wall under dark racing clouds",
+    "sheets": [
+     "loc_upper_reservoir.png",
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "Eighty days before",
+    "phrase_anchor": "Eighty days before the breach",
+    "keyframe_prompt": "The storm-lashed reservoir brimming dangerously high against the parapet wall, water near the top, dark storm light.",
+    "motion_prompt": "wind-driven waves slap and climb the parapet wall as the brimming reservoir surges dangerously near its top in the storm",
+    "sheets": [
+     "loc_upper_reservoir.png",
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "Pouring over corner",
+    "phrase_anchor": "water pouring over the northwest corner",
+    "keyframe_prompt": "Water sheeting over the corner of the concrete parapet wall and cascading down the outer rockfill slope, tiny workers at the rim, storm light.",
+    "motion_prompt": "a thick sheet of water pours over the corner of the parapet and cascades down the outer rockfill slope, small workers watching from the rim",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ],
+    "lane": "det-falls",
+    "note": "red-line-warped keyframe + deterministic falling-texture scroll (s10_falls_build.py); grok reversed the flow direction"
+   },
+   {
+    "label": "Niagara Falls",
+    "phrase_anchor": "describe it as Niagara Falls",
+    "keyframe_prompt": "A roaring waterfall-like cascade thundering down the outer rockfill slope, spray flying, storm light.",
+    "motion_prompt": "the cascade roars down the outer slope like a waterfall, spray exploding and flying in the wind",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ],
+    "lane": "det-falls",
+    "note": "red-line-warped keyframe + deterministic falling-texture scroll (s10_falls_build.py); grok reversed the flow direction"
+   },
+   {
+    "label": "Saved by hand",
+    "phrase_anchor": "They save the dam by hand",
+    "keyframe_prompt": "Workers in rain gear at the reservoir rim as the spillover thins and slows, rain easing, grey light.",
+    "motion_prompt": "workers in rain gear work urgently at the rim as the overtopping cascade THINS and slows to a trickle; all water flows strictly DOWNWARD over the wall and down the outer slope; the LAKE stays flush with the top of the wall the whole time, it does NOT drop; rain easing, wall rigid, no morphing",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ],
+    "note": "keyframe red-line-warped (lake flush to coping)"
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_012",
+  "beats": [
+   {
+    "label": "Pipes had moved",
+    "phrase_anchor": "The plant knew the pipes had moved",
+    "keyframe_prompt": "Underwater: a capped PVC sensor pipe shifted off its position on the reservoir floor liner, cable slack, dim water.",
+    "motion_prompt": "the displaced PVC sensor pipe lies shifted off its mark on the floor, cable slack, silt drifting slowly past it",
+    "sheets": [
+     "loc_sensor_pipes.png"
+    ]
+   },
+   {
+    "label": "Readings disagreed",
+    "phrase_anchor": "The readings disagreed",
+    "keyframe_prompt": "Close on the glowing amber CRT readout in the dark control room, a steady numeric reading shown only as an amber glow, no legible text, 2005.",
+    "motion_prompt": "the amber CRT reading glows and a cursor blinks steadily, calm and certain, while everything about it feels quietly wrong",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Fixed in software",
+    "phrase_anchor": "someone fixed it",
+    "keyframe_prompt": "A hand reaching into warm amber lamplight toward a keyboard at a glowing 2005-era CRT console, dim room.",
+    "motion_prompt": "a hand reaches into the amber lamplight toward the keyboard at the glowing CRT console; the screen a warm glow with no legible text",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Typed a correction",
+    "phrase_anchor": "They typed a correction into the computer",
+    "keyframe_prompt": "Close on a hand typing on a beige keyboard at a glowing amber CRT, 2005, lamplight.",
+    "motion_prompt": "the hand types on the keyboard, keys pressing one after another, the amber CRT glow flickering with each stroke; no legible text",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Just adjust it",
+    "phrase_anchor": "Don't re-anchor the pipes",
+    "keyframe_prompt": "The hand still resting at the amber CRT keyboard after entering the offset, the glowing console, dim room, 2005.",
+    "motion_prompt": "the hand rests on the keyboard after the correction, fingers lifting slightly as the amber console glows on; the fix quietly accepted",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Adjust the number",
+    "phrase_anchor": "adjust the number",
+    "keyframe_prompt": "The glowing amber CRT console alone in the dark room after the hand withdraws, one indicator light settling.",
+    "motion_prompt": "the hand presses a final key and withdraws from frame, leaving the glowing console alone as one indicator light settles steady",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_014",
+  "beats": [
+   {
+    "label": "Walks the wall",
+    "phrase_anchor": "The plant superintendent walks the wall",
+    "keyframe_prompt": "A bearded man in a heavy winter coat walking along the top of the parapet wall in cold morning light, breath fogging.",
+    "motion_prompt": "the man in the heavy winter coat walks steadily along the top of the parapet wall, breath fogging in the cold morning air",
+    "sheets": [
+     "subj_jerry_toops.png",
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "Wet spots",
+    "phrase_anchor": "sees wet spots on the outside",
+    "keyframe_prompt": "The man crouched at the edge, looking down at dark wet stains seeping on the outer concrete face of the parapet, morning.",
+    "motion_prompt": "the man stops and crouches, looking down at dark wet stains seeping on the outer concrete face, reaching a hand toward them",
+    "sheets": [
+     "subj_jerry_toops.png",
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "Explainable",
+    "phrase_anchor": "It was explainable",
+    "keyframe_prompt": "The man standing back up on the wall, glancing at the water and the grey sky, unworried, cold morning.",
+    "motion_prompt": "the man straightens, glances at the water then the sky, shrugs it off and turns to walk on down the wall",
+    "sheets": [
+     "subj_jerry_toops.png",
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "Pumps on schedule",
+    "phrase_anchor": "The pumps kept their schedule",
+    "keyframe_prompt": "Close on the outer concrete face of the wall with a dark wet patch, unseen, cold light.",
+    "motion_prompt": "on the outer wall the dark wet patch slowly darkens and spreads a little as water seeps through the concrete, unseen",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_017",
+  "beats": [
+   {
+    "label": "Pump two off",
+    "phrase_anchor": "Pump two shuts itself down",
+    "keyframe_prompt": "A dark 2005 control room at night, a row of pump indicator lights, one going dark, CRT glow.",
+    "motion_prompt": "in the dark control room a row of indicator lights glows and one blinks off, the CRT glowing steady behind it",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Room to spare",
+    "phrase_anchor": "over six feet of room to spare",
+    "keyframe_prompt": "Close on a glowing gauge and readout on the dark control panel showing an apparently safe mid-scale level as an amber glow, no legible text, night.",
+    "motion_prompt": "a glowing gauge on the dark panel sits reassuringly mid-scale, a light pulsing calmly; the false comfort of six feet to spare",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Still filling",
+    "phrase_anchor": "Pump one keeps going",
+    "keyframe_prompt": "The black reservoir at night still filling, water surging in from the inlet, brimming in the dark.",
+    "motion_prompt": "heavy water still surges into the black reservoir in the dark, the surface rising toward the wall top",
+    "sheets": [
+     "loc_upper_reservoir.png"
+    ]
+   },
+   {
+    "label": "Water at the brim",
+    "phrase_anchor": "water is already finding the top of the wall",
+    "keyframe_prompt": "Night: black water trembling right at the very top edge of the concrete parapet wall at its lowest panel, about to spill.",
+    "motion_prompt": "black water trembles right at the top edge of the concrete wall in the dark, quivering and swelling, about to spill over",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "First thread over",
+    "phrase_anchor": "Right where the wet spots were",
+    "keyframe_prompt": "A first thin silver thread of water slipping over the concrete wall lip and running down the dark outer face, night.",
+    "motion_prompt": "a thin silver thread of water slips over the concrete lip and runs down the dark outer face; the first overtopping",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_018",
+  "beats": [
+   {
+    "label": "Water is a saw",
+    "phrase_anchor": "Water over rockfill is a saw",
+    "keyframe_prompt": "A widening sheet of black water pouring over the parapet wall and cutting into the loose rockfill below, rocks loosening, night.",
+    "motion_prompt": "a widening sheet of black water pours over the wall and saws into the loose rockfill below, rocks tumbling loose as a channel begins to cut",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "Carving deeper",
+    "phrase_anchor": "began to carve",
+    "keyframe_prompt": "A deepening cut in the rockfill below the wall, chunks of rock ripping away and tumbling down the dark slope, night.",
+    "motion_prompt": "the water channel carves deeper into the rockfill, chunks of rock ripping away and tumbling down the dark outer slope",
+    "sheets": [
+     "loc_parapet_wall.png",
+     "loc_proffit_mountain.png"
+    ]
+   },
+   {
+    "label": "Last pump stopped",
+    "phrase_anchor": "a human being finally stopped the last pump",
+    "keyframe_prompt": "An operator's hand on a phone receiver reaching to a control panel, a pump indicator going dark, dim night control room.",
+    "motion_prompt": "an operator's hand holds a phone receiver and reaches to a control; a pump indicator light finally goes dark",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "At that same minute",
+    "phrase_anchor": "At that same minute",
+    "keyframe_prompt": "The overtopping water sawing hard into a deeply cut notch in the rockfill behind the wall, the wall undermined, night, tense.",
+    "motion_prompt": "the black water saws violently into the deep notch it has cut and the undermined wall trembles on the edge of collapse",
+    "sheets": [
+     "loc_parapet_wall.png"
+    ]
+   },
+   {
+    "label": "Panel 72 lets go",
+    "phrase_anchor": "the wall at panel seventy-two let go",
+    "keyframe_prompt": "A whole section of concrete parapet tilting, cracking and collapsing forward into a surging black torrent, night.",
+    "motion_prompt": "a whole section of concrete parapet tilts, cracks and collapses forward into the surging black torrent; catastrophic failure",
+    "sheets": [
+     "loc_parapet_wall.png",
+     "loc_reservoir_breached.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_019",
+  "beats": [
+   {
+    "label": "Gap tears wide",
+    "phrase_anchor": "The gap tore itself",
+    "keyframe_prompt": "A breach in the reservoir rim ripping violently wider, concrete and rockfill torn away, black water blasting through, dawn dark.",
+    "motion_prompt": "the breach in the rim rips violently wider, concrete and rockfill torn away as black water blasts through the growing gap",
+    "sheets": [
+     "loc_reservoir_breached.png"
+    ]
+   },
+   {
+    "label": "Lake leaves mountain",
+    "phrase_anchor": "left the mountain",
+    "keyframe_prompt": "The whole black reservoir pouring out through a huge breach like a burst artery, water level dropping, dark.",
+    "motion_prompt": "the black reservoir pours out through the huge breach like a burst artery, the water level visibly dropping fast",
+    "sheets": [
+     "loc_reservoir_breached.png",
+     "loc_upper_reservoir.png"
+    ]
+   },
+   {
+    "label": "Down the mountain",
+    "phrase_anchor": "went down Proffit Mountain",
+    "keyframe_prompt": "A wall of water, rock and shredded trees roaring down a dark forested mountainside, mowing the forest flat.",
+    "motion_prompt": "a wall of water, rock and shredded forest roars down the dark mountainside, mowing the trees flat as it races downhill",
+    "sheets": [
+     "loc_valley_scour.png",
+     "loc_proffit_mountain.png"
+    ]
+   },
+   {
+    "label": "At the house",
+    "phrase_anchor": "At the house at the foot of it",
+    "keyframe_prompt": "The black flood front surging through the last bare trees toward the small lit house at the foot of the mountain, night.",
+    "motion_prompt": "the black flood front surges through the last trees, bearing straight down on the small lit house at the foot of the mountain",
+    "sheets": [
+     "loc_toops_house.png",
+     "loc_valley_scour.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_020",
+  "beats": [
+   {
+    "label": "Wave takes house",
+    "phrase_anchor": "The wave that reached the Toops house",
+    "keyframe_prompt": "The black flood wave slamming into the small wooden house, walls buckling, spray exploding upward, night.",
+    "motion_prompt": "the black wave slams into the small house and it bursts apart, walls buckling and spray exploding upward in the dark",
+    "sheets": [
+     "loc_toops_house.png"
+    ]
+   },
+   {
+    "label": "Lisa holds baby",
+    "phrase_anchor": "Lisa held the baby",
+    "keyframe_prompt": "A woman clutching an infant to her chest as black water surges up around her in a dark collapsing room, night.",
+    "motion_prompt": "the woman clutches the baby tight to her chest as black water surges violently up around her in the dark, holding on",
+    "sheets": [
+     "subj_lisa_toops.png",
+     "subj_toops_baby.png"
+    ]
+   },
+   {
+    "label": "Bedroom fills",
+    "phrase_anchor": "bedroom filled before he could stand",
+    "keyframe_prompt": "A child's small dark bedroom flooding fast, black water rising over a bed and scattered toys, night.",
+    "motion_prompt": "black water floods the child's small bedroom, rising fast over the bed and toys within seconds in the dark",
+    "sheets": [
+     "loc_toops_house.png"
+    ]
+   },
+   {
+    "label": "Swept away",
+    "phrase_anchor": "carried them a quarter of a mile",
+    "keyframe_prompt": "Dark churning water racing through bare winter trees carrying broken timbers and small helpless figures away into blackness, night.",
+    "motion_prompt": "black water races through the bare winter trees carrying broken timbers and small helpless figures away into the darkness; turbulent",
+    "sheets": [
+     "loc_valley_scour.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_021",
+  "beats": [
+   {
+    "label": "Found in shallows",
+    "phrase_anchor": "Rescuers found them scattered in the shallows",
+    "keyframe_prompt": "Grey first light: rescuers in gear wading slowly through shallow braided floodwater strewn with debris, searching, breath fogging.",
+    "motion_prompt": "at grey first light rescuers wade slowly through the shallow debris-strewn floodwater, searching, their breath fogging in the cold",
+    "sheets": [
+     "loc_valley_scour.png"
+    ]
+   },
+   {
+    "label": "Alive in cold",
+    "phrase_anchor": "freezing, stripped by the water",
+    "keyframe_prompt": "A rescuer kneeling to a small survivor in the freezing shallow water at first light, reaching to lift them, debris around.",
+    "motion_prompt": "a rescuer kneels and reaches down to a small survivor in the freezing shallow water, gathering them up gently; breath fogging",
+    "sheets": [
+     "loc_valley_scour.png",
+     "subj_tanner_toops.png"
+    ]
+   },
+   {
+    "label": "Carrying Tanner",
+    "phrase_anchor": "Tanner, came closest",
+    "keyframe_prompt": "A rescuer lifting and carrying a small wrapped child out of the shallow water toward safety, first light.",
+    "motion_prompt": "a rescuer lifts a small wrapped child from the water and carries him carefully toward safety, cradling him close",
+    "sheets": [
+     "subj_tanner_toops.png",
+     "loc_valley_scour.png"
+    ]
+   },
+   {
+    "label": "Warming him",
+    "phrase_anchor": "warming him left burns",
+    "keyframe_prompt": "Hands wrapping blankets around a small still child and rubbing warmth into him, tense and hopeful, first light.",
+    "motion_prompt": "hands wrap more blankets around the small still child and rub warmth into his arms; tense, careful, hopeful",
+    "sheets": [
+     "subj_tanner_toops.png"
+    ]
+   },
+   {
+    "label": "Baby survives",
+    "phrase_anchor": "A seven-month-old baby survived",
+    "keyframe_prompt": "A tiny infant wrapped tightly in blankets, held close in someone's arms, alive, first light.",
+    "motion_prompt": "the tightly wrapped baby is held close and stirs with a small movement; alive against all odds",
+    "sheets": [
+     "subj_toops_baby.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_022",
+  "beats": [
+   {
+    "label": "The call list",
+    "phrase_anchor": "The plant had an emergency call list",
+    "keyframe_prompt": "A hand sliding a printed emergency call list across a desk under a lamp, a finger at the top of the typed names, dim office.",
+    "motion_prompt": "a hand slides a printed call list across the desk under the lamp and a finger settles at the top of the column of names",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Jerry on the list",
+    "phrase_anchor": "Jerry Toops",
+    "keyframe_prompt": "A finger stopping on a typed name partway down a printed emergency call list under a desk lamp, dim office, 2005.",
+    "motion_prompt": "the finger runs down the printed list and stops on a name partway down, tapping it once; lamplight, dim office",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Dialing",
+    "phrase_anchor": "worked down the list and called his house",
+    "keyframe_prompt": "A hand lifting a beige desk phone receiver and dialing, lamplight, 2005 office.",
+    "motion_prompt": "a hand lifts the desk phone receiver and dials, pressing the buttons one by one in the lamplight",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "Rang and rang",
+    "phrase_anchor": "The phone rang and rang",
+    "keyframe_prompt": "A phone receiver held to an ear in dim lamplight, waiting, no answer, 2005 office.",
+    "motion_prompt": "the receiver waits at an ear in the lamplight, ringing and ringing unanswered; a slow, sinking dawning",
+    "sheets": [
+     "loc_control_room.png"
+    ]
+   },
+   {
+    "label": "No house",
+    "phrase_anchor": "There was no house",
+    "keyframe_prompt": "A bare concrete house foundation standing alone in shallow floodwater at grey dawn, a downed phone line trailing into the water, nothing left.",
+    "motion_prompt": "shallow floodwater ripples around the bare house foundation at grey dawn, a downed phone line trailing into the water; nothing remains",
+    "sheets": [
+     "loc_toops_house.png",
+     "loc_valley_scour.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_024",
+  "beats": [
+   {
+    "label": "Rebuilding",
+    "phrase_anchor": "Ameren paid fifteen million dollars",
+    "keyframe_prompt": "A construction site on the mountaintop: cranes over a half-built modern stepped-concrete reservoir rim, workers, daylight.",
+    "motion_prompt": "construction cranes swing and workers move over the half-built stepped-concrete rim in bright daylight; heavy rebuilding underway",
+    "sheets": [
+     "loc_rebuilt_dam.png"
+    ]
+   },
+   {
+    "label": "Paid the state",
+    "phrase_anchor": "one hundred eighty million more",
+    "keyframe_prompt": "The mountaintop rebuild well underway: fresh concrete forms and rebar over the reservoir rim, cranes and trucks, bright daylight.",
+    "motion_prompt": "cranes lift concrete forms into place and trucks move across the busy rebuild site over the reservoir rim in bright daylight",
+    "sheets": [
+     "loc_rebuilt_dam.png"
+    ]
+   },
+   {
+    "label": "Solid concrete",
+    "phrase_anchor": "rebuilt the reservoir in solid concrete",
+    "keyframe_prompt": "The finished clean modern stepped-concrete reservoir rim curving away, solid and engineered, water inside, daylight.",
+    "motion_prompt": "the camera tracks along the clean modern stepped-concrete rim curving away, solid and engineered, still water inside",
+    "sheets": [
+     "loc_rebuilt_dam.png",
+     "loc_upper_reservoir.png"
+    ]
+   },
+   {
+    "label": "Instruments cross-check",
+    "phrase_anchor": "The new instruments cross-check",
+    "keyframe_prompt": "Modern instrument masts and redundant sensors standing along the new concrete rim, small indicator lights, daylight.",
+    "motion_prompt": "modern instrument masts stand along the new rim, small indicator lights blinking steadily; redundant sensors watching each other",
+    "sheets": [
+     "loc_rebuilt_dam.png"
+    ]
+   },
+   {
+    "label": "Somewhere to go",
+    "phrase_anchor": "gives water somewhere to go",
+    "keyframe_prompt": "A new engineered concrete spillway channel with water flowing in a controlled sheet down it, daylight.",
+    "motion_prompt": "water flows in a smooth controlled sheet down the new engineered concrete spillway channel; finally somewhere for it to go",
+    "sheets": [
+     "loc_rebuilt_dam.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_025",
+  "beats": [
+   {
+    "label": "Shut-ins in sun",
+    "phrase_anchor": "The Toops family moved away",
+    "keyframe_prompt": "The restored park in summer: bright water running and tumbling through the pink granite shut-ins gorge, sunlit.",
+    "motion_prompt": "bright clear water runs and tumbles through the pink granite shut-ins in the summer sunlight, sparkling and alive",
+    "sheets": [
+     "loc_shutins.png"
+    ]
+   },
+   {
+    "label": "Swimmers again",
+    "phrase_anchor": "shut-ins filled with swimmers again",
+    "keyframe_prompt": "Small distant figures wading and playing in the bright water among the granite of the shut-ins, summer.",
+    "motion_prompt": "small distant figures wade and splash in the bright water among the granite; life returned to the gorge",
+    "sheets": [
+     "loc_shutins.png"
+    ]
+   },
+   {
+    "label": "No dead",
+    "phrase_anchor": "A disaster with no dead",
+    "keyframe_prompt": "Wide serene view of the healed green valley and the bright shut-ins water in summer sun.",
+    "motion_prompt": "sunlight and shadow move over the healed green valley as the bright water keeps running through the granite; peaceful",
+    "sheets": [
+     "loc_shutins.png"
+    ]
+   },
+   {
+    "label": "Permission to happen",
+    "phrase_anchor": "got permission to happen",
+    "keyframe_prompt": "The bright shut-ins water running steadily over the pink granite, indifferent and calm, summer.",
+    "motion_prompt": "the bright water keeps running steadily over the granite, indifferent; a slow, quietly unsettling settle",
+    "sheets": [
+     "loc_shutins.png"
+    ]
+   }
+  ]
+ },
+ {
+  "scene_id": "seg_027",
+  "beats": [
+   {
+    "label": "More plants now",
+    "phrase_anchor": "We are building more of these plants now",
+    "keyframe_prompt": "A large modern pumped-storage reservoir at twilight, still black water inside an engineered concrete rim, dusk.",
+    "motion_prompt": "the camera glides slowly out over the still black water of the large modern reservoir at twilight, its engineered rim curving away",
+    "sheets": [
+     "loc_rebuilt_dam.png"
+    ]
+   },
+   {
+    "label": "Watched by sensors",
+    "phrase_anchor": "Watched by sensors",
+    "keyframe_prompt": "Instrument masts standing over the still black reservoir at night, indicator lights blinking, dark.",
+    "motion_prompt": "instrument masts stand over the still black reservoir at night, their indicator lights blinking steadily in the dark",
+    "sheets": [
+     "loc_rebuilt_dam.png"
+    ]
+   },
+   {
+    "label": "Design decision",
+    "phrase_anchor": "Trust is a design decision",
+    "keyframe_prompt": "Close on a single small red indicator light blinking on an instrument mast above still black water at night.",
+    "motion_prompt": "a slow push toward one small red indicator light blinking alone on the instrument mast above the still black water",
+    "sheets": [
+     "loc_rebuilt_dam.png"
+    ]
+   },
+   {
+    "label": "Believes a number",
+    "phrase_anchor": "a computer believes a number",
+    "keyframe_prompt": "The single small red light blinking alone above vast still black water in the dark, everything else black.",
+    "motion_prompt": "the single red light blinks alone above the black water; hold, and darkness slowly closes in around it",
+    "sheets": [
+     "loc_rebuilt_dam.png"
+    ]
+   }
+  ]
+ }
 ]
