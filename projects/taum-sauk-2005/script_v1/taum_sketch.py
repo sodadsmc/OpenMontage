@@ -367,31 +367,74 @@ EMAIL11_CUES = {"writes": "writes it down", "nono": "an absolute no-no",
                 "dated": "dated September", "weeks": "eleven weeks"}
 
 
+def _boil(t, key=0, amp=0.02):
+    """Small deterministic ink-boil offset, re-rolled 3x/sec (matplotlib's
+    path.sketch wobble is deterministic per path, so a static hold renders
+    pixel-identical frames — nudging the path each boil tick restores the
+    hand-drawn 'boil' the operator expects instead of a dead still)."""
+    rs = np.random.RandomState(9000 + 31 * key + int(t * 3))
+    return rs.uniform(-amp, amp)
+
+
 def _type_on(ax, x, y, s, size, color, t, t0, t1, ha="left", stroke=0.8):
-    """Reveal s character-by-character between t0 and t1 (typewriter)."""
-    if t < t0: return
+    """Reveal s character-by-character between t0 and t1 (typewriter).
+    Returns (text_artist, typing_now, chars_shown)."""
+    if t < t0: return None, False, 0
     k = len(s) if t >= t1 else max(0, int(len(s) * (t - t0) / max(0.1, t1 - t0)))
-    if k: text(ax, x, y, s[:k], size, color, alpha=1.0, ha=ha, stroke=stroke)
+    a = text(ax, x, y, s[:k], size, color, alpha=1.0, ha=ha, stroke=stroke) if k else None
+    return a, t < t1, k
+
+
+def _caret(ax, artist, y, t, h=0.42):
+    """Blinking typewriter caret just right of a text artist's ink."""
+    if artist is None or int(t * 2.4) % 2 == 1:
+        return
+    try:
+        r = ax.figure.canvas.get_renderer()
+        bb = artist.get_window_extent(r).transformed(ax.transData.inverted())
+        x1 = bb.x1
+    except Exception:
+        return
+    from matplotlib.patches import Rectangle
+    ax.add_patch(Rectangle((x1 + 0.08, y - 0.08), 0.16, h, facecolor=AMBER_HOT,
+                           edgecolor="none", alpha=0.9, zorder=6))
 
 
 def taum_email011(C):
+    LINES = [(6.3, '"Overflowing this reservoir', CREAM, "nono", -1.2, -0.1),
+             (5.65, 'is an absolute NO-NO.', AMBER_HOT, "nono", -0.1, 1.1),
+             (4.75, 'The water will erode the dam,', CREAM, "erode", -0.4, 1.0),
+             (4.1, 'and the dam will fail."', AMBER_HOT, "fail", -0.2, 1.0)]
+
     def draw(ax, t, dur):
-        text(ax, 5, 9.2, "IN WRITING", 40, AMBER, alpha=reveal(t, C["writing"], 0.6), stroke=1.6)
-        # paper panel
+        wr = reveal(t, C["writing"], 0.6)
+        glow = 1.0 if wr < 1 else 0.86 + 0.14 * (0.5 + 0.5 * np.sin(t * 1.7))
+        text(ax, 5, 9.2, "IN WRITING", 40, AMBER, alpha=wr * glow, stroke=1.6)
+        # paper panel — boiled each ink-tick so the hold never reads as a still
         pa = reveal(t, C["writes"], 0.7)
         if pa > 0.01:
             from matplotlib.patches import FancyBboxPatch
-            p = FancyBboxPatch((1.1, 2.1), 7.8, 5.6, boxstyle="round,pad=0.12",
-                               linewidth=2.5, edgecolor=AMBER_D, facecolor="#101c30",
-                               alpha=min(1.0, pa), zorder=2)
+            bp = 0.12 + _boil(t, key=1, amp=0.012)
+            p = FancyBboxPatch((1.1, 2.1), 7.8, 5.6, boxstyle=f"round,pad={bp:.4f}",
+                               linewidth=2.5 + _boil(t, key=2, amp=0.3), edgecolor=AMBER_D,
+                               facecolor="#101c30", alpha=min(1.0, pa), zorder=2)
             ax.add_patch(p)
             text(ax, 1.45, 7.28, "internal e-mail  -  Ameren", 15, MUTE, alpha=pa, ha="left")
-            ax.plot([1.35, 8.65], [7.0, 7.02], color=AMBER_D, lw=1.5, alpha=pa * 0.8, zorder=3)
-        # the quote types on AS the narrator reads it
-        _type_on(ax, 1.6, 6.3, '"Overflowing this reservoir', 26, CREAM, t, C["nono"] - 1.2, C["nono"] - 0.1)
-        _type_on(ax, 1.6, 5.65, 'is an absolute NO-NO.', 26, AMBER_HOT, t, C["nono"] - 0.1, C["nono"] + 1.1)
-        _type_on(ax, 1.6, 4.75, 'The water will erode the dam,', 26, CREAM, t, C["erode"] - 0.4, C["erode"] + 1.0)
-        _type_on(ax, 1.6, 4.1, 'and the dam will fail."', 26, AMBER_HOT, t, C["fail"] - 0.2, C["fail"] + 1.0)
+            uy = 7.0 + _boil(t, key=3, amp=0.03)
+            ax.plot([1.35, 8.65], [uy, uy + 0.02], color=AMBER_D, lw=1.5, alpha=pa * 0.8, zorder=3)
+        # the quote types on AS the narrator reads it; caret rides the live line
+        last_art, last_y = None, None
+        typing_art, typing_y = None, None
+        for y, s, col, cue, d0, d1 in LINES:
+            a, live, k = _type_on(ax, 1.6, y, s, 26, col, t, C[cue] + d0, C[cue] + d1)
+            if a is not None:
+                last_art, last_y = a, y
+                if live:
+                    typing_art, typing_y = a, y
+        if typing_art is not None:
+            _caret(ax, typing_art, typing_y, t)
+        elif last_art is not None:
+            _caret(ax, last_art, last_y, t)   # parked caret keeps blinking
         # dateline lands on 'dated September twenty-seventh'
         dt = reveal(t, C["dated"], 0.5)
         if dt > 0.01:
@@ -417,27 +460,33 @@ EMAIL13_CUES = {"another": "Another email", "arith": "done the arithmetic",
 def taum_email013(C):
     TOPY, P7, P4 = 6.4, 5.05, 5.63   # wall-top line and probe heights (7" and 4" below)
     def draw(ax, t, dur):
+        az = reveal(t, C["arith"], 0.6)
+        glow = 1.0 if az < 1 else 0.88 + 0.12 * (0.5 + 0.5 * np.sin(t * 1.9))
         text(ax, 5, 9.2, "SOMEONE DID THE ARITHMETIC", 32, AMBER,
-             alpha=reveal(t, C["arith"], 0.6), stroke=1.4)
+             alpha=az * glow, stroke=1.4)
         text(ax, 5, 8.5, "another e-mail  -  October 7, 2005", 18, MUTE,
              alpha=reveal(t, C["another"], 0.6))
-        base = reveal(t, C["arith"], 0.7)
+        base = reveal(t, C["another"], 1.4)   # stage draws first, headline follows
         if base > 0.01:
-            # wall-top line
-            ax.plot([1.6, 8.4], [TOPY, TOPY], color=CREAM, lw=3, alpha=base, zorder=4)
+            # wall-top line: draws on left-to-right, then keeps a hand-wave breath
+            x1 = 1.6 + (8.4 - 1.6) * min(1.0, base)
+            xs0 = np.linspace(1.6, x1, 32)
+            ax.plot(xs0, TOPY + 0.02 * np.sin(xs0 * 3.1 + t * 1.6), color=CREAM,
+                    lw=3, alpha=min(1.0, base + 0.3), zorder=4)
             text(ax, 8.3, TOPY + 0.3, "top of the wall", 16, CREAM, alpha=base, ha="right")
-            # probes
-            for y, cue, lbl in ((P7, "seven", '7"'), (P4, "four", '4"')):
+            # probes — each with its OWN measure arrow (separate x, no stacking)
+            for y, cue, lbl, mx in ((P7, "seven", '7"', 4.6), (P4, "four", '4"', 7.9)):
                 pr = reveal(t, C[cue], 0.4)
                 if pr > 0.01:
                     blink = 0.6 + 0.4 * np.sin(t * 3.2 + y)
                     ax.add_patch(Circle((6.4, y), 0.13, facecolor=AMBER_HOT, edgecolor="none",
                                         alpha=pr * blink, zorder=5))
                     ax.plot([6.4, 7.0], [y, y], color=AMBER_HOT, lw=2.5, alpha=pr, zorder=4)
+                    ax.plot([mx - 0.15, 6.4], [y, y], color=AMBER_D, lw=1.5, alpha=pr * 0.7, zorder=3)
                     br = 0.5 + 0.5 * np.sin(t * 2.1)
-                    ax.annotate("", xy=(5.8, TOPY), xytext=(5.8, y),
+                    ax.annotate("", xy=(mx, TOPY), xytext=(mx, y),
                                 arrowprops=dict(arrowstyle="<->", color=AMBER, lw=2.5 + br, alpha=pr), zorder=5)
-                    text(ax, 5.55, (TOPY + y) / 2, lbl, 21, AMBER, alpha=pr, ha="right", stroke=1.0)
+                    text(ax, mx - 0.25, (TOPY + y) / 2, lbl, 21, AMBER, alpha=pr, ha="right", stroke=1.0)
         # September spill: water line rises to touch the probes
         rz = reveal(t, C["reached"], 1.0)
         if rz > 0.01:

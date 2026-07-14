@@ -98,6 +98,7 @@ def text(ax, x, y, s, size, color=CREAM, alpha=1.0, ha="center", va="center",
                               _pe.Normal()])
     else:
         txt.set_path_effects([_pe.Normal()])  # crisp/thin, no inherited white halo
+    return txt
 
 
 def footer(ax, t, src="Source: Leveson & Turner, IEEE Computer, 1993"):
