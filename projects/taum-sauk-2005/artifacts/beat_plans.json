@@ -318,15 +318,15 @@
     ]
    },
    {
-    "label": "Overflow north side",
+    "label": "Overflow northwest",
     "phrase_anchor": "water pouring over the northwest corner",
     "keyframe_prompt": "Aerial of the storm-lashed reservoir, white water overtopping the FAR NORTH rim in the background and cascading down the outer slope.",
-    "motion_prompt": "camera holds steady; white water pours over the FAR NORTH rim of the reservoir in the background and cascades down the outer rockfill slope; over the clip the overflow visibly weakens, thins, and STOPS completely by the end; storm clouds drift slowly; the concrete rim stays rigid, no morphing; all water moves strictly downward on the outer slope",
+    "motion_prompt": "white water begins pouring over the FAR northwest stretch of the wall in the distance, building into a full cascade down the outer rock slope; near walkway stays dry and empty; locked camera, no morphing",
     "sheets": [
      "loc_upper_reservoir.png"
     ],
-    "lane": "grok-overflow-stop",
-    "note": "operator note 2026-07-14: texture-scroll builds read as flashing; replaced b3+b4 with one background-north-overflow-then-stop shot; keyframe = approved b2 aerial"
+    "lane": "flf-northwest-overflow",
+    "note": "operator 2026-07-14 round 3: crew-shot base without the crew (gemini removal), end frame = deterministic water-only splice from the approved Niagara still (far NW stretch only, near walkway dry), Kling FLF dry->flowing; keyframes s10_b3_A_empty(_169).png / s10_b3_B_flow(_169).png"
    },
    {
     "label": "Saved by hand",
