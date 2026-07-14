@@ -318,36 +318,27 @@
     ]
    },
    {
-    "label": "Pouring over corner",
+    "label": "Overflow north side",
     "phrase_anchor": "water pouring over the northwest corner",
-    "keyframe_prompt": "Water sheeting over the corner of the concrete parapet wall and cascading down the outer rockfill slope, tiny workers at the rim, storm light.",
-    "motion_prompt": "a thick sheet of water pours over the corner of the parapet and cascades down the outer rockfill slope, small workers watching from the rim",
+    "keyframe_prompt": "Aerial of the storm-lashed reservoir, white water overtopping the FAR NORTH rim in the background and cascading down the outer slope.",
+    "motion_prompt": "camera holds steady; white water pours over the FAR NORTH rim of the reservoir in the background and cascades down the outer rockfill slope; over the clip the overflow visibly weakens, thins, and STOPS completely by the end; storm clouds drift slowly; the concrete rim stays rigid, no morphing; all water moves strictly downward on the outer slope",
     "sheets": [
-     "loc_parapet_wall.png"
+     "loc_upper_reservoir.png"
     ],
-    "lane": "det-falls",
-    "note": "red-line-warped keyframe + deterministic falling-texture scroll (s10_falls_build.py); grok reversed the flow direction"
-   },
-   {
-    "label": "Niagara Falls",
-    "phrase_anchor": "describe it as Niagara Falls",
-    "keyframe_prompt": "A roaring waterfall-like cascade thundering down the outer rockfill slope, spray flying, storm light.",
-    "motion_prompt": "the cascade roars down the outer slope like a waterfall, spray exploding and flying in the wind",
-    "sheets": [
-     "loc_parapet_wall.png"
-    ],
-    "lane": "det-falls",
-    "note": "red-line-warped keyframe + deterministic falling-texture scroll (s10_falls_build.py); grok reversed the flow direction"
+    "lane": "grok-overflow-stop",
+    "note": "operator note 2026-07-14: texture-scroll builds read as flashing; replaced b3+b4 with one background-north-overflow-then-stop shot; keyframe = approved b2 aerial"
    },
    {
     "label": "Saved by hand",
     "phrase_anchor": "They save the dam by hand",
-    "keyframe_prompt": "Workers in rain gear at the reservoir rim as the spillover thins and slows, rain easing, grey light.",
-    "motion_prompt": "workers in rain gear work urgently at the rim as the overtopping cascade THINS and slows to a trickle; all water flows strictly DOWNWARD over the wall and down the outer slope; the LAKE stays flush with the top of the wall the whole time, it does NOT drop; rain easing, wall rigid, no morphing",
+    "keyframe_prompt": "Workers in rain gear on the crest walkway after the spill, grey light easing.",
+    "motion_prompt": "the workers in rain gear walk slowly along the crest walkway in single file, inspecting the wall as the last thin trickle of spill dies away to nothing; rain has stopped; the LAKE stays flush with the top of the wall the whole time, it does NOT drop; wall rigid, no morphing; no new water comes over the wall",
     "sheets": [
      "loc_parapet_wall.png"
     ],
-    "note": "keyframe red-line-warped (lake flush to coping)"
+    "lane": "grok-crew-walk",
+    "dissolve_in": true,
+    "note": "operator: fade from the overflow shot to the crew walking the dam after; keyframe = approved b5 workers still (red-line-warped)"
    }
   ]
  },

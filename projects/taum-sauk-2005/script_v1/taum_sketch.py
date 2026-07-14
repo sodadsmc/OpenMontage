@@ -422,6 +422,11 @@ def taum_email011(C):
             text(ax, 1.45, 7.28, "internal e-mail  -  Ameren", 15, MUTE, alpha=pa, ha="left")
             uy = 7.0 + _boil(t, key=3, amp=0.03)
             ax.plot([1.35, 8.65], [uy, uy + 0.02], color=AMBER_D, lw=1.5, alpha=pa * 0.8, zorder=3)
+            # header furniture types on while the narrator sets the scene
+            h0 = C["writes"] + 0.3
+            _type_on(ax, 1.6, 6.85, "from:  engineering", 14, MUTE, t, h0, h0 + 1.0)
+            _type_on(ax, 3.9, 6.85, "to:  plant operations", 14, MUTE, t, h0 + 1.1, h0 + 2.1)
+            _type_on(ax, 6.35, 6.85, "re:  reservoir levels", 14, MUTE, t, h0 + 2.2, h0 + 3.2)
         # the quote types on AS the narrator reads it; caret rides the live line
         last_art, last_y = None, None
         typing_art, typing_y = None, None
