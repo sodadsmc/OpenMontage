@@ -144,8 +144,20 @@ def stitch(parts, flags, out, slot):
     for k in range(1, len(parts)):
         nxt = parts[k]; step = str(out) + f".s{k}.mp4"
         if flags[k]:
-            off = max(0.1, acc_dur - DISSOLVE)
-            run(["ffmpeg", "-y", "-i", str(acc), "-i", str(nxt), "-filter_complex",
+            # freeze-pad acc's tail by DISSOLVE so the xfade consumes the pad,
+            # not timeline — keeps every beat word-synced (no cumulative shrink)
+            fr = str(out) + f".p{k}.png"; run(["ffmpeg", "-y", "-sseof", "-0.1", "-i", str(acc), "-frames:v", "1", fr])
+            pad = str(out) + f".p{k}.mp4"
+            run(["ffmpeg", "-y", "-loop", "1", "-i", fr, "-frames:v", str(round(DISSOLVE * FPS) + 1),
+                 "-vf", "scale=1920:1080,fps=30,format=yuv420p", "-c:v", "libx264",
+                 "-preset", "fast", "-crf", "18", "-an", pad])
+            lstp = str(out) + f".p{k}.txt"
+            open(lstp, "w").write(f"file '{Path(acc).resolve().as_posix()}'\nfile '{Path(pad).resolve().as_posix()}'\n")
+            accp = str(out) + f".ap{k}.mp4"
+            run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lstp, "-c:v", "libx264",
+                 "-preset", "fast", "-crf", "18", "-an", accp])
+            off = acc_dur  # xfade starts where the real content ends (inside the pad)
+            run(["ffmpeg", "-y", "-i", str(accp), "-i", str(nxt), "-filter_complex",
                  f"[0:v][1:v]xfade=transition=fade:duration={DISSOLVE}:offset={off:.3f},format=yuv420p",
                  "-c:v", "libx264", "-preset", "fast", "-crf", "18", "-an", step])
             acc_dur = off + durof(nxt)
