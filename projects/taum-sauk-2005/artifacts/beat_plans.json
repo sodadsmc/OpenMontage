@@ -491,7 +491,9 @@
     "motion_prompt": "a thin silver thread of water slips over the concrete lip and runs down the dark outer face; the first overtopping",
     "sheets": [
      "loc_parapet_wall.png"
-    ]
+    ],
+    "lane": "grok-pinned-water",
+    "note": "where-contract pinned IN the keyframe (approved master: thread over the LOW panel only); grok only animates the existing thread downward; B2 fallback on 2 strikes"
    }
   ]
  },
@@ -543,7 +545,9 @@
     "sheets": [
      "loc_parapet_wall.png",
      "loc_reservoir_breached.png"
-    ]
+    ],
+    "lane": "grok-verb",
+    "note": "panel collapse = acting verb; watch object permanence; B2 composite fallback on 2 strikes"
    }
   ]
  },
@@ -567,7 +571,9 @@
     "sheets": [
      "loc_reservoir_breached.png",
      "loc_upper_reservoir.png"
-    ]
+    ],
+    "lane": "grok-verb",
+    "note": "level visibly dropping through the breach; if grok holds the level static or reverses, B2 (deterministic drained endpoint) on 2 strikes"
    },
    {
     "label": "Down the mountain",
@@ -695,7 +701,9 @@
     "motion_prompt": "a hand slides a printed call list across the desk under the lamp and a finger settles at the top of the column of names",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "lane": "doc-card-candidate",
+    "note": "printed call list = screen-trap analog; if the gen's text is garbled, swap b1+b2 for a hand-inked call-list card (seg_011/013 precedent) BEFORE operator review"
    },
    {
     "label": "Jerry on the list",
@@ -704,7 +712,9 @@
     "motion_prompt": "the finger runs down the printed list and stops on a name partway down, tapping it once; lamplight, dim office",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "lane": "doc-card-candidate",
+    "note": "see b1; the name TOOPS must be legibly real, not gibberish"
    },
    {
     "label": "Dialing",

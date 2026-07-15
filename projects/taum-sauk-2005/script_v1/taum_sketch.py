@@ -518,3 +518,68 @@ def taum_email013(C):
 
 SCENES["seg_011"] = (taum_email011, EMAIL11_CUES)
 SCENES["seg_013"] = (taum_email013, EMAIL13_CUES)
+
+
+# ===========================================================================
+# seg_022 b1+b2 — the emergency call list: real readable rows, Toops ringed
+# ===========================================================================
+CALL22_CUES = {"list": "emergency call list", "jerry": "Jerry Toops",
+               "supt": "park superintendent"}
+
+CALL22_ROWS = [
+    ("PLANT MANAGER", "ext. 200"),
+    ("SHIFT SUPERVISOR - OSAGE", "ext. 214"),
+    ("PLANT ENGINEER", "ext. 221"),
+    ("SECURITY GATE", "ext. 101"),
+    ("REYNOLDS CO. SHERIFF", "dispatch"),
+    ("J. TOOPS - PARK SUPT., JOHNSON'S SHUT-INS", "residence"),
+    ("MODOT DISTRICT 9", "dispatch"),
+    ("AMEREN ST. LOUIS DUTY DESK", "ext. 500"),
+]
+TOOPS_ROW = 5
+
+
+def taum_call22(C):
+    def draw(ax, t, dur):
+        from matplotlib.patches import FancyBboxPatch, Ellipse
+        pa = reveal(t, 0.2, 0.6)
+        bp = 0.12 + _boil(t, key=11, amp=0.012)
+        ax.add_patch(FancyBboxPatch((1.3, 1.3), 7.4, 7.4, boxstyle=f"round,pad={bp:.4f}",
+                                    linewidth=2.5 + _boil(t, key=12, amp=0.3),
+                                    edgecolor=AMBER_D, facecolor="#101c30",
+                                    alpha=min(1.0, pa), zorder=2))
+        text(ax, 5, 8.15, "EMERGENCY CALL LIST", 27, AMBER, alpha=pa, stroke=1.2)
+        text(ax, 5, 7.55, "Taum Sauk Plant  -  December 14, 2005", 15, MUTE, alpha=pa)
+        uy = 7.2 + _boil(t, key=13, amp=0.03)
+        ax.plot([1.7, 8.3], [uy, uy + 0.02], color=AMBER_D, lw=1.5, alpha=pa * 0.8, zorder=3)
+        t0 = C["list"] + 0.2
+        y0, dy = 6.7, 0.62
+        for r, (name, ext) in enumerate(CALL22_ROWS):
+            rt = t0 + r * 0.45
+            rr = reveal(t, rt, 0.35)
+            if rr <= 0.01:
+                continue
+            hot = r == TOOPS_ROW
+            col = AMBER_HOT if (hot and t >= C["jerry"]) else CREAM
+            y = y0 - r * dy
+            a, live, _k = _type_on(ax, 1.95, y, name, 16.5, col, t, rt, rt + 0.4)
+            text(ax, 8.05, y, ext, 13, MUTE, alpha=rr * 0.9, ha="right")
+            dots_x0 = 1.95 + 0.115 * len(name)
+            if dots_x0 < 6.9:
+                ax.plot([dots_x0 + 0.15, 6.95], [y - 0.05, y - 0.05], color=MUTE,
+                        lw=1.0, ls=":", alpha=rr * 0.5, zorder=3)
+        # the ring lands on 'Jerry Toops'
+        rz = reveal(t, C["jerry"], 0.7)
+        if rz > 0.01:
+            y = y0 - TOOPS_ROW * dy
+            e = Ellipse((4.45, y + 0.05), 5.4 * min(1.0, rz + 0.15), 0.72,
+                        fill=False, edgecolor=AMBER_HOT,
+                        lw=3 + _boil(t, key=14, amp=0.5), alpha=min(1.0, rz), zorder=6)
+            ax.add_patch(e)
+            text(ax, 5, 1.72, "lives DIRECTLY below the dam", 16, AMBER_HOT,
+                 alpha=reveal(t, C.get("supt", C["jerry"] + 1.2), 0.5))
+        taum_footer(ax, t)
+    return draw
+
+
+SCENES["seg_022_card"] = (taum_call22, CALL22_CUES)
