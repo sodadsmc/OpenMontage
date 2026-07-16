@@ -1146,7 +1146,8 @@ def render_frame(draw, t, dur, out_png, bg="inked", seed=1000):
 
 def render_template(template: str | Callable, duration_s: float,
                     out_path: str | Path, fps: int = 15, boil: int = 5,
-                    finish: bool = True, out_fps: int = 30) -> str | None:
+                    finish: bool = True, out_fps: int = 30,
+                    boil_grain: bool = False) -> str | None:
     """Render a scene to a 1920x1080 @ `out_fps` (default 30) CFR mp4.
 
     `template` is a registered scene name, or a draw(ax, t, dur) callable
@@ -1190,9 +1191,16 @@ def render_template(template: str | Callable, duration_s: float,
             raw = out_path.with_name(out_path.stem + "_raw.mp4")
             # Frames are already 1920x1080 (19.2x10.8in @ 100dpi) — encode them
             # at full size; -r duplicates the 15fps frames up to out_fps CFR.
+            # boil_grain: matplotlib's path.sketch wobble is DETERMINISTIC per
+            # path, so a scene that holds static alpha (post-reveal) renders
+            # pixel-near-identical frames — the freeze gate flags it as a dead
+            # still. Faint TEMPORAL grain (reseeded per output frame) gives the
+            # hand-drawn "boiling paper" look and keeps frame-delta above the
+            # freeze floor everywhere, with zero geometry jitter on text.
+            vf = "noise=alls=9:allf=t,format=yuv420p" if boil_grain else "format=yuv420p"
             cmd = ["ffmpeg", "-y", "-loglevel", "error",
                    "-framerate", str(fps), "-i", str(tdp / "f%05d.png"),
-                   "-r", str(out_fps), "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                   "-r", str(out_fps), "-vf", vf, "-c:v", "libx264",
                    "-an", str(raw)]
             subprocess.run(cmd, check=True, capture_output=True, timeout=900)
 

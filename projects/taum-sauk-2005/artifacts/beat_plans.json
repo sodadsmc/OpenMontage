@@ -479,7 +479,7 @@
     "label": "Water at the brim",
     "phrase_anchor": "water is already finding the top of the wall",
     "keyframe_prompt": "Night: black water trembling right at the very top edge of the concrete parapet wall at its lowest panel, about to spill.",
-    "motion_prompt": "black water trembles right at the top edge of the concrete wall in the dark, quivering and swelling, about to spill over",
+    "motion_prompt": "black water trembles right at the top edge of the concrete wall in the dark, quivering and swelling, about to spill over; the lake stays FULL to the very top of the wall the whole time, it does NOT drop and does NOT spill yet; all motion is gentle lapping at the lip; locked camera, wall rigid, no morphing",
     "sheets": [
      "loc_parapet_wall.png"
     ]
@@ -504,7 +504,7 @@
     "label": "Water is a saw",
     "phrase_anchor": "Water over rockfill is a saw",
     "keyframe_prompt": "A widening sheet of black water pouring over the parapet wall and cutting into the loose rockfill below, rocks loosening, night.",
-    "motion_prompt": "a widening sheet of black water pours over the wall and saws into the loose rockfill below, rocks tumbling loose as a channel begins to cut",
+    "motion_prompt": "a widening sheet of black water pours over the wall and saws into the loose rockfill below, rocks tumbling loose as a channel begins to cut; all water flows strictly DOWNWARD over the wall and down the slope, never upward or back into the lake; the lake stays flush with the top of the wall; locked camera, wall rigid",
     "sheets": [
      "loc_parapet_wall.png"
     ]
@@ -541,7 +541,7 @@
     "label": "Panel 72 lets go",
     "phrase_anchor": "the wall at panel seventy-two let go",
     "keyframe_prompt": "A whole section of concrete parapet tilting, cracking and collapsing forward into a surging black torrent, night.",
-    "motion_prompt": "a whole section of concrete parapet tilts, cracks and collapses forward into the surging black torrent; catastrophic failure",
+    "motion_prompt": "a whole section of concrete parapet tilts, cracks and collapses forward into the surging black torrent; catastrophic failure; the wall falls AWAY from the lake and the torrent blasts OUTWARD down the outer slope, never back toward the lake; all debris tumbles downhill",
     "sheets": [
      "loc_parapet_wall.png",
      "loc_reservoir_breached.png"
@@ -579,7 +579,7 @@
     "label": "Down the mountain",
     "phrase_anchor": "went down Proffit Mountain",
     "keyframe_prompt": "A wall of water, rock and shredded trees roaring down a dark forested mountainside, mowing the forest flat.",
-    "motion_prompt": "a wall of water, rock and shredded forest roars down the dark mountainside, mowing the trees flat as it races downhill",
+    "motion_prompt": "a wall of water, rock and shredded forest roars down the dark mountainside, mowing the trees flat as it races downhill; all water and debris move strictly DOWNHILL away from the reservoir; locked camera",
     "sheets": [
      "loc_valley_scour.png",
      "loc_proffit_mountain.png"
@@ -623,7 +623,7 @@
     "label": "Bedroom fills",
     "phrase_anchor": "bedroom filled before he could stand",
     "keyframe_prompt": "A child's small dark bedroom flooding fast, black water rising over a bed and scattered toys, night.",
-    "motion_prompt": "black water floods the child's small bedroom, rising fast over the bed and toys within seconds in the dark",
+    "motion_prompt": "black water floods the child's small bedroom, rising fast over the bed and toys within seconds in the dark; the water level RISES steadily, it never falls; locked camera, walls rigid, no morphing",
     "sheets": [
      "loc_toops_house.png"
     ]
