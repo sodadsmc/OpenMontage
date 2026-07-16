@@ -90,14 +90,14 @@ def animate(kf, motion, span, out, seed):
         except Exception as e:
             print(f"    grok attempt {attempt+1} failed: {str(e)[:90]}", flush=True)
     if not clip or not Path(clip).exists():
-        # last resort: gentle push on the (clean, action-carrying) keyframe
-        print(f"    -> PUSH FALLBACK for {Path(out).name}", flush=True)
-        n = round(span * FPS)
-        vf = (f"scale=3840:2160:flags=lanczos,zoompan=z='1+0.05*on/NF':d={n}"
-              f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps={FPS},format=yuv420p").replace("NF", str(n))
-        run(["ffmpeg", "-y", "-loop", "1", "-i", str(kf), "-frames:v", str(n), "-vf", vf,
-             "-c:v", "libx264", "-preset", "fast", "-crf", "18", "-an", str(out)])
-        clip = out
+        # NO push fallback: a slow push is Ken Burns (banned mid-narration,
+        # workflow §4), and the old fallback also fed the conform step
+        # input==output (in-place ffmpeg -> crash + a poisoned artifact that
+        # the reuse guard then mistook for a real take). Leave the beat
+        # missing so a later run re-animates it, per the two-strike rule.
+        raise RuntimeError(f"beat {Path(out).name} failed all grok attempts; "
+                           "push fallback disabled (Ken Burns ban) — retry "
+                           "later or route to FLF/gemini per the escalation rule")
     # border-safe: crop clip if a border slipped through
     vf = NORM
     hits = video_border_hits(clip, 0, min(3, durof(clip)))
