@@ -17,7 +17,7 @@ for line in open(".env", encoding="utf-8"):
         if v: os.environ.setdefault(k, v)
 from PIL import Image
 from lib.gemini_image import gemini_image
-from lib.frame_hygiene import find_border_box, video_border_hits
+from lib.frame_hygiene import find_border_box, video_border_hits, zoom_still
 from lib import visual_router as vr
 
 PROJ = Path("projects/taum-sauk-2005")
@@ -176,7 +176,16 @@ def build_scene(plan, seed0):
         diss = scene_diss or b.get("dissolve_in", False)
         beat = WORK / f"{sid}_b{i}.mp4"
         if beat.exists() and abs(durof(beat) - span) < 0.15:
-            parts.append(beat); flags.append(diss); print(f"  {sid} b{i} reuse [{s}-{e}] {span:.1f}s", flush=True); continue
+            # duration match is NOT identity: a crashed push-fallback artifact
+            # matched the span and shipped Ken Burns twice (act 4). A beat only
+            # reuses if its motion is REAL (zoom-compensated check).
+            verdict, raw, res = zoom_still(beat)
+            if verdict == "zoom-still":
+                print(f"  {sid} b{i}: REUSE REFUSED — zoom-on-still artifact "
+                      f"(raw {raw:.1f} -> residual {res:.1f}); re-animating", flush=True)
+                beat.unlink()
+            else:
+                parts.append(beat); flags.append(diss); print(f"  {sid} b{i} reuse [{s}-{e}] {span:.1f}s", flush=True); continue
         kf = WORK / f"{sid}_b{i}.png"
         if not author_kf(b["keyframe_prompt"], b.get("sheets", []), kf):
             print(f"  {sid} b{i}: KF FAIL"); continue

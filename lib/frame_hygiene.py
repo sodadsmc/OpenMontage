@@ -203,6 +203,52 @@ def gray_stream(src: str | Path, start: float = 0.0, dur: float | None = None,
     return np.frombuffer(r.stdout[: n * w * h], dtype=np.uint8).reshape(n, h, w)
 
 
+def zoom_still(src: str | Path, size: tuple[int, int] = (320, 180)):
+    """Detect a Ken-Burns push impersonating motion: a slow zoom on a STILL
+    generates healthy frame deltas that fool naive freeze/motion scans (this
+    certified two crashed push-fallback artifacts as 'animated' on taum act-4;
+    the operator's eyes caught them, the metric did not).
+
+    Method: take frames at 10%/90% of the clip; try to EXPLAIN the late frame
+    as a centered zoom (1.00-1.16x) + small shift of the early frame. If the
+    best fit removes most of the apparent motion, nothing in the scene actually
+    moved — it's a zoom-on-still.
+
+    Returns (verdict, raw_delta, residual) with verdict in
+    {'static', 'zoom-still', 'real'}.
+    """
+    from PIL import Image as _Im
+    d = probe_duration(src)
+    w, h = size
+    fr = []
+    for t in (d * 0.1, d * 0.9):
+        f = gray_stream(src, start=t, dur=0.05, fps=30, size=size)
+        if len(f) == 0:
+            return "real", 0.0, 0.0   # unreadable — don't false-flag
+        fr.append(f[0].astype(float))
+    f0, f1 = fr
+    raw = float(np.abs(f1 - f0).mean())
+    if raw < 0.5:
+        return "static", raw, raw
+    best = raw
+    im0 = _Im.fromarray(f0.astype(np.uint8))
+    for z in np.linspace(1.0, 1.16, 17):
+        zw, zh = int(round(w * z)), int(round(h * z))
+        big = np.asarray(im0.resize((zw, zh), _Im.BILINEAR), float)
+        x0, y0 = (zw - w) // 2, (zh - h) // 2
+        for dx in (-3, 0, 3):
+            for dy in (-2, 0, 2):
+                xx, yy = x0 + dx, y0 + dy
+                if xx < 0 or yy < 0 or xx + w > zw or yy + h > zh:
+                    continue
+                res = float(np.abs(f1 - big[yy:yy + h, xx:xx + w]).mean())
+                if res < best:
+                    best = res
+    if best < 0.38 * raw and raw > 1.2:
+        return "zoom-still", raw, best
+    return "real", raw, best
+
+
 def freeze_tail(src: str | Path, slot_end: float | None = None,
                 window_s: float = 8.0, still_thresh: float = 0.35,
                 min_freeze_s: float = 1.5, fps: int = 6):
