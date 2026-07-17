@@ -203,29 +203,38 @@ def gray_stream(src: str | Path, start: float = 0.0, dur: float | None = None,
     return np.frombuffer(r.stdout[: n * w * h], dtype=np.uint8).reshape(n, h, w)
 
 
-def motion_floor(src: str | Path, floor: float = 4.0, fps: int = 6,
-                 size: tuple[int, int] = (320, 180)):
-    """Measure whether a FOOTAGE beat carries enough real motion to not read as
-    a still. The third QC leg alongside `zoom_still` (fake/push motion) and
-    `freeze_tail` (dead tail): this one catches INSUFFICIENT real motion — a beat
-    that isn't frozen and isn't a push but is still so subtle it reads static
-    (deterministic lake shimmer, a blinking beacon on a held frame ≈ 0.1–3).
-    The operator caught four of these across taum acts 4–5; the freeze/zoom scans
-    passed them all.
+def motion_floor(src: str | Path, frame_floor: float = 0.4, span_floor: float = 1.5,
+                 fps: int = 6, size: tuple[int, int] = (320, 180)):
+    """Detect a beat that is ESSENTIALLY A STILL — the third QC leg alongside
+    `zoom_still` (fake/push motion) and `freeze_tail` (dead tail). This one
+    catches a beat that isn't frozen and isn't a push but has so little real
+    change it reads dead (deterministic lake shimmer, a blinking beacon on a
+    held frame). The operator caught several of these across taum acts 4–5; the
+    freeze/zoom scans passed them all.
 
-    Returns (mean_motion, reads_static). Apply the floor ONLY to establishing /
-    hero / landscape / closing FOOTAGE beats — hand-inked cards, diagrams, and
-    close quiet inserts are legitimately low-motion and must be exempted by the
-    caller (they are not footage). Default floor 4.0 separates the operator's
-    "too static" rejects (≤3) from accepted real takes (grok/Omni footage 4–20).
+    Uses TWO signals, because consecutive-frame delta ALONE undercounts slow-
+    but-real motion (a wall sagging over 7s scores frame≈0.2 yet clearly moves —
+    its START→END delta is large). A beat is "dead" only when BOTH are low:
+      - frame delta (mean |Δ| between consecutive sampled frames)  < frame_floor
+      - span  delta (|last − first| frame)                         < span_floor
+    Calibrated on taum: dead inserts read (0.13, 0.35); an accepted slow sag
+    reads (0.21, 5.3); accepted grok footage (1.4, 12+). Returns
+    (frame_mean, span_delta, reads_dead).
+
+    This is a COARSE aid, not an authority: a LONG hero/establishing shot with
+    technically-nonzero-but-tiny motion can still read static to the operator
+    (a role/duration judgment no single metric replicates — see the
+    'deterministic shimmer is not animated footage' rule). Exempt cards,
+    diagrams, and close quiet inserts at the call site.
     """
     d = probe_duration(src)
     g = gray_stream(src, start=0.0, dur=d, fps=fps, size=size).astype(float)
     if len(g) < 2:
-        return 0.0, True
-    deltas = np.abs(np.diff(g, axis=0)).mean(axis=(1, 2))
-    m = float(deltas.mean())
-    return m, m < floor
+        return 0.0, 0.0, True
+    frame_mean = float(np.abs(np.diff(g, axis=0)).mean())
+    span_delta = float(np.abs(g[-1] - g[0]).mean())
+    reads_dead = frame_mean < frame_floor and span_delta < span_floor
+    return frame_mean, span_delta, reads_dead
 
 
 def zoom_still(src: str | Path, size: tuple[int, int] = (320, 180)):

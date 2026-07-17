@@ -234,12 +234,12 @@ def qc_clip(clip: str, slot: float | None = None) -> dict:
     if fz:
         findings.append({"check": "freeze", "at": fz[0],
                          "detail": f"static for {fz[1]}s at tail"})
-    mean_motion, reads_static = motion_floor(clip)
-    if reads_static:
-        findings.append({"check": "low-motion", "at": 0.0,
-                         "detail": f"mean motion {mean_motion:.2f} - reads STATIC if "
-                                   "this is a footage/establishing/hero beat (upgrade to "
-                                   "a real camera/water take); OK only for a card/diagram/"
+    frame_mean, span_delta, reads_dead = motion_floor(clip)
+    if reads_dead:
+        findings.append({"check": "dead-still", "at": 0.0,
+                         "detail": f"frame Δ {frame_mean:.2f}, span Δ {span_delta:.2f} - "
+                                   "essentially a STILL; upgrade if this is a footage/"
+                                   "establishing/hero beat, OK only for a card/diagram/"
                                    "quiet insert"})
     for t, n in flash_frames(clip):
         findings.append({"check": "flash", "at": t,
