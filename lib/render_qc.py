@@ -237,8 +237,8 @@ def qc_clip(clip: str, slot: float | None = None) -> dict:
     frame_mean, span_delta, reads_dead = motion_floor(clip)
     if reads_dead:
         findings.append({"check": "dead-still", "at": 0.0,
-                         "detail": f"frame Δ {frame_mean:.2f}, span Δ {span_delta:.2f} - "
-                                   "essentially a STILL; upgrade if this is a footage/"
+                         "detail": f"frame delta {frame_mean:.2f}, span delta {span_delta:.2f}"
+                                   " - essentially a STILL; upgrade if this is a footage/"
                                    "establishing/hero beat, OK only for a card/diagram/"
                                    "quiet insert"})
     for t, n in flash_frames(clip):
