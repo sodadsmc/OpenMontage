@@ -583,3 +583,65 @@ def taum_call22(C):
 
 
 SCENES["seg_022_card"] = (taum_call22, CALL22_CUES)
+
+
+# ===========================================================================
+# seg_023 — what the investigation found: four hollowed layers, one at a time
+# ===========================================================================
+INVEST23_CUES = {"trust": "design of trust", "anchor": "re-anchored",
+                 "offset": "offset instead of a repair", "silent": "wired to stay silent",
+                 "sinking": "above the top of a sinking wall", "hollow": "hollowed out",
+                 "reasonable": "one reasonable decision"}
+
+INVEST23_ROWS = [
+    ("anchor",  "SENSORS",        "never re-anchored"),
+    ("offset",  "SOFTWARE",       "an offset instead of a repair"),
+    ("silent",  "WARNING PROBES", "wired to stay silent"),
+    ("sinking", "FAIL-SAFE",      "set above a sinking wall"),
+]
+
+
+def taum_invest23(C):
+    def draw(ax, t, dur):
+        from matplotlib.patches import FancyBboxPatch
+        tz = reveal(t, C["trust"], 0.6)
+        glow = 1.0 if tz < 1 else 0.88 + 0.12 * (0.5 + 0.5 * np.sin(t * 1.8))
+        text(ax, 5, 9.2, "THE DESIGN OF TRUST", 34, AMBER, alpha=tz * glow, stroke=1.4)
+        text(ax, 5, 8.55, "what the investigation found  -  2006", 16, MUTE, alpha=tz)
+        pa = reveal(t, C["trust"] + 0.4, 0.7)
+        if pa > 0.01:
+            bp = 0.12 + _boil(t, key=21, amp=0.012)
+            ax.add_patch(FancyBboxPatch((2.55, 2.0), 4.9, 5.9, boxstyle=f"round,pad={bp:.4f}",
+                                        linewidth=2.5 + _boil(t, key=22, amp=0.3),
+                                        edgecolor=AMBER_D, facecolor="#101c30",
+                                        alpha=min(1.0, pa), zorder=2))
+        y0, dy = 7.15, 1.28
+        last_art = last_y = None
+        for r, (cue, layer, what) in enumerate(INVEST23_ROWS):
+            rz = reveal(t, C[cue] - 0.9, 0.5)
+            if rz <= 0.01:
+                continue
+            y = y0 - r * dy
+            text(ax, 3.0, y, layer, 21, AMBER_HOT, alpha=rz, ha="left", stroke=1.0)
+            a, live, _k = _type_on(ax, 3.05, y - 0.52, what, 17, CREAM, t,
+                                   C[cue] - 0.7, C[cue] + 0.5)
+            if a is not None:
+                last_art, last_y = a, y - 0.52
+            # each layer gets struck through on 'hollowed out'
+            hz = reveal(t, C["hollow"] + r * 0.25, 0.4)
+            if hz > 0.01:
+                sy = y + 0.05 + _boil(t, key=30 + r, amp=0.03)
+                x1 = 2.9 + (0.45 + 0.135 * len(layer)) * min(1.0, hz)
+                ax.plot([2.9, x1], [sy, sy - 0.04], color=AMBER_HOT,
+                        lw=3.5, alpha=0.9, zorder=6)
+        if last_art is not None:
+            _caret(ax, last_art, last_y, t)
+        rz = reveal(t, C["reasonable"], 0.6)
+        if rz > 0.01:
+            text(ax, 5, 2.45, "one reasonable decision at a time", 20, CREAM,
+                 alpha=rz, stroke=1.0)
+        taum_footer(ax, t)
+    return draw
+
+
+SCENES["seg_023_card"] = (taum_invest23, INVEST23_CUES)

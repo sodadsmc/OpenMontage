@@ -793,7 +793,9 @@
     "motion_prompt": "water flows in a smooth controlled sheet down the new engineered concrete spillway channel; finally somewhere for it to go",
     "sheets": [
      "loc_rebuilt_dam.png"
-    ]
+    ],
+    "lane": "grok-pinned-water",
+    "note": "controlled spillway sheet flows strictly DOWNWARD; pin direction in motion prompt; B2 fallback on 2 strikes"
    }
   ]
  },
@@ -804,7 +806,7 @@
     "label": "Shut-ins in sun",
     "phrase_anchor": "The Toops family moved away",
     "keyframe_prompt": "The restored park in summer: bright water running and tumbling through the pink granite shut-ins gorge, sunlit.",
-    "motion_prompt": "bright clear water runs and tumbles through the pink granite shut-ins in the summer sunlight, sparkling and alive",
+    "motion_prompt": "bright summer water tumbles steadily DOWNSTREAM through the granite channels of the gorge, foliage shimmering in a light breeze, warm sun; gentle ambient life, locked camera, no morphing",
     "sheets": [
      "loc_shutins.png"
     ]
@@ -813,7 +815,7 @@
     "label": "Swimmers again",
     "phrase_anchor": "shut-ins filled with swimmers again",
     "keyframe_prompt": "Small distant figures wading and playing in the bright water among the granite of the shut-ins, summer.",
-    "motion_prompt": "small distant figures wade and splash in the bright water among the granite; life returned to the gorge",
+    "motion_prompt": "the small distant swimmers wade and splash in the bright water, one pushes off a rock and drifts, sun sparkling on the surface; playful gentle motion, locked camera, no morphing",
     "sheets": [
      "loc_shutins.png"
     ]
@@ -822,7 +824,7 @@
     "label": "No dead",
     "phrase_anchor": "A disaster with no dead",
     "keyframe_prompt": "Wide serene view of the healed green valley and the bright shut-ins water in summer sun.",
-    "motion_prompt": "sunlight and shadow move over the healed green valley as the bright water keeps running through the granite; peaceful",
+    "motion_prompt": "very calm: slow light drift across the healed green valley, the water glinting softly, a bird crosses far off; serene and still-ish, elegiac, locked camera, no morphing",
     "sheets": [
      "loc_shutins.png"
     ]
@@ -830,11 +832,12 @@
    {
     "label": "Permission to happen",
     "phrase_anchor": "got permission to happen",
-    "keyframe_prompt": "The bright shut-ins water running steadily over the pink granite, indifferent and calm, summer.",
-    "motion_prompt": "the bright water keeps running steadily over the granite, indifferent; a slow, quietly unsettling settle",
+    "keyframe_prompt": "CLOSE-UP: bright water running hard over smooth pink granite, churning through a narrow channel, sun glinting, spray beads on stone.",
+    "motion_prompt": "close on the current: bright water courses relentlessly over the pink granite, spray flicking, sun glinting off the moving surface; the water just keeps running, indifferent; all flow strictly downstream, locked camera, no morphing",
     "sheets": [
      "loc_shutins.png"
-    ]
+    ],
+    "note": "re-rolled from the b1-twin wide to a detail close-up (operator: too many same pictures 00:58-1:19)"
    }
   ]
  },
@@ -866,7 +869,9 @@
     "motion_prompt": "a slow push toward one small red indicator light blinking alone on the instrument mast above the still black water",
     "sheets": [
      "loc_rebuilt_dam.png"
-    ]
+    ],
+    "lane": "det-blink",
+    "note": "single red light blinking = precise counted state; deterministic blink build at animation time, NOT grok"
    },
    {
     "label": "Believes a number",
@@ -875,7 +880,9 @@
     "motion_prompt": "the single red light blinks alone above the black water; hold, and darkness slowly closes in around it",
     "sheets": [
      "loc_rebuilt_dam.png"
-    ]
+    ],
+    "lane": "det-blink",
+    "note": "closer: lone red light over black water; deterministic blink + faint water shimmer; the quiet final beat"
    }
   ]
  }
