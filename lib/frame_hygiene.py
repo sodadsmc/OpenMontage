@@ -203,6 +203,31 @@ def gray_stream(src: str | Path, start: float = 0.0, dur: float | None = None,
     return np.frombuffer(r.stdout[: n * w * h], dtype=np.uint8).reshape(n, h, w)
 
 
+def motion_floor(src: str | Path, floor: float = 4.0, fps: int = 6,
+                 size: tuple[int, int] = (320, 180)):
+    """Measure whether a FOOTAGE beat carries enough real motion to not read as
+    a still. The third QC leg alongside `zoom_still` (fake/push motion) and
+    `freeze_tail` (dead tail): this one catches INSUFFICIENT real motion — a beat
+    that isn't frozen and isn't a push but is still so subtle it reads static
+    (deterministic lake shimmer, a blinking beacon on a held frame ≈ 0.1–3).
+    The operator caught four of these across taum acts 4–5; the freeze/zoom scans
+    passed them all.
+
+    Returns (mean_motion, reads_static). Apply the floor ONLY to establishing /
+    hero / landscape / closing FOOTAGE beats — hand-inked cards, diagrams, and
+    close quiet inserts are legitimately low-motion and must be exempted by the
+    caller (they are not footage). Default floor 4.0 separates the operator's
+    "too static" rejects (≤3) from accepted real takes (grok/Omni footage 4–20).
+    """
+    d = probe_duration(src)
+    g = gray_stream(src, start=0.0, dur=d, fps=fps, size=size).astype(float)
+    if len(g) < 2:
+        return 0.0, True
+    deltas = np.abs(np.diff(g, axis=0)).mean(axis=(1, 2))
+    m = float(deltas.mean())
+    return m, m < floor
+
+
 def zoom_still(src: str | Path, size: tuple[int, int] = (320, 180)):
     """Detect a Ken-Burns push impersonating motion: a slow zoom on a STILL
     generates healthy frame deltas that fool naive freeze/motion scans (this

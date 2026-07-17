@@ -144,6 +144,23 @@ button on a take. RULES, all paid-for:
   after any edit (the normal take QC applies).
 - **Never auto-routed.** `supports` flags are all False; reachable only by explicit
   provider or the omni edit button.
+- **KIE-OUTAGE PRIMARY LANE (proven taum acts 4–5, 2026-07-14→17).** When the KIE host is
+  down, BOTH Grok and Kling 500/timeout for hours — Grok ran 0-for-~40 across a multi-day
+  window. Omni is a different provider (Google) and stayed up throughout, landing ~14/14
+  real takes including figure locomotion and drone moves. **Protocol:** probe KIE ONCE
+  (one real Grok call); if it fails, route the WHOLE batch's paid beats to Omni instead of
+  paying a 2-strike + retry-loop tax on every beat. Judge on $/landed-take: Omni's $0.10/s
+  beats $0.10/attempt-that-never-lands.
+- **STYLE-LOCK on establishing/landscape shots.** Omni drifts toward PHOTOREALISM on wide
+  natural scenes (a valley drift went photographic mid-clip). Every Omni prompt for a
+  stylized film MUST hard-lock the medium: *"FLAT 2D hand-drawn comic-book illustration,
+  bold black outlines, halftone dot shading, <palette> duotone, the WHOLE time — do NOT make
+  it photorealistic, do NOT make it a 3D render, do NOT add realistic lighting."* Verify the
+  END frame matches the START's medium, not just the START.
+- **Locomotion passes the safety gate; disaster IMAGES may not.** "Rescuers walk carefully
+  carrying the children" landed (careful movement ≠ a reaction). But some aftermath IMAGES
+  are input-blocked regardless of prompt — neutralize the wording ("a quiet winter morning
+  by the water") or route that beat deterministic.
 
 **Lane D — GROK i2v** — *gross / ambient motion that stages the narration verb.* Grok renders gross subject + camera motion well (walking, slamming, sweeping, a crane-back reveal, atmospheric drift). This is the workhorse — the kept seg_001–seg_009 are 100% Grok.
 - *Examples this episode:* the dose needle "driven violently across the dial and slams the stop"; eyes "snap open"; code "scrolls and races" up a CRT (stage the CRT as a blown-out amber glow — see the Grok screen trap). Find the verb in the narration line and stage it as a SUBJECT physically acting + a camera move.
@@ -312,6 +329,8 @@ Stage state is derived from the append-only feedback log (event types
 - **Sketch holds must boil.** DON'T let a sketch/manim scene hold a static frame — matplotlib's `path.sketch` wobble is deterministic per path, so a hold renders pixel-identical (a dead still). DO nudge path geometry every ⅓s (`_boil()` in taum_sketch.py), ride typewriter text with a blinking caret, and gate with the freeze-scan: no ≥3s stretch under 0.35 mean delta at 1fps.
 - **Pixel delta is not motion.** DON'T certify a beat as animated because frames differ — a slow zoom on a still (+ grain) generates healthy deltas and sailed through the freeze scan twice (taum act-4; the operator's eyes caught it, the metric didn't). DO gate with `lib.frame_hygiene.zoom_still()` (zoom-compensated residual): if a centered 1.00–1.16x zoom+shift of the early frame explains away the "motion", it's a Ken Burns artifact. Wired into beat_exec's reuse guard.
 - **Duration match is not identity.** DON'T let a resume/reuse guard accept a beat file on span-match alone — crashed fallbacks leave span-matching artifacts that impersonate finished takes. DO require the motion check on reuse, and after ANY batch crash purge fallback artifacts from a **grep of the logs** (every fallback line), never from memory — the two artifacts that shipped were created by a later run than the purge list covered.
+- **Deterministic shimmer is not "animated" footage.** DON'T ship a subtle deterministic build (lake shimmer, glow-breath, a blinking beacon on a held frame — mean 1fps motion ≈ 0.1–3) on an ESTABLISHING / HERO / LANDSCAPE / CLOSING shot. The operator read every one of these as "just a still / too static / just blinking lights" (taum notes at 1:02, 1:16, 2:16, 1:51-end). WHY: low-amplitude local motion doesn't sell a wide/quiet shot — those need **real camera motion (drone push/drift) or strong water/subject motion** from Grok or Omni. Deterministic motion is correct ONLY for: hand-inked cards/diagrams (the boil + typewriter), close quiet INSERTS (a CRT flicker, a gauge needle), and as SECONDARY life layered on a beat that already carries primary motion. When in doubt on a footage beat, spend the paid take.
+- **Motion floor gate (footage beats).** DON'T certify a footage beat as animated on the freeze/zoom scan alone — a beat can clear freeze (not frozen) and clear zoom_still (not a push) yet still read static. DO run `lib.frame_hygiene.motion_floor(clip)`; a beat tagged footage/establishing/hero must clear the floor (~mean 4 at 6fps). Cards, diagrams, and quiet inserts are exempt (declare them). This is the third leg with `zoom_still` (fake motion) and `freeze_tail` (dead tail): motion_floor catches *insufficient real motion*.
 - **Omni is the KIE-outage lane.** When Grok AND Kling 500 for hours (same host), Omni Flash (Google) is a working third lane: careful figure LOCOMOTION ("walk carefully carrying the children") passes its safety gate first-try — it blocks *reactions*, not walking/carrying. Some disaster-aftermath IMAGES are input-blocked regardless of prompt — those beats go deterministic.
 
 ### Polish-pass rules (codified from the therac-25 rounds 1-4, 2026-07)
