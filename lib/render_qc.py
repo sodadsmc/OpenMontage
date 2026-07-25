@@ -260,6 +260,77 @@ def qc_clip(clip: str, slot: float | None = None) -> dict:
     return {"clip": clip, "duration_s": dur, "findings": findings}
 
 
+# What "enough motion" means depends on the shot's job. Floors below are fitted
+# to the taum corpus using the operator's own verdicts as labels — BOTH the
+# rejects and the accepted-but-subtle shots, because fitting to rejects alone
+# produced four false alarms on shots the operator had approved:
+#   rejected  det beacon 0.11/0.68 · det calm 0.18/3.34
+#   accepted  slosh+rain 0.93/1.49 · FLF thread 0.69/2.19 · ambient closer 0.44/2.26
+#             det sag 0.21/5.26 (slow but real — the SPAN check is what saves it)
+# A beat is flagged only when BOTH frame and span fall under its role's floor.
+# Small corpus: treat this as advisory triage, not a verdict.
+_ROLE_FLOOR = {           # role: (frame_floor, span_floor)
+    "establishing": (0.40, 4.0),
+    "hero":         (0.40, 4.0),
+    "action":       (0.35, 3.0),
+    "insert":       (0.15, 0.8),
+    "connective":   (0.12, 0.5),
+    "card":         (0.0, 0.0),   # exempt: authored boil is intentionally tiny
+}
+
+
+def _role_for_duration(role: str, dur: float) -> str:
+    """Demote a role that the clip's own length can't support. A 1.6s bridge is
+    not a hero shot no matter what the prompt describes (this mis-inference
+    false-flagged seg_018_b4)."""
+    if dur < 2.5 and role in ("establishing", "hero", "action"):
+        return "connective"
+    if dur < 4.0 and role in ("establishing", "hero"):
+        return "action"
+    return role
+
+
+def qc_beats(project_id: str, plans: str | None = None) -> list[dict]:
+    """Post-generation sweep of every beat clip against its declared shot ROLE.
+
+    The third leg of motion QC, and the one that needs the plan: `zoom_still`
+    catches fake (push) motion and `freeze_tail` catches dead tails, but whether
+    a given amount of REAL motion is ENOUGH is a function of the shot's job.
+    Returns findings; an empty list means the cut is clean.
+    """
+    from lib.frame_hygiene import motion_floor, zoom_still
+    from lib.beat_lint import suggest_role
+
+    root = Path(__file__).resolve().parent.parent
+    pp = Path(plans) if plans else (root / "projects" / project_id /
+                                    "artifacts" / "beat_plans.json")
+    data = json.loads(pp.read_text(encoding="utf-8"))
+    bdir = root / "projects" / project_id / "assets" / "ai_segments" / "_beats"
+    out: list[dict] = []
+    for scene in data:
+        sid = scene.get("scene_id")
+        for i, b in enumerate(scene.get("beats") or [], 1):
+            clip = bdir / f"{sid}_b{i}.mp4"
+            if not clip.is_file():
+                continue
+            role = _role_for_duration(b.get("role") or suggest_role(b),
+                                      probe_duration(clip))
+            ff, sf = _ROLE_FLOOR.get(role, (0.4, 1.5))
+            verdict, raw, resid = zoom_still(clip)
+            if verdict == "zoom-still":
+                out.append({"beat": f"{sid}_b{i}", "role": role,
+                            "check": "zoom-still",
+                            "detail": f"Ken Burns push on a still (raw {raw:.1f} -> "
+                                      f"residual {resid:.1f})"})
+            fm, sd, _dead = motion_floor(clip)
+            if ff and fm < ff and sd < sf:
+                out.append({"beat": f"{sid}_b{i}", "role": role,
+                            "check": "under-role-floor",
+                            "detail": f"frame {fm:.2f} < {ff} and span {sd:.2f} < {sf}"
+                                      f" — reads static for a {role} shot"})
+    return out
+
+
 def _main():
     import argparse
     ap = argparse.ArgumentParser(description="Post-render machine QC")

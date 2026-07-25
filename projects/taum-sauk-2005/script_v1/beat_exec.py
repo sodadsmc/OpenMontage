@@ -19,20 +19,23 @@ from PIL import Image
 from lib.gemini_image import gemini_image
 from lib.frame_hygiene import find_border_box, video_border_hits, zoom_still
 from lib import visual_router as vr
+from lib import world_contract as wc
+from lib import channel_style as cs
 
 PROJ = Path("projects/taum-sauk-2005")
 B = PROJ / "assets" / "asset_bible"
 AI = PROJ / "assets" / "ai_segments"; AI.mkdir(parents=True, exist_ok=True)
 AUD = PROJ / "assets" / "audio_v6"
 WORK = AI / "_beats"; WORK.mkdir(exist_ok=True)
+WORLD = wc.load("taum-sauk-2005")   # physical invariants, injected into every prompt
 FPS = 30
 NORM = ("scale=1920:1080:force_original_aspect_ratio=decrease:flags=lanczos,"
         "pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#091327,fps=30,format=yuv420p")
-KFSTYLE = (" Graphic-novel illustration, bold black ink linework, halftone shading, "
-           "duotone deep navy and warm amber, high contrast, film grain, illustrated "
-           "NOT photorealistic. Full-bleed, image fills the entire frame edge to edge, "
-           "NO panel border, NO frame, NO caption, NO text.")
-MOT = " Graphic-novel ink illustration style held exactly; ONE continuous shot, no cuts."
+# Style lock comes from lib.channel_style (single source of truth). The old
+# hand-written clause here was weaker than the canonical one and let photoreal
+# keyframes through on 4 beats — never hand-roll a style string.
+KFSTYLE = cs.gen_clause(hold=False)
+MOT = cs.gen_clause(hold=True) + " ONE continuous shot, no cuts."
 DUR = {s["id"]: s for s in json.loads((PROJ / "artifacts" / "duration_map_v6.json").read_text(encoding="utf-8"))["segments"]}
 
 def run(a):
@@ -67,10 +70,16 @@ def spans(sid, anchors):
     s, e = out[-1]; out[-1] = (s, round(audio + sil, 2))
     return out
 
-def author_kf(prompt, sheets, out):
+def author_kf(prompt, sheets, out, sid=None):
     if Path(out).exists():  # approved still (stills-first gate) — never re-roll
         return True
     refs = [str(B / s) for s in sheets if (B / s).exists()][:2]
+    # WORLD CONTRACT: the project's physical invariants ride on every prompt
+    # automatically (water level, flow direction, lake shape, whole-figure
+    # humans...). ~14 of the taum rejections were these facts being forgotten
+    # batch after batch — see lib/world_contract.py.
+    if sid:
+        prompt = wc.apply(prompt, WORLD, sid, prompt)
     ok = gemini_image(prompt + KFSTYLE, str(out), image_paths=refs or None)
     if not ok: return False
     box = find_border_box(Image.open(out).convert("RGB"))
@@ -78,7 +87,9 @@ def author_kf(prompt, sheets, out):
         Image.open(out).convert("RGB").crop(box).save(out)
     return True
 
-def animate(kf, motion, span, out, seed):
+def animate(kf, motion, span, out, seed, sid=None):
+    if sid:
+        motion = wc.apply(motion, WORLD, sid, motion)
     clip = None
     for attempt in range(2):  # retry transient grok timeouts before falling back
         raw = str(out) + f".raw{attempt}.mp4"
@@ -187,9 +198,9 @@ def build_scene(plan, seed0):
             else:
                 parts.append(beat); flags.append(diss); print(f"  {sid} b{i} reuse [{s}-{e}] {span:.1f}s", flush=True); continue
         kf = WORK / f"{sid}_b{i}.png"
-        if not author_kf(b["keyframe_prompt"], b.get("sheets", []), kf):
+        if not author_kf(b["keyframe_prompt"], b.get("sheets", []), kf, sid=sid):
             print(f"  {sid} b{i}: KF FAIL"); continue
-        animate(kf, b["motion_prompt"], span, beat, seed0 + i)
+        animate(kf, b["motion_prompt"], span, beat, seed0 + i, sid=sid)
         parts.append(beat); flags.append(diss)
         print(f"  {sid} b{i} '{b['label']}' [{s}-{e}] {span:.1f}s{' [diss]' if diss else ''}", flush=True)
     if not parts: return

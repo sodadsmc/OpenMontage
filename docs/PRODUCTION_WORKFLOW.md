@@ -412,6 +412,69 @@ before EVERY operator review, and follow these craft rules when building/fixing 
   to the raw frame first (a 1080p box on a 1280x720 beat is an ffmpeg 'Invalid
   argument' at best, a mis-crop at worst).
 
+## 4b. FIRST-PASS CORRECTNESS (the $0 gates that replace review rounds)
+
+Codified from the taum-sauk-2005 post-mortem: **~50 operator rejections across five
+acts, and most were visible before a cent was spent.** Roughly 14 were the same
+handful of world facts being forgotten batch after batch, ~10 were a style clause
+weaker than the canonical one, ~12 were motion too subtle for the shot's job, and
+the rest were duplicates, ungrounded people, and crash artifacts. Three mechanisms
+now catch those classes without an operator watch-through.
+
+### 1. The WORLD CONTRACT — invariants, not reminders (`lib/world_contract.py`)
+A per-project `artifacts/world_contract.json` declares the physical/continuity
+facts of the story world ONCE. Every invariant carries `applies_when` tags, an
+optional story `phases` gate, a `prompt_clause`, `conflict_words`, and the `why`
+(which rejection bought it). The executor appends the applicable clauses to
+**every keyframe and motion prompt automatically** — the knowledge lives in the
+pipeline, not in a conversation.
+- **Tags are auto-derived from the beat's own prompt text**, so a contract works on
+  plans authored before it existed — no re-tagging.
+- **Phase-gating is what makes it safe:** "the reservoir is brim-full" must apply
+  pre-breach and *stop* applying during the breach, when the lake genuinely drains.
+  Phases accept non-contiguous ranges because documentaries open on the disaster
+  and then jump back in time.
+- A beat that must legitimately break an invariant declares `contract_exempt`
+  **plus `exempt_reason`** (the approved seg_006 hero shot starts the level low and
+  raises it). An undocumented exemption is a lint warning — that is how invariants rot.
+- Authoring a contract is a Stage-0 task, alongside the asset bible. Seed it from
+  the research brief; grow it every time the operator corrects a world fact.
+
+### 2. PRE-FLIGHT LINT — read the plan against the rules (`lib/beat_lint.py`)
+`python -m lib.beat_lint <project_id>` — $0, no models, exits non-zero on errors so
+it can gate a batch. Checks: shot **role** declared (`--fix-roles` infers and
+backfills them); world-contract **contradictions** (whole-word + negation-aware, so
+"unbroken wall" and "never back into the lake" are not false hits); near-duplicate
+**keyframe prompts** inside a scene (the "why is it the same picture four times"
+note); human subjects with no `subj_*` **character sheet** (how the disembodied-hands
+shots happened); footage-role beats whose motion prompt names **no motion verb**;
+legible-text content on an open-i2v lane (the Grok screen trap); and **environment
+overrides** left set (`IMAGE_HOST` etc. — a stale one caused a six-day fake outage).
+Run it after planning and after any plan edit. On the taum plans it went 86 errors →
+1, and that 1 was a live defect that had survived a full polish round.
+
+### 3. ROLE-AWARE MOTION GATE — "enough motion" depends on the job (`lib.render_qc.qc_beats`)
+Beats declare a `role`: `establishing | hero | action | insert | card | connective`.
+The motion floor is per-role, and a role the clip's own duration can't support is
+demoted (a 1.6s bridge is not a hero shot). This is the third leg with `zoom_still`
+(fake push motion) and `freeze_tail` (dead tail): it catches *insufficient real*
+motion. **Calibrate floors against BOTH rejects and accepted-but-subtle shots** —
+fitting to rejects alone produced four false alarms on approved shots. Current
+floors sit at 0 findings on the finished film with all known rejects still caught.
+
+### What is NOT machine-checkable (do not pretend otherwise)
+**Style conformance.** Measured on the four photoreal keyframes the operator
+rejected vs their accepted ink replacements: palette distance, flat-region
+fraction, edge density, dark-line mass and histogram posterization **all overlap**
+— one reject was *flatter* than its own replacement. Content differences swamp the
+style signal. So style is handled by **prevention, not detection**: one canonical
+`lib.channel_style.gen_clause()` (positive medium + inlined prohibitions + "hold
+this medium for the WHOLE shot"), used by every lane. Never hand-write a style
+string in a script — the weaker locally-invented clause is exactly how drift got
+in. Verify the **end** frame's medium, not just the start; Omni drifts mid-clip on
+wide natural scenes. Beyond that, style stays a human checkpoint: the $0 keyframe
+contact sheet, which already works.
+
 ## 5. PER-BEAT AUTHORING CHECKLIST (fill in before generation)
 
 For each segment, fill this in (in the scored-script comment or a planning note) before any paid call:

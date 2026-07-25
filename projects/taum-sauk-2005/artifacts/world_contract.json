@@ -1,0 +1,216 @@
+{
+ "project": "taum-sauk-2005",
+ "authored": "2026-07-22",
+ "provenance": "Reverse-engineered from ~50 operator rejections across acts 1-5. Every invariant below cost at least one paid regeneration and one review round before it was written down.",
+ "phases": {
+  "breach": [
+   [
+    1,
+    4
+   ],
+   [
+    18,
+    20
+   ]
+  ],
+  "pre-breach": [
+   [
+    5,
+    17
+   ]
+  ],
+  "aftermath": [
+   [
+    21,
+    23
+   ]
+  ],
+  "rebuilt": [
+   [
+    24,
+    27
+   ]
+  ]
+ },
+ "invariants": [
+  {
+   "id": "reservoir-flush-to-coping",
+   "priority": 10,
+   "applies_when": {
+    "tags_any": [
+     "reservoir",
+     "wall"
+    ]
+   },
+   "phases": [
+    "pre-breach"
+   ],
+   "prompt_clause": "the reservoir water sits FLUSH with the very top of the concrete parapet wall, brim-full \u2014 it does NOT sit low in the basin and the level does NOT drop",
+   "why": "8 rejections across acts 2-4; the operator finally drew a red line on a screenshot. The whole story is a reservoir that is always dangerously full.",
+   "conflict_words": [
+    "level drops",
+    "water drops",
+    "drains away",
+    "half empty",
+    "low in the basin",
+    "water is low",
+    "level falls",
+    "receding"
+   ]
+  },
+  {
+   "id": "water-moves-downhill",
+   "priority": 9,
+   "applies_when": {
+    "tags_any": [
+     "water",
+     "flow"
+    ]
+   },
+   "prompt_clause": "ALL water, spray, debris and rubble move strictly DOWNHILL and OUTWARD away from the reservoir \u2014 never uphill, never back into the lake",
+   "why": "4 rejections: water flowing up over the dam, rubble flowing into the lake, a breach venting inward.",
+   "conflict_words": [
+    "uphill",
+    "up and over",
+    "back into the lake",
+    "flows upward",
+    "rises up the outer",
+    "inward"
+   ]
+  },
+  {
+   "id": "wall-intact-before-breach",
+   "priority": 9,
+   "applies_when": {
+    "tags_any": [
+     "wall",
+     "reservoir"
+    ]
+   },
+   "phases": [
+    "pre-breach"
+   ],
+   "prompt_clause": "the dam wall is INTACT \u2014 no breach, no torn gap, no collapsed section, no flood downstream (the failure happens later in the film)",
+   "why": "act-1 note '00:43 this take has the dam break already'. Pre-breach beats must not spoil the failure.",
+   "conflict_words": [
+    "breach",
+    "broken wall",
+    "gap torn",
+    "collapsed section",
+    "panel seventy-two let go",
+    "dam break"
+   ]
+  },
+  {
+   "id": "human-subjects-are-whole-figures",
+   "priority": 8,
+   "applies_when": {
+    "tags_any": [
+     "person"
+    ]
+   },
+   "prompt_clause": "show the person as a WHOLE recognizable figure with visible face and body, doing the action \u2014 never a disembodied hand, floating limb or cropped fragment",
+   "why": "'there is just a hand sticking out from under a console' (seg_012) and a second mismatched-hands shot. Fragment shots read as errors, not style.",
+   "conflict_words": [
+    "a hand reaching",
+    "disembodied",
+    "just a hand",
+    "hand only",
+    "hands enter frame"
+   ]
+  },
+  {
+   "id": "reservoir-is-kidney-shaped",
+   "priority": 7,
+   "applies_when": {
+    "tags_all": [
+     "reservoir",
+     "aerial"
+    ]
+   },
+   "prompt_clause": "in plan the reservoir is KIDNEY-BEAN shaped with a pinched waist \u2014 never a circle or a clean oval",
+   "why": "seg_006_b1 came back a perfect round ring; every other aerial in the film is the kidney silhouette.",
+   "conflict_words": [
+    "circular reservoir",
+    "round ring",
+    "perfectly round",
+    "oval basin"
+   ]
+  },
+  {
+   "id": "original-has-no-spillway",
+   "priority": 6,
+   "applies_when": {
+    "tags_any": [
+     "reservoir",
+     "wall"
+    ]
+   },
+   "phases": [
+    "pre-breach",
+    "breach"
+   ],
+   "prompt_clause": "the ORIGINAL reservoir is a rockfill ring topped by a thin concrete parapet and has NO spillway and NO overflow drain \u2014 do not add one",
+   "why": "the narration's central fact ('no spillway, nowhere for the water to go'). A generated spillway contradicts the thesis.",
+   "conflict_words": [
+    "spillway",
+    "overflow drain",
+    "outlet channel"
+   ]
+  },
+  {
+   "id": "rebuilt-is-stepped-concrete",
+   "priority": 6,
+   "applies_when": {
+    "tags_any": [
+     "reservoir",
+     "wall"
+    ]
+   },
+   "phases": [
+    "rebuilt"
+   ],
+   "prompt_clause": "the REBUILT reservoir is smooth stepped mass concrete WITH an engineered spillway channel \u2014 not the old rockfill-and-parapet construction",
+   "why": "the rebuild must read as visibly different engineering from the thing that failed."
+  },
+  {
+   "id": "december-night-of-the-breach",
+   "priority": 5,
+   "applies_when": {
+    "tags_any": [
+     "reservoir",
+     "wall",
+     "structure",
+     "water"
+    ]
+   },
+   "phases": [
+    "breach"
+   ],
+   "prompt_clause": "it is about 5 a.m. in mid-December in the Missouri Ozarks \u2014 winter darkness or bare pre-dawn grey, leafless trees, no summer foliage",
+   "why": "a cold-open beat came back as a wrecked TOWN in the wrong season/setting; the disaster is one isolated house in a bare winter forest."
+  },
+  {
+   "id": "one-house-not-a-town",
+   "priority": 5,
+   "applies_when": {
+    "tags_any": [
+     "structure"
+    ]
+   },
+   "phases": [
+    "breach",
+    "aftermath"
+   ],
+   "prompt_clause": "the only building in the flood path is ONE small isolated wooden park-superintendent house in forest \u2014 never a town, street, or row of buildings",
+   "why": "'where did this clip come from? this is a town, it doesn't match'. No settlement was hit; that is why the story has no dead.",
+   "conflict_words": [
+    "town",
+    "village",
+    "street of houses",
+    "neighborhood",
+    "downtown"
+   ]
+  }
+ ]
+}

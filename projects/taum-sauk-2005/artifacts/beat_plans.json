@@ -9,7 +9,8 @@
     "motion_prompt": "thin chimney smoke curls upward from the house and light snow drifts steadily down through the dark bare trees; the lone window glows warm and steady",
     "sheets": [
      "loc_toops_house.png"
-    ]
+    ],
+    "role": "connective"
    },
    {
     "label": "House at foot of mountain",
@@ -19,7 +20,8 @@
     "sheets": [
      "loc_toops_house.png",
      "loc_ozark_mountains.png"
-    ]
+    ],
+    "role": "establishing"
    },
    {
     "label": "Jerry asleep",
@@ -28,7 +30,8 @@
     "motion_prompt": "the sleeping bearded man breathes slowly and shifts once under the blanket; faint light plays across his face",
     "sheets": [
      "subj_jerry_toops.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Lisa and baby",
@@ -38,7 +41,8 @@
     "sheets": [
      "subj_lisa_toops.png",
      "subj_toops_baby.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Quiet night",
@@ -47,7 +51,8 @@
     "motion_prompt": "snow falls steadily over the quiet dark house, the single window light small and unwavering; utterly still and calm",
     "sheets": [
      "loc_toops_house.png"
-    ]
+    ],
+    "role": "establishing"
    }
   ]
  },
@@ -62,7 +67,8 @@
     "sheets": [
      "loc_proffit_mountain.png",
      "loc_toops_house.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Reveal reservoir",
@@ -71,7 +77,8 @@
     "motion_prompt": "a slow, steady aerial descent toward the still reservoir; the rim and the black water shape hold perfectly stable and rigid, only gentle surface shimmer and a subtle downward drift; NO warping, NO morphing, NO shape change",
     "sheets": [
      "loc_upper_reservoir.png"
-    ]
+    ],
+    "role": "establishing"
    },
    {
     "label": "Ring of rock",
@@ -81,7 +88,8 @@
     "sheets": [
      "loc_parapet_wall.png",
      "loc_upper_reservoir.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Pumping in",
@@ -91,7 +99,8 @@
     "sheets": [
      "loc_upper_reservoir.png"
     ],
-    "label_overlay": "SAINT LOUIS CONTROL  \u2014  90 MILES AWAY"
+    "label_overlay": "SAINT LOUIS CONTROL  \u2014  90 MILES AWAY",
+    "role": "establishing"
    }
   ]
  },
@@ -106,7 +115,8 @@
     "sheets": [
      "loc_valley_scour.png",
      "loc_reservoir_breached.png"
-    ]
+    ],
+    "role": "establishing"
    },
    {
     "label": "Empty control room",
@@ -115,7 +125,8 @@
     "motion_prompt": "a slow dolly through the empty dim control room; the operator chair sits still and one status light blinks quietly in the dark",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "The computer",
@@ -124,7 +135,8 @@
     "motion_prompt": "the amber CRT flickers and a row of indicator lights on the rack pulses steadily in the dark; the screen a warm glow with no legible text",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Everyone knew",
@@ -133,7 +145,8 @@
     "motion_prompt": "the light slowly fails over the empty scoured channel and a few flakes of snow drift down; a cold, still settle toward darkness",
     "sheets": [
      "loc_valley_scour.png"
-    ]
+    ],
+    "role": "establishing"
    }
   ]
  },
@@ -149,7 +162,8 @@
     "sheets": [
      "loc_upper_reservoir.png",
      "loc_proffit_mountain.png"
-    ]
+    ],
+    "role": "establishing"
    },
    {
     "label": "Concrete wall",
@@ -158,7 +172,8 @@
     "motion_prompt": "a steady low tracking shot glides along the top of the concrete parapet wall, water on one side and the slope dropping away on the other; the wall and water geometry hold rigid, NO warping or morphing",
     "sheets": [
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Mass of water",
@@ -168,7 +183,8 @@
     "sheets": [
      "loc_upper_reservoir.png",
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "establishing"
    },
    {
     "label": "No spillway",
@@ -178,7 +194,8 @@
     "sheets": [
      "loc_parapet_wall.png",
      "loc_upper_reservoir.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Over and through",
@@ -189,7 +206,12 @@
     "motion_prompt": "the calm water level slowly RISES up the face of the concrete wall until it reaches the very top edge, then a thin sheet of water begins to SPILL over the crest and run down the outer face; gradual and steady, the concrete wall stays perfectly rigid, no warping, no morphing, no breach",
     "sheets": [
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "action",
+    "contract_exempt": [
+     "reservoir-flush-to-coping"
+    ],
+    "exempt_reason": "approved hero shot: the level deliberately STARTS below the coping and RISES to spill over \u2014 the one beat where the red-line rule must not apply (operator-approved 2026-07-13)"
    }
   ]
  },
@@ -204,7 +226,8 @@
     "sheets": [
      "loc_upper_reservoir.png",
      "loc_proffit_mountain.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Remote from St Louis",
@@ -213,7 +236,8 @@
     "motion_prompt": "the CRT and status map flicker quietly in the empty dim control room; the chair sits still",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Sensors underwater",
@@ -223,7 +247,8 @@
     "sheets": [
      "loc_sensor_pipes.png",
      "loc_sensor_conduit.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Pipes replaced 2004",
@@ -233,7 +258,8 @@
     "sheets": [
      "loc_sensor_pipes.png"
     ],
-    "dissolve_in": true
+    "dissolve_in": true,
+    "role": "insert"
    },
    {
     "label": "Never anchored",
@@ -243,7 +269,8 @@
     "sheets": [
      "loc_sensor_pipes.png"
     ],
-    "dissolve_in": true
+    "dissolve_in": true,
+    "role": "insert"
    }
   ]
  },
@@ -259,7 +286,8 @@
      "loc_parapet_wall.png"
     ],
     "lane": "det-sag",
-    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling"
+    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling",
+    "role": "connective"
    },
    {
     "label": "Dropped a foot",
@@ -270,7 +298,8 @@
      "loc_parapet_wall.png"
     ],
     "lane": "det-sag",
-    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling"
+    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling",
+    "role": "connective"
    },
    {
     "label": "Bolted gauge",
@@ -279,7 +308,8 @@
     "motion_prompt": "the water surface beside the painted staff gauge LAPS and ripples against the concrete, small waves rising and falling against the gauge markings, light reflections dancing on the wall; the gauge and wall stay rigid, no morphing",
     "sheets": [
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Both sink together",
@@ -290,7 +320,8 @@
      "loc_parapet_wall.png"
     ],
     "lane": "det-sag",
-    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling"
+    "note": "deterministic sag warp + crack reveal + grit (scratchpad s9_sag_build.py); grok cannot act structural settling",
+    "role": "insert"
    }
   ]
  },
@@ -305,7 +336,8 @@
     "sheets": [
      "loc_upper_reservoir.png",
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Eighty days before",
@@ -315,7 +347,8 @@
     "sheets": [
      "loc_upper_reservoir.png",
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Overflow northwest",
@@ -326,7 +359,8 @@
      "loc_upper_reservoir.png"
     ],
     "lane": "flf-northwest-overflow",
-    "note": "operator 2026-07-14 round 3: crew-shot base without the crew (gemini removal), end frame = deterministic water-only splice from the approved Niagara still (far NW stretch only, near walkway dry), Kling FLF dry->flowing; keyframes s10_b3_A_empty(_169).png / s10_b3_B_flow(_169).png"
+    "note": "operator 2026-07-14 round 3: crew-shot base without the crew (gemini removal), end frame = deterministic water-only splice from the approved Niagara still (far NW stretch only, near walkway dry), Kling FLF dry->flowing; keyframes s10_b3_A_empty(_169).png / s10_b3_B_flow(_169).png",
+    "role": "establishing"
    },
    {
     "label": "Saved by hand",
@@ -338,7 +372,8 @@
     ],
     "lane": "grok-crew-walk",
     "dissolve_in": true,
-    "note": "operator: fade from the overflow shot to the crew walking the dam after; keyframe = approved b5 workers still (red-line-warped)"
+    "note": "operator: fade from the overflow shot to the crew walking the dam after; keyframe = approved b5 workers still (red-line-warped)",
+    "role": "action"
    }
   ]
  },
@@ -352,7 +387,8 @@
     "motion_prompt": "the displaced PVC sensor pipe lies shifted off its mark on the floor, cable slack, silt drifting slowly past it",
     "sheets": [
      "loc_sensor_pipes.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Readings disagreed",
@@ -361,7 +397,8 @@
     "motion_prompt": "the amber CRT reading glows and a cursor blinks steadily, calm and certain, while everything about it feels quietly wrong",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Fixed in software",
@@ -370,7 +407,8 @@
     "motion_prompt": "a hand reaches into the amber lamplight toward the keyboard at the glowing CRT console; the screen a warm glow with no legible text",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Typed a correction",
@@ -379,7 +417,8 @@
     "motion_prompt": "the hand types on the keyboard, keys pressing one after another, the amber CRT glow flickering with each stroke; no legible text",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Just adjust it",
@@ -388,7 +427,8 @@
     "motion_prompt": "the hand rests on the keyboard after the correction, fingers lifting slightly as the amber console glows on; the fix quietly accepted",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Adjust the number",
@@ -397,7 +437,8 @@
     "motion_prompt": "the hand presses a final key and withdraws from frame, leaving the glowing console alone as one indicator light settles steady",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    }
   ]
  },
@@ -412,7 +453,8 @@
     "sheets": [
      "subj_jerry_toops.png",
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Wet spots",
@@ -422,7 +464,8 @@
     "sheets": [
      "subj_jerry_toops.png",
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Explainable",
@@ -432,7 +475,8 @@
     "sheets": [
      "subj_jerry_toops.png",
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Pumps on schedule",
@@ -441,7 +485,8 @@
     "motion_prompt": "on the outer wall the dark wet patch slowly darkens and spreads a little as water seeps through the concrete, unseen",
     "sheets": [
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "insert"
    }
   ]
  },
@@ -455,7 +500,8 @@
     "motion_prompt": "in the dark control room a row of indicator lights glows and one blinks off, the CRT glowing steady behind it",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Room to spare",
@@ -464,7 +510,8 @@
     "motion_prompt": "a glowing gauge on the dark panel sits reassuringly mid-scale, a light pulsing calmly; the false comfort of six feet to spare",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Still filling",
@@ -473,7 +520,8 @@
     "motion_prompt": "heavy water still surges into the black reservoir in the dark, the surface rising toward the wall top",
     "sheets": [
      "loc_upper_reservoir.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Water at the brim",
@@ -482,7 +530,8 @@
     "motion_prompt": "black water trembles right at the top edge of the concrete wall in the dark, quivering and swelling, about to spill over; the lake stays FULL to the very top of the wall the whole time, it does NOT drop and does NOT spill yet; all motion is gentle lapping at the lip; locked camera, wall rigid, no morphing",
     "sheets": [
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "First thread over",
@@ -493,7 +542,8 @@
      "loc_parapet_wall.png"
     ],
     "lane": "grok-pinned-water",
-    "note": "where-contract pinned IN the keyframe (approved master: thread over the LOW panel only); grok only animates the existing thread downward; B2 fallback on 2 strikes"
+    "note": "where-contract pinned IN the keyframe (approved master: thread over the LOW panel only); grok only animates the existing thread downward; B2 fallback on 2 strikes",
+    "role": "hero"
    }
   ]
  },
@@ -507,7 +557,8 @@
     "motion_prompt": "a widening sheet of black water pours over the wall and saws into the loose rockfill below, rocks tumbling loose as a channel begins to cut; all water flows strictly DOWNWARD over the wall and down the slope, never upward or back into the lake; the lake stays flush with the top of the wall; locked camera, wall rigid",
     "sheets": [
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "establishing"
    },
    {
     "label": "Carving deeper",
@@ -517,7 +568,8 @@
     "sheets": [
      "loc_parapet_wall.png",
      "loc_proffit_mountain.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Last pump stopped",
@@ -526,7 +578,8 @@
     "motion_prompt": "an operator's hand holds a phone receiver and reaches to a control; a pump indicator light finally goes dark",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "At that same minute",
@@ -535,7 +588,8 @@
     "motion_prompt": "the black water saws violently into the deep notch it has cut and the undermined wall trembles on the edge of collapse",
     "sheets": [
      "loc_parapet_wall.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Panel 72 lets go",
@@ -547,7 +601,8 @@
      "loc_reservoir_breached.png"
     ],
     "lane": "grok-verb",
-    "note": "panel collapse = acting verb; watch object permanence; B2 composite fallback on 2 strikes"
+    "note": "panel collapse = acting verb; watch object permanence; B2 composite fallback on 2 strikes",
+    "role": "hero"
    }
   ]
  },
@@ -561,7 +616,8 @@
     "motion_prompt": "the breach in the rim rips violently wider, concrete and rockfill torn away as black water blasts through the growing gap",
     "sheets": [
      "loc_reservoir_breached.png"
-    ]
+    ],
+    "role": "establishing"
    },
    {
     "label": "Lake leaves mountain",
@@ -573,7 +629,8 @@
      "loc_upper_reservoir.png"
     ],
     "lane": "grok-verb",
-    "note": "level visibly dropping through the breach; if grok holds the level static or reverses, B2 (deterministic drained endpoint) on 2 strikes"
+    "note": "level visibly dropping through the breach; if grok holds the level static or reverses, B2 (deterministic drained endpoint) on 2 strikes",
+    "role": "hero"
    },
    {
     "label": "Down the mountain",
@@ -583,7 +640,8 @@
     "sheets": [
      "loc_valley_scour.png",
      "loc_proffit_mountain.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "At the house",
@@ -593,7 +651,8 @@
     "sheets": [
      "loc_toops_house.png",
      "loc_valley_scour.png"
-    ]
+    ],
+    "role": "hero"
    }
   ]
  },
@@ -607,7 +666,8 @@
     "motion_prompt": "the black wave slams into the small house and it bursts apart, walls buckling and spray exploding upward in the dark",
     "sheets": [
      "loc_toops_house.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Lisa holds baby",
@@ -617,7 +677,8 @@
     "sheets": [
      "subj_lisa_toops.png",
      "subj_toops_baby.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Bedroom fills",
@@ -626,7 +687,8 @@
     "motion_prompt": "black water floods the child's small bedroom, rising fast over the bed and toys within seconds in the dark; the water level RISES steadily, it never falls; locked camera, walls rigid, no morphing",
     "sheets": [
      "loc_toops_house.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Swept away",
@@ -635,7 +697,8 @@
     "motion_prompt": "black water races through the bare winter trees carrying broken timbers and small helpless figures away into the darkness; turbulent",
     "sheets": [
      "loc_valley_scour.png"
-    ]
+    ],
+    "role": "action"
    }
   ]
  },
@@ -649,7 +712,8 @@
     "motion_prompt": "at grey first light rescuers wade slowly through the shallow debris-strewn floodwater, searching, their breath fogging in the cold",
     "sheets": [
      "loc_valley_scour.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Alive in cold",
@@ -659,7 +723,8 @@
     "sheets": [
      "loc_valley_scour.png",
      "subj_tanner_toops.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Carrying Tanner",
@@ -669,7 +734,8 @@
     "sheets": [
      "subj_tanner_toops.png",
      "loc_valley_scour.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Warming him",
@@ -678,7 +744,8 @@
     "motion_prompt": "hands wrap more blankets around the small still child and rub warmth into his arms; tense, careful, hopeful",
     "sheets": [
      "subj_tanner_toops.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Baby survives",
@@ -687,7 +754,8 @@
     "motion_prompt": "the tightly wrapped baby is held close and stirs with a small movement; alive against all odds",
     "sheets": [
      "subj_toops_baby.png"
-    ]
+    ],
+    "role": "action"
    }
   ]
  },
@@ -703,7 +771,8 @@
      "loc_control_room.png"
     ],
     "lane": "doc-card-candidate",
-    "note": "printed call list = screen-trap analog; if the gen's text is garbled, swap b1+b2 for a hand-inked call-list card (seg_011/013 precedent) BEFORE operator review"
+    "note": "printed call list = screen-trap analog; if the gen's text is garbled, swap b1+b2 for a hand-inked call-list card (seg_011/013 precedent) BEFORE operator review",
+    "role": "card"
    },
    {
     "label": "Jerry on the list",
@@ -714,7 +783,8 @@
      "loc_control_room.png"
     ],
     "lane": "doc-card-candidate",
-    "note": "see b1; the name TOOPS must be legibly real, not gibberish"
+    "note": "see b1; the name TOOPS must be legibly real, not gibberish",
+    "role": "card"
    },
    {
     "label": "Dialing",
@@ -723,7 +793,8 @@
     "motion_prompt": "a hand lifts the desk phone receiver and dials, pressing the buttons one by one in the lamplight",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Rang and rang",
@@ -732,7 +803,8 @@
     "motion_prompt": "the receiver waits at an ear in the lamplight, ringing and ringing unanswered; a slow, sinking dawning",
     "sheets": [
      "loc_control_room.png"
-    ]
+    ],
+    "role": "connective"
    },
    {
     "label": "No house",
@@ -742,7 +814,8 @@
     "sheets": [
      "loc_toops_house.png",
      "loc_valley_scour.png"
-    ]
+    ],
+    "role": "hero"
    }
   ]
  },
@@ -756,7 +829,8 @@
     "motion_prompt": "construction cranes swing and workers move over the half-built stepped-concrete rim in bright daylight; heavy rebuilding underway",
     "sheets": [
      "loc_rebuilt_dam.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "Paid the state",
@@ -765,7 +839,8 @@
     "motion_prompt": "cranes lift concrete forms into place and trucks move across the busy rebuild site over the reservoir rim in bright daylight",
     "sheets": [
      "loc_rebuilt_dam.png"
-    ]
+    ],
+    "role": "connective"
    },
    {
     "label": "Solid concrete",
@@ -775,7 +850,8 @@
     "sheets": [
      "loc_rebuilt_dam.png",
      "loc_upper_reservoir.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Instruments cross-check",
@@ -784,7 +860,8 @@
     "motion_prompt": "modern instrument masts stand along the new rim, small indicator lights blinking steadily; redundant sensors watching each other",
     "sheets": [
      "loc_rebuilt_dam.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Somewhere to go",
@@ -795,7 +872,8 @@
      "loc_rebuilt_dam.png"
     ],
     "lane": "grok-pinned-water",
-    "note": "controlled spillway sheet flows strictly DOWNWARD; pin direction in motion prompt; B2 fallback on 2 strikes"
+    "note": "controlled spillway sheet flows strictly DOWNWARD; pin direction in motion prompt; B2 fallback on 2 strikes",
+    "role": "hero"
    }
   ]
  },
@@ -809,7 +887,8 @@
     "motion_prompt": "bright summer water tumbles steadily DOWNSTREAM through the granite channels of the gorge, foliage shimmering in a light breeze, warm sun; gentle ambient life, locked camera, no morphing",
     "sheets": [
      "loc_shutins.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Swimmers again",
@@ -818,7 +897,8 @@
     "motion_prompt": "the small distant swimmers wade and splash in the bright water, one pushes off a rock and drifts, sun sparkling on the surface; playful gentle motion, locked camera, no morphing",
     "sheets": [
      "loc_shutins.png"
-    ]
+    ],
+    "role": "action"
    },
    {
     "label": "No dead",
@@ -827,7 +907,8 @@
     "motion_prompt": "very calm: slow light drift across the healed green valley, the water glinting softly, a bird crosses far off; serene and still-ish, elegiac, locked camera, no morphing",
     "sheets": [
      "loc_shutins.png"
-    ]
+    ],
+    "role": "establishing"
    },
    {
     "label": "Permission to happen",
@@ -837,7 +918,8 @@
     "sheets": [
      "loc_shutins.png"
     ],
-    "note": "re-rolled from the b1-twin wide to a detail close-up (operator: too many same pictures 00:58-1:19)"
+    "note": "re-rolled from the b1-twin wide to a detail close-up (operator: too many same pictures 00:58-1:19)",
+    "role": "insert"
    }
   ]
  },
@@ -851,7 +933,8 @@
     "motion_prompt": "the camera glides slowly out over the still black water of the large modern reservoir at twilight, its engineered rim curving away",
     "sheets": [
      "loc_rebuilt_dam.png"
-    ]
+    ],
+    "role": "hero"
    },
    {
     "label": "Watched by sensors",
@@ -860,7 +943,8 @@
     "motion_prompt": "instrument masts stand over the still black reservoir at night, their indicator lights blinking steadily in the dark",
     "sheets": [
      "loc_rebuilt_dam.png"
-    ]
+    ],
+    "role": "insert"
    },
    {
     "label": "Design decision",
@@ -871,7 +955,8 @@
      "loc_rebuilt_dam.png"
     ],
     "lane": "det-blink",
-    "note": "single red light blinking = precise counted state; deterministic blink build at animation time, NOT grok"
+    "note": "single red light blinking = precise counted state; deterministic blink build at animation time, NOT grok",
+    "role": "insert"
    },
    {
     "label": "Believes a number",
@@ -882,7 +967,8 @@
      "loc_rebuilt_dam.png"
     ],
     "lane": "det-blink",
-    "note": "closer: lone red light over black water; deterministic blink + faint water shimmer; the quiet final beat"
+    "note": "closer: lone red light over black water; deterministic blink + faint water shimmer; the quiet final beat",
+    "role": "establishing"
    }
   ]
  }

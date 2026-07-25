@@ -50,6 +50,42 @@ def apply_to_prompt(prompt: str, name: str | None = None) -> str:
     return f"{base}. {suffix}" if base else suffix
 
 
+# The prohibitions that actually stopped photoreal drift on taum-sauk. Gemini and
+# Omni have NO separate negative-prompt channel, so `negative()` was silently
+# unused for years and every ad-hoc script hand-rolled a weaker inline clause —
+# the direct cause of ~10 "this doesn't match the animation style / looks too
+# real" rejections. This wording (front-loaded FLAT 2D + explicit NOTs, restated
+# as a hard hold) is what landed the fixes; keep it verbatim.
+_HARD_MEDIUM = ("FLAT 2D hand-drawn illustration — a hand-inked comic panel, "
+                "bold black ink outlines, halftone dot shading")
+_HARD_DENY = ("NOT photorealistic, NOT a 3D render, NO photographic texture or "
+              "realistic lighting, NO live-action look")
+_FRAME_HYGIENE = ("Full-bleed: the image fills the entire frame edge to edge, "
+                  "NO panel border, NO frame, NO caption, NO text")
+
+
+def gen_clause(name: str | None = None, hold: bool = True) -> str:
+    """The FULL prompt-side style lock for generators with no negative channel.
+
+    Positive medium + palette (from the style file) + inlined prohibitions +
+    frame hygiene. Use this instead of hand-writing a style string; a weaker,
+    locally-invented clause is how style drift gets in.
+
+    `hold=True` adds the "for the WHOLE shot" restatement that video generators
+    need — Omni in particular drifts toward photorealism mid-clip on wide
+    natural scenes, so the end frame must be constrained, not just the first.
+    """
+    parts = [_HARD_MEDIUM]
+    suffix = prompt_suffix(name)
+    if suffix:
+        parts.append(suffix)
+    parts.append(_HARD_DENY)
+    if hold:
+        parts.append("hold this exact medium for the WHOLE shot, start to finish")
+    parts.append(_FRAME_HYGIENE)
+    return " " + ". ".join(parts) + "."
+
+
 def _hex(h: str) -> tuple[float, float, float]:
     h = (h or "").lstrip("#")
     if len(h) != 6:
